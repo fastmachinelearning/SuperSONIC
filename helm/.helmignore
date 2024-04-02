@@ -1,0 +1,10 @@
+# Various IDEs
+.idea/
+*.swp
+*.backup
+
+# Log files
+*.log
+
+# Helm packaging
+*.tgz
