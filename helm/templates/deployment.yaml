@@ -1,0 +1,70 @@
+{{- range .Values.servers }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+spec:
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+      - name: triton-server
+        image: "{{ .image.repository }}:{{ .image.tag }}"
+        resources:
+          {{ toYaml .resources | nindent 10 }}
+        ports:
+        {{- range $.Values.common.service.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+          protocol: {{ .protocol }}
+        {{- end }}
+        volumeMounts:
+          - name: model-repository
+            mountPath: {{ .modelRepository.mountPath }}
+        command: {{ toYaml .command | nindent 10 }}
+        args:  {{ toYaml .args | nindent 10 }}
+{{- if eq .modelRepository.storageType "nfs" }}
+      volumes:
+      - name: model-repository
+        nfs:
+          server: {{ .modelRepository.nfs.server }}
+          path: {{ .modelRepository.nfs.path }}
+{{- else if eq .modelRepository.storageType "pvc" }}
+      volumes:
+      - name: model-repository
+        persistentVolumeClaim:
+          claimName: {{ .modelRepository.pvc.claimName }}
+{{- else if eq .modelRepository.storageType "s3" }}
+    #   initContainers:
+    #   - name: s3-sync
+    #     image: appropriate/curl # Placeholder image
+    #     command: ['sh', '-c', 'echo Syncing data from S3;']
+    #     volumeMounts:
+    #     - name: model-repository
+    #       mountPath: "/s3-data"
+      volumes:
+      - name: model-repository
+        emptyDir: {}
+{{- end }}
+
+{{- if $.Values.common.nodeSelector }}
+      nodeSelector:
+{{ toYaml $.Values.common.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if $.Values.common.tolerations }}
+      tolerations:
+{{ toYaml $.Values.common.tolerations | nindent 8 }}
+{{- end }}
+{{- if $.Values.common.affinity }}
+      affinity:
+{{ toYaml $.Values.common.affinity | nindent 8 }}
+{{- end }}
+      restartPolicy: Always
+---
+{{- end }}

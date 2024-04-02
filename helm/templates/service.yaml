@@ -1,0 +1,17 @@
+{{- range .Values.servers }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+spec:
+  type: {{ $.Values.common.service.type }}
+  ports:
+  {{- range $.Values.common.service.ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort }}
+    protocol: {{ .protocol }}
+  {{- end }}
+  selector:
+    app: {{ .name }}
+{{- end }}

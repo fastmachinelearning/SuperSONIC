@@ -1,0 +1,80 @@
+
+servers:
+
+  - name: triton-2102-run2-test
+    image: 
+      repository: fastml/triton-torchgeo
+      tag: 21.02-py3-geometric
+      pullPolicy: IfNotPresent
+    replicas: 1
+    command: ["/bin/sh", "-c"]
+    args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+      requests:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+    modelRepository:
+      storageType: nfs # Options: "pvc", "nfs", "s3"
+      mountPath: /depot/cms
+      nfs:
+        server: datadepot.rcac.purdue.edu
+        path: /depot/cms/
+
+  - name: triton-2207-run3-test
+    image: 
+      repository: fastml/triton-torchgeo
+      tag: 22.07-py3-geometric
+      pullPolicy: IfNotPresent
+    replicas: 1
+    command: ["/bin/sh", "-c"]
+    args: ["cd /depot/cms/sonic/yao317/models/sonic-models/models_2023 &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/yao317/models/sonic-models/models_2023 --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+      requests:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+    modelRepository:
+      storageType: nfs # Options: "pvc", "nfs", "s3"
+      mountPath: /depot/cms
+      nfs:
+        server: datadepot.rcac.purdue.edu
+        path: /depot/cms/
+
+common:
+
+  # service configuration is currently same for all setups
+  service:
+    type: LoadBalancer
+    ports:
+      - protocol: TCP
+        port: 8000
+        name: http
+        targetPort: 8000
+      - protocol: TCP
+        port: 8001
+        name: grpc
+        targetPort: 8001
+      - protocol: TCP
+        port: 8002
+        name: metrics
+        targetPort: 8002
+
+  nodeSelector: {'cms-af-prod': 'true'}
+
+  tolerations:
+
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
+
+  affinity: {}
