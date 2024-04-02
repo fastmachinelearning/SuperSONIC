@@ -1,7 +1,7 @@
 
 servers:
 
-  - name: triton-2102-run2-test
+  - name: triton-run2
     image: 
       repository: fastml/triton-torchgeo
       tag: 21.02-py3-geometric
@@ -25,7 +25,7 @@ servers:
         server: datadepot.rcac.purdue.edu
         path: /depot/cms/
 
-  - name: triton-2207-run3-test
+  - name: triton-run3
     image: 
       repository: fastml/triton-torchgeo
       tag: 22.07-py3-geometric
