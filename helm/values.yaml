@@ -54,6 +54,10 @@ common:
   # service configuration is currently same for all setups
   service:
     type: LoadBalancer
+    labels:
+      scrape_metrics: "true"
+    annotations:
+      metallb.universe.tf/address-pool: geddes-private-pool
     ports:
       - protocol: TCP
         port: 8000
