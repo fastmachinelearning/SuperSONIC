@@ -1,0 +1,113 @@
+static_resources:
+  listeners:
+  - name: listener_grpc
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 8001
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_grpc
+          codec_type: AUTO
+          route_config:
+            name: local_route_grpc
+            virtual_hosts:
+            - name: backend_grpc
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: triton_grpc_service
+          http_filters:
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              inline_code: |
+                function envoy_on_request(request_handle)
+                    local headers, body = request_handle:httpCall(
+                      "prometheus_cluster",
+                      {
+                        [":method"] = "GET",
+                        [":path"] = "/api/v1/query?query=max(nv_inference_queue_duration_us)",
+                        [":authority"] = "prometheus_cluster"
+                      },
+                      "",
+                      5000
+                    )
+
+                    request_handle:logInfo("Received JSON body: " .. body)
+
+                    -- Simple JSON decoder function
+                    local function decode_json(str)
+                        local json = nil
+                        if pcall(function() json = load("return " .. str)() end) then
+                            return json
+                        else
+                            return nil, "Failed to decode JSON"
+                        end
+                    end
+
+                    local json, err = decode_json(body)
+                    if not json then
+                        request_handle:logErr("JSON decoding error: " .. err)
+                        return
+                    end
+
+                    -- Attempt to extract the metric value
+                    local result = json.data.result
+                    if #result > 0 then
+                        local value = result[1].value
+                        local metric_value = tonumber(value[2]) -- Assuming the metric value is the second element in the "value" array
+
+                        request_handle:logInfo("Prometheus metric value read: " .. tostring(metric_value))
+
+                        if metric_value > 400 then
+                            request_handle:logInfo("Metric value exceeded threshold. Modifying response.")
+                            request_handle:respond(
+                                {[":status"] = "503"},
+                                '[{"error": "Service temporarily unavailable due to high load"}]'
+                            )
+                        else
+                            request_handle:logInfo("Metric value below threshold. Proceeding with normal routing.")
+                        end
+                    else
+                        request_handle:logErr("No results found in JSON.")
+                    end
+                end
+
+          - name: envoy.filters.http.router
+          http2_protocol_options: {}
+
+  clusters:
+  - name: prometheus_cluster
+    connect_timeout: 0.25s
+    type: LOGICAL_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: prometheus_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: prometheus-service.cms.geddes.rcac.purdue.edu
+                port_value: 8080
+  - name: triton_grpc_service
+    connect_timeout: 0.25s
+    type: LOGICAL_DNS
+    lb_policy: ROUND_ROBIN
+    http2_protocol_options: {}
+    load_assignment:
+      cluster_name: triton_grpc_service
+      endpoints:
+        - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: triton-run2  # Assuming this is your service address
+                    port_value: 8001
+

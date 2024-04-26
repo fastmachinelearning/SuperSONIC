@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy-proxy
+  template:
+    metadata:
+      labels:
+        app: envoy-proxy
+    spec:
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy:v1.18-latest
+        args:
+          - "--config-path"
+          - "/etc/envoy/envoy.yaml"
+          - "--log-level"
+          - "debug"
+          - "--log-path"
+          - "/dev/stdout"
+        ports:
+        # - containerPort: 8000
+        - containerPort: 8001
+        # - containerPort: 8002
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+        resources:
+          requests:
+            cpu: "500m"  
+            memory: "256Mi"  
+          limits:
+            cpu: "1"
+            memory: "512Mi"  
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    app: envoy-proxy
+  ports:
+    # - name: http
+    #   port: 8000
+    #   targetPort: 8000
+    - name: grpc
+      port: 8001
+      targetPort: 8001
+    # - name: metrics
+    #   port: 8002
+    #   targetPort: 8002
