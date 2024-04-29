@@ -28,56 +28,56 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
               inline_code: |
                 function envoy_on_request(request_handle)
-                    local headers, body = request_handle:httpCall(
-                      "prometheus_cluster",
-                      {
-                        [":method"] = "GET",
-                        [":path"] = "/api/v1/query?query=max(nv_inference_queue_duration_us)",
-                        [":authority"] = "prometheus_cluster"
-                      },
-                      "",
-                      5000
-                    )
+                    local path = request_handle:headers():get(":path")
+                    local contentType = request_handle:headers():get("content-type")
 
-                    request_handle:logInfo("Received JSON body: " .. body)
+                    -- Check if the request is the specific gRPC type we're interested in
+                    if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then
+                        local prometheus_query = 'max(avg by (model) (irate(nv_inference_queue_duration_us{pod=~\'triton-.*\'}[4m:2m])/(1000 * (1 + irate(nv_inference_request_success{pod=~\'triton-.*\'}[4m:2m])))))'
+                        local encoded_query = encode_query(prometheus_query)
+                        local metric_threshold = 400
 
-                    -- Simple JSON decoder function
-                    local function decode_json(str)
-                        local json = nil
-                        if pcall(function() json = load("return " .. str)() end) then
-                            return json
-                        else
-                            return nil, "Failed to decode JSON"
+                        local headers, body = request_handle:httpCall(
+                            "prometheus_cluster",
+                            {
+                                [":method"] = "GET",
+                                [":path"] = "/api/v1/query?query=" .. encoded_query,
+                                [":authority"] = "prometheus-service.cms.geddes.rcac.purdue.edu"
+                            },
+                            "",
+                            5000
+                        )
+
+                        if not body or body == "" then
+                            request_handle:logErr("Prometheus could not be reached or returned no data.")
+                            return
                         end
-                    end
 
-                    local json, err = decode_json(body)
-                    if not json then
-                        request_handle:logErr("JSON decoding error: " .. err)
-                        return
-                    end
-
-                    -- Attempt to extract the metric value
-                    local result = json.data.result
-                    if #result > 0 then
-                        local value = result[1].value
-                        local metric_value = tonumber(value[2]) -- Assuming the metric value is the second element in the "value" array
-
-                        request_handle:logInfo("Prometheus metric value read: " .. tostring(metric_value))
-
-                        if metric_value > 400 then
-                            request_handle:logInfo("Metric value exceeded threshold. Modifying response.")
-                            request_handle:respond(
-                                {[":status"] = "503"},
-                                '[{"error": "Service temporarily unavailable due to high load"}]'
-                            )
+                        -- Pattern matching to extract metric value from the JSON string
+                        local metric_value_str = string.match(body, '"value":%[%d+%.%d+,"([%d%.]+)"%]')
+                        if metric_value_str then
+                            local metric_value = tonumber(metric_value_str)
+                            if metric_value > metric_threshold then
+                                request_handle:logInfo("Metric value " .. tostring(metric_value) .. " exceeds threshold " .. tostring(metric_threshold) .. ". Modifying response.")
+                                request_handle:respond(
+                                    {[":status"] = "200"},
+                                    '[]'  -- This represents an empty list in JSON
+                                )
+                            else
+                                request_handle:logInfo("Metric value " .. tostring(metric_value) .. " is below the threshold " .. tostring(metric_threshold) .. ". Proceeding with normal routing.")
+                            end
                         else
-                            request_handle:logInfo("Metric value below threshold. Proceeding with normal routing.")
+                            request_handle:logErr("Failed to parse metric value from Prometheus response.")
                         end
-                    else
-                        request_handle:logErr("No results found in JSON.")
                     end
                 end
+
+                function encode_query(query)
+                    return query:gsub("([^%w _%%%-%.~])", function(c)
+                        return string.format("%%%02X", string.byte(c))
+                    end):gsub(" ", "+")
+                end
+
 
           - name: envoy.filters.http.router
           http2_protocol_options: {}

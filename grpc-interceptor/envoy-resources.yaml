@@ -19,7 +19,7 @@ spec:
           - "--config-path"
           - "/etc/envoy/envoy.yaml"
           - "--log-level"
-          - "debug"
+          - "info"
           - "--log-path"
           - "/dev/stdout"
         ports:
