@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: envoy-proxy
+  name: triton-run2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: envoy-proxy
+      app: triton-run2
   template:
     metadata:
       labels:
-        app: envoy-proxy
+        app: triton-run2
     spec:
       containers:
       - name: envoy
@@ -44,11 +44,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: envoy-proxy
+  name: triton-run2
 spec:
   type: LoadBalancer
   selector:
-    app: envoy-proxy
+    app: triton-run2
   ports:
     # - name: http
     #   port: 8000

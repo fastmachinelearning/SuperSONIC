@@ -1,7 +1,31 @@
 
 servers:
 
-  - name: triton-run2
+  - name: triton-run2-lb
+    image: 
+      repository: fastml/triton-torchgeo
+      tag: 21.02-py3-geometric
+      pullPolicy: IfNotPresent
+    replicas: 1
+    command: ["/bin/sh", "-c"]
+    args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+      requests:
+        nvidia.com/gpu: 1
+        cpu: 2
+        memory: 16G
+    modelRepository:
+      storageType: nfs # Options: "pvc", "nfs", "s3"
+      mountPath: /depot/cms
+      nfs:
+        server: datadepot.rcac.purdue.edu
+        path: /depot/cms/
+
+  - name: triton-run2-dmitry
     image: 
       repository: fastml/triton-torchgeo
       tag: 21.02-py3-geometric
