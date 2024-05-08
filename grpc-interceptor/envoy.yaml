@@ -33,21 +33,28 @@ static_resources:
                     if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then
                         request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "enable_filter", true)
 
-                        -- Store a flag in the request context if the metric exceeds the threshold
-                        local metric_threshold = 20  -- Specify the threshold for metric value comparison
                         local server_name = 'triton-run2-lb'
 
-                        -- Base metrics
-                        local metric_1 = 'irate(nv_inference_queue_duration_us{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
-                        local metric_2 = 'irate(nv_inference_request_success{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
-                        local queue_metric = string.format(metric_1, server_name)
-                        local success_metric = string.format(metric_2, server_name)
+                        -- Queue time metric
+                        -- local metric_1 = 'irate(nv_inference_queue_duration_us{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
+                        -- local metric_2 = 'irate(nv_inference_request_success{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
+                        -- local queue_metric = string.format(metric_1, server_name)
+                        -- local success_metric = string.format(metric_2, server_name)
+                        -- local query = string.format(
+                        --   'max (avg by (model, version) (%s / (1000 * (1 + %s))))',
+                        --   queue_metric, success_metric
+                        -- )
+                        --  local metric_threshold = 20
+                        -- local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
 
-                        -- Final metric
+                        -- GPU util metric
+                        -- 'avg (nv_gpu_utilization{pod=~"%s-(.*)-(.*)$"})',
                         local query = string.format(
-                          'max (avg by (model, version) (%s / (1000 * (1 + %s))))',
-                          queue_metric, success_metric
+                          'avg(avg_over_time(nv_gpu_utilization{pod=~"%s-(.*)-(.*)$"}[5m]))',
+                          server_name
                         )
+                        local metric_threshold = 0.35
+                        local query_response_template = '"value":%[%d+%.%d+,"%s*([%d%.]+)%s*"%]'
                         
                         request_handle:logInfo("Query: " .. query)
 
@@ -68,8 +75,9 @@ static_resources:
                             request_handle:logErr("Prometheus could not be reached or returned no data.")
                             return
                         end
-
-                        local metric_value_str = string.match(body, '"value":%[%d+%.%d+,"([%d%.]+)"%]')
+                        request_handle:logInfo("Query response body: " .. body)
+                        local metric_value_str = string.match(body, query_response_template)
+                        request_handle:logInfo("Extracted metric: " .. metric_value_str)
                         if metric_value_str then
                             local metric_value = tonumber(metric_value_str)
                             if metric_value > metric_threshold then
