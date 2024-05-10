@@ -26,97 +26,12 @@ static_resources:
           - name: envoy.filters.http.lua
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-              inline_code: |
-                function envoy_on_request(request_handle)
-                    local path = request_handle:headers():get(":path")
-                    local contentType = request_handle:headers():get("content-type")
-                    if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then
-                        request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "enable_filter", true)
-
-                        local server_name = 'triton-run2-lb'
-
-                        -- Queue time metric
-                        -- local metric_1 = 'irate(nv_inference_queue_duration_us{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
-                        -- local metric_2 = 'irate(nv_inference_request_success{pod=~"%s-(.*)-(.*)$"}[4m:2m])'
-                        -- local queue_metric = string.format(metric_1, server_name)
-                        -- local success_metric = string.format(metric_2, server_name)
-                        -- local query = string.format(
-                        --   'max (avg by (model, version) (%s / (1000 * (1 + %s))))',
-                        --   queue_metric, success_metric
-                        -- )
-                        --  local metric_threshold = 20
-                        -- local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
-
-                        -- GPU util metric
-                        -- 'avg (nv_gpu_utilization{pod=~"%s-(.*)-(.*)$"})',
-                        local query = string.format(
-                          'avg(avg_over_time(nv_gpu_utilization{pod=~"%s-(.*)-(.*)$"}[5m]))',
-                          server_name
-                        )
-                        local metric_threshold = 0.35
-                        local query_response_template = '"value":%[%d+%.%d+,"%s*([%d%.]+)%s*"%]'
-                        
-                        request_handle:logInfo("Query: " .. query)
-
-                        local encoded_query = encode_query(query)
-
-                        local headers, body = request_handle:httpCall(
-                            "prometheus_cluster",
-                            {
-                                [":method"] = "GET",
-                                [":path"] = "/api/v1/query?query=" .. encoded_query,
-                                [":authority"] = "prometheus-service.cms.geddes.rcac.purdue.edu"
-                            },
-                            "",
-                            5000
-                        )
-
-                        if not body or body == "" then
-                            request_handle:logErr("Prometheus could not be reached or returned no data.")
-                            return
-                        end
-                        request_handle:logInfo("Query response body: " .. body)
-                        local metric_value_str = string.match(body, query_response_template)
-                        request_handle:logInfo("Extracted metric: " .. metric_value_str)
-                        if metric_value_str then
-                            local metric_value = tonumber(metric_value_str)
-                            if metric_value > metric_threshold then
-                                request_handle:logInfo("Metric value exceeds threshold: " .. metric_value .. " > " .. metric_threshold)
-                                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "clear_models", true)
-                            else
-                                request_handle:logInfo("Metric value below threshold: " .. metric_value .. " < " .. metric_threshold)
-                            end
-                        else
-                            request_handle:logErr("Failed to parse metric value from Prometheus response.")
-                        end
-                    else
-                        request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "enable_filter", false)
-                    end
-                end
-
-                function envoy_on_response(response_handle)
-                    if response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["enable_filter"] then
-                        -- Check if we need to clear the model list
-                        if response_handle:streamInfo():dynamicMetadata():get("envoy.lua") and response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["clear_models"] then
-                          response_handle:logInfo("Sending error as a response.")
-                          -- response_handle:headers():add("server-status", "saturated")
-                          response_handle:body():setBytes("")
-                          response_handle:headers():replace("grpc-status", "1")
-                        else
-                          response_handle:logInfo("Leaving response unchanged.")
-                        end
-                    end
-                end
-
-                function encode_query(query)
-                    return query:gsub("([^%w _%%%-%.~])", function(c)
-                        return string.format("%%%02X", string.byte(c))
-                    end):gsub(" ", "+")
-                end
-
-
-
+              default_source_code:
+                filename: /etc/envoy/lua/envoy-filter.lua
           - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
           http2_protocol_options: {}
 
   clusters:
@@ -145,6 +60,6 @@ static_resources:
             - endpoint:
                 address:
                   socket_address:
-                    address: triton-run2-lb  # Assuming this is your service address
+                    address: triton-run2-lb
                     port_value: 8001
 
