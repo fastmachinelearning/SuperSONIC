@@ -25,59 +25,35 @@ servers:
         server: datadepot.rcac.purdue.edu
         path: /depot/cms/
 
-  - name: triton-run2-dmitry
-    image: 
-      repository: fastml/triton-torchgeo
-      tag: 21.02-py3-geometric
-      pullPolicy: IfNotPresent
-    replicas: 1
-    command: ["/bin/sh", "-c"]
-    args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-      requests:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-    modelRepository:
-      storageType: nfs # Options: "pvc", "nfs", "s3"
-      mountPath: /depot/cms
-      nfs:
-        server: datadepot.rcac.purdue.edu
-        path: /depot/cms/
 
-  - name: triton-run3
-    image: 
-      repository: fastml/triton-torchgeo
-      tag: 22.07-py3-geometric
-      pullPolicy: IfNotPresent
-    replicas: 1
-    command: ["/bin/sh", "-c"]
-    args: ["cd /depot/cms/sonic/yao317/models/sonic-models/models_2023 &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/yao317/models/sonic-models/models_2023 --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-      requests:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-    modelRepository:
-      storageType: nfs # Options: "pvc", "nfs", "s3"
-      mountPath: /depot/cms
-      nfs:
-        server: datadepot.rcac.purdue.edu
-        path: /depot/cms/
+  # - name: triton-run3
+  #   image: 
+  #     repository: fastml/triton-torchgeo
+  #     tag: 22.07-py3-geometric
+  #     pullPolicy: IfNotPresent
+  #   replicas: 1
+  #   command: ["/bin/sh", "-c"]
+  #   args: ["cd /depot/cms/sonic/yao317/models/sonic-models/models_2023 &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/yao317/models/sonic-models/models_2023 --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+  #   resources:
+  #     limits:
+  #       nvidia.com/gpu: 1
+  #       cpu: 2
+  #       memory: 16G
+  #     requests:
+  #       nvidia.com/gpu: 1
+  #       cpu: 2
+  #       memory: 16G
+  #   modelRepository:
+  #     storageType: nfs # Options: "pvc", "nfs", "s3"
+  #     mountPath: /depot/cms
+  #     nfs:
+  #       server: datadepot.rcac.purdue.edu
+  #       path: /depot/cms/
 
 common:
-
   # service configuration is currently same for all setups
   service:
-    type: LoadBalancer
+    # type: LoadBalancer
     labels:
       scrape_metrics: "true"
     annotations:

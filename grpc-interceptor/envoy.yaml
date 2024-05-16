@@ -1,3 +1,9 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
 static_resources:
   listeners:
   - name: listener_grpc
@@ -50,8 +56,8 @@ static_resources:
                 port_value: 8080
   - name: triton_grpc_service
     connect_timeout: 0.25s
-    type: LOGICAL_DNS
-    lb_policy: ROUND_ROBIN
+    type: STRICT_DNS
+    lb_policy: LEAST_REQUEST 
     http2_protocol_options: {}
     load_assignment:
       cluster_name: triton_grpc_service

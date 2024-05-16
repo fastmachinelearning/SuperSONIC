@@ -34,11 +34,11 @@ spec:
           readOnly: true
         resources:
           requests:
-            cpu: "500m"  
-            memory: "256Mi"  
+            cpu: "8"  
+            memory: "8Gi"  
           limits:
-            cpu: "1"
-            memory: "512Mi"  
+            cpu: "16"
+            memory: "8Gi"  
       volumes:
       - name: envoy-config
         configMap:
@@ -54,6 +54,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: triton-run2
+  labels:
+    envoy: "true"
 spec:
   type: LoadBalancer
   selector:
@@ -65,6 +67,6 @@ spec:
     - name: grpc
       port: 8001
       targetPort: 8001
-    # - name: metrics
-    #   port: 8002
-    #   targetPort: 8002
+    - name: admin
+      port: 9901
+      targetPort: 9901

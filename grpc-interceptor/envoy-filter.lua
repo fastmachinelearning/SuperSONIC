@@ -14,7 +14,7 @@ function envoy_on_request(request_handle)
         local metric_threshold = 0.5
         local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
 
-        request_handle:logInfo("Query: " .. query)
+        -- request_handle:logInfo("Query: " .. query)
 
         local encoded_query = encode_query(query)
 

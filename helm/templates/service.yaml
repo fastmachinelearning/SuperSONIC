@@ -8,7 +8,8 @@ metadata:
   annotations:
 {{ toYaml $.Values.common.service.annotations | nindent 4 }}
 spec:
-  type: {{ $.Values.common.service.type }}
+  clusterIP: None
+  # type: {{ $.Values.common.service.type }}
   ports:
   {{- range $.Values.common.service.ports }}
   - name: {{ .name }}
