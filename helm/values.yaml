@@ -1,59 +1,59 @@
 
 servers:
-
-  - name: triton-run2-lb
-    image: 
-      repository: fastml/triton-torchgeo
-      tag: 21.02-py3-geometric
-      pullPolicy: IfNotPresent
-    replicas: 1
-    command: ["/bin/sh", "-c"]
-    args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-      requests:
-        nvidia.com/gpu: 1
-        cpu: 2
-        memory: 16G
-    modelRepository:
-      storageType: nfs # Options: "pvc", "nfs", "s3"
-      mountPath: /depot/cms
-      nfs:
-        server: datadepot.rcac.purdue.edu
-        path: /depot/cms/
-
-
-  # - name: triton-run3
-  #   image: 
-  #     repository: fastml/triton-torchgeo
-  #     tag: 22.07-py3-geometric
-  #     pullPolicy: IfNotPresent
-  #   replicas: 1
-  #   command: ["/bin/sh", "-c"]
-  #   args: ["cd /depot/cms/sonic/yao317/models/sonic-models/models_2023 &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/yao317/models/sonic-models/models_2023 --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
-  #   resources:
-  #     limits:
-  #       nvidia.com/gpu: 1
-  #       cpu: 2
-  #       memory: 16G
-  #     requests:
-  #       nvidia.com/gpu: 1
-  #       cpu: 2
-  #       memory: 16G
-  #   modelRepository:
-  #     storageType: nfs # Options: "pvc", "nfs", "s3"
-  #     mountPath: /depot/cms
-  #     nfs:
-  #       server: datadepot.rcac.purdue.edu
-  #       path: /depot/cms/
+  - triton: 
+      name: triton-run2-lb
+      replicas: 9
+      image:
+        repository: fastml/triton-torchgeo
+        tag: 21.02-py3-geometric
+        pullPolicy: IfNotPresent
+      command: ["/bin/sh", "-c"]
+      args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+          cpu: 2
+          memory: 16G
+        requests:
+          nvidia.com/gpu: 1
+          cpu: 2
+          memory: 16G
+      modelRepository:
+        storageType: nfs # Options: "pvc", "nfs", "s3"
+        mountPath: /depot/cms
+        nfs:
+          server: datadepot.rcac.purdue.edu
+          path: /depot/cms/
+    envoy:
+      name: triton-run2
+      replicas: 1
+      image: envoyproxy/envoy:v1.30-latest
+      args:
+        - "--config-path"
+        - "/etc/envoy/envoy.yaml"
+        - "--log-level"
+        - "info"
+        - "--log-path"
+        - "/dev/stdout"
+      resources:
+        requests:
+          cpu: "8"  
+          memory: "8Gi"  
+        limits:
+          cpu: "16"
+          memory: "8Gi"
+      cfgPath: "cfg/envoy.yaml"
+      luaCfgPath: "cfg/envoy-filter.lua"
+      loadBalancerPolicy: LEAST_REQUEST
+    prometheus:
+      url: "prometheus-service.cms.geddes.rcac.purdue.edu"
+      port: 8080
+      serverAvailabilityMetric: "sonic_lb_saturated{lb_name='triton-run2-lb'}"
+      serverAvailabilityThreshold: 0.5
 
 common:
   # service configuration is currently same for all setups
-  service:
-    # type: LoadBalancer
+  tritonService:
     labels:
       scrape_metrics: "true"
     annotations:
@@ -71,14 +71,28 @@ common:
         port: 8002
         name: metrics
         targetPort: 8002
+  envoyService:
+    labels:
+      envoy: "true"
+    ports:
+      - name: grpc
+        port: 8001
+        targetPort: 8001
+      - name: admin
+        port: 9901
+        targetPort: 9901
 
   nodeSelector: {'cms-af-prod': 'true'}
 
   tolerations:
-
     - key: hub.jupyter.org/dedicated
       operator: Equal
       value: cms-af
       effect: NoSchedule
 
   affinity: {}
+
+
+# For Run3:
+# Triton image:  fastml/triton-torchgeo:22.07-py3-geometric
+# Models: /depot/cms/sonic/yao317/models/sonic-models/models_2023

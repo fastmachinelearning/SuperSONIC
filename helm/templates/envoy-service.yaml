@@ -1,0 +1,20 @@
+{{- range .Values.servers }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .envoy.name }}
+  labels:
+{{ toYaml $.Values.common.envoyService.labels | nindent 4 }}
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .envoy.name }}
+  ports:
+  {{- range $.Values.common.envoyService.ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort }}
+    protocol: {{ .protocol }}
+  {{- end }}
+---
+{{- end }}
