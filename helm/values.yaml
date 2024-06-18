@@ -3,10 +3,7 @@ servers:
   - triton: 
       name: triton-run2-lb
       replicas: 9
-      image:
-        repository: fastml/triton-torchgeo
-        tag: 21.02-py3-geometric
-        pullPolicy: IfNotPresent
+      image: fastml/triton-torchgeo:21.02-py3-geometric
       command: ["/bin/sh", "-c"]
       args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
       resources:
@@ -28,13 +25,7 @@ servers:
       name: triton-run2
       replicas: 1
       image: envoyproxy/envoy:v1.30-latest
-      args:
-        - "--config-path"
-        - "/etc/envoy/envoy.yaml"
-        - "--log-level"
-        - "info"
-        - "--log-path"
-        - "/dev/stdout"
+      args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
         requests:
           cpu: "8"  
@@ -42,8 +33,9 @@ servers:
         limits:
           cpu: "16"
           memory: "8Gi"
-      cfgPath: "cfg/envoy.yaml"
-      luaCfgPath: "cfg/envoy-filter.lua"
+      configs:
+        envoyConfig: "cfg/envoy.yaml"
+        luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
@@ -59,28 +51,16 @@ common:
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
     ports:
-      - protocol: TCP
-        port: 8000
-        name: http
-        targetPort: 8000
-      - protocol: TCP
-        port: 8001
-        name: grpc
-        targetPort: 8001
-      - protocol: TCP
-        port: 8002
-        name: metrics
-        targetPort: 8002
+      - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
+
   envoyService:
     labels:
       envoy: "true"
     ports:
-      - name: grpc
-        port: 8001
-        targetPort: 8001
-      - name: admin
-        port: 9901
-        targetPort: 9901
+      - { name: grpc, port: 8001, targetPort: 8001 }
+      - { name: admin, port: 9901, targetPort: 9901 }
 
   nodeSelector: {'cms-af-prod': 'true'}
 

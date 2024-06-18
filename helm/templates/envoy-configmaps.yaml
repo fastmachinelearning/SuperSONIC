@@ -1,13 +1,5 @@
 {{- range .Values.servers }}
 
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .envoy.name }}-envoy-config
-data:
-  envoy.yaml: |-
-{{- $envoyConfig := $.Files.Get .envoy.cfgPath | indent 4 }}
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
 {{- $envoyAdminPort := "" -}}
@@ -25,6 +17,13 @@ data:
   {{- end -}}
 {{- end -}}
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .envoy.name }}-envoy-config
+data:
+  envoy.yaml: |-
+{{- $envoyConfig := $.Files.Get .envoy.configs.envoyConfig | indent 4 }}
 {{- $envoyConfig = $envoyConfig | replace "TRITON_NAME" .triton.name }}
 {{- $envoyConfig = $envoyConfig | replace "TRITON_GRPC_PORT" (quote $tritonGrpcPort) }}
 {{- $envoyConfig = $envoyConfig | replace "ENVOY_GRPC_PORT" (quote $envoyGrpcPort) }}
@@ -43,7 +42,7 @@ metadata:
   name: {{ .envoy.name }}-lua-config
 data:
   envoy-filter.lua: |-
-{{- $luaConfig := $.Files.Get .envoy.luaCfgPath | indent 4 }}
+{{- $luaConfig := $.Files.Get .envoy.configs.luaConfig | indent 4 }}
 {{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .prometheus.serverAvailabilityMetric) }}
 {{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .prometheus.serverAvailabilityThreshold) }}
 {{ $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .prometheus.url }}

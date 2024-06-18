@@ -10,7 +10,7 @@ function envoy_on_request(request_handle)
         request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", false)
 
         local query = SERVER_AVAIL_METRIC
-        local metric_threshold = SERVER_AVAIL_THRESHOLD
+        local metric_threshold = tonumber(SERVER_AVAIL_THRESHOLD)
         local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
 
         -- request_handle:logInfo("Query: " .. query)

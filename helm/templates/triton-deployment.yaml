@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: triton-server
-        image: "{{ .triton.image.repository }}:{{ .triton.image.tag }}"
+        image: {{ .triton.image }}
         resources:
           {{ toYaml .triton.resources | nindent 10 }}
         ports:
