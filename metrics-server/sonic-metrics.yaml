@@ -12,9 +12,16 @@ spec:
       labels:
         app: sonic-metrics
     spec:
+      nodeSelector:
+        cms-af-prod: "true"
+      tolerations:
+        - key: "hub.jupyter.org/dedicated"
+          operator: "Equal"
+          value: "cms-af"
+          effect: "NoSchedule"
       containers:
       - name: sonic-metrics
-        image: geddes-registry.rcac.purdue.edu/cms/sonic-metrics:0.1
+        image: geddes-registry.rcac.purdue.edu/cms/sonic-metrics:0.2
         ports:
         - containerPort: 8002
 

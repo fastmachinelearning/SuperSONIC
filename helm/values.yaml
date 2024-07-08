@@ -2,37 +2,25 @@
 servers:
   - triton: 
       name: triton-run2-lb
-      replicas: 9
+      replicas: 8
       image: fastml/triton-torchgeo:21.02-py3-geometric
       command: ["/bin/sh", "-c"]
-      args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+      args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false --exit-timeout-secs=60"]
       resources:
-        limits:
-          nvidia.com/gpu: 1
-          cpu: 2
-          memory: 16G
-        requests:
-          nvidia.com/gpu: 1
-          cpu: 2
-          memory: 16G
+        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
       modelRepository:
         storageType: nfs # Options: "pvc", "nfs", "s3"
         mountPath: /depot/cms
-        nfs:
-          server: datadepot.rcac.purdue.edu
-          path: /depot/cms/
+        nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
     envoy:
       name: triton-run2
       replicas: 1
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
-        requests:
-          cpu: "8"  
-          memory: "8Gi"  
-        limits:
-          cpu: "16"
-          memory: "8Gi"
+        requests: { cpu: 8, memory: 8Gi }
+        limits: { cpu: 16, memory: 8Gi }
       configs:
         envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
@@ -41,6 +29,37 @@ servers:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080
       serverAvailabilityMetric: "sonic_lb_saturated{lb_name='triton-run2-lb'}"
+      serverAvailabilityThreshold: 0.5
+
+  - triton: 
+      name: triton-yao-lb
+      replicas: 1
+      image: fastml/triton-torchgeo:22.07-py3-geometric
+      command: ["/bin/sh", "-c"]
+      args: ["cd /depot/cms/sonic/yao317/models/sonic-models/models_2023 &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/yao317/models/sonic-models/models_2023 --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false"]
+      resources:
+        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+      modelRepository:
+        storageType: nfs # Options: "pvc", "nfs", "s3"
+        mountPath: /depot/cms
+        nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
+    envoy:
+      name: triton-yao
+      replicas: 1
+      image: envoyproxy/envoy:v1.30-latest
+      args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
+      resources:
+        requests: { cpu: 8, memory: 8Gi }
+        limits: { cpu: 16, memory: 8Gi }
+      configs:
+        envoyConfig: "cfg/envoy.yaml"
+        luaConfig: "cfg/envoy-filter.lua"
+      loadBalancerPolicy: LEAST_REQUEST
+    prometheus:
+      url: "prometheus-service.cms.geddes.rcac.purdue.edu"
+      port: 8080
+      serverAvailabilityMetric: "sonic_lb_saturated{lb_name='triton-yao-lb'}"
       serverAvailabilityThreshold: 0.5
 
 common:
