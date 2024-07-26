@@ -1,0 +1,49 @@
+{{- range .Values.servers }}
+
+{{- if .autoscaler.enabled }}
+
+{{- $scaleUp := .autoscaler.scaleUp | default dict }}
+{{- $scaleDown := .autoscaler.scaleDown | default dict }}
+{{- $prometheusAddress := printf "http://%s:%d" .prometheus.url (int .prometheus.port) | quote }}
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ .envoy.name }}-tritonserver-scaledobject
+spec:
+  scaleTargetRef:
+    name: {{ .triton.name }}
+    kind: Deployment
+  minReplicaCount: {{ default 1 .autoscaler.minReplicas }}
+  maxReplicaCount: {{ default 14 .autoscaler.maxReplicas }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: {{ default 300 $scaleDown.window }}
+          policies:
+            - periodSeconds: {{ default 180 $scaleDown.period }}
+              type: Pods
+              value: {{ default 1 $scaleDown.stepsize }}
+        scaleUp:
+          stabilizationWindowSeconds: {{ default 300 $scaleUp.window }}
+          policies:
+            - periodSeconds: {{ default 180 $scaleUp.period }}
+              type: Pods
+              value: {{ default 1 $scaleUp.stepsize }}
+
+  triggers:
+  - type: prometheus
+    metricType: Value
+    metadata:
+      serverAddress: {{ $prometheusAddress }}
+      metricName: autoscaler-metric
+      threshold: {{ .prometheus.serverAvailabilityThreshold | quote }}
+      query: {{ .prometheus.serverAvailabilityMetric | quote }}
+
+---
+
+
+{{- end }}
+
+{{- end }}

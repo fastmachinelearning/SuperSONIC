@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ .triton.name }}
 spec:
-  replicas: {{ .triton.replicas }}
+  replicas: {{ .triton.replicas | default 1 }}
   selector:
     matchLabels:
       app: {{ .triton.name }}
@@ -29,6 +29,16 @@ spec:
             mountPath: {{ .triton.modelRepository.mountPath }}
         command: {{ toYaml .triton.command | nindent 10 }}
         args:  {{ toYaml .triton.args | nindent 10 }}
+        startupProbe:
+          periodSeconds: 10
+          failureThreshold: 12
+          httpGet:
+            path: /v2/health/ready
+            port: http
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 60"]
 {{- if eq .triton.modelRepository.storageType "nfs" }}
       volumes:
       - name: model-repository

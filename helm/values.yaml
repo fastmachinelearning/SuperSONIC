@@ -2,7 +2,6 @@
 servers:
   - triton: 
       name: triton-run2-lb
-      replicas: 8
       image: fastml/triton-torchgeo:21.02-py3-geometric
       command: ["/bin/sh", "-c"]
       args: ["cd /depot/cms/sonic/models &&\ /opt/tritonserver/bin/tritonserver --model-repository=/depot/cms/sonic/models --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false --exit-timeout-secs=60"]
@@ -28,8 +27,21 @@ servers:
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080
-      serverAvailabilityMetric: "sonic_lb_saturated{lb_name='triton-run2-lb'}"
-      serverAvailabilityThreshold: 0.5
+      serverAvailabilityMetric: |-
+        sum(
+          rate(
+            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [2m:10s])
+          /
+          rate(
+            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [2m:10s])
+        )
+      serverAvailabilityThreshold: 20
+    autoscaler:
+      enabled: True
+      minReplicas: 1
+      maxReplicas: 9
 
   - triton: 
       name: triton-yao-lb
@@ -59,8 +71,22 @@ servers:
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080
-      serverAvailabilityMetric: "sonic_lb_saturated{lb_name='triton-yao-lb'}"
-      serverAvailabilityThreshold: 0.5
+      serverAvailabilityMetric: |-
+        sum(
+          rate(
+            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-yao.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [2m:10s])
+          /
+          rate(
+            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-yao.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [2m:10s])
+        )
+      serverAvailabilityThreshold: 20
+    autoscaler:
+      enabled: True
+      minReplicas: 1
+      maxReplicas: 9
+
 
 common:
   # service configuration is currently same for all setups
