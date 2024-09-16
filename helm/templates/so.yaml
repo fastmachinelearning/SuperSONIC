@@ -14,21 +14,24 @@ spec:
   scaleTargetRef:
     name: {{ .triton.name }}
     kind: Deployment
+  pollingInterval: 30
+  cooldownPeriod: 120
+  idleReplicaCount: 0
   minReplicaCount: {{ default 1 .autoscaler.minReplicas }}
   maxReplicaCount: {{ default 14 .autoscaler.maxReplicas }}
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
         scaleDown:
-          stabilizationWindowSeconds: {{ default 300 $scaleDown.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleDown.window }}
           policies:
-            - periodSeconds: {{ default 180 $scaleDown.period }}
+            - periodSeconds: {{ default 30 $scaleDown.period }}
               type: Pods
               value: {{ default 1 $scaleDown.stepsize }}
         scaleUp:
-          stabilizationWindowSeconds: {{ default 300 $scaleUp.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleUp.window }}
           policies:
-            - periodSeconds: {{ default 180 $scaleUp.period }}
+            - periodSeconds: {{ default 30 $scaleUp.period }}
               type: Pods
               value: {{ default 1 $scaleUp.stepsize }}
 

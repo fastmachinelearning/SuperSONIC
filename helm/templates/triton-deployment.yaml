@@ -13,6 +13,7 @@ spec:
       labels:
         app: {{ .triton.name }}
     spec:
+      terminationGracePeriodSeconds: 60
       containers:
       - name: triton-server
         image: {{ .triton.image }}
@@ -35,10 +36,18 @@ spec:
           httpGet:
             path: /v2/health/ready
             port: http
+        readinessProbe:
+          exec:
+            command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 10
         lifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "sleep 60"]
+              command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
 {{- if eq .triton.modelRepository.storageType "nfs" }}
       volumes:
       - name: model-repository
