@@ -28,6 +28,7 @@ spec:
         volumeMounts:
           - name: model-repository
             mountPath: {{ .triton.modelRepository.mountPath }}
+            mountPropagation: HostToContainer
         command: {{ toYaml .triton.command | nindent 10 }}
         args:  {{ toYaml .triton.args | nindent 10 }}
         startupProbe:
@@ -59,6 +60,16 @@ spec:
       - name: model-repository
         persistentVolumeClaim:
           claimName: {{ .triton.modelRepository.pvc.claimName }}
+{{- else if eq .triton.modelRepository.storageType "cvmfs" }}
+      volumes:
+      - name: model-repository
+        hostPath: 
+          path: /cvmfs
+{{- else if eq .triton.modelRepository.storageType "cvmfs-pvc" }}
+      volumes:
+      - name: model-repository
+        persistentVolumeClaim:
+          claimName: cvmfs
 {{- else if eq .triton.modelRepository.storageType "s3" }}
     #   initContainers:
     #   - name: s3-sync
