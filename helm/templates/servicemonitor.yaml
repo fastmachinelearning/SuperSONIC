@@ -1,0 +1,37 @@
+{{- range .Values.servers }}
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name:  {{ .triton.name }}-monitor
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app:  {{ .triton.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .triton.name }}
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 15s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name:  {{ .envoy.name }}-monitor
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app:  {{ .envoy.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .envoy.name }}
+  endpoints:
+  - port: admin
+    path: /stats/prometheus
+    interval: 15s
+
+{{- end }}
