@@ -5,6 +5,7 @@ metadata:
   name: {{ .envoy.name }}
   labels:
 {{ toYaml $.Values.common.envoyService.labels | nindent 4 }}
+    app: {{ .envoy.name }}
 spec:
   type:  {{ $.Values.common.envoyService.type }}
   selector:

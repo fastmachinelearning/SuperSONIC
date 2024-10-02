@@ -5,6 +5,7 @@ metadata:
   name: {{ .triton.name }}
   labels:
 {{ toYaml $.Values.common.tritonService.labels | nindent 4 }}
+    app: {{ .triton.name }}
   annotations:
 {{ toYaml $.Values.common.tritonService.annotations | nindent 4 }}
 spec:
