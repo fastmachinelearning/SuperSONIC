@@ -38,6 +38,7 @@ servers:
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080
+      scheme: http
       serverAvailabilityMetric: |-
         sum(
           rate(
@@ -91,6 +92,8 @@ servers:
       enabled: False
       minReplicas: 0
       maxReplicas: 9
+    ingress:
+      enabled: false
 
   - triton: 
       name: triton-yao-lb
@@ -120,6 +123,7 @@ servers:
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080
+      scheme: http
       serverAvailabilityMetric: |-
         sum(
           rate(
@@ -135,55 +139,60 @@ servers:
       enabled: True
       minReplicas: 0
       maxReplicas: 9
+    ingress:
+      enabled: false
 
-  - triton: 
-      name: triton-lst-lb
-      replicas: 1
-      image: yongbinfeng/tritonserver:21.04
-      command: ["/bin/sh", "-c"]
-      args: 
-        - |
-          export SONIC_PATH=/depot/cms/sonic/kmohrman//test_server_setup_for_dmitry/;
-          export LD_PRELOAD=$SONIC_PATH/TritonCBE/TestIdentity/identity_fp32/1/SDL/libsdl.so;
-          export LST_BASE=$SONIC_PATH/TritonCBE/TestIdentity//identity_fp32/1/SDL/;
-          /opt/tritonserver/bin/tritonserver --model-repository=$SONIC_PATH/TritonCBE/TestIdentity/ --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false
-      resources:
-        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-      modelRepository:
-        storageType: nfs # Options: "pvc", "nfs", "s3"
-        mountPath: /depot/cms
-        nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
-    envoy:
-      name: triton-lst
-      replicas: 1
-      image: envoyproxy/envoy:v1.30-latest
-      args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
-      resources:
-        requests: { cpu: 8, memory: 8Gi }
-        limits: { cpu: 16, memory: 8Gi }
-      configs:
-        envoyConfig: "cfg/envoy.yaml"
-        luaConfig: "cfg/envoy-filter.lua"
-      loadBalancerPolicy: LEAST_REQUEST
-    prometheus:
-      url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-      port: 8080
-      serverAvailabilityMetric: |-
-        sum(
-          rate(
-            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-lst.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
-          /
-          rate(
-            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-lst.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
-        )
-      serverAvailabilityThreshold: 20
-    autoscaler:
-      enabled: False
-      minReplicas: 1
-      maxReplicas: 1
+  # - triton: 
+  #     name: triton-lst-lb
+  #     replicas: 0
+  #     image: yongbinfeng/tritonserver:21.04
+  #     command: ["/bin/sh", "-c"]
+  #     args: 
+  #       - |
+  #         export SONIC_PATH=/depot/cms/sonic/kmohrman//test_server_setup_for_dmitry/;
+  #         export LD_PRELOAD=$SONIC_PATH/TritonCBE/TestIdentity/identity_fp32/1/SDL/libsdl.so;
+  #         export LST_BASE=$SONIC_PATH/TritonCBE/TestIdentity//identity_fp32/1/SDL/;
+  #         /opt/tritonserver/bin/tritonserver --model-repository=$SONIC_PATH/TritonCBE/TestIdentity/ --allow-gpu-metrics=true --log-verbose=0 --strict-model-config=false
+  #     resources:
+  #       limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+  #       requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+  #     modelRepository:
+  #       storageType: nfs # Options: "pvc", "nfs", "s3"
+  #       mountPath: /depot/cms
+  #       nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
+  #   envoy:
+  #     name: triton-lst
+  #     replicas: 1
+  #     image: envoyproxy/envoy:v1.30-latest
+  #     args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
+  #     resources:
+  #       requests: { cpu: 8, memory: 8Gi }
+  #       limits: { cpu: 16, memory: 8Gi }
+  #     configs:
+  #       envoyConfig: "cfg/envoy.yaml"
+  #       luaConfig: "cfg/envoy-filter.lua"
+  #     loadBalancerPolicy: LEAST_REQUEST
+  #   prometheus:
+  #     url: "prometheus-service.cms.geddes.rcac.purdue.edu"
+  #     port: 8080
+  #     scheme: http
+  #     serverAvailabilityMetric: |-
+  #       sum(
+  #         rate(
+  #           label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-lst.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+  #         [5m:1m])
+  #         /
+  #         rate(
+  #           label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-lst.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+  #         [5m:1m])
+  #       )
+  #     serverAvailabilityThreshold: 20
+  #   autoscaler:
+  #     enabled: True
+  #     minReplicas: 0
+  #     maxReplicas: 1
+    # ingress:
+    #   enabled: false
 
 common:
   # service configuration is currently same for all setups

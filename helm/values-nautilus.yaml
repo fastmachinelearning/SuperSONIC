@@ -36,23 +36,27 @@ servers:
         luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
-      url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-      port: 8080
+      url: "prometheus.nrp-nautilus.io"
+      port: 443
+      scheme: https
       serverAvailabilityMetric: |-
         sum(
           rate(
             label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
           [5m:1m])
           /
-          rate(
+          (rate(
             label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
+          [5m:1m])+0.0000001)
         )
       serverAvailabilityThreshold: 100
     autoscaler:
       enabled: False
       minReplicas: 0
       maxReplicas: 1
+    ingress:
+      enabled: true
+      hostName: sonic-cms.nrp-nautilus.io
 
 common:
   # service configuration is currently same for all setups
