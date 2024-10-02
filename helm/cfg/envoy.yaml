@@ -54,6 +54,8 @@ static_resources:
               socket_address:
                 address: PROMETHEUS_URL
                 port_value: PROMETHEUS_PORT
+    PROMETHEUS_TRANSPORT_SOCKET_BLOCK
+
   - name: triton_grpc_service
     connect_timeout: 0.25s
     type: STRICT_DNS

@@ -22,11 +22,17 @@ function envoy_on_request(request_handle)
             {
                 [":method"] = "GET",
                 [":path"] = "/api/v1/query?query=" .. encoded_query,
-                [":authority"] = "PROMETHEUS_URL"
+                [":authority"] = "PROMETHEUS_URL",
+                [":scheme"] = "PROMETHEUS_SCHEME"
             },
             "",
             5000
         )
+
+        if not headers then
+            request_handle:logErr("HTTP call to Prometheus failed.")
+            return
+        end
 
         if not body or body == "" then
             request_handle:logErr("Prometheus could not be reached or returned no data.")

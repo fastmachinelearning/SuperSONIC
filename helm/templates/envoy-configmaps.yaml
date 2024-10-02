@@ -32,6 +32,15 @@ data:
 {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_URL" .prometheus.url }}
 {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_PORT" (quote .prometheus.port) }}
 {{- $envoyConfig = $envoyConfig | replace "LUA_CONFIG_FILE" "/etc/envoy/lua/envoy-filter.lua" }}
+
+{{- /* Handle transport socket */ -}}
+{{- if eq .prometheus.scheme "https" }}
+  {{- $tlsConfig := printf "transport_socket:\n          name: envoy.transport_sockets.tls\n          typed_config:\n            \"@type\": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext" }}
+  {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_TRANSPORT_SOCKET_BLOCK" $tlsConfig }}
+{{- else }}
+  {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_TRANSPORT_SOCKET_BLOCK" "" }}
+{{- end }}
+
 {{ $envoyConfig | indent 4 }}
 
 ---
@@ -46,6 +55,7 @@ data:
 {{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .prometheus.serverAvailabilityMetric) }}
 {{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .prometheus.serverAvailabilityThreshold) }}
 {{ $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .prometheus.url }}
+{{ $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .prometheus.scheme }}
 {{ $luaConfig | indent 4 }}
 
 ---
