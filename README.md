@@ -1,22 +1,18 @@
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Configuration](#configuration)
-  - [Parameters](#parameters)
+- [Parameters](#parameters)
     - [servers](#servers)
-      - [triton](#triton)
-      - [envoy](#envoy)
-      - [prometheus](#prometheus)
-      - [autoscaler](#autoscaler)
-      - [ingress](#ingress)
+        - [triton](#triton)
+        - [envoy](#envoy)
+        - [prometheus](#prometheus)
+        - [autoscaler](#autoscaler)
+        - [ingress](#ingress)
     - [common](#common)
-      - [tritonService](#tritonservice)
-      - [envoyService](#envoyservice)
-      - [affinity](#affinity)
-- [Contributing](#contributing)
+        - [tritonService](#tritonservice)
+        - [envoyService](#envoyservice)
+        - [affinity](#affinity)
 
 
 ## Installation
@@ -25,7 +21,7 @@
 helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n <namespace>
 ```
 
-## Configuration reference
+## Parameters
 
 #### servers
 
