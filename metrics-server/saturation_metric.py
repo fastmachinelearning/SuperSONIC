@@ -58,6 +58,7 @@ def measure_latency():
         {"ip": "128.227.64.205", "name": "T2_US_Florida", "lat": 29.6465, "lon": -82.3533}, # www.phys.ufl.edu
         {"ip": "18.12.1.172", "name": "T2_US_MIT", "lat": 42.3601, "lon": -71.0942}, 
         {"ip": "129.59.197.94", "name": "T2_US_Vanderbilt", "lat": 36.1447, "lon": -86.8027}, # xrootd
+        {"ip": "128.55.126.10", "name": "NERSC", "lat": 37.875750, "lon": -122.252877}
     ]
     for data in ips_to_ping:
         name = data["name"]
