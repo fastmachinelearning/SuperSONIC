@@ -8,7 +8,7 @@ For correct behavior, the server saturation metric (`servers.prometheus.serverAv
 It is recommended to start with examining the metric in Prometheus interface, in order to
 define an appropriate threshold and avoid typos in the metric definition.
 
-THe autoscaler can be enabled / disabled via the `servers.autoscaler.enabled` parameter.
+The KEDA autoscaler can be enabled / disabled via the `servers.autoscaler.enabled` parameter.
 
 ![diagram](docs/diagram.svg "SONIC Server Infrastructure")
 
