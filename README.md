@@ -1,3 +1,6 @@
+# SONIC Server Infrastructure
+
+![diagram](docs/diagram.svg "SONIC Server Infrastructure")
 
 ## Table of Contents
 
