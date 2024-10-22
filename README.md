@@ -4,11 +4,11 @@ This Helm chart will install components depicted at the diagram below, excluding
 
 In its current form, the chart allows to deploy multiple server instances with different settings at once. This can be useful if you need to host servers with different GPU models, different Triton server versions, or different model repository mounts. 
 
-For correct behavior, the server saturation metric (`servers.prometheus.serverAvailabilityMetric`) used by Envoy proxy and autoscaler must be carefully defined.
+For correct behavior, the server saturation metric (`servers[].prometheus.serverAvailabilityMetric`) used by Envoy proxy and autoscaler must be carefully defined.
 It is recommended to start with examining the metric in Prometheus interface, in order to
 define an appropriate threshold and avoid typos in the metric definition.
 
-The KEDA autoscaler can be enabled / disabled via the `servers.autoscaler.enabled` parameter.
+The KEDA autoscaler can be enabled / disabled via the `servers[].autoscaler.enabled` parameter.
 
 ![diagram](docs/diagram.svg "SONIC Server Infrastructure")
 
@@ -44,17 +44,17 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
 
 ##### triton
 
-- `servers.triton.name`: **(string)** Name of the Nvidia Triton inference server deployment.
+- `servers[].triton.name`: **(string)** Name of the Nvidia Triton inference server deployment.
 
-- `servers.triton.replicas`: **(int)** Number of Triton replicas when autoscaling is disabled.
+- `servers[].triton.replicas`: **(int)** Number of Triton replicas when autoscaling is disabled.
 
-- `servers.triton.image`: **(string)** Docker image for the Triton server.
+- `servers[].triton.image`: **(string)** Docker image for the Triton server.
 
-- `servers.triton.command`: **(list)** Command to run in the Triton container.
+- `servers[].triton.command`: **(list)** Command to run in the Triton container.
 
-- `servers.triton.args`: **(list)** Arguments for the command.
+- `servers[].triton.args`: **(list)** Arguments for the command.
 
-- `servers.triton.resources`: **(object)** Resource requests and limits for the Triton server.
+- `servers[].triton.resources`: **(object)** Resource requests and limits for the Triton server.
   - `limits`: Resource limits.
     - `nvidia.com/gpu`: **(int)** Number and type of GPUs to allocate.
     - `cpu`: **(string)** CPU limit.
@@ -64,21 +64,23 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
     - `cpu`: **(string)** CPU request.
     - `memory`: **(string)** Memory request.
 
-- `servers.triton.modelRepository`: **(object)** Configuration for the model repository.
+- `servers[].triton.modelRepository`: **(object)** Configuration for the model repository.
   - `storageType`: **(string)** Type of storage for the model repository. Possible options are `nfs`, `pvc`, `cvmfs`, `cvmfs-pvc`, `s3`. 
   - `mountPath`: **(string)** Mount path for the model repository inside the container.
 
 ##### envoy
 
-- `servers.envoy.name`: **(string)** Name of the Envoy deployment.
+- `servers[].envoy.enabled`: **(bool)** Enable Envoy Proxy.
 
-- `servers.envoy.replicas`: **(int)** Number of Envoy replicas.
+- `servers[].envoy.name`: **(string)** Name of the Envoy deployment.
 
-- `servers.envoy.image`: **(string)** Docker image for Envoy.
+- `servers[].envoy.replicas`: **(int)** Number of Envoy replicas.
 
-- `servers.envoy.args`: **(list)** Arguments for the Envoy container.
+- `servers[].envoy.image`: **(string)** Docker image for Envoy.
 
-- `servers.envoy.resources`: **(object)** Resource requests and limits for Envoy.
+- `servers[].envoy.args`: **(list)** Arguments for the Envoy container.
+
+- `servers[].envoy.resources`: **(object)** Resource requests and limits for Envoy.
   - `requests`:
     - `cpu`: **(string)** CPU request.
     - `memory`: **(string)** Memory request.
@@ -86,37 +88,37 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
     - `cpu`: **(string)** CPU limit.
     - `memory`: **(string)** Memory limit.
 
-- `servers.envoy.configs`: **(object)** Configuration files for Envoy.
+- `servers[].envoy.configs`: **(object)** Configuration files for Envoy.
   - `envoyConfig`: **(string)** Path to the Envoy configuration file.
   - `luaConfig`: **(string)** Path to the Lua configuration file.
 
-- `servers.envoy.loadBalancerPolicy`: **(string)** Load balancing policy for Envoy.
+- `servers[].envoy.loadBalancerPolicy`: **(string)** Load balancing policy for Envoy.
 
 ##### prometheus
 
-- `servers.prometheus.url`: **(string)** URL of the Prometheus server.
+- `servers[].prometheus.url`: **(string)** URL of the Prometheus server.
 
-- `servers.prometheus.port`: **(int)** Port of the Prometheus server.
+- `servers[].prometheus.port`: **(int)** Port of the Prometheus server.
 
-- `servers.prometheus.scheme`: **(string)** Scheme for Prometheus (`http` or `https`).
+- `servers[].prometheus.scheme`: **(string)** Scheme for Prometheus (`http` or `https`).
 
-- `servers.prometheus.serverAvailabilityMetric`: **(string)** Prometheus query for server availability (saturation).
+- `servers[].prometheus.serverAvailabilityMetric`: **(string)** Prometheus query for server availability (saturation).
 
-- `servers.prometheus.serverAvailabilityThreshold`: **(int)** Threshold for server availability metric.
+- `servers[].prometheus.serverAvailabilityThreshold`: **(int)** Threshold for server availability metric.
 
 ##### autoscaler
 
-- `servers.autoscaler.enabled`: **(bool)** Enable the autoscaler.
+- `servers[].autoscaler.enabled`: **(bool)** Enable the autoscaler.
 
-- `servers.autoscaler.minReplicas`: **(int)** Minimum number of replicas.
+- `servers[].autoscaler.minReplicas`: **(int)** Minimum number of replicas.
 
-- `servers.autoscaler.maxReplicas`: **(int)** Maximum number of replicas.
+- `servers[].autoscaler.maxReplicas`: **(int)** Maximum number of replicas.
 
 ##### ingress
 
-- `servers.ingress.enabled`: **(bool)** Enable ingress for the service.
+- `servers[].ingress.enabled`: **(bool)** Enable ingress for the service.
 
-- `servers.ingress.hostName`: **(string)** Hostname for ingress.
+- `servers[].ingress.hostName`: **(string)** Hostname for ingress.
 
 #### common
 

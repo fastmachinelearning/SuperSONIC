@@ -1,5 +1,7 @@
 {{- range .Values.servers }}
 
+{{- if .envoy.enabled }}
+
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
 {{- $envoyAdminPort := "" -}}
@@ -59,5 +61,7 @@ data:
 {{ $luaConfig | indent 4 }}
 
 ---
+
+{{- end }}
 
 {{- end }}

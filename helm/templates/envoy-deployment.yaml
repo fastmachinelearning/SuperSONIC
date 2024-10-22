@@ -1,5 +1,7 @@
 {{- range .Values.servers }}
 
+{{- if .envoy.enabled }}
+
 {{- $envoyGrpcPort := "" -}}
 {{- range $.Values.common.envoyService.ports -}}
   {{- if eq .name "grpc" -}}
@@ -62,4 +64,7 @@ spec:
       restartPolicy: Always
 
 ---
+
+{{- end }}
+
 {{- end }}

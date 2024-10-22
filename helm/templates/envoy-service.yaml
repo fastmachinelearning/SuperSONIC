@@ -1,4 +1,7 @@
 {{- range .Values.servers }}
+
+{{- if .envoy.enabled }}
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -18,4 +21,7 @@ spec:
     protocol: {{ .protocol }}
   {{- end }}
 ---
+
+{{- end }}
+
 {{- end }}

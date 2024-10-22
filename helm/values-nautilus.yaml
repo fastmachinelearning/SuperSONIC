@@ -24,6 +24,7 @@ servers:
         storageType: cvmfs-pvc
         mountPath: /cvmfs
     envoy:
+      enabled: true
       name: triton-run2
       replicas: 1
       image: envoyproxy/envoy:v1.30-latest
