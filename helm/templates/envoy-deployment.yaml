@@ -57,9 +57,6 @@ spec:
       tolerations:
 {{ toYaml $.Values.common.tolerations | nindent 8 }}
 {{- end }}
-{{- if $.Values.common.affinity }}
-      affinity:
-{{ toYaml $.Values.common.affinity | nindent 8 }}
 {{- end }}
       restartPolicy: Always
 

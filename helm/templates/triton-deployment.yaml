@@ -14,9 +14,6 @@ spec:
         app: {{ .triton.name }}
     spec:
       terminationGracePeriodSeconds: 60
-{{- if .triton.affinity }}
-      affinity: {{ toYaml .triton.affinity | nindent 8}}
-{{- end }}
       containers:
       - name: triton-server
         image: {{ .triton.image }}
@@ -86,6 +83,10 @@ spec:
         emptyDir: {}
 {{- end }}
 
+{{- if .triton.affinity }}
+      affinity: {{ toYaml .triton.affinity | nindent 8}}
+{{- end }}
+
 {{- if $.Values.common.nodeSelector }}
       nodeSelector:
 {{ toYaml $.Values.common.nodeSelector | nindent 8 }}
@@ -94,9 +95,6 @@ spec:
       tolerations:
 {{ toYaml $.Values.common.tolerations | nindent 8 }}
 {{- end }}
-{{- if $.Values.common.affinity }}
-      affinity:
-{{ toYaml $.Values.common.affinity | nindent 8 }}
 {{- end }}
       restartPolicy: Always
 ---

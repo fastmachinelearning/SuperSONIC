@@ -68,6 +68,8 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
   - `storageType`: **(string)** Type of storage for the model repository. Possible options are `nfs`, `pvc`, `cvmfs`, `cvmfs-pvc`, `s3`. 
   - `mountPath`: **(string)** Mount path for the model repository inside the container.
 
+- `servers[].triton.affinity`: **(object)** Affinity rules for pod scheduling.
+
 ##### envoy
 
 - `servers[].envoy.enabled`: **(bool)** Enable Envoy Proxy.
@@ -140,5 +142,3 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
       - `name`: **(string)** Name of the port.
       - `port`: **(int)** External port.
       - `targetPort`: **(int)** Container port.
-
-- `common.affinity`: **(object)** Affinity rules for pod scheduling.
