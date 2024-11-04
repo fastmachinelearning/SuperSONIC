@@ -34,7 +34,6 @@ data:
 {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_URL" .prometheus.url }}
 {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_PORT" (quote .prometheus.port) }}
 {{- $envoyConfig = $envoyConfig | replace "LUA_CONFIG_FILE" "/etc/envoy/lua/envoy-filter.lua" }}
-{{- $envoyConfig = $envoyConfig | replace "LUA_CONFIG_FILE" "/etc/envoy/lua/envoy-filter.lua" }}
 {{- $envoyConfig = $envoyConfig | replace "JWT_ISSUER" .envoy.jwt.issuer }}
 {{- $envoyConfig = $envoyConfig | replace "JWT_REMOTE_JWKS_URI" .envoy.jwt.remoteJwksUri}}
 
