@@ -1,0 +1,111 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: ENVOY_ADMIN_PORT
+static_resources:
+  listeners:
+  - name: listener_grpc
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: ENVOY_GRPC_PORT
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_grpc
+          codec_type: AUTO
+          route_config:
+            name: local_route_grpc
+            virtual_hosts:
+            - name: backend_grpc
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: triton_grpc_service
+          http_filters:
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              default_source_code:
+                filename: LUA_CONFIG_FILE
+          - name: envoy.filters.http.JwtAuthentication
+            typed_config: 
+              "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+              providers:
+                provider_icecube:
+                  issuer: JWT_ISSUER
+                  audiences:
+                  - icesonic
+                  remote_jwks:
+                    http_uri:
+                      uri: JWT_REMOTE_JWKS_URI
+                      cluster: icecube_auth_cluster
+                      timeout: 100s
+                    cache_duration:
+                      seconds: 300
+              rules:
+              - match: 
+                  prefix: /
+                requires: 
+                  provider_name: provider_icecube
+          - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+
+          http2_protocol_options: {}
+
+  clusters:
+  - name: prometheus_cluster
+    connect_timeout: 0.25s
+    type: LOGICAL_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: prometheus_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: PROMETHEUS_URL
+                port_value: PROMETHEUS_PORT
+    PROMETHEUS_TRANSPORT_SOCKET_BLOCK
+  - name: icecube_auth_cluster
+    type: STRICT_DNS
+    connect_timeout: 500s
+    load_assignment:
+      cluster_name: icecube_auth_cluster
+      endpoints:
+        - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: keycloak.icecube.wisc.edu
+                    port_value: 443
+    transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+  - name: triton_grpc_service
+    connect_timeout: 0.25s
+    type: STRICT_DNS
+    lb_policy: LB_POLICY
+    http2_protocol_options: {}
+    load_assignment:
+      cluster_name: triton_grpc_service
+      endpoints:
+        - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: TRITON_NAME
+                    port_value: TRITON_GRPC_PORT
+
+      # 
+
