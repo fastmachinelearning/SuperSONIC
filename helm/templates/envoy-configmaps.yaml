@@ -115,10 +115,8 @@ kind: ConfigMap
 metadata:
   name: {{ .envoy.name }}-envoy-config
 data:
-  envoy.json: |-
-    {{- /* Convert the YAML configuration to JSON and indent it */}}
-    {{- $envoyConfig := include "envoy.configuration.yaml" $envoyContext | fromYaml }}
-{{ toPrettyJson $envoyConfig | indent 4 }}
+  envoy.yaml: |-
+{{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
 ---
 
 apiVersion: v1
