@@ -1,52 +1,124 @@
-{{- range .Values.servers }}
+{{- /* Define the Envoy configuration in YAML at the top level */}}
+{{- define "envoy.configuration.yaml" }}
+{{- with . }}
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: {{ .envoyAdminPort }}
+static_resources:
+  listeners:
+    - name: listener_grpc
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: {{ .envoyGrpcPort }}
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_grpc
+                codec_type: AUTO
+                route_config:
+                  name: local_route_grpc
+                  virtual_hosts:
+                    - name: backend_grpc
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: triton_grpc_service
+                http_filters:
+                  - name: envoy.filters.http.lua
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+                      default_source_code:
+                        filename: /etc/envoy/lua/envoy-filter.lua
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+                http2_protocol_options: {}
+  clusters:
+    - name: prometheus_cluster
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: prometheus_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: {{ .prometheus.url }}
+                      port_value: {{ .prometheus.port }}
+      {{- if eq .prometheus.scheme "https" }}
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+      {{- end }}
+    - name: triton_grpc_service
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      lb_policy: {{ .envoy.loadBalancerPolicy }}
+      http2_protocol_options: {}
+      load_assignment:
+        cluster_name: triton_grpc_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: {{ .triton.name }}
+                      port_value: {{ .tritonGrpcPort }}
+{{- end }}
+{{- end }}
 
+{{- /* Begin iterating over servers */}}
+{{- range .Values.servers }}
 {{- if .envoy.enabled }}
 
+{{- /* Define variables for ports */}}
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
 {{- $envoyAdminPort := "" -}}
-{{- range $.Values.common.tritonService.ports -}}
-  {{- if eq .name "grpc" -}}
-    {{- $tritonGrpcPort = .port -}}
-  {{- end -}}
-{{- end -}}
-{{- range $.Values.common.envoyService.ports -}}
-  {{- if eq .name "grpc" -}}
-    {{- $envoyGrpcPort = .port -}}
-  {{- end -}}
-  {{- if eq .name "admin" -}}
-    {{- $envoyAdminPort = .port -}}
-  {{- end -}}
-{{- end -}}
+{{- range $.Values.common.tritonService.ports }}
+  {{- if eq .name "grpc" }}
+    {{- $tritonGrpcPort = .port }}
+  {{- end }}
+{{- end }}
+{{- range $.Values.common.envoyService.ports }}
+  {{- if eq .name "grpc" }}
+    {{- $envoyGrpcPort = .port }}
+  {{- end }}
+  {{- if eq .name "admin" }}
+    {{- $envoyAdminPort = .port }}
+  {{- end }}
+{{- end }}
+
+{{- /* Create a context to pass to the template */}}
+{{- $envoyContext := dict
+    "envoyAdminPort" $envoyAdminPort
+    "envoyGrpcPort" $envoyGrpcPort
+    "tritonGrpcPort" $tritonGrpcPort
+    "prometheus" .prometheus
+    "envoy" .envoy
+    "triton" .triton
+}}
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .envoy.name }}-envoy-config
 data:
-  envoy.yaml: |-
-{{- $envoyConfig := $.Files.Get .envoy.configs.envoyConfig | indent 4 }}
-{{- $envoyConfig = $envoyConfig | replace "TRITON_NAME" .triton.name }}
-{{- $envoyConfig = $envoyConfig | replace "TRITON_GRPC_PORT" (quote $tritonGrpcPort) }}
-{{- $envoyConfig = $envoyConfig | replace "ENVOY_GRPC_PORT" (quote $envoyGrpcPort) }}
-{{- $envoyConfig = $envoyConfig | replace "ENVOY_ADMIN_PORT" (quote $envoyAdminPort) }}
-{{- $envoyConfig = $envoyConfig | replace "LB_POLICY" .envoy.loadBalancerPolicy }}
-{{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_URL" .prometheus.url }}
-{{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_PORT" (quote .prometheus.port) }}
-{{- $envoyConfig = $envoyConfig | replace "LUA_CONFIG_FILE" "/etc/envoy/lua/envoy-filter.lua" }}
-{{- $envoyConfig = $envoyConfig | replace "JWT_ISSUER" .envoy.jwt.issuer }}
-{{- $envoyConfig = $envoyConfig | replace "JWT_REMOTE_JWKS_URI" .envoy.jwt.remoteJwksUri}}
-
-{{- /* Handle transport socket */ -}}
-{{- if eq .prometheus.scheme "https" }}
-  {{- $tlsConfig := printf "transport_socket:\n          name: envoy.transport_sockets.tls\n          typed_config:\n            \"@type\": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext" }}
-  {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_TRANSPORT_SOCKET_BLOCK" $tlsConfig }}
-{{- else }}
-  {{- $envoyConfig = $envoyConfig | replace "PROMETHEUS_TRANSPORT_SOCKET_BLOCK" "" }}
-{{- end }}
-
-{{ $envoyConfig | indent 4 }}
-
+  envoy.json: |-
+    {{- /* Convert the YAML configuration to JSON and indent it */}}
+    {{- $envoyConfig := include "envoy.configuration.yaml" $envoyContext | fromYaml }}
+{{ toPrettyJson $envoyConfig | indent 4 }}
 ---
 
 apiVersion: v1
@@ -55,15 +127,15 @@ metadata:
   name: {{ .envoy.name }}-lua-config
 data:
   envoy-filter.lua: |-
-{{- $luaConfig := $.Files.Get .envoy.configs.luaConfig | indent 4 }}
-{{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .prometheus.serverAvailabilityMetric) }}
-{{ $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .prometheus.serverAvailabilityThreshold) }}
-{{ $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .prometheus.url }}
-{{ $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .prometheus.scheme }}
-{{ $luaConfig | indent 4 }}
+    {{- /* Read and process the Lua configuration file */}}
+    {{- $luaConfig := $.Files.Get .envoy.configs.luaConfig | nindent 4 }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .prometheus.serverAvailabilityMetric) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .prometheus.serverAvailabilityThreshold) }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .prometheus.url }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .prometheus.scheme }}
+    {{ $luaConfig | indent 4 }}
 
 ---
 
 {{- end }}
-
 {{- end }}
