@@ -39,9 +39,9 @@ function envoy_on_request(request_handle)
             return
         end
 
-        -- request_handle:logInfo("Query response body: " .. body)
+        request_handle:logInfo("Query response body: " .. body)
         local metric_value_str = string.match(body, query_response_template)
-        -- request_handle:logInfo("Extracted metric: " .. metric_value_str)
+        request_handle:logInfo("Extracted metric: " .. metric_value_str)
 
         if metric_value_str then
             local metric_value = tonumber(metric_value_str)

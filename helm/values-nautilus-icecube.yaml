@@ -50,9 +50,13 @@ servers:
       configs:
         envoyConfig: "cfg/envoy-jwt.yaml"
         luaConfig: "cfg/envoy-filter.lua"
-      jwt:
-        issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
-        remoteJwksUri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
+      auth:
+        enabled: true
+        jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
+        jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
+        audiences: [icecube]
+        url: keycloak.icecube.wisc.edu
+        port: 443
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
       url: "prometheus.nrp-nautilus.io"
@@ -60,17 +64,17 @@ servers:
       scheme: https
       serverAvailabilityMetric: |-
         sum(
-          rate(
-            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
+          sum by (pod) (
+            rate(nv_inference_queue_duration_us{pod=~"triton-icesonic.*"}[5m:1m])
+          )
           /
-          (rate(
-            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])+0.0000001)
+          sum by (pod) (
+            (rate(nv_inference_exec_count{pod=~"triton-icesonic.*"}[5m:1m]) + 0.00001) * 1000
+          )
         )
       serverAvailabilityThreshold: 100
     autoscaler:
-      enabled: False
+      enabled: false
       minReplicas: 0
       maxReplicas: 1
     ingress:
@@ -98,7 +102,3 @@ common:
 
   affinity: {}
 
-
-# For Run3:
-# Triton image:  fastml/triton-torchgeo:22.07-py3-geometric
-# Models: /depot/cms/sonic/yao317/models/sonic-models/models_2023

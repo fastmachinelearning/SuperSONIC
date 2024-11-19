@@ -94,6 +94,14 @@ helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
   - `envoyConfig`: **(string)** Path to the Envoy configuration file.
   - `luaConfig`: **(string)** Path to the Lua configuration file.
 
+- `servers[].envoy.auth`: **(object)** Authentication settings for Envoy.
+  - `enabled (default: false)`: **(bool)** Enable JWT authentication.
+  - `jwt_issuer`: **(string)** URL of the JWT issuer.
+  - `jwt_remote_jwks_uri`: **(string)** URL of the JWKS endpoint.
+  - `audiences`: **(list)** List of accepted audiences.
+  - `url`: **(string)** Authentication service URL.
+  - `port`: **(int)** Port for the authentication service.
+
 - `servers[].envoy.loadBalancerPolicy`: **(string)** Load balancing policy for Envoy.
 
 ##### prometheus
