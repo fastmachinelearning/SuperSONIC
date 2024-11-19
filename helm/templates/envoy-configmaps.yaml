@@ -37,6 +37,27 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       default_source_code:
                         filename: /etc/envoy/lua/envoy-filter.lua
+                  {{- if .envoy.auth.enabled }}
+                  - name: envoy.filters.http.JwtAuthentication
+                    typed_config: 
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                      providers:
+                        provider_icecube:
+                          issuer: {{ .envoy.auth.jwt_issuer }}
+                          audiences: {{ .envoy.auth.audiences }}
+                          remote_jwks:
+                            http_uri:
+                              uri: {{ .envoy.auth.jwt_remote_jwks_uri }}
+                              cluster: auth_cluster
+                              timeout: 100s
+                            cache_duration:
+                              seconds: 300
+                      rules:
+                      - match: 
+                          prefix: /
+                        requires: 
+                          provider_name: provider_icecube
+                  {{- end }}
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
@@ -61,6 +82,24 @@ static_resources:
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
       {{- end }}
+    {{- if .envoy.auth.enabled }}
+    - name: auth_cluster
+      type: STRICT_DNS
+      connect_timeout: 500s
+      load_assignment:
+        cluster_name: auth_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: {{- if .envoy.auth.url }}
+                      port_value: {{- if .envoy.auth.port }}
+      transport_socket:
+          name: envoy.transport_sockets.tls
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+    {{- end }}
     - name: triton_grpc_service
       connect_timeout: 0.25s
       type: STRICT_DNS
