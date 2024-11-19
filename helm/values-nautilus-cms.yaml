@@ -1,7 +1,7 @@
 
 servers:
   - triton: 
-      name: triton-run2-lb
+      name: sonic-test-server-triton
       # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
       image: fastml/triton-torchgeo:22.07-py3-geometric # run3
       command: ["/bin/sh", "-c"]
@@ -25,7 +25,7 @@ servers:
         mountPath: /cvmfs
     envoy:
       enabled: true
-      name: triton-run2
+      name: sonic-test-server
       replicas: 1
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
@@ -42,13 +42,13 @@ servers:
       scheme: https
       serverAvailabilityMetric: |-
         sum(
-          rate(
-            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
+          sum by (pod) (
+            rate(nv_inference_queue_duration_us{pod=~"sonic-test-server.*"}[5m:1m])
+          )
           /
-          (rate(
-            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])+0.0000001)
+          sum by (pod) (
+            (rate(nv_inference_exec_count{pod=~"sonic-test-server.*"}[5m:1m]) + 0.00001) * 1000
+          )
         )
       serverAvailabilityThreshold: 100
     autoscaler:

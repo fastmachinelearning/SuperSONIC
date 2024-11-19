@@ -64,13 +64,13 @@ servers:
       scheme: https
       serverAvailabilityMetric: |-
         sum(
-          rate(
-            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])
+          sum by (pod) (
+            rate(nv_inference_queue_duration_us{pod=~"triton-icesonic.*"}[5m:1m])
+          )
           /
-          (rate(
-            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"triton-run2.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-          [5m:1m])+0.0000001)
+          sum by (pod) (
+            (rate(nv_inference_exec_count{pod=~"triton-icesonic.*"}[5m:1m]) + 0.00001) * 1000
+          )
         )
       serverAvailabilityThreshold: 100
     autoscaler:
