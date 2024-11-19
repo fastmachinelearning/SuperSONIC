@@ -24,7 +24,7 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG_SECRET }}
         run: |
           echo "$KUBECONFIG" > kubeconfig
-          export KUBECONFIG=kubeconfig
+          echo "KUBECONFIG=kubeconfig" >> $GITHUB_ENV
 
       - name: Deploy SuperSONIC Helm chart
         run: |
