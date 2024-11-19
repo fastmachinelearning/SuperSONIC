@@ -67,7 +67,7 @@ static_resources:
                 http2_protocol_options: {}
   clusters:
     - name: prometheus_cluster
-      connect_timeout: 0.25s
+      connect_timeout: 5s
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
       load_assignment:
