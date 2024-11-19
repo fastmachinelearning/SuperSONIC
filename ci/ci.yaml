@@ -1,0 +1,47 @@
+name: SuperSONIC CI workflow for Purdue Geddes cluster
+
+on:
+  push:
+    branches:
+      - master
+      - ci
+  pull_request:
+
+jobs:
+  deploy-at-geddes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Configure kubectl
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG_SECRET }}
+        run: |
+          echo "$KUBECONFIG" > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy SuperSONIC Helm chart
+        run: |
+          helm upgrade --install super-sonic-ci helm \
+            --values ci/values-geddes-cms-ci.yaml -n cms
+
+      - name: Validate Deployment
+        run: |
+          kubectl get pod sonic-ci-envoy -n cms
+          kubectl get pod sonic-ci-triton -n cms
+
+      - name: Run Test CMSSW Workflow
+        run: |
+          # TODO
+          sleep 120
+
+      - name: Uninstall Helm Chart
+        if: ${{ success() }}
+        run: |
+          helm uninstall super-sonic-ci -n cms

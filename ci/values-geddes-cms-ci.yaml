@@ -1,0 +1,89 @@
+
+servers:
+  - triton: 
+      name: sonic-ci-triton
+      replicas: 1
+      # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
+      image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+      command: ["/bin/sh", "-c"]
+      args: 
+        - |
+          /opt/tritonserver/bin/tritonserver \
+          --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
+          --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
+          --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
+          --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
+          --allow-gpu-metrics=true \
+          --log-verbose=0 \
+          --strict-model-config=false \
+          --exit-timeout-secs=60
+      resources:
+        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+      modelRepository:
+        storageType: cvmfs # Options: "pvc", "nfs", "s3", "cvmfs"
+        mountPath: /cvmfs
+        # nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
+    envoy:
+      enabled: true
+      name: sonic-ci-envoy
+      replicas: 1
+      image: envoyproxy/envoy:v1.30-latest
+      args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
+      resources:
+        requests: { cpu: 8, memory: 8Gi }
+        limits: { cpu: 16, memory: 8Gi }
+      configs:
+        envoyConfig: "cfg/envoy.yaml"
+        luaConfig: "cfg/envoy-filter.lua"
+      loadBalancerPolicy: LEAST_REQUEST
+    prometheus:
+      url: "prometheus-service.cms.geddes.rcac.purdue.edu"
+      port: 8080
+      scheme: http
+      serverAvailabilityMetric: |-
+        sum(
+          rate(
+            label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"sonic-ci-.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [5m:1m])
+          /
+          rate(
+            label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"sonic-ci-.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+          [5m:1m])
+        )
+      serverAvailabilityThreshold: 100
+
+    autoscaler:
+      enabled: False
+    ingress:
+      enabled: false
+
+common:
+  # service configuration is currently same for all setups
+  tritonService:
+    labels:
+      scrape_metrics: "true"
+    annotations:
+      metallb.universe.tf/address-pool: geddes-private-pool
+    ports:
+      - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
+
+  envoyService:
+    type: LoadBalancer
+    labels:
+      envoy: "true"
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001 }
+      - { name: admin, port: 9901, targetPort: 9901 }
+
+  nodeSelector: {'cms-af-prod': 'true'}
+
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
+
+  affinity: {}
