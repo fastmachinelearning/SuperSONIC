@@ -28,6 +28,7 @@ jobs:
 
       - name: Deploy SuperSONIC Helm chart
         run: |
+          kubectl config use-context geddes
           helm upgrade --install super-sonic-ci helm \
             --values ci/values-geddes-cms-ci.yaml -n cms
 

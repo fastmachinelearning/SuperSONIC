@@ -34,13 +34,13 @@ clusters:
 - cluster:
     certificate-authority-data: $(echo ${CA_CERT} | base64 | tr -d '\n')
     server: ${CLUSTER_URL}
-  name: kubernetes
+  name: ${CLUSTER_NAME}
 contexts:
 - context:
-    cluster: kubernetes
+    cluster: ${CLUSTER_NAME}
     user: ${SERVICE_ACCOUNT_NAME}
-  name: ${SERVICE_ACCOUNT_NAME}-context
-current-context: ${SERVICE_ACCOUNT_NAME}-context
+  name: ${CLUSTER_NAME}
+current-context: ${CLUSTER_NAME}
 users:
 - name: ${SERVICE_ACCOUNT_NAME}
   user:
