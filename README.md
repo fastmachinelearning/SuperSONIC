@@ -10,7 +10,7 @@ define an appropriate threshold and avoid typos in the metric definition.
 
 The KEDA autoscaler can be enabled / disabled via the `servers[].autoscaler.enabled` parameter.
 
-![diagram](docs/diagram.svg "SONIC Server Infrastructure")
+![diagram](docs/img/diagram.svg "SONIC Server Infrastructure")
 
 ## Table of Contents
 
