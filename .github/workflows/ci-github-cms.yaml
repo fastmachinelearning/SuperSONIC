@@ -1,4 +1,4 @@
-name: SuperSONIC CI workflow for GitHub Actions
+name: CI workflow (CMS)
 
 on:
   push:

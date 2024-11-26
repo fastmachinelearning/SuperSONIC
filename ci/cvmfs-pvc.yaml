@@ -9,4 +9,4 @@ spec:
     # Has no effect as Read-Only Access: must be non-zero.
     requests:
       storage: 1
-    storageClassName: cvmfs
+  storageClassName: cvmfs
