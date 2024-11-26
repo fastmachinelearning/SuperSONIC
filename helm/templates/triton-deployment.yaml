@@ -28,7 +28,7 @@ spec:
         volumeMounts:
           - name: model-repository
             mountPath: {{ .triton.modelRepository.mountPath }}
-            mountPropagation: HostToContainer
+            # mountPropagation: HostToContainer
             readOnly: true
         command: {{ toYaml .triton.command | nindent 10 }}
         args:  {{ toYaml .triton.args | nindent 10 }}
