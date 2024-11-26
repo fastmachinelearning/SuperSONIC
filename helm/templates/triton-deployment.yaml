@@ -71,6 +71,7 @@ spec:
       - name: model-repository
         persistentVolumeClaim:
           claimName: cvmfs
+          readOnly: true
 {{- else if eq .triton.modelRepository.storageType "s3" }}
     #   initContainers:
     #   - name: s3-sync
