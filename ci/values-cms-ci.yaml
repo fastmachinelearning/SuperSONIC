@@ -77,8 +77,6 @@ common:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
 
-  nodeSelector: {'cms-af-prod': 'true'}
-
   tolerations:
     - key: hub.jupyter.org/dedicated
       operator: Equal
