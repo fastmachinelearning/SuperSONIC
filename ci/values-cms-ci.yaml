@@ -24,6 +24,7 @@ servers:
       modelRepository:
         storageType: cvmfs-pvc
         mountPath: /cvmfs
+        subPath: cms.cern.ch
     envoy:
       enabled: true
       name: sonic-ci-envoy
