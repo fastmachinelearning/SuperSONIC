@@ -3,3 +3,5 @@ kind: StorageClass
 metadata:
   name: cvmfs
 provisioner: cvmfs.csi.cern.ch
+parameters:
+  repository: cms.cern.ch
