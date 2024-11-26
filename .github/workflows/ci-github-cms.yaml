@@ -58,6 +58,7 @@ jobs:
           # kubectl describe pods -n cms -l app=sonic-ci-triton
           while ! kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true; do
               echo "Waiting for containers to become available..."
+              kubectl describe pods -n cms -l app=sonic-ci-triton
               sleep 60
           done
           kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true
