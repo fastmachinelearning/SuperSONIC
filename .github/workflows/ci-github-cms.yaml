@@ -42,7 +42,6 @@ jobs:
           kubectl create namespace cvmfs-csi
           helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi
           kubectl apply -f ci/cvmfs-storageclass.yaml -n cms
-          kubectl apply -f ci/cvmfs-pvc.yaml -n cms
 
       - name: Deploy Helm chart
         run: |
@@ -58,8 +57,8 @@ jobs:
           kubectl get pvc --all -n cms
           kubectl get pv --all -n cvmfs-csi
           kubectl get pvc --all -n cvmfs-csi
-          # kubectl describe pods -n cms -l app=sonic-ci-triton
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 300s -n cms
+          kubectl describe pods -n cms -l app=sonic-ci-triton
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
 
       - name: Validate Deployment
         run: |
