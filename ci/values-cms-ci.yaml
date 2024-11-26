@@ -58,7 +58,7 @@ servers:
       enabled: false
 
 common:
-  # service configuration is currently same for all setups
+  cvmfsPvc: true
   tritonService:
     labels:
       scrape_metrics: "true"
@@ -76,11 +76,5 @@ common:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
-  tolerations:
-    - key: hub.jupyter.org/dedicated
-      operator: Equal
-      value: cms-af
-      effect: NoSchedule
 
   affinity: {}
