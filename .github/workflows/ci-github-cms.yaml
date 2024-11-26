@@ -39,6 +39,7 @@ jobs:
 
       - name: Mount CVMFS
         run: |
+          kubectl create namespace cvmfs-csi
           helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi
           kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
           kubectl apply -f ci/cvmfs-pvc.yaml -n cms
