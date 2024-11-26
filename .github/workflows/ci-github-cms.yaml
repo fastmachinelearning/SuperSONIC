@@ -6,6 +6,8 @@ on:
       - master
       - ci
   pull_request:
+    branches:
+      - master
 
 jobs:
   deploy-at-github:
@@ -40,13 +42,11 @@ jobs:
       - name: Validate Deployment
         run: |
           kubectl get all -n cms
-          # kubectl get pod sonic-ci-envoy -n cms
-          # kubectl get pod sonic-ci-triton -n cms
 
-      - name: Run Test CMSSW Workflow
-        run: |
-          # TODO
-          sleep 120
+      # - name: Run Test CMSSW Workflow
+      #   run: |
+      #     # TODO
+      #     sleep 120
               
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster
