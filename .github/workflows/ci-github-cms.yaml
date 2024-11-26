@@ -1,4 +1,4 @@
-name: CI workflow (CMS)
+name: ci [CMS]
 
 on:
   push:
