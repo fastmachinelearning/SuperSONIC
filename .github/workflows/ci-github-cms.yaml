@@ -1,0 +1,52 @@
+name: SuperSONIC CI workflow for GitHub Actions
+
+on:
+  push:
+    branches:
+      - master
+      - ci
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy-at-github:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubernetes cluster with Kind
+        uses: helm/kind-action@v1.6.0
+        with:
+          cluster_name: gh-k8s-cluster
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Install Prometheus Operator CRDs
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          kubectl create namespace monitoring
+          helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
+
+      - name: Deploy Helm chart
+        run: |
+          helm upgrade --install super-sonic-ci helm \
+            --values ci/values-cms-ci.yaml -n cms \
+            --create-namespace
+
+      - name: Validate Deployment
+        run: |
+          kubectl get all -n cms
+
+      # - name: Run Test CMSSW Workflow
+      #   run: |
+      #     # TODO
+      #     sleep 120
+              
+      - name: Cleanup
+        run: kind delete cluster --name gh-k8s-cluster
