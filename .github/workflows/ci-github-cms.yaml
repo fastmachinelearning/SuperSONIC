@@ -54,13 +54,15 @@ jobs:
           kubectl get all -n cms
           # kubectl describe deployment sonic-ci-envoy -n cms
           sleep 120
-          echo "Envoy logs:"
-          kubectl logs deployment/sonic-ci-envoy -n cms --all-containers=true
+          kubectl describe pods -n cms -l app=sonic-ci-envoy
           echo ""
           echo ""
-          echo ""
-          echo "Triton logs:"
-          kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true
+          kubectl describe pods -n cms -l app=sonic-ci-triton
+          # echo "Envoy logs:"
+          # kubectl logs deployment/sonic-ci-envoy -n cms --all-containers=true
+          # echo ""
+          # echo "Triton logs:"
+          # kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true
           kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
           kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
 
