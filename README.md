@@ -1,4 +1,4 @@
-![ci workflow](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/ci-github-cms/badge.svg)
+![ci workflow](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/ci-github-cms.yaml/badge.svg)
 
 # SuperSONIC
 

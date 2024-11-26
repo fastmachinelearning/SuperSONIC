@@ -26,6 +26,10 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Create CMS namespace
+        run: |
+          kubectl create namespace cms
+
       - name: Install Prometheus Operator CRDs
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -42,8 +46,7 @@ jobs:
       - name: Deploy Helm chart
         run: |
           helm upgrade --install super-sonic-ci helm \
-            --values ci/values-cms-ci.yaml -n cms \
-            --create-namespace
+            --values ci/values-cms-ci.yaml -n cms
 
       - name: Validate Deployment
         run: |
