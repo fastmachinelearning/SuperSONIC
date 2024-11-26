@@ -1,5 +1,4 @@
 extraConfigMaps:
   cvmfs-csi-default-local:
     default.local: |
-      CVMFS_REPOSITORIES=cms.cern.ch
       CVMFS_HTTP_PROXY=DIRECT
