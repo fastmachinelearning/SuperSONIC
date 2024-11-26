@@ -1,4 +1,4 @@
-name: SuperSONIC CI workflow for GitHub Actions
+name: ci [CMS]
 
 on:
   push:
@@ -26,6 +26,10 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Create CMS namespace
+        run: |
+          kubectl create namespace cms
+
       - name: Install Prometheus Operator CRDs
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -33,11 +37,24 @@ jobs:
           kubectl create namespace monitoring
           helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
 
+      - name: Mount CVMFS
+        run: |
+          kubectl create namespace cvmfs-csi
+          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi
+          kubectl apply -f ci/cvmfs-pvc.yaml -n cms
+
       - name: Deploy Helm chart
         run: |
           helm upgrade --install super-sonic-ci helm \
-            --values ci/values-cms-ci.yaml -n cms \
-            --create-namespace
+            --values ci/values-cms-ci.yaml -n cms
+
+
+      - name: Wait for pods to be running
+        run: |
+          kubectl get all -n cms
+          kubectl describe deployment sonic-ci-envoy -n cms 
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
 
       - name: Validate Deployment
         run: |
