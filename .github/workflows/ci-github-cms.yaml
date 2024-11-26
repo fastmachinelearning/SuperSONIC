@@ -53,10 +53,10 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
           kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
-          kubectl get pv --all -n cms
-          kubectl get pvc --all -n cms
-          kubectl get pv --all -n cvmfs-csi
-          kubectl get pvc --all -n cvmfs-csi
+          kubectl get pv -n cms
+          kubectl get pvc -n cms
+          kubectl get pv -n cvmfs-csi
+          kubectl get pvc -n cvmfs-csi
           kubectl describe pods -n cms -l app=sonic-ci-triton
           kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
 
