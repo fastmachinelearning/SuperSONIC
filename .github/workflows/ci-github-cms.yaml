@@ -48,6 +48,12 @@ jobs:
           helm upgrade --install super-sonic-ci helm \
             --values ci/values-cms-ci.yaml -n cms
 
+
+      - name: Wait for pods to be running
+        run: |
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s
+
       - name: Validate Deployment
         run: |
           kubectl get all -n cms
