@@ -18,8 +18,8 @@ servers:
           --strict-model-config=false \
           --exit-timeout-secs=60
       resources:
-        limits: { cpu: 2, memory: 16G}
-        requests: { cpu: 2, memory: 16G}
+        limits: { cpu: 1, memory: 8Gi}
+        requests: { cpu: 1, memory: 8Gi}
       modelRepository:
         storageType: cvmfs-pvc
         mountPath: /cvmfs
@@ -30,8 +30,8 @@ servers:
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
-        requests: { cpu: 8, memory: 8Gi }
-        limits: { cpu: 16, memory: 8Gi }
+        requests: { cpu: 1, memory: 2Gi }
+        limits: { cpu: 1, memory: 2Gi }
       configs:
         envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
