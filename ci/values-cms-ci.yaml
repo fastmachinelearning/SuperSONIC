@@ -8,6 +8,7 @@ servers:
       command: ["/bin/sh", "-c"]
       args: 
         - |
+          ls -l /cvmfs/cms.cern.ch && \
           /opt/tritonserver/bin/tritonserver \
           --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
           --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
