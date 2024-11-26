@@ -57,12 +57,12 @@ jobs:
           # sleep 120
           # kubectl describe pvc cvmfs -n cms
           # kubectl get pods -n cvmfs-csi
-          # kubectl describe pods -n cms -l app=sonic-ci-triton
           # echo ""
           # echo "Triton logs:"
           # kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true
           kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
+          kubectl describe pods -n cms -l app=sonic-ci-triton
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 300s -n cms
 
       - name: Validate Deployment
         run: |
