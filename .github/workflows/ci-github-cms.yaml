@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Kubernetes cluster with kind
+      - name: Set up Kubernetes cluster with Kind
         uses: helm/kind-action@v1.6.0
         with:
           cluster_name: gh-k8s-cluster
@@ -24,15 +24,18 @@ jobs:
         with:
           version: v3.12.0
 
-      - name: Install CRDs
+      - name: Install Prometheus Operator CRDs
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          kubectl create namespace monitoring
+          helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
 
       - name: Deploy Helm chart
         run: |
           helm upgrade --install super-sonic-ci helm \
             --values ci/values-cms-ci.yaml -n cms \
-            --create-namespace --dry-run
+            --create-namespace
 
       - name: Validate Deployment
         run: |
@@ -43,6 +46,6 @@ jobs:
         run: |
           # TODO
           sleep 120
-          
+              
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster
