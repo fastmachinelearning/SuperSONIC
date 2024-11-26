@@ -39,8 +39,9 @@ jobs:
 
       - name: Validate Deployment
         run: |
-          kubectl get pod sonic-ci-envoy -n cms
-          kubectl get pod sonic-ci-triton -n cms
+          kubectl get all -n cms
+          # kubectl get pod sonic-ci-envoy -n cms
+          # kubectl get pod sonic-ci-triton -n cms
 
       - name: Run Test CMSSW Workflow
         run: |
