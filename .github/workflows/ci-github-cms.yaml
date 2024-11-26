@@ -24,6 +24,10 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Install CRDs
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+
       - name: Deploy Helm chart
         run: |
           helm upgrade --install super-sonic-ci helm \
