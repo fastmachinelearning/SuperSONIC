@@ -1,17 +1,15 @@
 servers:
   - triton:
       name: triton-atlas
-      image: milescb/tritonserver:latest
+      image: milescb/traccc-aas:latest
       command: ["/bin/sh", "-c"]
       args:
-        - |
-          /opt/tritonserver/bin/tritonserver \
-          --model-repository=TBA \
-          --allow-gpu-metrics=true \
-          --log-verbose=1 \
-          --strict-model-config=false \
-          --exit-timeout-secs=60 \
-          --backend-config=onnxruntime,enable-global-threadpool=1
+        [
+          /opt/tritonserver/bin/tritonserver,
+          --model-repository=$MODEL_REPO,
+          --log-verbose=1,
+          --exit-on-error=true,
+        ]
       resources:
         limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
         requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
