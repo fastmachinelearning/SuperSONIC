@@ -29,6 +29,7 @@ spec:
           - name: model-repository
             mountPath: {{ .triton.modelRepository.mountPath }}
             mountPropagation: HostToContainer
+            readOnly: true
         command: {{ toYaml .triton.command | nindent 10 }}
         args:  {{ toYaml .triton.args | nindent 10 }}
         startupProbe:
@@ -70,6 +71,7 @@ spec:
       - name: model-repository
         persistentVolumeClaim:
           claimName: cvmfs
+          readOnly: true
 {{- else if eq .triton.modelRepository.storageType "s3" }}
     #   initContainers:
     #   - name: s3-sync

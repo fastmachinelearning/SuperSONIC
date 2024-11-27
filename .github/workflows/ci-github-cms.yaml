@@ -40,8 +40,8 @@ jobs:
       - name: Mount CVMFS
         run: |
           kubectl create namespace cvmfs-csi
-          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi
-          kubectl apply -f ci/cvmfs-pvc.yaml -n cms
+          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values ci/values-cvmfs-csi.yaml
+          kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
 
       - name: Deploy Helm chart
         run: |
@@ -51,10 +51,14 @@ jobs:
 
       - name: Wait for pods to be running
         run: |
-          kubectl get all -n cms
-          kubectl describe deployment sonic-ci-envoy -n cms 
+          kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
           kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 120s -n cms
+          while ! kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true; do
+              echo "Waiting for containers to become available..."
+              kubectl describe pods -n cms -l app=sonic-ci-triton
+              sleep 60
+          done
+          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 300s -n cms
 
       - name: Validate Deployment
         run: |
