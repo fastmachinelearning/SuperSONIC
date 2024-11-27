@@ -5,8 +5,7 @@ servers:
       command: ["/bin/sh", "-c"]
       args:
         [
-          /opt/tritonserver/bin/tritonserver,
-          --model-repository=$MODEL_REPO,
+          tritonserver --model-repository=/traccc-aaS/traccc-aaS/backend/models,
           --log-verbose=1,
           --exit-on-error=true,
         ]
