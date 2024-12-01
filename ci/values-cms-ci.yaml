@@ -8,6 +8,7 @@ servers:
       command: ["/bin/sh", "-c"]
       args: 
         - |
+          ls -l /cvmfs/cms.cern.ch && \
           /opt/tritonserver/bin/tritonserver \
           --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
           --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
@@ -18,8 +19,8 @@ servers:
           --strict-model-config=false \
           --exit-timeout-secs=60
       resources:
-        limits: { cpu: 2, memory: 16G}
-        requests: { cpu: 2, memory: 16G}
+        limits: { cpu: 1, memory: 2Gi}
+        requests: { cpu: 1, memory: 2Gi}
       modelRepository:
         storageType: cvmfs-pvc
         mountPath: /cvmfs
@@ -30,8 +31,8 @@ servers:
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
-        requests: { cpu: 8, memory: 8Gi }
-        limits: { cpu: 16, memory: 8Gi }
+        requests: { cpu: 1, memory: 2Gi }
+        limits: { cpu: 1, memory: 2Gi }
       configs:
         envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
@@ -58,7 +59,7 @@ servers:
       enabled: false
 
 common:
-  # service configuration is currently same for all setups
+  cvmfsPvc: true
   tritonService:
     labels:
       scrape_metrics: "true"
@@ -76,13 +77,5 @@ common:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
-  nodeSelector: {'cms-af-prod': 'true'}
-
-  tolerations:
-    - key: hub.jupyter.org/dedicated
-      operator: Equal
-      value: cms-af
-      effect: NoSchedule
 
   affinity: {}

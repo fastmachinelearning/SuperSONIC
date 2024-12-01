@@ -1,0 +1,4 @@
+extraConfigMaps:
+  cvmfs-csi-default-local:
+    default.local: |
+      CVMFS_HTTP_PROXY=DIRECT
