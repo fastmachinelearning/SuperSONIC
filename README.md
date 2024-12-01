@@ -3,15 +3,15 @@
 
 # SuperSONIC
 
-The SuperSONIC project implements **common server infrastructure for GPU inference-as-a-service** to accelerate machine learining algorithms at large high energy physics (HEP) and multimissenger astrophysics (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
+The SuperSONIC project implements **common server infrastructure for GPU inference-as-a-service** to accelerate machine learining algorithms at large high energy physics (HEP) and multi-messenger astrophysics (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
 The main components of SuperSONIC are:
-- Nvidia Triton inference servers
-- Dynamic muti-purpose Envoy Proxy:
+- [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
+- Dynamic muti-purpose [Envoy Proxy](envoyproxy.io):
   - Load balancing
   - GPU saturation prevention
   - Token-based authentication (optional)
-- Load-based autoscaling
+- Load-based autoscaling via [KEDA](keda.sh)
 
 ## Documentation
 
