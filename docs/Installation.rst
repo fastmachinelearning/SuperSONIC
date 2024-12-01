@@ -1,8 +1,16 @@
 Installation
 ------------
 
-Modify the following command to install the chart at your cluster:
+**Pre-requisites:**
 
-.. code:: shell
+   1. `Kubernetes cluster <kubernetes.io>`_
+   2. `Prometheus <prometheus.io>`_ monitoring system 
+   3. if using autoscaling: `KEDA (Kubernetes Event-Driven Autoscaling) <keda.sh>`_
 
-   helm upgrade --install sonic-load-balancers ./helm --values helm/values.yaml -n 
+**Installation:**
+
+   Modify the following command to install the chart at your cluster:
+
+   .. code:: shell
+
+      helm upgrade --install super-sonic ./helm --values helm/values.yaml -n 

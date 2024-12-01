@@ -3,14 +3,31 @@
 
 # SuperSONIC
 
-This Helm chart will install components depicted at the diagram below, excluding Prometheus and model repository, which must be connected by specifying relevant parameters in configuration file (see configuration reference below).
+The SuperSONIC project implements **common server infrastructure for GPU inference-as-a-service** to accelerate machine learining algorithms at large high energy physics (HEP) and multimissenger astrophysics (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
-In its current form, the chart allows to deploy multiple server instances with different settings at once. This can be useful if you need to host servers with different GPU models, different Triton server versions, or different model repository mounts. 
+The main components of SuperSONIC are:
+- Nvidia Triton inference servers
+- Dynamic muti-purpose Envoy Proxy:
+  - Load balancing
+  - GPU saturation prevention
+  - Token-based authentication (optional)
+- Load-based autoscaling
 
-For correct behavior, the server saturation metric (`servers[].prometheus.serverAvailabilityMetric`) used by Envoy proxy and autoscaler must be carefully defined.
-It is recommended to start with examining the metric in Prometheus interface, in order to
-define an appropriate threshold and avoid typos in the metric definition.
+## Documentation
 
-The KEDA autoscaler can be enabled / disabled via the `servers[].autoscaler.enabled` parameter.
+- [Documentation](http://fastmachinelearning.org/SuperSONIC/ "Documentation")
+  - [Installation](http://fastmachinelearning.org/SuperSONIC/Installation.html "Installation")
+  - [Helm chart parameters](http://fastmachinelearning.org/SuperSONIC/Parameters.html# "Parameters")
 
-![diagram](docs/img/diagram.svg "SONIC Server Infrastructure")
+## Server diagram
+
+<p align="center">
+  <img src="docs/img/diagram.svg" alt="diagram" width="700"/>
+</p>
+
+## Status of deployment
+
+|  | **[CMS](https://home.cern/science/experiments/cms)**      | **[ATLAS](https://home.cern/science/experiments/atlas)**    | **[IceCube](https://icecube.wisc.edu)**  |
+|:---|:---:|:---:|:---:|
+| **[Geddes cluster](https://www.rcac.purdue.edu/compute/geddes) (Purdue)**   | ✅ | - | - |
+| **[Nautilus cluster](https://docs.nationalresearchplatform.org) (NRP)**    | ✅  |  ⏳ |   ✅   |
