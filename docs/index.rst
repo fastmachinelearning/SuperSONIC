@@ -32,7 +32,7 @@ Why "inference-as-a-service"?
 
       .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
          :align: center
-         :width: 100%
+         :width: 90%
          :alt: A3D3
 
 
@@ -44,9 +44,10 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 
 .. image:: https://www.frontiersin.org/files/Articles/604083/fdata-03-604083-HTML-r1/image_m/fdata-03-604083-g004.jpg
    :align: center
-   :height: 120
+   :height: 200
    :alt: IaaS
 
+|
 
 The goal of SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,11 +73,15 @@ The experiments listed below are developing workflows with inference-as-a-servic
      :width: 300
      :alt: CMS Detector
 
+|
+
 - `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
 
   .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
      :width: 300
      :alt: ATLAS Detector
+
+|
 
 - `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
 
@@ -84,6 +89,7 @@ The experiments listed below are developing workflows with inference-as-a-servic
      :width: 300
      :alt: IceCube
 
+|
 
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
