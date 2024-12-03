@@ -75,7 +75,6 @@ The experiments listed below are developing workflows with inference-as-a-servic
 
 .. raw:: html
 
-    <!-- Table 1 -->
     <table style="width:100%; border-collapse: collapse;">
         <tr>
             <td style="width:65%; vertical-align: top;">
@@ -93,10 +92,10 @@ The experiments listed below are developing workflows with inference-as-a-servic
         </tr>
     </table>
 
-    <!-- Separator -->
-    <p style="text-align: center;">-----</p>
+----
 
-    <!-- Table 2 -->
+.. raw:: html
+
     <table style="width:100%; border-collapse: collapse;">
         <tr>
             <td style="width:65%; vertical-align: top;">
@@ -111,10 +110,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
         </tr>
     </table>
 
-    <!-- Separator -->
-    <p style="text-align: center;">-----</p>
+.. raw:: html
 
-    <!-- Table 3 -->
     <table style="width:100%; border-collapse: collapse;">
         <tr>
             <td style="width:65%; vertical-align: top;">
