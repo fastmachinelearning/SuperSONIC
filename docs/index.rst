@@ -38,7 +38,7 @@ Why "inference-as-a-service"?
          :width: 220
          :alt: A3D3
 
-      `image source <https://a3d3.ai/about/>`_
+      `Image source: A3D3 <https://a3d3.ai/about/>`_
 
 
 In "inference-as-a-service" model, the data processing workflows ("clients") off-load computationally intensive steps,
@@ -73,55 +73,33 @@ Experiments that use SuperSONIC
 
 The experiments listed below are developing workflows with inference-as-a-service implementations compatible with SuperSONIC.
 
-.. container:: twocol
+.. list-table::
+   :widths: 50 50
+   :header-rows: 0
 
-   .. container:: leftside
+   * - `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
 
-      `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
+       CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for machine learning models such as **ParticleNet**, **DeepMET**, **DeepTau**, **ParT**. In addition, non-ML tracking algorithms such as **LST** and **Patatrack** are being adapted for deployment as-a-service.
 
-      CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
-      machine learning models such as **ParticleNet**, **DeepMET**, **DeepTau**, **ParT**.
-      In addition, non-ML tracking algorithms such as **LST** and **Patatrack** are being adapted for deployment as-a-service.
+     - .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
+          :width: 100%
+          :alt: CMS Detector
 
-   .. container:: rightside
+   * - `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
 
-      .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
-         :width: 200
-         :alt: CMS Detector
+       ATLAS implements inference-as-a-service approach for tracking algorithms such as **Exa.TrkX** and **Traccc**.
 
------
+     - .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
+          :width: 100%
+          :alt: ATLAS Detector
 
-.. container:: twocol
+   * - `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
 
-   .. container:: leftside
+       IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
 
-      `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
-
-      ATLAS implements inference-as-a-service approach for tracking algorithms such as **Exa.TrkX** and **Traccc**.
-
-   .. container:: rightside
-
-      .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
-         :width: 200
-         :alt: ATLAS Detector
-
------
-
-.. container:: twocol
-
-   .. container:: leftside
-
-      `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
-
-      IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
-
-   .. container:: rightside
-
-      .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
-         :width: 200
-         :alt: IceCube
-
------
+     - .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
+          :width: 100%
+          :alt: IceCube
 
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
