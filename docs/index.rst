@@ -16,6 +16,8 @@ computing paradigm at large high energy physics (HEP) and multimissenger astroph
 (MMA) experiments. The server infrastructure is designed for deployment at
 `Kubernetes <kubernetes.io>`_ clusters equipped with GPUs.
 
+-----
+
 Why "inference-as-a-service"?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -32,7 +34,7 @@ Why "inference-as-a-service"?
 
       .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
          :align: center
-         :width: 200
+         :width: 220
          :alt: A3D3
 
 
@@ -44,10 +46,10 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 
 .. image:: https://www.frontiersin.org/files/Articles/604083/fdata-03-604083-HTML-r1/image_m/fdata-03-604083-g004.jpg
    :align: center
-   :height: 200
+   :height: 180
    :alt: IaaS
 
-|
+-----
 
 The goal of SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
