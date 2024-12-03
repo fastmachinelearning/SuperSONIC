@@ -14,9 +14,9 @@ SuperSONIC
 The SuperSONIC project implements server infrastructure for **inference-as-a-service**
 applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at
-`Kubernetes <kubernetes.io>`_ clusters equipped with GPUs.
+`Kubernetes <https://kubernetes.io>`_ clusters equipped with GPUs.
 
-SuperSONIC GitHub repository: `fastmachinelearning/SuperSONIC <https://github.com/>`_.
+SuperSONIC GitHub repository: `fastmachinelearning/SuperSONIC <https://github.com/fastmachinelearning/SuperSONIC>`_.
 
 -----
 
