@@ -72,6 +72,7 @@ Experiments that use SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The experiments listed below are developing workflows with inference-as-a-service implementations compatible with SuperSONIC.
+We are open for collaboration and encourage other experiments to try SuperSONIC for their inference-as-a-service needs.
 
 .. raw:: html
 
@@ -131,7 +132,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SuperSONIC has been successfully tested at the computing clusters listed below. 
+SuperSONIC has been successfully tested at the computing clusters listed below.
+We welcome developer help to add more computing centers to this list.
 
 - Purdue University: `Geddes cluster <https://www.rcac.purdue.edu/compute/geddes>`_.
 - National Research Platform (NRP): `Nautilus cluster <https://docs.nationalresearchplatform.org/>`_.
