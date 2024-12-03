@@ -75,10 +75,10 @@ The experiments listed below are developing workflows with inference-as-a-servic
 
 .. raw:: html
 
-    <table style="width:100%; border-collapse: separate; border-spacing: 20px 0;">
-        <!-- Row 1 -->
+    <!-- Table 1 -->
+    <table style="width:100%; border-collapse: collapse;">
         <tr>
-            <td style="width:65%; vertical-align: top; border-bottom: 1px solid #ccc;">
+            <td style="width:65%; vertical-align: top;">
                 <p><a href="https://home.cern/science/experiments/cms">CMS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
@@ -87,25 +87,35 @@ The experiments listed below are developing workflows with inference-as-a-servic
                     as-a-service.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top; border-bottom: 1px solid #ccc;">
+            <td style="width:35%; vertical-align: top;">
                 <img src="https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg" alt="CMS Detector" width="200">
             </td>
         </tr>
+    </table>
 
-        <!-- Row 2 -->
+    <!-- Separator -->
+    <p style="text-align: center;">-----</p>
+
+    <!-- Table 2 -->
+    <table style="width:100%; border-collapse: collapse;">
         <tr>
-            <td style="width:65%; vertical-align: top; border-bottom: 1px solid #ccc;">
+            <td style="width:65%; vertical-align: top;">
                 <p><a href="https://home.cern/science/experiments/atlas">ATLAS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     ATLAS implements inference-as-a-service approach for tracking algorithms such as <strong>Exa.TrkX</strong> and <strong>Traccc</strong>.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top; border-bottom: 1px solid #ccc;">
+            <td style="width:35%; vertical-align: top;">
                 <img src="https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large" alt="ATLAS Detector" width="200">
             </td>
         </tr>
+    </table>
 
-        <!-- Row 3 -->
+    <!-- Separator -->
+    <p style="text-align: center;">-----</p>
+
+    <!-- Table 3 -->
+    <table style="width:100%; border-collapse: collapse;">
         <tr>
             <td style="width:65%; vertical-align: top;">
                 <p><a href="https://icecube.wisc.edu/">IceCube Neutrino Observatory</a> at the South Pole.</p>
