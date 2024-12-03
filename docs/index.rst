@@ -32,7 +32,7 @@ Why "inference-as-a-service"?
 
       .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
          :align: center
-         :width: 90%
+         :width: 200
          :alt: A3D3
 
 
