@@ -110,6 +110,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
         </tr>
     </table>
 
+----
+
 .. raw:: html
 
     <table style="width:100%; border-collapse: collapse;">
