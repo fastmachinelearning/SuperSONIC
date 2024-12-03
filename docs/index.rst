@@ -35,7 +35,6 @@ Why "inference-as-a-service"?
    .. container:: rightside
 
       .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
-         :align: center
          :width: 220
          :alt: A3D3
 
@@ -81,8 +80,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
       `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
 
       CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
-      machine learning models such as ``ParticleNet``, ``DeepMET``, ``DeepTau``, ``ParT``.
-      In addition, non-ML tracking algorithms such as ``LST`` and ``Patatrack`` are being adapted for deployment as-a-service.
+      machine learning models such as **ParticleNet**, **DeepMET**, **DeepTau**, **ParT**.
+      In addition, non-ML tracking algorithms such as **LST** and **Patatrack** are being adapted for deployment as-a-service.
 
    .. container:: rightside
 
@@ -90,13 +89,15 @@ The experiments listed below are developing workflows with inference-as-a-servic
          :width: 200
          :alt: CMS Detector
 
+-----
+
 .. container:: twocol
 
    .. container:: leftside
 
       `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
 
-      ATLAS implements inference-as-a-service approach for tracking algorithms such as ``Exa.TrkX`` and ``Traccc``.
+      ATLAS implements inference-as-a-service approach for tracking algorithms such as **Exa.TrkX** and **Traccc**.
 
    .. container:: rightside
 
@@ -104,6 +105,7 @@ The experiments listed below are developing workflows with inference-as-a-servic
          :width: 200
          :alt: ATLAS Detector
 
+-----
 
 .. container:: twocol
 
@@ -118,6 +120,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
       .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
          :width: 200
          :alt: IceCube
+
+-----
 
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
