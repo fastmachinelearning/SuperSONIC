@@ -16,7 +16,7 @@ Installation
 
    .. code:: shell
 
-      helm upgrade --install super-sonic ./helm --values helm/values.yaml -n 
+      helm upgrade --install super-sonic ./helm --values helm/values.yaml -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~

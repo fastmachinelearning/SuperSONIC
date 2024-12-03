@@ -16,6 +16,8 @@ computing paradigm at large high energy physics (HEP) and multimissenger astroph
 (MMA) experiments. The server infrastructure is designed for deployment at
 `Kubernetes <kubernetes.io>`_ clusters equipped with GPUs.
 
+SuperSONIC GitHub repository: `fastmachinelearning/SuperSONIC <https://github.com/>`_.
+
 -----
 
 Why "inference-as-a-service"?
@@ -69,29 +71,42 @@ Experiments that use SuperSONIC
 
 The experiments listed below are developing workflows with inference-as-a-service implementations compatible with SuperSONIC.
 
-- `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
+.. container:: twocol
 
-  .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
-     :width: 300
-     :alt: CMS Detector
+   .. container:: leftside
 
-|
+      `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
 
-- `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
+   .. container:: rightside
 
-  .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
-     :width: 300
-     :alt: ATLAS Detector
+      .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
+         :width: 200
+         :alt: CMS Detector
 
-|
+.. container:: twocol
 
-- `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
+   .. container:: leftside
 
-  .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
-     :width: 300
-     :alt: IceCube
+      `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
 
-|
+   .. container:: rightside
+
+      .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
+         :width: 200
+         :alt: ATLAS Detector
+
+
+.. container:: twocol
+
+   .. container:: leftside
+
+      `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
+
+   .. container:: rightside
+
+      .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
+         :width: 200
+         :alt: IceCube
 
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
