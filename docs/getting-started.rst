@@ -5,9 +5,9 @@ Getting Started
 Pre-requisites
 ~~~~~~~~~~~~~~~
 
-   1. `Kubernetes cluster <kubernetes.io>`_
+   1. `Kubernetes <kubernetes.io>`_ cluster
    2. `Prometheus <prometheus.io>`_ monitoring system 
-   3. if using autoscaling: `KEDA (Kubernetes Event-Driven Autoscaling) <keda.sh>`_
+   3. (if using autoscaling) `KEDA (Kubernetes Event-Driven Autoscaling) <keda.sh>`_
 
 Installation
 ~~~~~~~~~~~~~~

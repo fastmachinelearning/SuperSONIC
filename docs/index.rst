@@ -11,8 +11,8 @@
 SuperSONIC
 ========================================
 
-The SuperSONIC project implements server infrastructure for inference-as-a-service
-computing paradigm at large high energy physics (HEP) and multimissenger astrophysics
+The SuperSONIC project implements server infrastructure for **inference-as-a-service**
+applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at
 `Kubernetes <kubernetes.io>`_ clusters equipped with GPUs.
 
@@ -28,9 +28,9 @@ Why "inference-as-a-service"?
    .. container:: leftside
 
       The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
-      of traditional processors (CPUs). This trend is driven by increasing data collection rates and the rising
-      complexity of algorithms, particularly those based on machine learning. 
-      Such a computing landscape strongly motivates the adoption of specialized co-processors, such as FPGAs, GPUs, and TPUs.
+      of traditional processors (CPUs). This trend is driven by increasing data collection rates, tightening latency requirements,
+      and rising complexity of algorithms, particularly those based on machine learning.
+      Such a computing landscape strongly motivates the adoption of specialized coprocessors, such as FPGAs, GPUs, and TPUs.
 
    .. container:: rightside
 
@@ -39,12 +39,14 @@ Why "inference-as-a-service"?
          :width: 220
          :alt: A3D3
 
+      `image source <https://a3d3.ai/about/>`_
+
 
 In "inference-as-a-service" model, the data processing workflows ("clients") off-load computationally intensive steps,
-such as neural network inference, to a remote "server" equipped with co-processors. This design allows to optimize both
-data processing throughput and co-processor utilization by dynamically balancing the ratio of CPUs to co-processors.
+such as neural network inference, to a remote "server" equipped with coprocessors. This design allows to optimize both
+data processing throughput and coprocessor utilization by dynamically balancing the ratio of CPUs to coprocessors.
 Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are grouped under the name
-**SONIC** - Services for Optimized Network Inference on Coprocessors.
+**SONIC (Services for Optimized Network Inference on Coprocessors)**.
 
 .. image:: https://www.frontiersin.org/files/Articles/604083/fdata-03-604083-HTML-r1/image_m/fdata-03-604083-g004.jpg
    :align: center
@@ -53,18 +55,19 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 
 -----
 
-The goal of SuperSONIC
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SuperSONIC: a case for shared server infrastructure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A key feature of the SONIC approach is the decoupling of clients from servers and the standardization
 of communication between them.
 While client-side implementations may vary across applications, the server-side infrastructure can remain
 largely the same, since the server functionality requirements (load balancing, autoscaling, etc.) are not
-workflow-specific. 
+experiment-specific. 
 
 The purpose of SuperSONIC project is to develop server infrastructure that could be reused by scientific
 experiments with only small differences in configuration.
 
+-----
 
 Experiments that use SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,6 +79,10 @@ The experiments listed below are developing workflows with inference-as-a-servic
    .. container:: leftside
 
       `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
+
+      CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
+      machine learning models such as ``ParticleNet``, ``DeepMET``, ``DeepTau``, ``ParT``.
+      In addition, non-ML tracking algorithms such as ``LST`` and ``Patatrack`` are being adapted for deployment as-a-service.
 
    .. container:: rightside
 
@@ -89,6 +96,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
 
       `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
 
+      ATLAS implements inference-as-a-service approach for tracking algorithms such as ``Exa.TrkX`` and ``Traccc``.
+
    .. container:: rightside
 
       .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
@@ -101,6 +110,8 @@ The experiments listed below are developing workflows with inference-as-a-servic
    .. container:: leftside
 
       `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
+
+      IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
 
    .. container:: rightside
 
