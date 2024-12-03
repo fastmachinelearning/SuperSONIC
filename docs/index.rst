@@ -49,7 +49,7 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 
 .. image:: https://www.frontiersin.org/files/Articles/604083/fdata-03-604083-HTML-r1/image_m/fdata-03-604083-g004.jpg
    :align: center
-   :height: 180
+   :height: 160
    :alt: IaaS
 
 -----
@@ -74,7 +74,7 @@ Experiments that use SuperSONIC
 The experiments listed below are developing workflows with inference-as-a-service implementations compatible with SuperSONIC.
 
 .. list-table::
-   :widths: 50 50
+   :widths: 60 40
    :header-rows: 0
 
    * - `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
@@ -82,7 +82,7 @@ The experiments listed below are developing workflows with inference-as-a-servic
        CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for machine learning models such as **ParticleNet**, **DeepMET**, **DeepTau**, **ParT**. In addition, non-ML tracking algorithms such as **LST** and **Patatrack** are being adapted for deployment as-a-service.
 
      - .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
-          :width: 100%
+          :width: 200
           :alt: CMS Detector
 
    * - `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
@@ -90,7 +90,7 @@ The experiments listed below are developing workflows with inference-as-a-servic
        ATLAS implements inference-as-a-service approach for tracking algorithms such as **Exa.TrkX** and **Traccc**.
 
      - .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
-          :width: 100%
+          :width: 200
           :alt: ATLAS Detector
 
    * - `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
@@ -98,7 +98,7 @@ The experiments listed below are developing workflows with inference-as-a-servic
        IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
 
      - .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
-          :width: 100%
+          :width: 200
           :alt: IceCube
 
 Deployment sites
