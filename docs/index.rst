@@ -73,32 +73,51 @@ Experiments that use SuperSONIC
 
 The experiments listed below are developing workflows with inference-as-a-service implementations compatible with SuperSONIC.
 
-.. tabularcolumns:: |p{0.6\linewidth}|p{0.35\linewidth}|
+.. raw:: html
 
-.. list-table::
-   :header-rows: 0
+    <table style="width:100%; border-spacing: 20px; border-collapse: separate;">
+        <!-- Row 1 -->
+        <tr>
+            <td style="width:65%; vertical-align: top; border: none;">
+                <p><a href="https://home.cern/science/experiments/cms">CMS Experiment</a> at the Large Hadron Collider (CERN).</p>
+                <p>
+                    CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
+                    machine learning models such as <strong>ParticleNet</strong>, <strong>DeepMET</strong>, <strong>DeepTau</strong>, <strong>ParT</strong>.
+                    In addition, non-ML tracking algorithms such as <strong>LST</strong> and <strong>Patatrack</strong> are being adapted for deployment
+                    as-a-service.
+                </p>
+            </td>
+            <td style="width:35%; vertical-align: top; border: none;">
+                <img src="https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg" alt="CMS Detector" width="200">
+            </td>
+        </tr>
 
-   * - `CMS Experiment <https://home.cern/science/experiments/cms>`_ at the Large Hadron Collider (CERN).
+        <!-- Row 2 -->
+        <tr>
+            <td style="width:65%; vertical-align: top; border: none;">
+                <p><a href="https://home.cern/science/experiments/atlas">ATLAS Experiment</a> at the Large Hadron Collider (CERN).</p>
+                <p>
+                    ATLAS implements inference-as-a-service approach for tracking algorithms such as <strong>Exa.TrkX</strong> and <strong>Traccc</strong>.
+                </p>
+            </td>
+            <td style="width:35%; vertical-align: top; border: none;">
+                <img src="https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large" alt="ATLAS Detector" width="200">
+            </td>
+        </tr>
 
-         CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for machine learning models such as **ParticleNet**, **DeepMET**, **DeepTau**, **ParT**. In addition, non-ML tracking algorithms such as **LST** and **Patatrack** are being adapted for deployment as-a-service.
-     - .. image:: https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg
-          :width: 200
-          :alt: CMS Detector
-
-   * - `ATLAS Experiment <https://home.cern/science/experiments/atlas>`_ at the Large Hadron Collider (CERN).
-
-         ATLAS implements inference-as-a-service approach for tracking algorithms such as **Exa.TrkX** and **Traccc**.
-     - .. image:: https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large
-          :width: 200
-          :alt: ATLAS Detector
-
-   * - `IceCube Neutrino Observatory <https://icecube.wisc.edu/>`_ at the South Pole.
-
-         IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
-     - .. image:: https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg
-          :width: 200
-          :alt: IceCube
-
+        <!-- Row 3 -->
+        <tr>
+            <td style="width:65%; vertical-align: top; border: none;">
+                <p><a href="https://icecube.wisc.edu/">IceCube Neutrino Observatory</a> at the South Pole.</p>
+                <p>
+                    IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
+                </p>
+            </td>
+            <td style="width:35%; vertical-align: top; border: none;">
+                <img src="https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg" alt="IceCube" width="200">
+            </td>
+        </tr>
+    </table>
 
 Deployment sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
