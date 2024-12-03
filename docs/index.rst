@@ -75,10 +75,10 @@ The experiments listed below are developing workflows with inference-as-a-servic
 
 .. raw:: html
 
-    <table style="width:100%; border-spacing: 20px; border-collapse: separate;">
+    <table style="width:100%; border-collapse: separate; border-spacing: 20px 0;">
         <!-- Row 1 -->
         <tr>
-            <td style="width:65%; vertical-align: top; border: none;">
+            <td style="width:65%; vertical-align: top; border-bottom: 1px solid #ccc;">
                 <p><a href="https://home.cern/science/experiments/cms">CMS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
@@ -87,33 +87,33 @@ The experiments listed below are developing workflows with inference-as-a-servic
                     as-a-service.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top; border: none;">
+            <td style="width:35%; vertical-align: top; border-bottom: 1px solid #ccc;">
                 <img src="https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg" alt="CMS Detector" width="200">
             </td>
         </tr>
 
         <!-- Row 2 -->
         <tr>
-            <td style="width:65%; vertical-align: top; border: none;">
+            <td style="width:65%; vertical-align: top; border-bottom: 1px solid #ccc;">
                 <p><a href="https://home.cern/science/experiments/atlas">ATLAS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     ATLAS implements inference-as-a-service approach for tracking algorithms such as <strong>Exa.TrkX</strong> and <strong>Traccc</strong>.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top; border: none;">
+            <td style="width:35%; vertical-align: top; border-bottom: 1px solid #ccc;">
                 <img src="https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large" alt="ATLAS Detector" width="200">
             </td>
         </tr>
 
         <!-- Row 3 -->
         <tr>
-            <td style="width:65%; vertical-align: top; border: none;">
+            <td style="width:65%; vertical-align: top;">
                 <p><a href="https://icecube.wisc.edu/">IceCube Neutrino Observatory</a> at the South Pole.</p>
                 <p>
                     IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top; border: none;">
+            <td style="width:35%; vertical-align: top;">
                 <img src="https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg" alt="IceCube" width="200">
             </td>
         </tr>
