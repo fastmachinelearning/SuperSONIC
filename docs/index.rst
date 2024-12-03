@@ -4,7 +4,7 @@
     :hidden:
     
     Home <self>
-    installation
+    getting-started
     configuration-reference
 
 
@@ -19,15 +19,21 @@ computing paradigm at large high energy physics (HEP) and multimissenger astroph
 Why "inference-as-a-service"?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
-of traditional processors (CPUs). This trend is driven by increasing data collection rates and the rising
-complexity of algorithms, particularly those based on machine learning. 
-Such a computing landscape strongly motivates the adoption of specialized co-processors, such as FPGAs, GPUs, and TPUs.
+.. container:: twocol
 
-.. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
-   :align: center
-   :height: 200
-   :alt: A3D3
+   .. container:: leftside
+
+      The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
+      of traditional processors (CPUs). This trend is driven by increasing data collection rates and the rising
+      complexity of algorithms, particularly those based on machine learning. 
+      Such a computing landscape strongly motivates the adoption of specialized co-processors, such as FPGAs, GPUs, and TPUs.
+
+   .. container:: rightside
+
+      .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
+         :align: center
+         :width: 100%
+         :alt: A3D3
 
 
 In "inference-as-a-service" model, the data processing workflows ("clients") off-load computationally intensive steps,

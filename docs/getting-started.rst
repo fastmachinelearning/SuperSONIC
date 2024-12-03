@@ -1,5 +1,6 @@
-Installation
-------------
+-------------------
+Getting Started
+-------------------
 
 **Pre-requisites:**
 
