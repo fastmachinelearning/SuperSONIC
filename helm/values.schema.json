@@ -256,8 +256,7 @@
                             "name",
                             "image",
                             "args",
-                            "resources",
-                            "loadBalancerPolicy"
+                            "resources"
                         ],
                         "properties": {
                             "enabled": {
@@ -278,7 +277,7 @@
                             },
                             "replicas": {
                                 "type": "integer",
-                                "default": 1,
+                                "default": 0,
                                 "title": "The replicas Schema",
                                 "examples": [
                                     1
@@ -424,7 +423,7 @@
                             },
                             "loadBalancerPolicy": {
                                 "type": "string",
-                                "default": "",
+                                "default": "LEAST_REQUEST",
                                 "title": "The loadBalancerPolicy Schema",
                                 "examples": [
                                     "LEAST_REQUEST"
@@ -509,10 +508,10 @@
                             },
                             "port": {
                                 "type": "integer",
-                                "default": 0,
+                                "default": 443,
                                 "title": "The port Schema",
                                 "examples": [
-                                    0
+                                    443
                                 ]
                             },
                             "scheme": {
@@ -543,7 +542,7 @@
                         "examples": [{
                             "enabled": false,
                             "url": "",
-                            "port": 0,
+                            "port": 443,
                             "scheme": "https",
                             "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
                             "serverAvailabilityThreshold": 100
@@ -580,12 +579,98 @@
                                 "examples": [
                                     2
                                 ]
+                            },
+                            "scaleUp": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The scaleUp Schema",
+                                "required": [
+                                ],
+                                "properties": {
+                                    "window": {
+                                        "type": "integer",
+                                        "default": 120,
+                                        "title": "The window Schema",
+                                        "examples": [
+                                            120
+                                        ]
+                                    },
+                                    "period": {
+                                        "type": "integer",
+                                        "default": 30,
+                                        "title": "The period Schema",
+                                        "examples": [
+                                            30
+                                        ]
+                                    },
+                                    "stepsize": {
+                                        "type": "integer",
+                                        "default": 1,
+                                        "title": "The stepsize Schema",
+                                        "examples": [
+                                            1
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "window": 120,
+                                    "period": 30,
+                                    "stepsize": 1
+                                }]
+                            },
+                            "scaleDown": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The scaleDown Schema",
+                                "required": [
+                                ],
+                                "properties": {
+                                    "window": {
+                                        "type": "integer",
+                                        "default": 120,
+                                        "title": "The window Schema",
+                                        "examples": [
+                                            120
+                                        ]
+                                    },
+                                    "period": {
+                                        "type": "integer",
+                                        "default": 30,
+                                        "title": "The period Schema",
+                                        "examples": [
+                                            30
+                                        ]
+                                    },
+                                    "stepsize": {
+                                        "type": "integer",
+                                        "default": 1,
+                                        "title": "The stepsize Schema",
+                                        "examples": [
+                                            1
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "window": 120,
+                                    "period": 30,
+                                    "stepsize": 1
+                                }]
                             }
                         },
                         "examples": [{
                             "enabled": false,
                             "minReplicas": 1,
-                            "maxReplicas": 2
+                            "maxReplicas": 2,
+                            "scaleUp": {
+                                "window": 120,
+                                "period": 30,
+                                "stepsize": 1
+                            },
+                            "scaleDown": {
+                                "window": 120,
+                                "period": 30,
+                                "stepsize": 1
+                            }
                         }]
                     },
                     "ingress": {
@@ -593,7 +678,6 @@
                         "default": {},
                         "title": "The ingress Schema",
                         "required": [
-                            "enabled"
                         ],
                         "properties": {
                             "enabled": {
@@ -681,7 +765,7 @@
                     "prometheus": {
                         "enabled": false,
                         "url": "",
-                        "port": 0,
+                        "port": 443,
                         "scheme": "https",
                         "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
                         "serverAvailabilityThreshold": 100
@@ -689,7 +773,17 @@
                     "autoscaler": {
                         "enabled": false,
                         "minReplicas": 1,
-                        "maxReplicas": 2
+                        "maxReplicas": 2,
+                        "scaleUp": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        },
+                        "scaleDown": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        }
                     },
                     "ingress": {
                         "enabled": false,
@@ -760,7 +854,7 @@
                     "prometheus": {
                         "enabled": false,
                         "url": "",
-                        "port": 0,
+                        "port": 443,
                         "scheme": "https",
                         "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
                         "serverAvailabilityThreshold": 100
@@ -768,7 +862,17 @@
                     "autoscaler": {
                         "enabled": false,
                         "minReplicas": 1,
-                        "maxReplicas": 2
+                        "maxReplicas": 2,
+                        "scaleUp": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        },
+                        "scaleDown": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        }
                     },
                     "ingress": {
                         "enabled": false,
@@ -832,9 +936,9 @@
                             "type": "object",
                             "default": {},
                             "title": "The annotations Schema",
-                            "examples": [
-                                null
-                            ]
+                            "required": [],
+                            "properties": {},
+                            "examples": [{}]
                         },
                         "ports": {
                             "type": "array",
@@ -1074,16 +1178,17 @@
                     "type": "object",
                     "default": {},
                     "title": "The nodeSelector Schema",
-                    "examples": [
-                        null
-                    ]
+                    "required": [],
+                    "properties": {},
+                    "examples": [{}]
                 },
                 "tolerations": {
                     "type": "array",
                     "default": [],
                     "title": "The tolerations Schema",
+                    "items": {},
                     "examples": [
-                        null
+                        []
                     ]
                 }
             },
@@ -1195,9 +1300,9 @@
                 }
             },
             "prometheus": {
-                "enabled": true,
+                "enabled": false,
                 "url": "",
-                "port": 0,
+                "port": 443,
                 "scheme": "https",
                 "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
                 "serverAvailabilityThreshold": 100
@@ -1205,7 +1310,17 @@
             "autoscaler": {
                 "enabled": false,
                 "minReplicas": 1,
-                "maxReplicas": 2
+                "maxReplicas": 2,
+                "scaleUp": {
+                    "window": 120,
+                    "period": 30,
+                    "stepsize": 1
+                },
+                "scaleDown": {
+                    "window": 120,
+                    "period": 30,
+                    "stepsize": 1
+                }
             },
             "ingress": {
                 "enabled": false,

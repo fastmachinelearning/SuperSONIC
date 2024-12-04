@@ -141,6 +141,14 @@ servers:
       # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
       minReplicas: 1
       maxReplicas: 2
+      scaleUp:
+        window: 120
+        period: 30
+        stepsize: 1
+      scaleDown:
+        window: 120
+        period: 30
+        stepsize: 1
 
     ingress:
       enabled: false

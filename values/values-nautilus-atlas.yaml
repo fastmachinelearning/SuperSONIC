@@ -18,7 +18,6 @@ servers:
     envoy:
       enabled: true
       name: envoy-atlas
-      replicas: 1
       image: envoyproxy/envoy:v1.30-latest
       args:
         [
@@ -32,9 +31,6 @@ servers:
       resources:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 2, memory: 4Gi }
-      configs:
-        luaConfig: "cfg/envoy-filter.lua"
-      loadBalancerPolicy: LEAST_REQUEST
     prometheus:
       url: "prometheus.nrp-nautilus.io"
       port: 443
