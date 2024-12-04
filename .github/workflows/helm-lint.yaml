@@ -2,7 +2,7 @@ name: helm lint
 
 on:
   push:
-    branches: ["master", "default-values"]
+    branches: ["master"]
 
 jobs:
   helm-lint:

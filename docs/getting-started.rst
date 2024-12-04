@@ -16,7 +16,18 @@ Installation
 
    .. code:: shell
 
-      helm upgrade --install super-sonic ./helm --values helm/values.yaml -n <namespace>
+      git clone https://github.com/fastmachinelearning/SuperSONIC
+      cd SuperSONIC
+      helm upgrade --install SuperSONIC ./helm --values values/your-values.yaml -n <namespace>
+
+   Nicer installation from a Helm repository coming soon in `v0.1`
+
+Uninstall SuperSONIC
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. code:: shell
+
+      helm uninstall SuperSONIC  -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~
