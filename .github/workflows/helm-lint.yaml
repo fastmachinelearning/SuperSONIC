@@ -3,7 +3,6 @@ name: helm lint
 on:
   push:
     branches: ["master", "default-values"]
-  pull_request:
 
 jobs:
   helm-lint:
