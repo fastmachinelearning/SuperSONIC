@@ -33,7 +33,6 @@ servers:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 2, memory: 4Gi }
       configs:
-        envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
@@ -60,7 +59,6 @@ servers:
       hostName: sonic-cms.nrp-nautilus.io
 
 common:
-  # service configuration is currently same for all setups
   cvmfsPvc: true
   tritonService:
     labels:
@@ -79,8 +77,6 @@ common:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
-  affinity: {}
 
 
 # For Run3:

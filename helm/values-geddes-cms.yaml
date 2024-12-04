@@ -21,9 +21,8 @@ servers:
         limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
         requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
       modelRepository:
-        storageType: cvmfs # Options: "pvc", "nfs", "s3", "cvmfs"
+        storageType: cvmfs-hostPath
         mountPath: /cvmfs
-        # nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
     envoy:
       enabled: true
       name: sonic-test-server
@@ -34,7 +33,6 @@ servers:
         requests: { cpu: 8, memory: 8Gi }
         limits: { cpu: 16, memory: 8Gi }
       configs:
-        envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
@@ -61,7 +59,6 @@ servers:
       enabled: false
 
 common:
-  # service configuration is currently same for all setups
   tritonService:
     labels:
       scrape_metrics: "true"
@@ -87,5 +84,3 @@ common:
       operator: Equal
       value: cms-af
       effect: NoSchedule
-
-  affinity: {}

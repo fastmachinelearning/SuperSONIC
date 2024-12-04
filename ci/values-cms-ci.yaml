@@ -34,7 +34,6 @@ servers:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 1, memory: 2Gi }
       configs:
-        envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:

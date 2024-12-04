@@ -48,7 +48,6 @@ servers:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 2, memory: 4Gi }
       configs:
-        envoyConfig: "cfg/envoy-jwt.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       auth:
         enabled: true
@@ -82,7 +81,6 @@ servers:
       hostName: icesonic.nrp-nautilus.io
 
 common:
-  # service configuration is currently same for all setups
   cvmfsPvc: true
   tritonService:
     labels:
