@@ -1,7 +1,6 @@
 
 servers:
   - triton: 
-      name: sonic-test-server-triton
       # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
       image: fastml/triton-torchgeo:22.07-py3-geometric # run3
       command: ["/bin/sh", "-c"]
