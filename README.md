@@ -1,6 +1,7 @@
 ![ci [CMS]](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/ci-github-cms.yaml/badge.svg)
 ![docs](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/sphinx-docs.yaml/badge.svg)
 ![helm lint](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-lint.yaml/badge.svg)
+![helm docs](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-docs.yaml/badge.svg)
 
 # SuperSONIC
 
@@ -17,8 +18,8 @@ The main components of SuperSONIC are:
 ## Documentation
 
 - [Documentation](http://fastmachinelearning.org/SuperSONIC/ "Documentation")
-  - [Installation](http://fastmachinelearning.org/SuperSONIC/Installation.html "Installation")
-  - [Helm chart parameters](http://fastmachinelearning.org/SuperSONIC/Parameters.html# "Parameters")
+  - [Installation](http://fastmachinelearning.org/SuperSONIC/getting-started.html "Installation")
+  - [Helm chart parameters](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Parameters")
 
 ## Server diagram
 

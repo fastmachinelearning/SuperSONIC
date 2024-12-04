@@ -1,2 +1,2 @@
-helm upgrade --install super-sonic helm \
-  --values helm/values-nautilus-atlas.yaml -n atlas-sonic
+helm upgrade --install SuperSONIC helm \
+  --values values/values-nautilus-atlas.yaml -n atlas-sonic

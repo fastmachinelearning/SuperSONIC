@@ -1,2 +1,2 @@
-helm upgrade --install super-sonic helm \
-  --values helm/values-geddes-cms.yaml -n cms
+helm upgrade --install SuperSONIC helm \
+  --values values/values-geddes-cms.yaml -n cms
