@@ -61,7 +61,7 @@ spec:
       - name: model-repository
         persistentVolumeClaim:
           claimName: {{ .triton.modelRepository.pvc.claimName }}
-{{- else if eq .triton.modelRepository.storageType "cvmfs" }}
+{{- else if eq .triton.modelRepository.storageType "cvmfs-hostPath" }}
       volumes:
       - name: model-repository
         hostPath: 
@@ -72,17 +72,6 @@ spec:
         persistentVolumeClaim:
           claimName: cvmfs
           readOnly: true
-{{- else if eq .triton.modelRepository.storageType "s3" }}
-    #   initContainers:
-    #   - name: s3-sync
-    #     image: appropriate/curl # Placeholder image
-    #     command: ['sh', '-c', 'echo Syncing data from S3;']
-    #     volumeMounts:
-    #     - name: model-repository
-    #       mountPath: "/s3-data"
-      volumes:
-      - name: model-repository
-        emptyDir: {}
 {{- end }}
 
 {{- if .triton.affinity }}

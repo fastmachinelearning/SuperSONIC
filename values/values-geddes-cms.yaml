@@ -2,7 +2,6 @@
 servers:
   - triton: 
       name: sonic-test-server-triton
-      replicas: 1
       # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
       image: fastml/triton-torchgeo:22.07-py3-geometric # run3
       command: ["/bin/sh", "-c"]
@@ -21,20 +20,17 @@ servers:
         limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
         requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
       modelRepository:
-        storageType: cvmfs # Options: "pvc", "nfs", "s3", "cvmfs"
+        storageType: cvmfs-hostPath
         mountPath: /cvmfs
-        # nfs: { server: datadepot.rcac.purdue.edu, path: /depot/cms/ }
     envoy:
       enabled: true
       name: sonic-test-server
-      replicas: 1
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
         requests: { cpu: 8, memory: 8Gi }
         limits: { cpu: 16, memory: 8Gi }
       configs:
-        envoyConfig: "cfg/envoy.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       loadBalancerPolicy: LEAST_REQUEST
     prometheus:
@@ -61,7 +57,6 @@ servers:
       enabled: false
 
 common:
-  # service configuration is currently same for all setups
   tritonService:
     labels:
       scrape_metrics: "true"
@@ -87,5 +82,3 @@ common:
       operator: Equal
       value: cms-af
       effect: NoSchedule
-
-  affinity: {}

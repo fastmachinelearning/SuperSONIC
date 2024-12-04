@@ -14,7 +14,7 @@ kind: Deployment
 metadata:
   name: {{ .envoy.name }}
 spec:
-  replicas: {{ .envoy.replicas }}
+  replicas: {{ .envoy.replicas | default 1 }}
   selector:
     matchLabels:
       app: {{ .envoy.name }}
