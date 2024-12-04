@@ -30,6 +30,9 @@ servers:
       resources:
         requests: { cpu: 8, memory: 8Gi }
         limits: { cpu: 16, memory: 8Gi }
+      configs:
+        luaConfig: "cfg/envoy-filter.lua"
+      loadBalancerPolicy: LEAST_REQUEST
     prometheus:
       url: "prometheus-service.cms.geddes.rcac.purdue.edu"
       port: 8080

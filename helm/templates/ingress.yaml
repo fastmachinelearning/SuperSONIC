@@ -1,6 +1,6 @@
 {{- range .Values.servers }}
 
-{{ if .ingress.enabled }}
+{{ if .ingress.enabled | default false }}
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress

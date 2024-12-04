@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ .triton.name }}
 spec:
-  replicas: {{ .triton.replicas }}
+  replicas: {{ .triton.replicas | default 1 }}
   selector:
     matchLabels:
       app: {{ .triton.name }}

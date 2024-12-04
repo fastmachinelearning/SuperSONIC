@@ -2,8 +2,8 @@
 
 {{- if .autoscaler.enabled }}
 
-{{- $scaleUp := .autoscaler.scaleUp }}
-{{- $scaleDown := .autoscaler.scaleDown }}
+{{- $scaleUp := .autoscaler.scaleUp | default dict }}
+{{- $scaleDown := .autoscaler.scaleDown | default dict }}
 {{- $prometheusAddress := printf "http://%s:%d" .prometheus.url (int .prometheus.port) | quote }}
 
 apiVersion: keda.sh/v1alpha1
@@ -17,23 +17,23 @@ spec:
   pollingInterval: 30
   cooldownPeriod: 120
   idleReplicaCount: 0
-  minReplicaCount: {{ .autoscaler.minReplicas }}
-  maxReplicaCount: {{ .autoscaler.maxReplicas }}
+  minReplicaCount: {{ default 1 .autoscaler.minReplicas }}
+  maxReplicaCount: {{ default 14 .autoscaler.maxReplicas }}
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
         scaleDown:
-          stabilizationWindowSeconds: {{ $scaleDown.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleDown.window }}
           policies:
-            - periodSeconds: {{ $scaleDown.period }}
+            - periodSeconds: {{ default 30 $scaleDown.period }}
               type: Pods
-              value: {{ $scaleDown.stepsize }}
+              value: {{ default 1 $scaleDown.stepsize }}
         scaleUp:
-          stabilizationWindowSeconds: {{ $scaleUp.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleUp.window }}
           policies:
-            - periodSeconds: {{ $scaleUp.period }}
+            - periodSeconds: {{ default 30 $scaleUp.period }}
               type: Pods
-              value: {{ $scaleUp.stepsize }}
+              value: {{ default 1 $scaleUp.stepsize }}
 
   triggers:
   - type: prometheus

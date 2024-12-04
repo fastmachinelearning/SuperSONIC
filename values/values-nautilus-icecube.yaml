@@ -45,6 +45,8 @@ servers:
       resources:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 2, memory: 4Gi }
+      configs:
+        luaConfig: "cfg/envoy-filter.lua"
       auth:
         enabled: true
         jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
@@ -52,6 +54,7 @@ servers:
         audiences: [icecube]
         url: keycloak.icecube.wisc.edu
         port: 443
+      loadBalancerPolicy: LEAST_REQUEST
     prometheus:
       url: "prometheus.nrp-nautilus.io"
       port: 443
