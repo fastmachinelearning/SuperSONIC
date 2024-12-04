@@ -2,7 +2,7 @@ name: docs
 
 on:
   push:
-    branches: [master, docs]
+    branches: [master, docs, default-values]
 
 jobs:
   pages:
