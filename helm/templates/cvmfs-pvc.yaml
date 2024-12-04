@@ -1,4 +1,4 @@
-{{ if .Values.common.cvmfsPvc | default false }}
+{{ if .Values.common.cvmfsPvc }}
 {{- $mypvc := (lookup "v1" "PersistentVolumeClaim" .Release.Namespace (printf "cvmfs")) }}
 {{- if not $mypvc }}
 apiVersion: v1

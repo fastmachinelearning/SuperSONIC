@@ -1,0 +1,46 @@
+name: helm docs
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  helm-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install helm-docs
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.4"
+      - run: |
+          go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+          export PATH=$PATH:$(go env GOPATH)/bin
+
+      # Run helm-docs
+      - name: Run helm-docs
+        run: |
+          cd helm/
+          helm-docs
+
+      # Commit and push changes to the same branch
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Add and commit changes
+          git add helm/README.md
+          git commit -m "Update helm README" || echo "No changes to commit"
+
+          # Push changes back to the same branch
+          git push origin HEAD

@@ -1,0 +1,33 @@
+name: helm lint
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  helm-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Lint values.yaml files in values/ directory
+        run: |
+          CHART_PATH="helm/"
+          VALUES_DIR="values/"
+
+          for VALUES_FILE in "$VALUES_DIR"/*.yaml; do
+            echo "Linting with values file: $VALUES_FILE"
+            helm lint "$CHART_PATH" --values "$VALUES_FILE"
+
+            if [ $? -ne 0 ]; then
+              echo "Helm lint failed for values file: $VALUES_FILE"
+              exit 1
+            fi
+          done

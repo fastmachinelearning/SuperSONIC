@@ -2,7 +2,6 @@ servers:
   - triton: 
       name: triton-icesonic
       image: nvcr.io/nvidia/tritonserver:24.06-py3
-      # command: ["/bin/sh", "-c"]
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -41,14 +40,12 @@ servers:
     envoy:
       enabled: true
       name: envoy-icesonic
-      replicas: 1
       image: envoyproxy/envoy:v1.30-latest
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
       resources:
         requests: { cpu: 1, memory: 2Gi }
         limits: { cpu: 2, memory: 4Gi }
       configs:
-        envoyConfig: "cfg/envoy-jwt.yaml"
         luaConfig: "cfg/envoy-filter.lua"
       auth:
         enabled: true
@@ -82,7 +79,6 @@ servers:
       hostName: icesonic.nrp-nautilus.io
 
 common:
-  # service configuration is currently same for all setups
   cvmfsPvc: true
   tritonService:
     labels:
@@ -99,6 +95,4 @@ common:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
-  affinity: {}
 

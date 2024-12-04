@@ -1,0 +1,1376 @@
+{
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "default": {},
+    "title": "Root Schema",
+    "required": [
+        "servers",
+        "common"
+    ],
+    "properties": {
+        "servers": {
+            "type": "array",
+            "default": [],
+            "title": "The servers Schema",
+            "items": {
+                "type": "object",
+                "default": {},
+                "title": "A Schema",
+                "required": [
+                    "triton",
+                    "envoy",
+                    "prometheus",
+                    "autoscaler",
+                    "ingress"
+                ],
+                "properties": {
+                    "triton": {
+                        "type": "object",
+                        "default": {},
+                        "title": "The triton Schema",
+                        "required": [
+                            "name",
+                            "image",
+                            "args",
+                            "resources",
+                            "modelRepository"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The name Schema",
+                                "examples": [
+                                    "sonic-server-triton"
+                                ]
+                            },
+                            "replicas": {
+                                "type": "integer",
+                                "default": 1,
+                                "title": "The replicas Schema",
+                                "examples": [
+                                    1
+                                ]
+                            },
+                            "image": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The image Schema",
+                                "examples": [
+                                    "fastml/triton-torchgeo:22.07-py3-geometric"
+                                ]
+                            },
+                            "command": {
+                                "type": "array",
+                                "default": [],
+                                "title": "The command Schema",
+                                "items": {
+                                    "type": "string",
+                                    "title": "A Schema",
+                                    "examples": [
+                                        "/bin/sh",
+                                        "-c"
+                                    ]
+                                },
+                                "examples": [
+                                    ["/bin/sh",
+                                        "-c"
+                                    ]
+                                ]
+                            },
+                            "args": {
+                                "type": "array",
+                                "default": [],
+                                "title": "The args Schema",
+                                "items": {
+                                    "type": "string",
+                                    "default": "",
+                                    "title": "A Schema",
+                                    "examples": [
+                                        "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
+                                    ]
+                                },
+                                "examples": [
+                                    [
+                                        "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"]
+                                ]
+                            },
+                            "resources": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The resources Schema",
+                                "required": [
+                                    "limits",
+                                    "requests"
+                                ],
+                                "properties": {
+                                    "limits": {
+                                        "type": "object",
+                                        "default": {},
+                                        "title": "The limits Schema",
+                                        "required": [
+                                            "cpu",
+                                            "memory"
+                                        ],
+                                        "properties": {
+                                            "cpu": {
+                                                "type": "integer",
+                                                "default": 0,
+                                                "title": "The cpu Schema",
+                                                "examples": [
+                                                    2
+                                                ]
+                                            },
+                                            "memory": {
+                                                "type": "string",
+                                                "default": "",
+                                                "title": "The memory Schema",
+                                                "examples": [
+                                                    "16G"
+                                                ]
+                                            }
+                                        },
+                                        "examples": [{
+                                            "cpu": 2,
+                                            "memory": "16G"
+                                        }]
+                                    },
+                                    "requests": {
+                                        "type": "object",
+                                        "default": {},
+                                        "title": "The requests Schema",
+                                        "required": [
+                                            "cpu",
+                                            "memory"
+                                        ],
+                                        "properties": {
+                                            "cpu": {
+                                                "type": "integer",
+                                                "default": 0,
+                                                "title": "The cpu Schema",
+                                                "examples": [
+                                                    2
+                                                ]
+                                            },
+                                            "memory": {
+                                                "type": "string",
+                                                "default": "",
+                                                "title": "The memory Schema",
+                                                "examples": [
+                                                    "16G"
+                                                ]
+                                            }
+                                        },
+                                        "examples": [{
+                                            "cpu": 2,
+                                            "memory": "16G"
+                                        }]
+                                    }
+                                },
+                                "examples": [{
+                                    "limits": {
+                                        "cpu": 2,
+                                        "memory": "16G"
+                                    },
+                                    "requests": {
+                                        "cpu": 2,
+                                        "memory": "16G"
+                                    }
+                                }]
+                            },
+                            "affinity": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The affinity Schema",
+                                "required": [],
+                                "properties": {},
+                                "examples": [{}]
+                            },
+                            "modelRepository": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The modelRepository Schema",
+                                "required": [
+                                    "mountPath",
+                                    "storageType"
+                                ],
+                                "properties": {
+                                    "mountPath": {
+                                        "type": "string",
+                                        "default": "",
+                                        "title": "The mountPath Schema",
+                                        "examples": [
+                                            "/cvmfs"
+                                        ]
+                                    },
+                                    "storageType": {
+                                        "type": "string",
+                                        "default": "",
+                                        "title": "The storageType Schema",
+                                        "examples": [
+                                            "cvmfs-pvc"
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "mountPath": "/cvmfs",
+                                    "storageType": "cvmfs-pvc"
+                                }]
+                            }
+                        },
+                        "examples": [{
+                            "name": "sonic-server-triton",
+                            "replicas": 1,
+                            "image": "fastml/triton-torchgeo:22.07-py3-geometric",
+                            "command": [
+                                "/bin/sh",
+                                "-c"
+                            ],
+                            "args": [
+                                "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
+                            ],
+                            "resources": {
+                                "limits": {
+                                    "cpu": 2,
+                                    "memory": "16G"
+                                },
+                                "requests": {
+                                    "cpu": 2,
+                                    "memory": "16G"
+                                }
+                            },
+                            "affinity": {},
+                            "modelRepository": {
+                                "mountPath": "/cvmfs",
+                                "storageType": "cvmfs-pvc"
+                            }
+                        }]
+                    },
+                    "envoy": {
+                        "type": "object",
+                        "default": {},
+                        "title": "The envoy Schema",
+                        "required": [
+                            "enabled",
+                            "name",
+                            "image",
+                            "args",
+                            "resources"
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The enabled Schema",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "name": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The name Schema",
+                                "examples": [
+                                    "sonic-server"
+                                ]
+                            },
+                            "replicas": {
+                                "type": "integer",
+                                "default": 0,
+                                "title": "The replicas Schema",
+                                "examples": [
+                                    1
+                                ]
+                            },
+                            "image": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The image Schema",
+                                "examples": [
+                                    "envoyproxy/envoy:v1.30-latest"
+                                ]
+                            },
+                            "args": {
+                                "type": "array",
+                                "default": [],
+                                "title": "The args Schema",
+                                "items": {
+                                    "type": "string",
+                                    "title": "A Schema",
+                                    "examples": [
+                                        "--config-path",
+                                        "/etc/envoy/envoy.yaml",
+                                        "--log-level",
+                                        "info",
+                                        "--log-path",
+                                        "/dev/stdout"
+                                    ]
+                                },
+                                "examples": [
+                                    ["--config-path",
+                                        "/etc/envoy/envoy.yaml",
+                                        "--log-level",
+                                        "info",
+                                        "--log-path",
+                                        "/dev/stdout"
+                                    ]
+                                ]
+                            },
+                            "resources": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The resources Schema",
+                                "required": [
+                                    "requests",
+                                    "limits"
+                                ],
+                                "properties": {
+                                    "requests": {
+                                        "type": "object",
+                                        "default": {},
+                                        "title": "The requests Schema",
+                                        "required": [
+                                            "cpu",
+                                            "memory"
+                                        ],
+                                        "properties": {
+                                            "cpu": {
+                                                "type": "integer",
+                                                "default": 0,
+                                                "title": "The cpu Schema",
+                                                "examples": [
+                                                    2
+                                                ]
+                                            },
+                                            "memory": {
+                                                "type": "string",
+                                                "default": "",
+                                                "title": "The memory Schema",
+                                                "examples": [
+                                                    "4G"
+                                                ]
+                                            }
+                                        },
+                                        "examples": [{
+                                            "cpu": 2,
+                                            "memory": "4G"
+                                        }]
+                                    },
+                                    "limits": {
+                                        "type": "object",
+                                        "default": {},
+                                        "title": "The limits Schema",
+                                        "required": [
+                                            "cpu",
+                                            "memory"
+                                        ],
+                                        "properties": {
+                                            "cpu": {
+                                                "type": "integer",
+                                                "default": 0,
+                                                "title": "The cpu Schema",
+                                                "examples": [
+                                                    2
+                                                ]
+                                            },
+                                            "memory": {
+                                                "type": "string",
+                                                "default": "",
+                                                "title": "The memory Schema",
+                                                "examples": [
+                                                    "4G"
+                                                ]
+                                            }
+                                        },
+                                        "examples": [{
+                                            "cpu": 2,
+                                            "memory": "4G"
+                                        }]
+                                    }
+                                },
+                                "examples": [{
+                                    "requests": {
+                                        "cpu": 2,
+                                        "memory": "4G"
+                                    },
+                                    "limits": {
+                                        "cpu": 2,
+                                        "memory": "4G"
+                                    }
+                                }]
+                            },
+                            "configs": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The configs Schema",
+                                "required": [
+                                    "luaConfig"
+                                ],
+                                "properties": {
+                                    "luaConfig": {
+                                        "type": "string",
+                                        "default": "",
+                                        "title": "The luaConfig Schema",
+                                        "examples": [
+                                            "cfg/envoy-filter.lua"
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "luaConfig": "cfg/envoy-filter.lua"
+                                }]
+                            },
+                            "loadBalancerPolicy": {
+                                "type": "string",
+                                "default": "LEAST_REQUEST",
+                                "title": "The loadBalancerPolicy Schema",
+                                "examples": [
+                                    "LEAST_REQUEST"
+                                ]
+                            },
+                            "auth": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The auth Schema",
+                                "required": [
+                                    "enabled"
+                                ],
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "title": "The enabled Schema",
+                                        "examples": [
+                                            false
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "enabled": false
+                                }]
+                            }
+                        },
+                        "examples": [{
+                            "enabled": true,
+                            "name": "sonic-server",
+                            "replicas": 1,
+                            "image": "envoyproxy/envoy:v1.30-latest",
+                            "args": [
+                                "--config-path",
+                                "/etc/envoy/envoy.yaml",
+                                "--log-level",
+                                "info",
+                                "--log-path",
+                                "/dev/stdout"
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "cpu": 2,
+                                    "memory": "4G"
+                                },
+                                "limits": {
+                                    "cpu": 2,
+                                    "memory": "4G"
+                                }
+                            },
+                            "configs": {
+                                "luaConfig": "cfg/envoy-filter.lua"
+                            },
+                            "loadBalancerPolicy": "LEAST_REQUEST",
+                            "auth": {
+                                "enabled": false
+                            }
+                        }]
+                    },
+                    "prometheus": {
+                        "type": "object",
+                        "default": {},
+                        "title": "The prometheus Schema",
+                        "required": [
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The enabled Schema",
+                                "examples": [
+                                    false
+                                ]
+                            },
+                            "url": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The url Schema",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "port": {
+                                "type": "integer",
+                                "default": 443,
+                                "title": "The port Schema",
+                                "examples": [
+                                    443
+                                ]
+                            },
+                            "scheme": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The scheme Schema",
+                                "examples": [
+                                    "https"
+                                ]
+                            },
+                            "serverAvailabilityMetric": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The serverAvailabilityMetric Schema",
+                                "examples": [
+                                    "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)"
+                                ]
+                            },
+                            "serverAvailabilityThreshold": {
+                                "type": "integer",
+                                "default": 0,
+                                "title": "The serverAvailabilityThreshold Schema",
+                                "examples": [
+                                    100
+                                ]
+                            }
+                        },
+                        "examples": [{
+                            "enabled": false,
+                            "url": "",
+                            "port": 443,
+                            "scheme": "https",
+                            "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
+                            "serverAvailabilityThreshold": 100
+                        }]
+                    },
+                    "autoscaler": {
+                        "type": "object",
+                        "default": {},
+                        "title": "The autoscaler Schema",
+                        "required": [
+                            "enabled"
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The enabled Schema",
+                                "examples": [
+                                    false
+                                ]
+                            },
+                            "minReplicas": {
+                                "type": "integer",
+                                "default": 0,
+                                "title": "The minReplicas Schema",
+                                "examples": [
+                                    1
+                                ]
+                            },
+                            "maxReplicas": {
+                                "type": "integer",
+                                "default": 0,
+                                "title": "The maxReplicas Schema",
+                                "examples": [
+                                    2
+                                ]
+                            },
+                            "scaleUp": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The scaleUp Schema",
+                                "required": [
+                                ],
+                                "properties": {
+                                    "window": {
+                                        "type": "integer",
+                                        "default": 120,
+                                        "title": "The window Schema",
+                                        "examples": [
+                                            120
+                                        ]
+                                    },
+                                    "period": {
+                                        "type": "integer",
+                                        "default": 30,
+                                        "title": "The period Schema",
+                                        "examples": [
+                                            30
+                                        ]
+                                    },
+                                    "stepsize": {
+                                        "type": "integer",
+                                        "default": 1,
+                                        "title": "The stepsize Schema",
+                                        "examples": [
+                                            1
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "window": 120,
+                                    "period": 30,
+                                    "stepsize": 1
+                                }]
+                            },
+                            "scaleDown": {
+                                "type": "object",
+                                "default": {},
+                                "title": "The scaleDown Schema",
+                                "required": [
+                                ],
+                                "properties": {
+                                    "window": {
+                                        "type": "integer",
+                                        "default": 120,
+                                        "title": "The window Schema",
+                                        "examples": [
+                                            120
+                                        ]
+                                    },
+                                    "period": {
+                                        "type": "integer",
+                                        "default": 30,
+                                        "title": "The period Schema",
+                                        "examples": [
+                                            30
+                                        ]
+                                    },
+                                    "stepsize": {
+                                        "type": "integer",
+                                        "default": 1,
+                                        "title": "The stepsize Schema",
+                                        "examples": [
+                                            1
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "window": 120,
+                                    "period": 30,
+                                    "stepsize": 1
+                                }]
+                            }
+                        },
+                        "examples": [{
+                            "enabled": false,
+                            "minReplicas": 1,
+                            "maxReplicas": 2,
+                            "scaleUp": {
+                                "window": 120,
+                                "period": 30,
+                                "stepsize": 1
+                            },
+                            "scaleDown": {
+                                "window": 120,
+                                "period": 30,
+                                "stepsize": 1
+                            }
+                        }]
+                    },
+                    "ingress": {
+                        "type": "object",
+                        "default": {},
+                        "title": "The ingress Schema",
+                        "required": [
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The enabled Schema",
+                                "examples": [
+                                    false
+                                ]
+                            },
+                            "hostName": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The hostName Schema",
+                                "examples": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "examples": [{
+                            "enabled": false,
+                            "hostName": ""
+                        }]
+                    }
+                },
+                "examples": [{
+                    "triton": {
+                        "name": "sonic-server-triton",
+                        "replicas": 1,
+                        "image": "fastml/triton-torchgeo:22.07-py3-geometric",
+                        "command": [
+                            "/bin/sh",
+                            "-c"
+                        ],
+                        "args": [
+                            "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": 2,
+                                "memory": "16G"
+                            },
+                            "requests": {
+                                "cpu": 2,
+                                "memory": "16G"
+                            }
+                        },
+                        "affinity": {},
+                        "modelRepository": {
+                            "mountPath": "/cvmfs",
+                            "storageType": "cvmfs-pvc"
+                        }
+                    },
+                    "envoy": {
+                        "enabled": true,
+                        "name": "sonic-server",
+                        "replicas": 1,
+                        "image": "envoyproxy/envoy:v1.30-latest",
+                        "args": [
+                            "--config-path",
+                            "/etc/envoy/envoy.yaml",
+                            "--log-level",
+                            "info",
+                            "--log-path",
+                            "/dev/stdout"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "cpu": 2,
+                                "memory": "4G"
+                            },
+                            "limits": {
+                                "cpu": 2,
+                                "memory": "4G"
+                            }
+                        },
+                        "configs": {
+                            "luaConfig": "cfg/envoy-filter.lua"
+                        },
+                        "loadBalancerPolicy": "LEAST_REQUEST",
+                        "auth": {
+                            "enabled": false
+                        }
+                    },
+                    "prometheus": {
+                        "enabled": false,
+                        "url": "",
+                        "port": 443,
+                        "scheme": "https",
+                        "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
+                        "serverAvailabilityThreshold": 100
+                    },
+                    "autoscaler": {
+                        "enabled": false,
+                        "minReplicas": 1,
+                        "maxReplicas": 2,
+                        "scaleUp": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        },
+                        "scaleDown": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        }
+                    },
+                    "ingress": {
+                        "enabled": false,
+                        "hostName": ""
+                    }
+                }]
+            },
+            "examples": [
+                [{
+                    "triton": {
+                        "name": "sonic-server-triton",
+                        "replicas": 1,
+                        "image": "fastml/triton-torchgeo:22.07-py3-geometric",
+                        "command": [
+                            "/bin/sh",
+                            "-c"
+                        ],
+                        "args": [
+                            "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": 2,
+                                "memory": "16G"
+                            },
+                            "requests": {
+                                "cpu": 2,
+                                "memory": "16G"
+                            }
+                        },
+                        "affinity": {},
+                        "modelRepository": {
+                            "mountPath": "/cvmfs",
+                            "storageType": "cvmfs-pvc"
+                        }
+                    },
+                    "envoy": {
+                        "enabled": true,
+                        "name": "sonic-server",
+                        "replicas": 1,
+                        "image": "envoyproxy/envoy:v1.30-latest",
+                        "args": [
+                            "--config-path",
+                            "/etc/envoy/envoy.yaml",
+                            "--log-level",
+                            "info",
+                            "--log-path",
+                            "/dev/stdout"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "cpu": 2,
+                                "memory": "4G"
+                            },
+                            "limits": {
+                                "cpu": 2,
+                                "memory": "4G"
+                            }
+                        },
+                        "configs": {
+                            "luaConfig": "cfg/envoy-filter.lua"
+                        },
+                        "loadBalancerPolicy": "LEAST_REQUEST",
+                        "auth": {
+                            "enabled": false
+                        }
+                    },
+                    "prometheus": {
+                        "enabled": false,
+                        "url": "",
+                        "port": 443,
+                        "scheme": "https",
+                        "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
+                        "serverAvailabilityThreshold": 100
+                    },
+                    "autoscaler": {
+                        "enabled": false,
+                        "minReplicas": 1,
+                        "maxReplicas": 2,
+                        "scaleUp": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        },
+                        "scaleDown": {
+                            "window": 120,
+                            "period": 30,
+                            "stepsize": 1
+                        }
+                    },
+                    "ingress": {
+                        "enabled": false,
+                        "hostName": ""
+                    }
+                }]
+            ]
+        },
+        "common": {
+            "type": "object",
+            "default": {},
+            "title": "The common Schema",
+            "required": [
+                "cvmfsPvc",
+                "tritonService",
+                "envoyService",
+                "nodeSelector",
+                "tolerations"
+            ],
+            "properties": {
+                "cvmfsPvc": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "The cvmfsPvc Schema",
+                    "examples": [
+                        false
+                    ]
+                },
+                "tritonService": {
+                    "type": "object",
+                    "default": {},
+                    "title": "The tritonService Schema",
+                    "required": [
+                        "labels",
+                        "annotations",
+                        "ports"
+                    ],
+                    "properties": {
+                        "labels": {
+                            "type": "object",
+                            "default": {},
+                            "title": "The labels Schema",
+                            "required": [
+                                "scrape_metrics"
+                            ],
+                            "properties": {
+                                "scrape_metrics": {
+                                    "type": "string",
+                                    "default": "",
+                                    "title": "The scrape_metrics Schema",
+                                    "examples": [
+                                        "true"
+                                    ]
+                                }
+                            },
+                            "examples": [{
+                                "scrape_metrics": "true"
+                            }]
+                        },
+                        "annotations": {
+                            "type": "object",
+                            "default": {},
+                            "title": "The annotations Schema",
+                            "required": [],
+                            "properties": {},
+                            "examples": [{}]
+                        },
+                        "ports": {
+                            "type": "array",
+                            "default": [],
+                            "title": "The ports Schema",
+                            "items": {
+                                "type": "object",
+                                "title": "A Schema",
+                                "required": [
+                                    "name",
+                                    "port",
+                                    "targetPort",
+                                    "protocol"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "The name Schema",
+                                        "examples": [
+                                            "http",
+                                            "grpc",
+                                            "metrics"
+                                        ]
+                                    },
+                                    "port": {
+                                        "type": "integer",
+                                        "title": "The port Schema",
+                                        "examples": [
+                                            8000,
+                                            8001,
+                                            8002
+                                        ]
+                                    },
+                                    "targetPort": {
+                                        "type": "integer",
+                                        "title": "The targetPort Schema",
+                                        "examples": [
+                                            8000,
+                                            8001,
+                                            8002
+                                        ]
+                                    },
+                                    "protocol": {
+                                        "type": "string",
+                                        "title": "The protocol Schema",
+                                        "examples": [
+                                            "TCP"
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "name": "http",
+                                    "port": 8000,
+                                    "targetPort": 8000,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "grpc",
+                                    "port": 8001,
+                                    "targetPort": 8001,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "metrics",
+                                    "port": 8002,
+                                    "targetPort": 8002,
+                                    "protocol": "TCP"
+                                }]
+                            },
+                            "examples": [
+                                [{
+                                    "name": "http",
+                                    "port": 8000,
+                                    "targetPort": 8000,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "grpc",
+                                    "port": 8001,
+                                    "targetPort": 8001,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "metrics",
+                                    "port": 8002,
+                                    "targetPort": 8002,
+                                    "protocol": "TCP"
+                                }]
+                            ]
+                        }
+                    },
+                    "examples": [{
+                        "labels": {
+                            "scrape_metrics": "true"
+                        },
+                        "annotations": {},
+                        "ports": [{
+                            "name": "http",
+                            "port": 8000,
+                            "targetPort": 8000,
+                            "protocol": "TCP"
+                        },
+                        {
+                            "name": "grpc",
+                            "port": 8001,
+                            "targetPort": 8001,
+                            "protocol": "TCP"
+                        },
+                        {
+                            "name": "metrics",
+                            "port": 8002,
+                            "targetPort": 8002,
+                            "protocol": "TCP"
+                        }]
+                    }]
+                },
+                "envoyService": {
+                    "type": "object",
+                    "default": {},
+                    "title": "The envoyService Schema",
+                    "required": [
+                        "type",
+                        "labels",
+                        "ports"
+                    ],
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "default": "",
+                            "title": "The type Schema",
+                            "examples": [
+                                "LoadBalancer"
+                            ]
+                        },
+                        "labels": {
+                            "type": "object",
+                            "default": {},
+                            "title": "The labels Schema",
+                            "required": [
+                                "envoy"
+                            ],
+                            "properties": {
+                                "envoy": {
+                                    "type": "string",
+                                    "default": "",
+                                    "title": "The envoy Schema",
+                                    "examples": [
+                                        "true"
+                                    ]
+                                }
+                            },
+                            "examples": [{
+                                "envoy": "true"
+                            }]
+                        },
+                        "ports": {
+                            "type": "array",
+                            "default": [],
+                            "title": "The ports Schema",
+                            "items": {
+                                "type": "object",
+                                "title": "A Schema",
+                                "required": [
+                                    "name",
+                                    "port",
+                                    "targetPort"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "The name Schema",
+                                        "examples": [
+                                            "grpc",
+                                            "admin"
+                                        ]
+                                    },
+                                    "port": {
+                                        "type": "integer",
+                                        "title": "The port Schema",
+                                        "examples": [
+                                            8001,
+                                            9901
+                                        ]
+                                    },
+                                    "targetPort": {
+                                        "type": "integer",
+                                        "title": "The targetPort Schema",
+                                        "examples": [
+                                            8001,
+                                            9901
+                                        ]
+                                    }
+                                },
+                                "examples": [{
+                                    "name": "grpc",
+                                    "port": 8001,
+                                    "targetPort": 8001
+                                },
+                                {
+                                    "name": "admin",
+                                    "port": 9901,
+                                    "targetPort": 9901
+                                }]
+                            },
+                            "examples": [
+                                [{
+                                    "name": "grpc",
+                                    "port": 8001,
+                                    "targetPort": 8001
+                                },
+                                {
+                                    "name": "admin",
+                                    "port": 9901,
+                                    "targetPort": 9901
+                                }]
+                            ]
+                        }
+                    },
+                    "examples": [{
+                        "type": "LoadBalancer",
+                        "labels": {
+                            "envoy": "true"
+                        },
+                        "ports": [{
+                            "name": "grpc",
+                            "port": 8001,
+                            "targetPort": 8001
+                        },
+                        {
+                            "name": "admin",
+                            "port": 9901,
+                            "targetPort": 9901
+                        }]
+                    }]
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "default": {},
+                    "title": "The nodeSelector Schema",
+                    "required": [],
+                    "properties": {},
+                    "examples": [{}]
+                },
+                "tolerations": {
+                    "type": "array",
+                    "default": [],
+                    "title": "The tolerations Schema",
+                    "items": {},
+                    "examples": [
+                        []
+                    ]
+                }
+            },
+            "examples": [{
+                "cvmfsPvc": false,
+                "tritonService": {
+                    "labels": {
+                        "scrape_metrics": "true"
+                    },
+                    "annotations": {},
+                    "ports": [{
+                        "name": "http",
+                        "port": 8000,
+                        "targetPort": 8000,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "name": "grpc",
+                        "port": 8001,
+                        "targetPort": 8001,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "name": "metrics",
+                        "port": 8002,
+                        "targetPort": 8002,
+                        "protocol": "TCP"
+                    }]
+                },
+                "envoyService": {
+                    "type": "LoadBalancer",
+                    "labels": {
+                        "envoy": "true"
+                    },
+                    "ports": [{
+                        "name": "grpc",
+                        "port": 8001,
+                        "targetPort": 8001
+                    },
+                    {
+                        "name": "admin",
+                        "port": 9901,
+                        "targetPort": 9901
+                    }]
+                },
+                "nodeSelector": {},
+                "tolerations": []
+            }]
+        }
+    },
+    "examples": [{
+        "servers": [{
+            "triton": {
+                "name": "sonic-server-triton",
+                "replicas": 1,
+                "image": "fastml/triton-torchgeo:22.07-py3-geometric",
+                "command": [
+                    "/bin/sh",
+                    "-c"
+                ],
+                "args": [
+                    "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
+                ],
+                "resources": {
+                    "limits": {
+                        "cpu": 2,
+                        "memory": "16G"
+                    },
+                    "requests": {
+                        "cpu": 2,
+                        "memory": "16G"
+                    }
+                },
+                "affinity": {},
+                "modelRepository": {
+                    "mountPath": "/cvmfs",
+                    "storageType": "cvmfs-pvc"
+                }
+            },
+            "envoy": {
+                "enabled": true,
+                "name": "sonic-server",
+                "replicas": 1,
+                "image": "envoyproxy/envoy:v1.30-latest",
+                "args": [
+                    "--config-path",
+                    "/etc/envoy/envoy.yaml",
+                    "--log-level",
+                    "info",
+                    "--log-path",
+                    "/dev/stdout"
+                ],
+                "resources": {
+                    "requests": {
+                        "cpu": 2,
+                        "memory": "4G"
+                    },
+                    "limits": {
+                        "cpu": 2,
+                        "memory": "4G"
+                    }
+                },
+                "configs": {
+                    "luaConfig": "cfg/envoy-filter.lua"
+                },
+                "loadBalancerPolicy": "LEAST_REQUEST",
+                "auth": {
+                    "enabled": false
+                }
+            },
+            "prometheus": {
+                "enabled": false,
+                "url": "",
+                "port": 443,
+                "scheme": "https",
+                "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
+                "serverAvailabilityThreshold": 100
+            },
+            "autoscaler": {
+                "enabled": false,
+                "minReplicas": 1,
+                "maxReplicas": 2,
+                "scaleUp": {
+                    "window": 120,
+                    "period": 30,
+                    "stepsize": 1
+                },
+                "scaleDown": {
+                    "window": 120,
+                    "period": 30,
+                    "stepsize": 1
+                }
+            },
+            "ingress": {
+                "enabled": false,
+                "hostName": ""
+            }
+        }],
+        "common": {
+            "cvmfsPvc": false,
+            "tritonService": {
+                "labels": {
+                    "scrape_metrics": "true"
+                },
+                "annotations": {},
+                "ports": [{
+                    "name": "http",
+                    "port": 8000,
+                    "targetPort": 8000,
+                    "protocol": "TCP"
+                },
+                {
+                    "name": "grpc",
+                    "port": 8001,
+                    "targetPort": 8001,
+                    "protocol": "TCP"
+                },
+                {
+                    "name": "metrics",
+                    "port": 8002,
+                    "targetPort": 8002,
+                    "protocol": "TCP"
+                }]
+            },
+            "envoyService": {
+                "type": "LoadBalancer",
+                "labels": {
+                    "envoy": "true"
+                },
+                "ports": [{
+                    "name": "grpc",
+                    "port": 8001,
+                    "targetPort": 8001
+                },
+                {
+                    "name": "admin",
+                    "port": 9901,
+                    "targetPort": 9901
+                }]
+            },
+            "nodeSelector": {},
+            "tolerations": []
+        }
+    }]
+}
