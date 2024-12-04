@@ -8,7 +8,7 @@ servers:
     
   - 
     # -- Configuration for Triton Deployment
-    # @default -- {}
+    # @default -- ""
     triton:
 
       # -- Name of the Nvidia Triton inference server Deployment
@@ -70,7 +70,7 @@ servers:
         #   path:
 
     # -- Envoy Proxy configuration
-    # @default -- {}
+    # @default -- ""
     envoy:
 
       # -- Enable Envoy Proxy
@@ -116,7 +116,7 @@ servers:
         # port:
 
     # -- Configuration to use Prometheus instance for Envoy Proxy or autoscaler
-    # @default -- {}
+    # @default -- ""
     prometheus:
 
       # -- Enable Prometheus
@@ -147,7 +147,7 @@ servers:
       serverAvailabilityThreshold: 100
 
     # -- KEDA autoscaler configuration
-    # @default -- {}
+    # @default -- ""
     autoscaler:
 
       # -- Enable autoscaling
@@ -160,19 +160,20 @@ servers:
 
     # -- Ingress configuration: needed if you want to expose the server outside of the cluster. 
     # Read documentation or ask admins of a given cluster to configure this correctly.
-    # @default -- {}
+    # @default -- ""
     ingress:
       enabled: false
       hostName: ""
 
 # -- Common configuration for all deployed servers
-# @default -- {}
+# @default -- ""
 common:
 
   # -- Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
   cvmfsPvc: false
 
   # -- Configuration of Kubernetes Services associated with Triton Deployments
+  # @default -- ""
   tritonService:
 
     # -- Labels and annotations for the Service.
@@ -189,6 +190,7 @@ common:
   
   # -- Configuration of Kubernetes Service associated with Envoy Proxy.
   # This Service connects outside world to Envoy Proxy, either directly or via an Ingress in front of it.
+  # @default -- ""
   envoyService:
 
     # -- Service type: ClusterIP or LoadBalancer.
