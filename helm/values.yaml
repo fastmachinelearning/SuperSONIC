@@ -1,28 +1,26 @@
 # Default configuration values for SuperSONIC
 
-## List of server configurations: it is possible to deploy several servers at the same time,
-## for example when different server setups are needed for different workflows. 
-##
+# -- List of server configurations: it is possible to deploy several servers at the same time,
+# for example when different server setups are needed for different workflows.
+# @default -- []
 servers:
 
-    ## Configuration for Triton Deployment
-    ##
-  - triton:
+    
+  - 
+    # -- Configuration for Triton Deployment
+    # @default -- {}
+    triton:
 
-      ## Name of the Nvidia Triton inference server Deployment
-      ##
+      # -- Name of the Nvidia Triton inference server Deployment
       name: "sonic-server-triton"
 
-      ## Number of Triton server instances (if autoscaling is disabled)
-      ##
+      # -- Number of Triton server instances (if autoscaling is disabled)
       replicas: 1
 
-      ## Docker image for the Triton server
-      ##
+      # -- Docker image for the Triton server
       image: "fastml/triton-torchgeo:22.07-py3-geometric"
       
-      ## Command and arguments to run in Triton container
-      ##
+      # -- Command and arguments to run in Triton container
       command: ["/bin/sh", "-c"]
       args: 
         - |
@@ -33,9 +31,8 @@ servers:
           --strict-model-config=false \
           --exit-timeout-secs=60
 
-      ## Resource limits and requests for each Triton instance.
-      ## You can add necessary GPU request here.
-      ##
+      # -- Resource limits and requests for each Triton instance.
+      # You can add necessary GPU request here.
       resources:
         limits:
           cpu: 2
@@ -44,16 +41,13 @@ servers:
           cpu: 2
           memory: "16G"
       
-      ## Affinity rules for Triton pods
-      ##
+      # -- Affinity rules for Triton pods - another way to request GPUs
       affinity: {}
 
-      ## Model repository configuration
-      ##
+      # -- Model repository configuration
       modelRepository:
 
-        ## Model repository mount path
-        ##
+        # -- Model repository mount path
         mountPath: "/cvmfs"
 
         ## Model repository options:
@@ -75,33 +69,27 @@ servers:
         #   server:
         #   path:
 
-    ## Envoy Proxy configuration
-    ##
+    # -- Envoy Proxy configuration
+    # @default -- {}
     envoy:
 
-      ## Enable Envoy Proxy
-      ##
+      # -- Enable Envoy Proxy
       enabled: true
 
-      ## Envoy Proxy Deployment name
-      ## 
+      # -- Envoy Proxy Deployment name
       name: "sonic-server"
 
-      ## Number of Envoy Proxy pods in Deployment
-      ##
+      # -- Number of Envoy Proxy pods in Deployment
       replicas: 1
 
-      ## Envoy Proxy Docker image
-      ## 
+      # -- Envoy Proxy Docker image
       image: "envoyproxy/envoy:v1.30-latest"
 
-      ## Arguments for Envoy
-      ##
+      # -- Arguments for Envoy
       args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
 
-      ## Resource requests and limits for Envoy Proxy
-      ## Note: an Envoy Proxy with too many connections might run out of CPU
-      ##
+      # -- Resource requests and limits for Envoy Proxy.
+      # Note: an Envoy Proxy with too many connections might run out of CPU
       resources:
         requests:
           cpu: 2
@@ -110,18 +98,15 @@ servers:
           cpu: 2
           memory: "4G"
 
-      ## Configuration files for Envoy 
-      ##
+      # -- Configuration files for Envoy 
       configs:
         luaConfig: "cfg/envoy-filter.lua"
 
-      ## Envoy load balancer policy
-      ## Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
-      ##
+      # -- Envoy load balancer policy.
+      # Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
       loadBalancerPolicy: "LEAST_REQUEST"
 
-      ## Authentication settings in Envoy Proxy
-      ##
+      # -- Authentication settings in Envoy Proxy
       auth:
         enabled: false
         # jwt_issuer:
@@ -130,27 +115,23 @@ servers:
         # url:
         # port:
 
-    ## Configuration to use Prometheus instance for Envoy Proxy or autoscaler
-    ##
+    # -- Configuration to use Prometheus instance for Envoy Proxy or autoscaler
+    # @default -- {}
     prometheus:
 
-      ## Enable Prometheus
-      ##
+      # -- Enable Prometheus
       enabled: false
 
-      ## Prometheus server url and port number (find in documentation of a given cluster or ask admins)
-      ##
+      # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
       url: ""
-      port: 0  # integer: Prometheus port
+      port: 443
 
-      ## Specify whether Prometheus endpoint is exposed as http or https
-      ##
+      # -- Specify whether Prometheus endpoint is exposed as http or https
       scheme: "https"
 
-      ## A metric which Envoy Proxy can use to decide whether to accept new client connections;
+      # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
       ## the same metric can be used by KEDA autoscaler.
       ## The example below is average queue time for inference requests arriving at the server, in milliseconds.
-      ##
       serverAvailabilityMetric: |-
         sum(
           sum by (pod) (
@@ -162,81 +143,69 @@ servers:
           )
         )
       
-      ## Threshold for the metric
-      ##
+      # -- Threshold for the metric
       serverAvailabilityThreshold: 100
 
-    ## KEDA autoscaler configuration
-    ##
+    # -- KEDA autoscaler configuration
+    # @default -- {}
     autoscaler:
 
-      ## Enable autoscaling
-      ##
+      # -- Enable autoscaling
       enabled: false
 
-      ## Minimum and maximum number of Triton servers.
-      ## Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
+      # -- Minimum and maximum number of Triton servers.
+      # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
       minReplicas: 1
       maxReplicas: 2
 
-    ## Ingress configuration: needed if you want to expose the server outside of the cluster. 
-    ## Read documentation or ask admins of a given cluster to configure this correctly.
-    ##
+    # -- Ingress configuration: needed if you want to expose the server outside of the cluster. 
+    # Read documentation or ask admins of a given cluster to configure this correctly.
+    # @default -- {}
     ingress:
       enabled: false
       hostName: ""
 
-## Common configuration for all deployed servers
-##
+# -- Common configuration for all deployed servers
+# @default -- {}
 common:
 
-  ## Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
-  ##
+  # -- Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
   cvmfsPvc: false
 
-  ## Configuration of Kubernetes Services associated with Triton Deployments
+  # -- Configuration of Kubernetes Services associated with Triton Deployments
   tritonService:
 
-    ## Labels and annotations for the Service.
-    ## This can be useful to enable Prometheus to scrape metrics from Triton servers.
-    ##
+    # -- Labels and annotations for the Service.
+    # This can be useful to enable Prometheus to scrape metrics from Triton servers.
     labels:
       scrape_metrics: "true"
     annotations: {}
 
-    ## Ports for communication with Triton servers
-    ## 
+    # -- Ports for communication with Triton servers
     ports:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
   
-  ## Configuration of Kubernetes Service associated with Envoy Proxy.
-  ## This Service connects outside world to Envoy Proxy, either directly or via an Ingress in front of it.
-  ##
+  # -- Configuration of Kubernetes Service associated with Envoy Proxy.
+  # This Service connects outside world to Envoy Proxy, either directly or via an Ingress in front of it.
   envoyService:
 
-    ## Service type: ClusterIP or LoadBalancer.
-    ## If ClusterIP is chosen, you need to enable an Ingress for the servers.
-    ##
+    # -- Service type: ClusterIP or LoadBalancer.
+    # If ClusterIP is chosen, you need to enable an Ingress for the servers.
     type: "LoadBalancer"
 
-    ## I don't remember why this label is here.
-    ##
+    # -- I don't remember why this label is here.
     labels:
       envoy: "true"
 
-    ## Envoy Service ports
-    ##
+    # -- Envoy Service ports
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
 
-  ## Node selector for all pods (Triton and Envoy)
-  ##
+  # -- Node selector for all pods (Triton and Envoy)
   nodeSelector: {}
-    # "key": "value"
 
-  ## Tolerations for all pods (Triton and Envoy)
-  ##
+  # -- Tolerations for all pods (Triton and Envoy)
   tolerations: []
