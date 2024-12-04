@@ -40,7 +40,7 @@ jobs:
 
           # Add and commit changes
           git add helm/README.md
-          git commit -m "Update helm README [skip ci]" || echo "No changes to commit"
+          git commit -m "Update helm README" || echo "No changes to commit"
 
           # Push changes back to the same branch
           git push origin HEAD
