@@ -202,7 +202,7 @@ common:
     ##
     labels:
       scrape_metrics: "true"
-    annotations:
+    annotations: {}
 
     ## Ports for communication with Triton servers
     ## 
@@ -234,9 +234,9 @@ common:
 
   ## Node selector for all pods (Triton and Envoy)
   ##
-  nodeSelector:
+  nodeSelector: {}
     # "key": "value"
 
   ## Tolerations for all pods (Triton and Envoy)
   ##
-  tolerations:
+  tolerations: []
