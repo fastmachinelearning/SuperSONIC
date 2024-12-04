@@ -2,4 +2,4 @@
 Configuration Reference
 ----------------------------
 
-.. mdinclude:: ../helm/README.md
+.. include:: ../helm/README.md
