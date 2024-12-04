@@ -14,15 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Go environment
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.20"  # Specify the Go version
-
       # Install helm-docs
-      - name: Install helm-docs
-        run: |
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.4"
+      - run: |
           go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
           export PATH=$PATH:$(go env GOPATH)/bin
 
