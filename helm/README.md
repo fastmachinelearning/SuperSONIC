@@ -20,6 +20,12 @@ A Helm chart for SuperSONIC
 | servers[0].autoscaler.enabled | bool | `false` | Enable autoscaling |
 | servers[0].autoscaler.maxReplicas | int | `2` |  |
 | servers[0].autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
+| servers[0].autoscaler.scaleDown.period | int | `30` |  |
+| servers[0].autoscaler.scaleDown.stepsize | int | `1` |  |
+| servers[0].autoscaler.scaleDown.window | int | `120` |  |
+| servers[0].autoscaler.scaleUp.period | int | `30` |  |
+| servers[0].autoscaler.scaleUp.stepsize | int | `1` |  |
+| servers[0].autoscaler.scaleUp.window | int | `120` |  |
 | servers[0].envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
 | servers[0].envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
 | servers[0].envoy.configs | object | `{"luaConfig":"cfg/envoy-filter.lua"}` | Configuration files for Envoy  |
