@@ -1,0 +1,43 @@
+name: helm docs
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  helm-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install helm-docs
+      - name: Install helm-docs
+        run: |
+          curl -sSL https://github.com/norwoodj/helm-docs/releases/latest/download/helm-docs-linux-amd64.tar.gz | tar xz
+          sudo mv helm-docs /usr/local/bin
+
+      # Run helm-docs
+      - name: Run helm-docs
+        run: |
+          cd helm/
+          helm-docs
+
+      # Commit and push changes to the same branch
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Add and commit changes
+          git add helm/README.md
+          git commit -m "Update helm README [skip ci]" || echo "No changes to commit"
+
+          # Push changes back to the same branch
+          git push origin HEAD

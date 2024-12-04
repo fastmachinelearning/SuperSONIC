@@ -1,16 +1,7 @@
 # Default configuration values for SuperSONIC
 
-# -- List of server configurations: it is possible to deploy several servers at the same time,
-# for example when different server setups are needed for different workflows.
-# @default -- []
-servers:
-
-    
-  - 
-    # -- Configuration for Triton Deployment
-    # @default -- ""
-    triton:
-
+servers:    
+  - triton:
       # -- Name of the Nvidia Triton inference server Deployment
       name: "sonic-server-triton"
 
@@ -69,8 +60,6 @@ servers:
         #   server:
         #   path:
 
-    # -- Envoy Proxy configuration
-    # @default -- ""
     envoy:
 
       # -- Enable Envoy Proxy
@@ -106,8 +95,8 @@ servers:
       # Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
       loadBalancerPolicy: "LEAST_REQUEST"
 
-      # -- Authentication settings in Envoy Proxy
       auth:
+        # -- Enable authentication in Envoy proxy
         enabled: false
         # jwt_issuer:
         # jwt_remote_jwks_uri:
@@ -115,10 +104,7 @@ servers:
         # url:
         # port:
 
-    # -- Configuration to use Prometheus instance for Envoy Proxy or autoscaler
-    # @default -- ""
     prometheus:
-
       # -- Enable Prometheus
       enabled: false
 
@@ -146,8 +132,6 @@ servers:
       # -- Threshold for the metric
       serverAvailabilityThreshold: 100
 
-    # -- KEDA autoscaler configuration
-    # @default -- ""
     autoscaler:
 
       # -- Enable autoscaling
@@ -158,24 +142,16 @@ servers:
       minReplicas: 1
       maxReplicas: 2
 
-    # -- Ingress configuration: needed if you want to expose the server outside of the cluster. 
-    # Read documentation or ask admins of a given cluster to configure this correctly.
-    # @default -- ""
     ingress:
       enabled: false
       hostName: ""
 
-# -- Common configuration for all deployed servers
-# @default -- ""
 common:
 
   # -- Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
   cvmfsPvc: false
 
-  # -- Configuration of Kubernetes Services associated with Triton Deployments
-  # @default -- ""
   tritonService:
-
     # -- Labels and annotations for the Service.
     # This can be useful to enable Prometheus to scrape metrics from Triton servers.
     labels:
@@ -188,11 +164,7 @@ common:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
   
-  # -- Configuration of Kubernetes Service associated with Envoy Proxy.
-  # This Service connects outside world to Envoy Proxy, either directly or via an Ingress in front of it.
-  # @default -- ""
   envoyService:
-
     # -- Service type: ClusterIP or LoadBalancer.
     # If ClusterIP is chosen, you need to enable an Ingress for the servers.
     type: "LoadBalancer"
