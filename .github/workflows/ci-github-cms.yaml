@@ -46,7 +46,7 @@ jobs:
       - name: Deploy Helm chart
         run: |
           helm upgrade --install super-sonic-ci helm \
-            --values ci/values-cms-ci.yaml -n cms
+            --values values/values-cms-ci.yaml -n cms
 
 
       - name: Wait for pods to be running
