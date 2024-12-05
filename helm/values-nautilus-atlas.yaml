@@ -1,14 +1,31 @@
 servers:
   - triton:
       name: triton-atlas
-      image: milescb/traccc-aas:latest
+      image: milescb/traccc-aas:v1.0
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A10
+                      - NVIDIA-A40
+                      # - NVIDIA-A100-SXM4-80GB
+                      - NVIDIA-L40
+                      # - NVIDIA-A100-80GB-PCIe
+                      # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
+                      - NVIDIA-L4
+                      # - NVIDIA-A100-PCIE-40GB
+                      # - NVIDIA-GH200-480GB
       command: ["/bin/sh", "-c"]
       args:
-        [
-          tritonserver --model-repository=/traccc-aaS/traccc-aaS/backend/models,
-          --log-verbose=1,
-          --exit-on-error=true,
-        ]
+        - |
+          /opt/tritonserver/bin/tritonserver \
+          --model-repository=/traccc-aaS/traccc-aaS/backend/models \
+          --log-verbose=1 \
+          --exit-on-error=true
       resources:
         limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
         requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
