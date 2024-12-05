@@ -1,23 +1,20 @@
-{{- range .Values.servers }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .triton.name }}
+  name: {{ .Values.triton.name }}
   labels:
-{{ toYaml $.Values.common.tritonService.labels | nindent 4 }}
-    app: {{ .triton.name }}
+{{ toYaml .Values.triton.service.labels | nindent 4 }}
+    app: {{ .Values.triton.name }}
   annotations:
-{{ toYaml $.Values.common.tritonService.annotations | nindent 4 }}
+{{ toYaml .Values.triton.service.annotations | nindent 4 }}
 spec:
   clusterIP: None
   ports:
-  {{- range $.Values.common.tritonService.ports }}
+  {{- range .Values.triton.service.ports }}
   - name: {{ .name }}
     port: {{ .port }}
     targetPort: {{ .targetPort }}
     protocol: {{ .protocol }}
   {{- end }}
   selector:
-    app: {{ .triton.name }}
----
-{{- end }}
+    app: {{ .Values.triton.name }}

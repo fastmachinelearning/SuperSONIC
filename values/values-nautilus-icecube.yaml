@@ -1,98 +1,92 @@
-servers:
-  - triton: 
-      name: triton-icesonic
-      image: nvcr.io/nvidia/tritonserver:24.06-py3
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              # - key: topology.kubernetes.io/region
-              #   operator: In
-              #   values:
-              #   - us-west
-              # - key: nvidia.com/gpu.memory
-              #   operator: Gt
-              #   values:
-              #   - "15000"
-              - key: nvidia.com/gpu.product
-                operator: In
-                values:
-                # - NVIDIA-A10
-                # - NVIDIA-A40
-                # - NVIDIA-A100-SXM4-80GB
-                - NVIDIA-L40
-                # - NVIDIA-A100-80GB-PCIe
-                # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
-                - NVIDIA-L4
-                # - NVIDIA-A100-PCIE-40GB
-                # - NVIDIA-GH200-480GB
-      args: [tritonserver, 
-       --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models, 
-       --log-error=true,
-       --exit-on-error=true]
-      resources:
-        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 24Gi }
-        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 20Gi }
-      modelRepository:
-        storageType: cvmfs-pvc
-        mountPath: /models
-    envoy:
-      enabled: true
-      name: envoy-icesonic
-      image: envoyproxy/envoy:v1.30-latest
-      args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
-      resources:
-        requests: { cpu: 1, memory: 2Gi }
-        limits: { cpu: 2, memory: 4Gi }
-      configs:
-        luaConfig: "cfg/envoy-filter.lua"
-      auth:
-        enabled: true
-        jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
-        jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
-        audiences: [icecube]
-        url: keycloak.icecube.wisc.edu
-        port: 443
-      loadBalancerPolicy: LEAST_REQUEST
-    prometheus:
-      url: "prometheus.nrp-nautilus.io"
-      port: 443
-      scheme: https
-      serverAvailabilityMetric: |-
-        sum(
-          sum by (pod) (
-            rate(nv_inference_queue_duration_us{pod=~"triton-icesonic.*"}[5m:1m])
-          )
-          /
-          sum by (pod) (
-            (rate(nv_inference_exec_count{pod=~"triton-icesonic.*"}[5m:1m]) + 0.00001) * 1000
-          )
-        )
-      serverAvailabilityThreshold: 100
-    autoscaler:
-      enabled: false
-      minReplicas: 0
-      maxReplicas: 1
-    ingress:
-      enabled: true
-      hostName: icesonic.nrp-nautilus.io
-
-common:
-  cvmfsPvc: true
-  tritonService:
+triton: 
+  name: triton-icesonic
+  image: nvcr.io/nvidia/tritonserver:24.06-py3
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          # - key: topology.kubernetes.io/region
+          #   operator: In
+          #   values:
+          #   - us-west
+          # - key: nvidia.com/gpu.memory
+          #   operator: Gt
+          #   values:
+          #   - "15000"
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+            # - NVIDIA-A10
+            # - NVIDIA-A40
+            # - NVIDIA-A100-SXM4-80GB
+            - NVIDIA-L40
+            # - NVIDIA-A100-80GB-PCIe
+            # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
+            - NVIDIA-L4
+            # - NVIDIA-A100-PCIE-40GB
+            # - NVIDIA-GH200-480GB
+  args: [tritonserver, 
+    --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models, 
+    --log-error=true,
+    --exit-on-error=true]
+  resources:
+    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 24Gi }
+    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 20Gi }
+  service:
     labels:
       scrape_metrics: "true"
     ports:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
-
-  envoyService:
+  modelRepository:
+    storageType: cvmfs-pvc
+    mountPath: /models
+envoy:
+  enabled: true
+  name: envoy-icesonic
+  image: envoyproxy/envoy:v1.30-latest
+  args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
+  resources:
+    requests: { cpu: 1, memory: 2Gi }
+    limits: { cpu: 2, memory: 4Gi }
+  service:
     type: ClusterIP
     labels:
       envoy: "true"
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
+  configs:
+    luaConfig: "cfg/envoy-filter.lua"
+  auth:
+    enabled: true
+    jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
+    jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
+    audiences: [icecube]
+    url: keycloak.icecube.wisc.edu
+    port: 443
+  loadBalancerPolicy: LEAST_REQUEST
+prometheus:
+  url: "prometheus.nrp-nautilus.io"
+  port: 443
+  scheme: https
+  serverAvailabilityMetric: |-
+    sum(
+      sum by (pod) (
+        rate(nv_inference_queue_duration_us{pod=~"triton-icesonic.*"}[5m:1m])
+      )
+      /
+      sum by (pod) (
+        (rate(nv_inference_exec_count{pod=~"triton-icesonic.*"}[5m:1m]) + 0.00001) * 1000
+      )
+    )
+  serverAvailabilityThreshold: 100
+autoscaler:
+  enabled: false
+  minReplicas: 0
+  maxReplicas: 1
+ingress:
+  enabled: true
+  hostName: icesonic.nrp-nautilus.io
