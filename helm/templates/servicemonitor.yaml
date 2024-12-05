@@ -1,16 +1,14 @@
-{{- range .Values.servers }}
-
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name:  {{ .triton.name }}-monitor
-  namespace: {{ $.Release.Namespace }}
+  name:  {{ .Values.triton.name }}-monitor
+  namespace: {{ .Release.Namespace }}
   labels:
-    app:  {{ .triton.name }}
+    app:  {{ .Values.triton.name }}
 spec:
   selector:
     matchLabels:
-      app: {{ .triton.name }}
+      app: {{ .Values.triton.name }}
   endpoints:
   - port: metrics
     path: /metrics
@@ -21,17 +19,15 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name:  {{ .envoy.name }}-monitor
-  namespace: {{ $.Release.Namespace }}
+  name:  {{ .Values.envoy.name }}-monitor
+  namespace: {{ .Release.Namespace }}
   labels:
-    app:  {{ .envoy.name }}
+    app:  {{ .Values.envoy.name }}
 spec:
   selector:
     matchLabels:
-      app: {{ .envoy.name }}
+      app: {{ .Values.envoy.name }}
   endpoints:
   - port: admin
     path: /stats/prometheus
     interval: 15s
-
-{{- end }}

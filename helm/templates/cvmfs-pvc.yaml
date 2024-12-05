@@ -1,4 +1,4 @@
-{{ if .Values.common.cvmfsPvc }}
+{{ if eq .Values.triton.modelRepository.storageType "cvmfs-pvc" }}
 {{- $mypvc := (lookup "v1" "PersistentVolumeClaim" .Release.Namespace (printf "cvmfs")) }}
 {{- if not $mypvc }}
 apiVersion: v1

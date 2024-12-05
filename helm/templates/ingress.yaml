@@ -1,6 +1,4 @@
-{{- range .Values.servers }}
-
-{{ if .ingress.enabled | default false }}
+{{ if .Values.ingress.enabled | default false }}
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -16,25 +14,22 @@ metadata:
     haproxy-ingress.github.io/timeout-queue: "1m"
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
-  name: {{ .envoy.name }}-ingress-grpc
+  name: {{ .Values.envoy.name }}-ingress-grpc
 spec:
   ingressClassName: haproxy
   tls:
   - hosts:
-      - {{ .ingress.hostName }}
+      - {{ .Values.ingress.hostName }}
   rules:
-  - host: {{ .ingress.hostName }}
+  - host: {{ .Values.ingress.hostName }}
     http:
       paths:
       - backend:
           service:
-            name: {{ .envoy.name }}
+            name: {{ .Values.envoy.name }}
             port:
               number: 8001
         path: /
         pathType: ImplementationSpecific
 
 {{ end }}
-
----
-{{- end }}
