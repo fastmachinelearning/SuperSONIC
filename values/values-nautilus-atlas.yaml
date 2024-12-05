@@ -1,83 +1,34 @@
-servers:
-  - triton:
-      name: triton-atlas
-      image: milescb/traccc-aas:v1.0
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nvidia.com/gpu.product
-                    operator: In
-                    values:
-                      - NVIDIA-A10
-                      - NVIDIA-A40
-                      # - NVIDIA-A100-SXM4-80GB
-                      - NVIDIA-L40
-                      # - NVIDIA-A100-80GB-PCIe
-                      # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
-                      - NVIDIA-L4
-                      # - NVIDIA-A100-PCIE-40GB
-                      # - NVIDIA-GH200-480GB
-      command: ["/bin/sh", "-c"]
-      args:
-        - |
-          /opt/tritonserver/bin/tritonserver \
-          --model-repository=/traccc-aaS/traccc-aaS/backend/models \
-          --log-verbose=1 \
-          --exit-on-error=true
-      resources:
-        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-      modelRepository:
-        storageType: cvmfs-pvc
-        mountPath: /cvmfs
-    envoy:
-      enabled: true
-      name: envoy-atlas
-      image: envoyproxy/envoy:v1.30-latest
-      args:
-        [
-          "--config-path",
-          "/etc/envoy/envoy.yaml",
-          "--log-level",
-          "info",
-          "--log-path",
-          "/dev/stdout",
-        ]
-      resources:
-        requests: { cpu: 1, memory: 2Gi }
-        limits: { cpu: 2, memory: 4Gi }
-      configs:
-        luaConfig: "cfg/envoy-filter.lua"
-      loadBalancerPolicy: LEAST_REQUEST
-    prometheus:
-      url: "prometheus.nrp-nautilus.io"
-      port: 443
-      scheme: https
-      serverAvailabilityMetric: |-
-        sum(
-          sum by (pod) (
-            rate(nv_inference_queue_duration_us{pod=~"triton-atlas.*"}[5m:1m])
-          )
-          /
-          sum by (pod) (
-            (rate(nv_inference_exec_count{pod=~"triton-atlas.*"}[5m:1m]) + 0.00001) * 1000
-          )
-        )
-      serverAvailabilityThreshold: 100
-    autoscaler:
-      enabled: False
-      minReplicas: 0
-      maxReplicas: 1
-    ingress:
-      enabled: true
-      hostName: atlas.nrp-nautilus.io
-
-common:
-  # service configuration is currently same for all setups
-  cvmfsPvc: true
-  tritonService:
+triton:
+  name: triton-atlas
+  image: milescb/traccc-aas:v1.0
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                  - NVIDIA-A10
+                  - NVIDIA-A40
+                  # - NVIDIA-A100-SXM4-80GB
+                  - NVIDIA-L40
+                  # - NVIDIA-A100-80GB-PCIe
+                  # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
+                  - NVIDIA-L4
+                  # - NVIDIA-A100-PCIE-40GB
+                  # - NVIDIA-GH200-480GB
+  command: ["/bin/sh", "-c"]
+  args:
+    - |
+      /opt/tritonserver/bin/tritonserver \
+      --model-repository=/traccc-aaS/traccc-aaS/backend/models \
+      --log-verbose=1 \
+      --exit-on-error=true
+  resources:
+    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
+    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
+  service:
     labels:
       scrape_metrics: "true"
     annotations:
@@ -86,11 +37,54 @@ common:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
-
-  envoyService:
+  modelRepository:
+    storageType: cvmfs-pvc
+    mountPath: /cvmfs
+envoy:
+  enabled: true
+  name: envoy-atlas
+  image: envoyproxy/envoy:v1.30-latest
+  args:
+    [
+      "--config-path",
+      "/etc/envoy/envoy.yaml",
+      "--log-level",
+      "info",
+      "--log-path",
+      "/dev/stdout",
+    ]
+  resources:
+    requests: { cpu: 1, memory: 2Gi }
+    limits: { cpu: 2, memory: 4Gi }
+  service:
     type: ClusterIP
     labels:
       envoy: "true"
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
+  configs:
+    luaConfig: "cfg/envoy-filter.lua"
+  loadBalancerPolicy: LEAST_REQUEST
+prometheus:
+  url: "prometheus.nrp-nautilus.io"
+  port: 443
+  scheme: https
+  serverAvailabilityMetric: |-
+    sum(
+      sum by (pod) (
+        rate(nv_inference_queue_duration_us{pod=~"triton-atlas.*"}[5m:1m])
+      )
+      /
+      sum by (pod) (
+        (rate(nv_inference_exec_count{pod=~"triton-atlas.*"}[5m:1m]) + 0.00001) * 1000
+      )
+    )
+  serverAvailabilityThreshold: 100
+autoscaler:
+  enabled: False
+  minReplicas: 0
+  maxReplicas: 1
+ingress:
+  enabled: true
+  hostName: atlas.nrp-nautilus.io
