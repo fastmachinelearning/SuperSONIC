@@ -1,9 +1,7 @@
-{{- range .Values.servers }}
-
-{{- if .envoy.enabled }}
+{{- if .Values.envoy.enabled }}
 
 {{- $envoyGrpcPort := "" -}}
-{{- range $.Values.common.envoyService.ports -}}
+{{- range .Values.envoy.service.ports -}}
   {{- if eq .name "grpc" -}}
     {{- $envoyGrpcPort = .port -}}
   {{- end -}}
@@ -12,55 +10,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .envoy.name }}
+  name: {{ .Values.envoy.name }}
 spec:
-  replicas: {{ .envoy.replicas | default 1 }}
+  replicas: {{ .Values.envoy.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .envoy.name }}
+      app: {{ .Values.envoy.name }}
   template:
     metadata:
       labels:
-        app: {{ .envoy.name }}
+        app: {{ .Values.envoy.name }}
     spec:
       containers:
       - name: envoy
-        image: {{ .envoy.image }}
-        args: {{ toYaml .envoy.args | nindent 10 }}
+        image: {{ .Values.envoy.image }}
+        args: {{ toYaml .Values.envoy.args | nindent 10 }}
         ports:
         - containerPort: {{ $envoyGrpcPort }}
         volumeMounts:
-        - name: {{ .envoy.name }}-envoy-config
+        - name: {{ .Values.envoy.name }}-envoy-config
           mountPath: /etc/envoy
-        - name: {{ .envoy.name }}-lua-volume
+        - name: {{ .Values.envoy.name }}-lua-volume
           mountPath: /etc/envoy/lua
           readOnly: true
         resources:
-          {{ toYaml .envoy.resources | nindent 10 }}
+          {{ toYaml .Values.envoy.resources | nindent 10 }}
       volumes:
-      - name: {{ .envoy.name }}-envoy-config
+      - name: {{ .Values.envoy.name }}-envoy-config
         configMap:
-          name: {{ .envoy.name }}-envoy-config
-      - name: {{ .envoy.name }}-lua-volume
+          name: {{ .Values.envoy.name }}-envoy-config
+      - name: {{ .Values.envoy.name }}-lua-volume
         configMap:
-          name: {{ .envoy.name }}-lua-config
+          name: {{ .Values.envoy.name }}-lua-config
           items:
           - key: envoy-filter.lua
             path: envoy-filter.lua
 
 
-{{- if $.Values.common.nodeSelector }}
+{{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml $.Values.common.nodeSelector | nindent 8 }}
+{{ toYaml .Values.nodeSelector | nindent 8 }}
 {{- end }}
-{{- if $.Values.common.tolerations }}
+{{- if .Values.tolerations }}
       tolerations:
-{{ toYaml $.Values.common.tolerations | nindent 8 }}
+{{ toYaml .Values.tolerations | nindent 8 }}
 {{- end }}
       restartPolicy: Always
 
 ---
-
-{{- end }}
 
 {{- end }}
