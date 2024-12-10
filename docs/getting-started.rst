@@ -7,7 +7,7 @@ Pre-requisites
 
    1. `Kubernetes <https://kubernetes.io>`_ cluster
    2. `Prometheus <https://prometheus.io>`_ monitoring system 
-   3. (if using autoscaling) `KEDA (Kubernetes Event-Driven Autoscaling) <https://keda.sh>`_
+   3. `KEDA (Kubernetes Event-Driven Autoscaling) <https://keda.sh>`_ (if using autoscaling)
 
 Installation
 ~~~~~~~~~~~~~~
@@ -37,7 +37,7 @@ and autoscaler must be carefully defined. It is recommended to start
 with examining the metric in Prometheus interface, in order to define an
 appropriate threshold and avoid typos in the metric definition.
 
-The KEDA autoscaler can be enabled / disabled via the
+The KEDA autoscaler can be enabled/disabled via the
 ``servers[].autoscaler.enabled`` parameter.
 
 .. figure:: img/diagram.svg

@@ -7,7 +7,6 @@
     getting-started
     configuration-reference
 
-
 SuperSONIC
 ========================================
 
@@ -25,20 +24,20 @@ Why "inference-as-a-service"?
 
 .. container:: twocol
 
-   .. container:: leftside
+    .. container:: leftside
 
-      The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
-      of traditional processors (CPUs). This trend is driven by increasing data collection rates, tightening latency requirements,
-      and rising complexity of algorithms, particularly those based on machine learning.
-      Such a computing landscape strongly motivates the adoption of specialized coprocessors, such as FPGAs, GPUs, and TPUs.
+        The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
+        of traditional processors (CPUs). This trend is driven by increasing data collection rates, tightening latency requirements,
+        and rising complexity of algorithms, particularly those based on machine learning.
+        Such a computing landscape strongly motivates the adoption of specialized coprocessors, such as FPGAs, GPUs, and TPUs.
 
-   .. container:: rightside
+    .. container:: rightside
 
-      .. image:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
-         :width: 220
-         :alt: A3D3
-
-      `Image source: A3D3 <https://a3d3.ai/about/>`_
+        .. figure:: https://a3d3.ai/wp-content/uploads/2023/07/hdr_latency_throughput.png
+            :width: 220
+            :alt: A3D3
+            
+            `Image source: A3D3 <https://a3d3.ai/about/>`_
 
 
 In "inference-as-a-service" model, the data processing workflows ("clients") off-load computationally intensive steps,
@@ -48,9 +47,9 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 **SONIC (Services for Optimized Network Inference on Coprocessors)**.
 
 .. image:: https://www.frontiersin.org/files/Articles/604083/fdata-03-604083-HTML-r1/image_m/fdata-03-604083-g004.jpg
-   :align: center
-   :height: 160
-   :alt: IaaS
+    :align: center
+    :height: 160
+    :alt: IaaS
 
 -----
 
@@ -76,9 +75,9 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
 
 .. raw:: html
 
-    <table style="width:100%; border-collapse: collapse;">
+    <table style="width:100%; border-collapse: collapse; border-spacing: 30;">
         <tr>
-            <td style="width:65%; vertical-align: top;">
+            <td style="width:65%; vertical-align: center; padding-right: 1em;">
                 <p><a href="https://home.cern/science/experiments/cms">CMS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
@@ -87,7 +86,7 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
                     as-a-service.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top;">
+            <td style="width:35%; vertical-align: center;">
                 <img src="https://cmsexperiment.web.cern.ch/sites/default/files/field/image/cds-record-1275108-hoch-20071215_721-nice.jpg" alt="CMS Detector" width="200">
             </td>
         </tr>
@@ -97,15 +96,15 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
 
 .. raw:: html
 
-    <table style="width:100%; border-collapse: collapse;">
+    <table style="width:100%; border-collapse: collapse; border-spacing: 30;">
         <tr>
-            <td style="width:65%; vertical-align: top;">
+            <td style="width:65%; vertical-align: center; padding-right: 1em;">
                 <p><a href="https://home.cern/science/experiments/atlas">ATLAS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
                     ATLAS implements inference-as-a-service approach for tracking algorithms such as <strong>Exa.TrkX</strong> and <strong>Traccc</strong>.
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top;">
+            <td style="width:35%; vertical-align: center;">
                 <img src="https://cds.cern.ch/images/CERN-PHOTO-202107-094-112/file?size=large" alt="ATLAS Detector" width="200">
             </td>
         </tr>
@@ -115,15 +114,15 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
 
 .. raw:: html
 
-    <table style="width:100%; border-collapse: collapse;">
+    <table style="width:100%; border-collapse: collapse; border-spacing: 30;">
         <tr>
-            <td style="width:65%; vertical-align: top;">
+            <td style="width:65%; vertical-align: center; padding-right: 1em;">
                 <p><a href="https://icecube.wisc.edu/">IceCube Neutrino Observatory</a> at the South Pole.</p>
                 <p>
                     IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
                 </p>
             </td>
-            <td style="width:35%; vertical-align: top;">
+            <td style="width:35%; vertical-align: center;">
                 <img src="https://www.hpcwire.com/wp-content/uploads/2018/07/IceCube_1200x.jpg" alt="IceCube" width="200">
             </td>
         </tr>
