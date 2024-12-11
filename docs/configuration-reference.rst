@@ -2,7 +2,6 @@
 Configuration Reference
 ----------------------------
 
-
 servers
 -------
 
