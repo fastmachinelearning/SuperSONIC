@@ -1,37 +1,36 @@
-{{- range .Values.servers }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .triton.name }}
+  name: {{ .Values.triton.name }}
 spec:
-  replicas: {{ .triton.replicas | default 1 }}
+  replicas: {{ .Values.triton.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .triton.name }}
+      app: {{ .Values.triton.name }}
   template:
     metadata:
       labels:
-        app: {{ .triton.name }}
+        app: {{ .Values.triton.name }}
     spec:
       terminationGracePeriodSeconds: 60
       containers:
       - name: triton-server
-        image: {{ .triton.image }}
+        image: {{ .Values.triton.image }}
         resources:
-          {{ toYaml .triton.resources | nindent 10 }}
+          {{ toYaml .Values.triton.resources | nindent 10 }}
         ports:
-        {{- range $.Values.common.tritonService.ports }}
+        {{- range .Values.triton.service.ports }}
         - name: {{ .name }}
           containerPort: {{ .port }}
           protocol: {{ .protocol }}
         {{- end }}
         volumeMounts:
           - name: model-repository
-            mountPath: {{ .triton.modelRepository.mountPath }}
+            mountPath: {{ .Values.triton.modelRepository.mountPath }}
             mountPropagation: HostToContainer
             readOnly: true
-        command: {{ toYaml .triton.command | nindent 10 }}
-        args:  {{ toYaml .triton.args | nindent 10 }}
+        command: {{ toYaml .Values.triton.command | nindent 10 }}
+        args:  {{ toYaml .Values.triton.args | nindent 10 }}
         startupProbe:
           periodSeconds: 10
           failureThreshold: 12
@@ -50,53 +49,40 @@ spec:
           preStop:
             exec:
               command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
-{{- if eq .triton.modelRepository.storageType "nfs" }}
+{{- if eq .Values.triton.modelRepository.storageType "nfs" }}
       volumes:
       - name: model-repository
         nfs:
-          server: {{ .triton.modelRepository.nfs.server }}
-          path: {{ .triton.modelRepository.nfs.path }}
-{{- else if eq .triton.modelRepository.storageType "pvc" }}
+          server: {{ .Values.triton.modelRepository.nfs.server }}
+          path: {{ .Values.triton.modelRepository.nfs.path }}
+{{- else if eq .Values.triton.modelRepository.storageType "pvc" }}
       volumes:
       - name: model-repository
         persistentVolumeClaim:
-          claimName: {{ .triton.modelRepository.pvc.claimName }}
-{{- else if eq .triton.modelRepository.storageType "cvmfs" }}
+          claimName: {{ .Values.triton.modelRepository.pvc.claimName }}
+{{- else if eq .Values.triton.modelRepository.storageType "cvmfs-hostPath" }}
       volumes:
       - name: model-repository
         hostPath: 
           path: /cvmfs
-{{- else if eq .triton.modelRepository.storageType "cvmfs-pvc" }}
+{{- else if eq .Values.triton.modelRepository.storageType "cvmfs-pvc" }}
       volumes:
       - name: model-repository
         persistentVolumeClaim:
           claimName: cvmfs
           readOnly: true
-{{- else if eq .triton.modelRepository.storageType "s3" }}
-    #   initContainers:
-    #   - name: s3-sync
-    #     image: appropriate/curl # Placeholder image
-    #     command: ['sh', '-c', 'echo Syncing data from S3;']
-    #     volumeMounts:
-    #     - name: model-repository
-    #       mountPath: "/s3-data"
-      volumes:
-      - name: model-repository
-        emptyDir: {}
 {{- end }}
 
-{{- if .triton.affinity }}
-      affinity: {{ toYaml .triton.affinity | nindent 8}}
+{{- if .Values.triton.affinity }}
+      affinity: {{ toYaml .Values.triton.affinity | nindent 8}}
 {{- end }}
 
-{{- if $.Values.common.nodeSelector }}
+{{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml $.Values.common.nodeSelector | nindent 8 }}
+{{ toYaml .Values.nodeSelector | nindent 8 }}
 {{- end }}
-{{- if $.Values.common.tolerations }}
+{{- if .Values.tolerations }}
       tolerations:
-{{ toYaml $.Values.common.tolerations | nindent 8 }}
+{{ toYaml .Values.tolerations | nindent 8 }}
 {{- end }}
       restartPolicy: Always
----
-{{- end }}

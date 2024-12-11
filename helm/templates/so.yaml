@@ -1,24 +1,22 @@
-{{- range .Values.servers }}
+{{- if .Values.autoscaler.enabled }}
 
-{{- if .autoscaler.enabled }}
-
-{{- $scaleUp := .autoscaler.scaleUp | default dict }}
-{{- $scaleDown := .autoscaler.scaleDown | default dict }}
-{{- $prometheusAddress := printf "http://%s:%d" .prometheus.url (int .prometheus.port) | quote }}
+{{- $scaleUp := .Values.autoscaler.scaleUp | default dict }}
+{{- $scaleDown := .Values.autoscaler.scaleDown | default dict }}
+{{- $prometheusAddress := printf "http://%s:%d" .Values.prometheus.url (int .Values.prometheus.port) | quote }}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ .envoy.name }}-tritonserver-scaledobject
+  name: {{ .Values.envoy.name }}-tritonserver-scaledobject
 spec:
   scaleTargetRef:
-    name: {{ .triton.name }}
+    name: {{ .Values.triton.name }}
     kind: Deployment
   pollingInterval: 30
   cooldownPeriod: 120
   idleReplicaCount: 0
-  minReplicaCount: {{ default 1 .autoscaler.minReplicas }}
-  maxReplicaCount: {{ default 14 .autoscaler.maxReplicas }}
+  minReplicaCount: {{ default 1 .Values.autoscaler.minReplicas }}
+  maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicas }}
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
@@ -41,12 +39,10 @@ spec:
     metadata:
       serverAddress: {{ $prometheusAddress }}
       metricName: autoscaler-metric
-      threshold: {{ .prometheus.serverAvailabilityThreshold | quote }}
-      query: {{ .prometheus.serverAvailabilityMetric | quote }}
+      threshold: {{ .Values.prometheus.serverAvailabilityThreshold | quote }}
+      query: {{ .Values.prometheus.serverAvailabilityMetric | quote }}
 
 ---
 
-
-{{- end }}
 
 {{- end }}

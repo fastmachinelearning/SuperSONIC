@@ -3,8 +3,7 @@ name: ci [CMS]
 on:
   push:
     branches:
-      - master
-      - ci
+      - "**"
   pull_request:
     branches:
       - master
@@ -37,6 +36,13 @@ jobs:
           kubectl create namespace monitoring
           helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
 
+      - name: Install KEDA Autoscaler
+        run: |
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo update
+          kubectl create namespace keda
+          helm install keda kedacore/keda --namespace keda
+
       - name: Mount CVMFS
         run: |
           kubectl create namespace cvmfs-csi
@@ -45,8 +51,8 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          helm upgrade --install super-sonic-ci helm \
-            --values ci/values-cms-ci.yaml -n cms
+          helm upgrade --install super-sonic helm \
+            --values values/values-cms-ci.yaml -n cms
 
 
       - name: Wait for pods to be running

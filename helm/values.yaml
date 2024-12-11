@@ -1,0 +1,187 @@
+# Default configuration values for SuperSONIC
+
+triton:
+  # -- Name of the Nvidia Triton inference server Deployment
+  name: "sonic-server-triton"
+
+  # -- Number of Triton server instances (if autoscaling is disabled)
+  replicas: 1
+
+  # -- Docker image for the Triton server
+  image: "fastml/triton-torchgeo:22.07-py3-geometric"
+  
+  # -- Command and arguments to run in Triton container
+  command: ["/bin/sh", "-c"]
+  args: 
+    - |
+      /opt/tritonserver/bin/tritonserver \
+      --model-repository=/path-to-models/ \
+      --allow-gpu-metrics=true \
+      --log-verbose=0 \
+      --strict-model-config=false \
+      --exit-timeout-secs=60
+
+  # -- Resource limits and requests for each Triton instance.
+  # You can add necessary GPU request here.
+  resources:
+    limits:
+      cpu: 1
+      memory: "2G"
+    requests:
+      cpu: 1
+      memory: "2G"
+  
+  # -- Affinity rules for Triton pods - another way to request GPUs
+  affinity: {}
+
+  # -- Model repository configuration
+  modelRepository:
+
+    # -- Model repository mount path
+    mountPath: "/cvmfs"
+
+    ## Model repository options:
+
+    ## Option 1: mount an arbitrary PersistentVolumeClaim
+    # storageType: "pvc"
+    # pvc:
+    #   claimName: 
+
+    ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
+    storageType: "cvmfs-pvc"
+    # -- Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
+    cvmfsPvc: false
+    
+    ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
+    # storageType: "cvmfs"
+
+    ## Option 4: mount an NFS storage volume
+    # storageType: "nfs"
+    # nfs:
+    #   server:
+    #   path:
+
+  service:
+    labels:
+      scrape_metrics: "true"
+    annotations: {}
+
+    # -- Ports for communication with Triton servers
+    ports:
+      - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
+
+
+envoy:
+  # -- Enable Envoy Proxy
+  enabled: true
+
+  # -- Envoy Proxy Deployment name
+  name: "sonic-server"
+
+  # -- Number of Envoy Proxy pods in Deployment
+  replicas: 1
+
+  # -- Envoy Proxy Docker image
+  image: "envoyproxy/envoy:v1.30-latest"
+
+  # -- Arguments for Envoy
+  args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
+
+  # -- Resource requests and limits for Envoy Proxy.
+  # Note: an Envoy Proxy with too many connections might run out of CPU
+  resources:
+    requests:
+      cpu: 1
+      memory: "2G"
+    limits:
+      cpu: 1
+      memory: "2G"
+  service:
+    # -- Service type: ClusterIP or LoadBalancer.
+    # If ClusterIP is chosen, you need to enable an Ingress for the servers.
+    type: "LoadBalancer"
+
+    # -- I don't remember why this label is here.
+    labels:
+      envoy: "true"
+
+    # -- Envoy Service ports
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001 }
+      - { name: admin, port: 9901, targetPort: 9901 }
+
+
+  # -- Configuration files for Envoy 
+  configs:
+    luaConfig: "cfg/envoy-filter.lua"
+
+  # -- Envoy load balancer policy.
+  # Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
+  loadBalancerPolicy: "LEAST_REQUEST"
+
+  auth:
+    # -- Enable authentication in Envoy proxy
+    enabled: false
+    # jwt_issuer:
+    # jwt_remote_jwks_uri:
+    # audiences: []
+    # url:
+    # port:
+
+prometheus:
+  # -- Enable Prometheus
+  enabled: false
+
+  # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
+  url: ""
+  port: 443
+
+  # -- Specify whether Prometheus endpoint is exposed as http or https
+  scheme: "https"
+
+  # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
+  ## the same metric can be used by KEDA autoscaler.
+  ## The example below is average queue time for inference requests arriving at the server, in milliseconds.
+  serverAvailabilityMetric: |-
+    sum(
+      sum by (pod) (
+        rate(nv_inference_queue_duration_us{pod=~"sonic-server.*"}[5m:1m])
+      )
+      /
+      sum by (pod) (
+        (rate(nv_inference_exec_count{pod=~"sonic-server.*"}[5m:1m])) * 1000
+      )
+    )
+  
+  # -- Threshold for the metric
+  serverAvailabilityThreshold: 100
+
+autoscaler:
+
+  # -- Enable autoscaling
+  enabled: false
+
+  # -- Minimum and maximum number of Triton servers.
+  # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
+  minReplicas: 1
+  maxReplicas: 2
+  scaleUp:
+    window: 120
+    period: 30
+    stepsize: 1
+  scaleDown:
+    window: 120
+    period: 30
+    stepsize: 1
+
+ingress:
+  enabled: false
+  hostName: ""
+
+# -- Node selector for all pods (Triton and Envoy)
+nodeSelector: {}
+
+# -- Tolerations for all pods (Triton and Envoy)
+tolerations: []

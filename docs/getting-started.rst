@@ -16,7 +16,18 @@ Installation
 
    .. code:: shell
 
-      helm upgrade --install super-sonic ./helm --values helm/values.yaml -n <namespace>
+      git clone https://github.com/fastmachinelearning/SuperSONIC
+      cd SuperSONIC
+      helm upgrade --install super-sonic ./helm --values values/your-values.yaml -n <namespace>
+
+   Nicer installation from a Helm repository coming soon in `v0.1`
+
+Uninstall SuperSONIC
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. code:: shell
+
+      helm uninstall super-sonic  -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~
@@ -26,19 +37,15 @@ components depicted at the diagram below, excluding Prometheus and model reposit
 which must be connected by specifying relevant parameters in configuration file
 (see :doc:`configuration reference <configuration-reference>`).
 
-In its current form, the chart allows to deploy multiple server
-instances with different settings at once. This can be useful if you
-need to host servers with different GPU models, different Triton server
-versions, or different model repository mounts.
-
 For correct behavior, the server saturation metric
-(``servers[].prometheus.serverAvailabilityMetric``) used by Envoy proxy
+(``prometheus.serverAvailabilityMetric``) used by Envoy proxy
 and autoscaler must be carefully defined. It is recommended to start
 with examining the metric in Prometheus interface, in order to define an
 appropriate threshold and avoid typos in the metric definition.
 
+
 The KEDA autoscaler can be enabled/disabled via the
-``servers[].autoscaler.enabled`` parameter.
+``autoscaler.enabled`` parameter.
 
 .. figure:: img/diagram.svg
    :alt: SONIC Server Infrastructure
