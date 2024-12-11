@@ -92,4 +92,4 @@ html_context = {
     'github_version': 'main',  # Version
     'conf_py_path': '/docs/',  # Path in the checkout to the docs root
 }
-html_favicon = 'img/SuperSONIC.svg'
+html_favicon = 'img/SuperSONIC_small.svg'
