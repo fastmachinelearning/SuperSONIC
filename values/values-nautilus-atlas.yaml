@@ -1,6 +1,6 @@
 triton:
   name: triton-atlas
-  image: milescb/traccc-aas:v1.0
+  image: milescb/traccc-aas:v1.1
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
