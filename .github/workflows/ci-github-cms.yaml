@@ -51,20 +51,20 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          helm upgrade --install super-sonic helm \
+          helm upgrade --install supersonic helm \
             --values values/values-cms-ci.yaml -n cms
 
 
       - name: Wait for pods to be running
         run: |
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
-          while ! kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true; do
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
+          while ! kubectl logs deployment/supersonic-triton -n cms --all-containers=true; do
               echo "Waiting for containers to become available..."
-              kubectl describe pods -n cms -l app=sonic-ci-triton
+              kubectl describe pods -n cms -l app.kubernetes.io/component=triton
               sleep 60
           done
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 300s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
 
       - name: Validate Deployment
         run: |
