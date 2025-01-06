@@ -29,8 +29,10 @@ A Helm chart for SuperSONIC
 | envoy.service.labels | object | `{"envoy":"true"}` | I don't remember why this label is here. |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
 | envoy.service.type | string | `"LoadBalancer"` | Service type: ClusterIP or LoadBalancer. If ClusterIP is chosen, you need to enable an Ingress for the servers. |
+| fullnameOverride | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hostName | string | `""` |  |
+| nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` | Node selector for all pods (Triton and Envoy) |
 | prometheus.enabled | bool | `false` | Enable Prometheus |
 | prometheus.port | int | `443` |  |
@@ -46,7 +48,6 @@ A Helm chart for SuperSONIC
 | triton.modelRepository | object | `{"cvmfsPvc":false,"mountPath":"/cvmfs","storageType":"cvmfs-pvc"}` | Model repository configuration |
 | triton.modelRepository.cvmfsPvc | bool | `false` | Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster) |
 | triton.modelRepository.mountPath | string | `"/cvmfs"` | Model repository mount path |
-| triton.name | string | `"sonic-server-triton"` | Name of the Nvidia Triton inference server Deployment |
 | triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
 | triton.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource limits and requests for each Triton instance. You can add necessary GPU request here. |
 | triton.service.annotations | object | `{}` |  |
