@@ -29,10 +29,10 @@ A Helm chart for SuperSONIC
 | envoy.service.labels | object | `{"envoy":"true"}` | I don't remember why this label is here. |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
 | envoy.service.type | string | `"LoadBalancer"` | Service type: ClusterIP or LoadBalancer. If ClusterIP is chosen, you need to enable an Ingress for the servers. |
-| fullnameOverride | string | `""` |  |
+| fullnameOverride | string | `""` | Full name of the Helm release |
 | ingress.enabled | bool | `false` |  |
 | ingress.hostName | string | `""` |  |
-| nameOverride | string | `""` |  |
+| nameOverride | string | `""` | Name of the Helm release |
 | nodeSelector | object | `{}` | Node selector for all pods (Triton and Envoy) |
 | prometheus.enabled | bool | `false` | Enable Prometheus |
 | prometheus.port | int | `443` |  |
