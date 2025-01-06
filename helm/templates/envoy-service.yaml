@@ -3,14 +3,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.envoy.name }}
+  name: {{ include "supersonic.envoyName" . }}
   labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: envoy
 {{ toYaml .Values.envoy.service.labels | nindent 4 }}
-    app: {{ .Values.envoy.name }}
 spec:
   type:  {{ .Values.envoy.service.type }}
   selector:
-    app: {{ .Values.envoy.name }}
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: envoy
   ports:
   {{- range .Values.envoy.service.ports }}
   - name: {{ .name }}

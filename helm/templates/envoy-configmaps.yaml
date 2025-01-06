@@ -118,7 +118,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{ .triton.name }}
+                      address: {{ include "supersonic.tritonName" . }}
                       port_value: {{ .tritonGrpcPort }}
 {{- end }}
 {{- end }}
@@ -157,7 +157,11 @@ static_resources:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.envoy.name }}-envoy-config
+  name: {{ include "supersonic.fullname" . }}-envoy-config
+  labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
@@ -166,7 +170,11 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.envoy.name }}-lua-config
+  name: {{ include "supersonic.fullname" . }}-lua-config
+  labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: envoy
 data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}

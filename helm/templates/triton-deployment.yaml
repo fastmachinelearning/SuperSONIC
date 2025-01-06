@@ -1,16 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.triton.name }}
+  name: {{ include "supersonic.tritonName" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: triton
 spec:
   replicas: {{ .Values.triton.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.triton.name }}
+      app.kubernetes.io/name: {{ include "supersonic.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: triton
   template:
     metadata:
       labels:
-        app: {{ .Values.triton.name }}
+        app.kubernetes.io/name: {{ include "supersonic.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: triton
     spec:
       terminationGracePeriodSeconds: 60
       containers:

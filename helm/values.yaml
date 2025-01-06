@@ -1,9 +1,9 @@
 # Default configuration values for SuperSONIC
 
-triton:
-  # -- Name of the Nvidia Triton inference server Deployment
-  name: "sonic-server-triton"
+nameOverride: ""
+fullnameOverride: ""
 
+triton:
   # -- Number of Triton server instances (if autoscaling is disabled)
   replicas: 1
 

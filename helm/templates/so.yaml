@@ -7,10 +7,14 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ .Values.envoy.name }}-tritonserver-scaledobject
+  name: {{ include "supersonic.fullname" . }}-keda-so
+  labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: keda
 spec:
   scaleTargetRef:
-    name: {{ .Values.triton.name }}
+    name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
   pollingInterval: 30
   cooldownPeriod: 120

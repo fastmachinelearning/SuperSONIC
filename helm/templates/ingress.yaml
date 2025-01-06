@@ -3,6 +3,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: {{ include "supersonic.fullname" . }}-ingress-grpc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "supersonic.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
   annotations:
     haproxy-ingress.github.io/cors-enable: "true"
     haproxy-ingress.github.io/backend-protocol: "h2"
@@ -14,7 +19,6 @@ metadata:
     haproxy-ingress.github.io/timeout-queue: "1m"
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
-  name: {{ .Values.envoy.name }}-ingress-grpc
 spec:
   ingressClassName: haproxy
   tls:
@@ -26,7 +30,7 @@ spec:
       paths:
       - backend:
           service:
-            name: {{ .Values.envoy.name }}
+            name: {{ include "supersonic.envoyName" . }}
             port:
               number: 8001
         path: /
