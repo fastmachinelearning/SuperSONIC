@@ -48,7 +48,7 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          helm upgrade --install ci ./helm \
+          helm upgrade --install supersonic ./helm \
             --values values/values-cms-ci.yaml -n cms
 
 

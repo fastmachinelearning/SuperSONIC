@@ -1,4 +1,4 @@
-fullnameOverride: cms-sonic
+fullnameOverride: supersonic
 
 triton: 
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
@@ -54,11 +54,11 @@ prometheus:
   serverAvailabilityMetric: |-
     sum(
       rate(
-        label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"cms-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+        label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"supersonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
       [5m:1m])
       /
       rate(
-        label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"cms-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
+        label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"supersonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
       [5m:1m])
     )
   serverAvailabilityThreshold: 100
