@@ -38,7 +38,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
     'sphinx_rtd_theme',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -60,7 +61,8 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static']
+html_css_files = ['custom.css']
 
 html_show_sourcelink = False
 
@@ -90,4 +92,4 @@ html_context = {
     'github_version': 'main',  # Version
     'conf_py_path': '/docs/',  # Path in the checkout to the docs root
 }
-html_favicon = 'img/SuperSONIC.svg'
+html_favicon = 'img/SuperSONIC_small.svg'

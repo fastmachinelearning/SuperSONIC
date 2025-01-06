@@ -124,19 +124,18 @@ static_resources:
 {{- end }}
 
 {{- /* Begin iterating over servers */}}
-{{- range .Values.servers }}
-{{- if .envoy.enabled }}
+{{- if .Values.envoy.enabled }}
 
 {{- /* Define variables for ports */}}
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
 {{- $envoyAdminPort := "" -}}
-{{- range $.Values.common.tritonService.ports }}
+{{- range .Values.triton.service.ports }}
   {{- if eq .name "grpc" }}
     {{- $tritonGrpcPort = .port }}
   {{- end }}
 {{- end }}
-{{- range $.Values.common.envoyService.ports }}
+{{- range .Values.envoy.service.ports }}
   {{- if eq .name "grpc" }}
     {{- $envoyGrpcPort = .port }}
   {{- end }}
@@ -150,15 +149,15 @@ static_resources:
     "envoyAdminPort" $envoyAdminPort
     "envoyGrpcPort" $envoyGrpcPort
     "tritonGrpcPort" $tritonGrpcPort
-    "prometheus" .prometheus
-    "envoy" .envoy
-    "triton" .triton
+    "prometheus" .Values.prometheus
+    "envoy" .Values.envoy
+    "triton" .Values.triton
 }}
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .envoy.name }}-envoy-config
+  name: {{ .Values.envoy.name }}-envoy-config
 data:
   envoy.yaml: |-
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
@@ -167,18 +166,17 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .envoy.name }}-lua-config
+  name: {{ .Values.envoy.name }}-lua-config
 data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}
-    {{- $luaConfig := $.Files.Get .envoy.configs.luaConfig | nindent 4 }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .prometheus.serverAvailabilityMetric) }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .prometheus.serverAvailabilityThreshold) }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .prometheus.url }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .prometheus.scheme }}
+    {{- $luaConfig := $.Files.Get .Values.envoy.configs.luaConfig | nindent 4 }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .Values.prometheus.serverAvailabilityMetric) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .Values.prometheus.serverAvailabilityThreshold) }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .Values.prometheus.url }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .Values.prometheus.scheme }}
     {{ $luaConfig | indent 4 }}
 
 ---
 
-{{- end }}
 {{- end }}
