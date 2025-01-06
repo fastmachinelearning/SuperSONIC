@@ -27,7 +27,7 @@ jobs:
       - name: Run helm-docs
         run: |
           cd helm/
-          helm-docs
+          helm-docs --sort-values-order=file
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
