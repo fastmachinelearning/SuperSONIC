@@ -1,6 +1,8 @@
 # Default configuration values for SuperSONIC
 
+# -- Name of the Helm release
 nameOverride: ""
+# -- Full name of the Helm release
 fullnameOverride: ""
 
 triton:
