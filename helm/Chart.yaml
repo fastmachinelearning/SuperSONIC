@@ -1,5 +1,6 @@
 apiVersion: v2
-name: SuperSONIC
+name: supersonic
 description: A Helm chart for SuperSONIC
 version: 0.1.0
 appVersion: "0.1"
+icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_128.png
