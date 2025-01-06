@@ -118,7 +118,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{ include "supersonic.tritonName" . }}
+                      address: {{ .tritonName }}
                       port_value: {{ .tritonGrpcPort }}
 {{- end }}
 {{- end }}
@@ -143,6 +143,7 @@ static_resources:
     {{- $envoyAdminPort = .port }}
   {{- end }}
 {{- end }}
+{{- $tritonName := include "supersonic.tritonName" . }}
 
 {{- /* Create a context to pass to the template */}}
 {{- $envoyContext := dict
@@ -152,6 +153,7 @@ static_resources:
     "prometheus" .Values.prometheus
     "envoy" .Values.envoy
     "triton" .Values.triton
+    "tritonName" $tritonName
 }}
 
 apiVersion: v1
