@@ -20,5 +20,5 @@
 {{- end -}}
 
 {{- define "supersonic.envoyName" -}}
-{{- printf "%s-envoy" (include "supersonic.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s" (include "supersonic.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

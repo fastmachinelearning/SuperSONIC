@@ -1,5 +1,6 @@
+fullnameOverride: atlas-sonic
+
 triton:
-  name: triton-atlas
   image: milescb/traccc-aas:v1.0
   affinity:
     nodeAffinity:
@@ -42,7 +43,6 @@ triton:
     mountPath: /cvmfs
 envoy:
   enabled: true
-  name: envoy-atlas
   image: envoyproxy/envoy:v1.30-latest
   args:
     [
@@ -73,11 +73,11 @@ prometheus:
   serverAvailabilityMetric: |-
     sum(
       sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"triton-atlas.*"}[5m:1m])
+        rate(nv_inference_queue_duration_us{pod=~"atlas-sonic.*"}[5m:1m])
       )
       /
       sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"triton-atlas.*"}[5m:1m]) + 0.00001) * 1000
+        (rate(nv_inference_exec_count{pod=~"atlas-sonic.*"}[5m:1m]) + 0.00001) * 1000
       )
     )
   serverAvailabilityThreshold: 100
