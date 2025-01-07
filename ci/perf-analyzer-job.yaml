@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: perf-analyzer-job
+  namespace: cms
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: perf-analyzer
+        image: nvcr.io/nvidia/tritonserver:22.07-py3-sdk
+        command: ["/bin/bash"]
+        args:
+          - "-c"
+          - |
+            echo "Running perf_analyzer..."
+            # Adjust the following command to suit your model name and Triton service endpoint
+            perf_analyzer -i grpc \
+                          -m deepmet \
+                          -u ci-sonic-triton.cms.svc.cluster.local:8001 \
+                          --async -p 1000 -b 100 \
+                          --concurrency-range=1:1 \
+                          --input-data "random"
+        volumeMounts:
+          - name: model-repository
+            mountPath: "/cvmfs"
+            mountPropagation: HostToContainer
+            readOnly: true
+      volumes:
+        - name: model-repository
+          persistentVolumeClaim:
+            claimName: cvmfs
+            readOnly: true
