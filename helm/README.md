@@ -42,6 +42,7 @@ A Helm chart for SuperSONIC
 | autoscaler.enabled | bool | `false` | Enable autoscaling |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
+| autoscaler.idleReplicaCount | int | `1` | Number of idle Triton servers. If set to 0, the server will release all GPUs. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
 | autoscaler.scaleUp.window | int | `120` |  |
 | autoscaler.scaleUp.period | int | `30` |  |
 | autoscaler.scaleUp.stepsize | int | `1` |  |
