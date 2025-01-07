@@ -23,6 +23,13 @@ spec:
                           --async -p 1000 -b 100 \
                           --concurrency-range=1:1 \
                           --input-data "random"
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
         volumeMounts:
           - name: model-repository
             mountPath: "/cvmfs"
