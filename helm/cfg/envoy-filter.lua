@@ -17,6 +17,10 @@ function envoy_on_request(request_handle)
 
         local encoded_query = encode_query(query)
 
+        request_handle:logInfo("Prometheus URL: " .. "PROMETHEUS_URL")
+        request_handle:logInfo("Prometheus scheme: " .. "PROMETHEUS_SCHEME")
+        request_handle:logInfo("Encoded query: " .. encoded_query)
+
         local headers, body = request_handle:httpCall(
             "prometheus_cluster",
             {
@@ -28,7 +32,6 @@ function envoy_on_request(request_handle)
             "",
             5000
         )
-
         if not headers then
             request_handle:logErr("HTTP call to Prometheus failed.")
             return
