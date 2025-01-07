@@ -883,6 +883,7 @@
                 "enabled",
                 "minReplicas",
                 "maxReplicas",
+                "idleReplicaCount",
                 "scaleUp",
                 "scaleDown"
             ],
@@ -909,6 +910,14 @@
                     "title": "The maxReplicas Schema",
                     "examples": [
                         2
+                    ]
+                },
+                "idleReplicaCount": {
+                    "type": "integer",
+                    "default": 0,
+                    "title": "The idleReplicaCount Schema",
+                    "examples": [
+                        1
                     ]
                 },
                 "scaleUp": {
@@ -998,6 +1007,7 @@
                 "enabled": false,
                 "minReplicas": 1,
                 "maxReplicas": 2,
+                "idleReplicaCount": 1,
                 "scaleUp": {
                     "window": 120,
                     "period": 30,
@@ -1171,6 +1181,7 @@
             "enabled": false,
             "minReplicas": 1,
             "maxReplicas": 2,
+            "idleReplicaCount": 1,
             "scaleUp": {
                 "window": 120,
                 "period": 30,

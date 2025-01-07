@@ -167,6 +167,12 @@ autoscaler:
   # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
   minReplicas: 1
   maxReplicas: 2
+
+  # -- Number of idle Triton servers.
+  # If set to 0, the server will release all GPUs.
+  # Be careful: if the scaling metric is extracted from Triton servers,
+  # it will be unavailable, and scaling from 0 to 1 will never happen.
+  idleReplicaCount: 1
   scaleUp:
     window: 120
     period: 30

@@ -2,7 +2,7 @@
 
 {{- $scaleUp := .Values.autoscaler.scaleUp | default dict }}
 {{- $scaleDown := .Values.autoscaler.scaleDown | default dict }}
-{{- $prometheusAddress := printf "http://%s:%d" .Values.prometheus.url (int .Values.prometheus.port) | quote }}
+{{- $prometheusAddress := printf "%s://%s:%d" .Values.prometheus.scheme .Values.prometheus.url (int .Values.prometheus.port) | quote }}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -18,7 +18,7 @@ spec:
     kind: Deployment
   pollingInterval: 30
   cooldownPeriod: 120
-  idleReplicaCount: 0
+  idleReplicaCount: {{ default 1 .Values.autoscaler.idleReplicas }}
   minReplicaCount: {{ default 1 .Values.autoscaler.minReplicas }}
   maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicas }}
   advanced:
