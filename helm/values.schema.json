@@ -35,7 +35,8 @@
                 "resources",
                 "affinity",
                 "modelRepository",
-                "service"
+                "service",
+                "resetReadinessProbe"
             ],
             "properties": {
                 "replicas": {
@@ -374,6 +375,14 @@
                             "protocol": "TCP"
                         }]
                     }]
+                },
+                "resetReadinessProbe": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "The resetReadinessProbe Schema",
+                    "examples": [
+                        false
+                    ]
                 }
             },
             "examples": [{
@@ -425,7 +434,8 @@
                         "targetPort": 8002,
                         "protocol": "TCP"
                     }]
-                }
+                },
+                "resetReadinessProbe": false
             }]
         },
         "envoy": {
@@ -1120,7 +1130,8 @@
                     "targetPort": 8002,
                     "protocol": "TCP"
                 }]
-            }
+            },
+            "resetReadinessProbe": false
         },
         "envoy": {
             "enabled": true,

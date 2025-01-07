@@ -45,6 +45,7 @@ spec:
           httpGet:
             path: /v2/health/ready
             port: http
+{{- if not (eq .Values.triton.resetReadinessProbe true) }}
         readinessProbe:
           exec:
             command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
@@ -53,6 +54,7 @@ spec:
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 10
+{{- end }}
         lifecycle:
           preStop:
             exec:
