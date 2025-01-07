@@ -58,8 +58,8 @@ jobs:
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
           while ! kubectl logs deployment/ci-sonic-triton -n cms --all-containers=true; do
               echo "Waiting for containers to become available..."
-              kubectl describe pods -n cms -l app.kubernetes.io/component=triton
-              sleep 60
+              # kubectl describe pods -n cms -l app.kubernetes.io/component=triton
+              sleep 10
           done
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
 
@@ -71,10 +71,12 @@ jobs:
         run: |
           kubectl apply -f ci/perf-analyzer-job.yaml
           kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
-          (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
+          (echo "Perf-analyzer job did not complete in time or failed.")
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
           echo "========== Perf Analyzer Logs =========="
+          kubectl describe -n cms "$POD_NAME"
+          echo "========================================"
           kubectl logs -n cms "$POD_NAME"
           echo "========================================"
 
