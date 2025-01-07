@@ -19,7 +19,7 @@ spec:
             # Adjust the following command to suit your model name and Triton service endpoint
             perf_analyzer -i grpc \
                           -m deepmet \
-                          -u supersonic:8001 \
+                          -u supersonic.cms.svc.cluster.local:8001 \
                           --async -p 1000 -b 100 \
                           --concurrency-range=1:1 --input-data "random"
         volumeMounts:
