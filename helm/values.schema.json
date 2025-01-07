@@ -6,7 +6,6 @@
     "title": "Root Schema",
     "required": [
         "nameOverride",
-        "fullnameOverride",
         "triton",
         "envoy",
         "prometheus",
@@ -20,14 +19,6 @@
             "type": "string",
             "default": "",
             "title": "The nameOverride Schema",
-            "examples": [
-                ""
-            ]
-        },
-        "fullnameOverride": {
-            "type": "string",
-            "default": "",
-            "title": "The fullnameOverride Schema",
             "examples": [
                 ""
             ]
@@ -1070,7 +1061,6 @@
     },
     "examples": [{
         "nameOverride": "",
-        "fullnameOverride": "",
         "triton": {
             "replicas": 1,
             "image": "fastml/triton-torchgeo:22.07-py3-geometric",

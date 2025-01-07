@@ -7,10 +7,10 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ include "supersonic.fullname" . }}-keda-so
+  name: {{ include "supersonic.name" . }}-keda-so
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: keda
 spec:
   scaleTargetRef:

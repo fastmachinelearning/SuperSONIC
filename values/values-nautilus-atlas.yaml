@@ -1,4 +1,4 @@
-fullnameOverride: atlas-sonic
+nameOverride: atlas-sonic
 
 triton:
   image: milescb/traccc-aas:v1.0

@@ -1,9 +1,7 @@
 # Default configuration values for SuperSONIC
 
-# -- Name of the Helm release
+# -- Unique identifier of SuperSONIC instance (equal to release name by default)
 nameOverride: ""
-# -- Full name of the Helm release
-fullnameOverride: ""
 
 triton:
   # -- Number of Triton server instances (if autoscaling is disabled)

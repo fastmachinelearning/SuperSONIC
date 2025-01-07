@@ -3,8 +3,8 @@ kind: Service
 metadata:
   name: {{ include "supersonic.tritonName" . }}
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: triton
 {{ toYaml .Values.triton.service.labels | nindent 4 }}
   annotations:
@@ -19,6 +19,6 @@ spec:
     protocol: {{ .protocol }}
   {{- end }}
   selector:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: triton

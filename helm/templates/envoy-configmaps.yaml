@@ -159,10 +159,10 @@ static_resources:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "supersonic.fullname" . }}-envoy-config
+  name: {{ include "supersonic.name" . }}-envoy-config
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
@@ -172,10 +172,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "supersonic.fullname" . }}-lua-config
+  name: {{ include "supersonic.name" . }}-lua-config
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
 data:
   envoy-filter.lua: |-

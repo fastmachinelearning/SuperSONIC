@@ -1,4 +1,4 @@
-fullnameOverride: icesonic
+nameOverride: icesonic
 
 triton: 
   image: nvcr.io/nvidia/tritonserver:24.06-py3

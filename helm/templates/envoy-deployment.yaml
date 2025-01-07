@@ -12,21 +12,21 @@ kind: Deployment
 metadata:
   name: {{ include "supersonic.envoyName" . }}
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
 spec:
   replicas: {{ .Values.envoy.replicas | default 1 }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "supersonic.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
       app.kubernetes.io/component: envoy
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "supersonic.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: envoy
     spec:
       containers:
@@ -36,20 +36,20 @@ spec:
         ports:
         - containerPort: {{ $envoyGrpcPort }}
         volumeMounts:
-        - name: {{ include "supersonic.fullname" . }}-envoy-config
+        - name: {{ include "supersonic.name" . }}-envoy-config
           mountPath: /etc/envoy
-        - name: {{ include "supersonic.fullname" . }}-lua-volume
+        - name: {{ include "supersonic.name" . }}-lua-volume
           mountPath: /etc/envoy/lua
           readOnly: true
         resources:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
       volumes:
-      - name: {{ include "supersonic.fullname" . }}-envoy-config
+      - name: {{ include "supersonic.name" . }}-envoy-config
         configMap:
-          name: {{ include "supersonic.fullname" . }}-envoy-config
-      - name: {{ include "supersonic.fullname" . }}-lua-volume
+          name: {{ include "supersonic.name" . }}-envoy-config
+      - name: {{ include "supersonic.name" . }}-lua-volume
         configMap:
-          name: {{ include "supersonic.fullname" . }}-lua-config
+          name: {{ include "supersonic.name" . }}-lua-config
           items:
           - key: envoy-filter.lua
             path: envoy-filter.lua

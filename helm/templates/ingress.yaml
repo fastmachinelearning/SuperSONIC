@@ -3,11 +3,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "supersonic.fullname" . }}-ingress-grpc
+  name: {{ include "supersonic.name" . }}-ingress-grpc
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
   annotations:
     haproxy-ingress.github.io/cors-enable: "true"
     haproxy-ingress.github.io/backend-protocol: "h2"

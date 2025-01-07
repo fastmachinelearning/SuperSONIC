@@ -5,15 +5,15 @@ kind: Service
 metadata:
   name: {{ include "supersonic.envoyName" . }}
   labels:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
 {{ toYaml .Values.envoy.service.labels | nindent 4 }}
 spec:
   type:  {{ .Values.envoy.service.type }}
   selector:
-    app.kubernetes.io/name: {{ include "supersonic.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
   ports:
   {{- range .Values.envoy.service.ports }}
