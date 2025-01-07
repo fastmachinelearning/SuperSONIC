@@ -16,7 +16,7 @@ SuperSONIC chart successfully installed!
 
 Uninstall as follows:
 
-  helm uninstall {{ .Release.Name }}
+  helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
 
 {{- if .Values.ingress.enabled }}
 

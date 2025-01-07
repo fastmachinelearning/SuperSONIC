@@ -1,4 +1,4 @@
-nameOverride: supersonic
+nameOverride: supersonic-cms
 
 triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2

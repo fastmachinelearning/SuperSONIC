@@ -30,7 +30,7 @@ spec:
       paths:
       - backend:
           service:
-            name: {{ include "supersonic.envoyName" . }}
+            name: {{ include "supersonic.name" . }}
             port:
               number: 8001
         path: /
