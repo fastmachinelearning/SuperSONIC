@@ -8,8 +8,7 @@ A Helm chart for SuperSONIC
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| nameOverride | string | `""` | Name of the Helm release |
-| fullnameOverride | string | `""` | Full name of the Helm release |
+| nameOverride | string | `""` | Unique identifier of SuperSONIC instance (equal to release name by default) |
 | triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
 | triton.image | string | `"fastml/triton-torchgeo:22.07-py3-geometric"` | Docker image for the Triton server |
 | triton.command | list | `["/bin/sh","-c"]` | Command and arguments to run in Triton container |
