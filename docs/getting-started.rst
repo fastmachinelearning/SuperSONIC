@@ -12,13 +12,25 @@ Pre-requisites
 Installation
 ~~~~~~~~~~~~~~
 
-   Modify the following command to install the chart at your cluster:
+   1. Create a values file with your configuration. You can use the provided
+      example file as a starting point, and modify it to suit your needs:
 
-   .. code:: shell
+      .. code:: shell
 
-      git clone https://github.com/fastmachinelearning/SuperSONIC
-      cd SuperSONIC
-      helm upgrade --install super-sonic ./helm --values values/your-values.yaml -n <namespace>
+         cp values.yaml values/<your-values.yaml>
+
+   2. Modify the following command to install the chart at your cluster:
+
+      .. code:: shell
+
+         git clone https://github.com/fastmachinelearning/SuperSONIC
+         cd SuperSONIC
+         helm upgrade --install <release-name> ./helm --values values/<your-values.yaml> -n <namespace>
+
+      Use a unique meaningful lowercase value as <release-name>, for example
+      ``supersonic-cms-run3``.
+      This value will be used as a prefix for all resources created by the chart,
+      unless ``nameOverride`` is specified in the values file.
 
    Nicer installation from a Helm repository coming soon in `v0.1`
 
@@ -27,7 +39,7 @@ Uninstall SuperSONIC
 
    .. code:: shell
 
-      helm uninstall super-sonic  -n <namespace>
+      helm uninstall <release-name>  -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~
