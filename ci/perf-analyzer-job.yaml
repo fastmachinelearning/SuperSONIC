@@ -16,19 +16,20 @@ spec:
           - "-c"
           - |
             echo "Running perf_analyzer..."
+            curl supersonic.cms.svc.cluster.local:8001
             # Adjust the following command to suit your model name and Triton service endpoint
             perf_analyzer -i grpc \
                           -m deepmet \
                           -u supersonic.cms.svc.cluster.local:8001 \
                           --async -p 1000 -b 100 \
                           --concurrency-range=1:1 --input-data "random"
-        volumeMounts:
-          - name: model-repository
-            mountPath: "/cvmfs"
-            mountPropagation: HostToContainer
-            readOnly: true
-      volumes:
-        - name: model-repository
-          persistentVolumeClaim:
-            claimName: cvmfs
-            readOnly: true
+      #   volumeMounts:
+      #     - name: model-repository
+      #       mountPath: "/cvmfs"
+      #       mountPropagation: HostToContainer
+      #       readOnly: true
+      # volumes:
+      #   - name: model-repository
+      #     persistentVolumeClaim:
+      #       claimName: cvmfs
+      #       readOnly: true
