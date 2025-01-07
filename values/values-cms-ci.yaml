@@ -1,4 +1,4 @@
-fullnameOverride: ci-sonic
+nameOverride: ci-sonic
 
 triton:
   replicas: 1
