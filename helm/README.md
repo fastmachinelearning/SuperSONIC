@@ -21,6 +21,7 @@ A Helm chart for SuperSONIC
 | triton.service.labels.scrape_metrics | string | `"true"` |  |
 | triton.service.annotations | object | `{}` |  |
 | triton.service.ports | list | `[{"name":"http","port":8000,"protocol":"TCP","targetPort":8000},{"name":"grpc","port":8001,"protocol":"TCP","targetPort":8001},{"name":"metrics","port":8002,"protocol":"TCP","targetPort":8002}]` | Ports for communication with Triton servers |
+| triton.resetReadinessProbe | bool | `false` | If ture, will ignore custom readinness probe settings (not recommended when using autoscaler) |
 | envoy.enabled | bool | `true` | Enable Envoy Proxy |
 | envoy.name | string | `"sonic-server"` | Envoy Proxy Deployment name |
 | envoy.replicas | int | `1` | Number of Envoy Proxy pods in Deployment |
