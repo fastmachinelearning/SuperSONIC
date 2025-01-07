@@ -11,8 +11,8 @@ triton:
       --disable-auto-complete-config \
       --exit-timeout-secs=60
   resources:
-    limits: { cpu: 2, memory: 3Gi}
-    requests: { cpu: 2, memory: 3Gi}
+    limits: { cpu: 1, memory: 3Gi}
+    requests: { cpu: 1, memory: 3Gi}
   service:
     labels:
       scrape_metrics: "true"
