@@ -17,8 +17,8 @@ triton:
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
   resources:
-    limits: { nvidia.com/a40: 1, cpu: 2, memory: 16G}
-    requests: { nvidia.com/a40: 1, cpu: 2, memory: 16G}
+    limits: { cpu: 2, memory: 16G}
+    requests: { cpu: 2, memory: 16G}
   service:
     labels:
       scrape_metrics: "true"
@@ -31,6 +31,23 @@ triton:
   modelRepository:
     storageType: cvmfs-pvc
     mountPath: /cvmfs
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                  - NVIDIA-A10
+                  - NVIDIA-A40
+                  # - NVIDIA-A100-SXM4-80GB
+                  - NVIDIA-L40
+                  # - NVIDIA-A100-80GB-PCIe
+                  # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
+                  - NVIDIA-L4
+                  # - NVIDIA-A100-PCIE-40GB
+                  # - NVIDIA-GH200-480GB
 envoy:
   enabled: true
   image: envoyproxy/envoy:v1.30-latest
@@ -62,11 +79,11 @@ prometheus:
         (rate(nv_inference_exec_count{pod=~"supersonic.*"}[5m:1m]) + 0.00001) * 1000
       )
     )
-  serverAvailabilityThreshold: 100
+  serverAvailabilityThreshold: 10
 autoscaler:
-  enabled: False
-  minReplicas: 0
-  maxReplicas: 1
+  enabled: True
+  minReplicas: 1
+  maxReplicas: 5
 ingress:
   enabled: true
   hostName: sonic-cms.nrp-nautilus.io
