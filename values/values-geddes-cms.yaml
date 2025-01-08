@@ -49,7 +49,7 @@ prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverAvailabilityThreshold: 10
+  serverLoadThreshold: 10
 
 autoscaler:
   enabled: true

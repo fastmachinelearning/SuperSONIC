@@ -824,7 +824,7 @@
                 "port",
                 "scheme",
                 "serverLoadMetric",
-                "serverLoadMetricThreshold"
+                "serverLoadThreshold"
             ],
             "properties": {
                 "enabled": {
@@ -867,10 +867,10 @@
                         ""
                     ]
                 },
-                "serverLoadMetricThreshold": {
+                "serverLoadThreshold": {
                     "type": "integer",
                     "default": 0,
-                    "title": "The serverLoadMetricThreshold Schema",
+                    "title": "The serverLoadThreshold Schema",
                     "examples": [
                         100
                     ]
@@ -882,7 +882,7 @@
                 "port": 443,
                 "scheme": "https",
                 "serverLoadMetric": "",
-                "serverLoadMetricThreshold": 100
+                "serverLoadThreshold": 100
             }]
         },
         "autoscaler": {
@@ -1186,7 +1186,7 @@
             "port": 443,
             "scheme": "https",
             "serverLoadMetric": "",
-            "serverLoadMetricThreshold": 100
+            "serverLoadThreshold": 100
         },
         "autoscaler": {
             "enabled": false,

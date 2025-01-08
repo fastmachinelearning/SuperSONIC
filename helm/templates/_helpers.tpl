@@ -16,8 +16,8 @@
 {{- end -}}
 
 {{- define "supersonic.defaultMetric" -}}
-{{- if not ( eq .Values.prometheus.serverAvailabilityMetric "" ) }}
-  {{- printf "%s" .Values.prometheus.serverAvailabilityMetric -}}
+{{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
+  {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
 {{- else }}
 sum(
     sum by (pod) (
@@ -25,7 +25,7 @@ sum(
     )
     /
     sum by (pod) (
-        ((rate(nv_inference_exec_count{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m]) + 0.000000000000001) * 1000)
+        (rate(nv_inference_exec_count{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m]) * 1000) + 0.001
     )
 )
 {{- end }}

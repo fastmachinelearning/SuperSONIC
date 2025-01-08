@@ -149,7 +149,7 @@ prometheus:
   serverLoadMetric: ""
   
   # -- Threshold for the metric
-  serverLoadMetricThreshold: 100
+  serverLoadThreshold: 100
 
 autoscaler:
 

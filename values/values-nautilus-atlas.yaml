@@ -68,7 +68,7 @@ prometheus:
   url: "prometheus.nrp-nautilus.io"
   port: 443
   scheme: https
-  serverLoadMetricThreshold: 100
+  serverLoadThreshold: 100
 autoscaler:
   enabled: False
   minReplicas: 0
