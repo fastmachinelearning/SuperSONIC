@@ -216,20 +216,6 @@
         "service": {
           "type": "object",
           "properties": {
-            "type": {
-              "type": "string"
-            },
-            "labels": {
-              "type": "object",
-              "properties": {
-                "envoy": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "envoy"
-              ]
-            },
             "ports": {
               "type": "array",
               "items": {
@@ -254,9 +240,7 @@
             }
           },
           "required": [
-            "labels",
-            "ports",
-            "type"
+            "ports"
           ]
         },
         "configs": {
