@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: perf-analyzer-job
+  namespace: cms
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: perf-analyzer
+        image: nvcr.io/nvidia/tritonserver:22.07-py3-sdk
+        command: ["/bin/bash"]
+        args:
+          - "-c"
+          - |
+            echo "Running perf_analyzer..."
+            perf_analyzer -i grpc \
+                          -m higgsInteractionNet \
+                          -u supersonic.cms.svc.cluster.local:8001 \
+                          --async -p 1 -b 100  --measurement-interval=5000 \
+                          --concurrency-range=1:1 --input-data "random"

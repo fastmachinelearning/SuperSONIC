@@ -1,14 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name:  {{ .Values.triton.name }}-monitor
+  name: {{ include "supersonic.name" . }}-triton-monitor
   namespace: {{ .Release.Namespace }}
   labels:
-    app:  {{ .Values.triton.name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: triton
 spec:
   selector:
     matchLabels:
-      app: {{ .Values.triton.name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: triton
   endpoints:
   - port: metrics
     path: /metrics
@@ -19,14 +23,18 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name:  {{ .Values.envoy.name }}-monitor
+  name: {{ include "supersonic.name" . }}-envoy-monitor
   namespace: {{ .Release.Namespace }}
   labels:
-    app:  {{ .Values.envoy.name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
 spec:
   selector:
     matchLabels:
-      app: {{ .Values.envoy.name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: envoy
   endpoints:
   - port: admin
     path: /stats/prometheus

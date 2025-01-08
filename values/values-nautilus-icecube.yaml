@@ -1,5 +1,6 @@
+nameOverride: icesonic
+
 triton: 
-  name: triton-icesonic
   image: nvcr.io/nvidia/tritonserver:24.06-py3
   affinity:
     nodeAffinity:
@@ -45,7 +46,6 @@ triton:
     mountPath: /models
 envoy:
   enabled: true
-  name: envoy-icesonic
   image: envoyproxy/envoy:v1.30-latest
   args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
   resources:
@@ -75,11 +75,11 @@ prometheus:
   serverAvailabilityMetric: |-
     sum(
       sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"triton-icesonic.*"}[5m:1m])
+        rate(nv_inference_queue_duration_us{pod=~"icesonic-triton.*"}[5m:1m])
       )
       /
       sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"triton-icesonic.*"}[5m:1m]) + 0.00001) * 1000
+        (rate(nv_inference_exec_count{pod=~"icesonic-triton.*"}[5m:1m]) + 0.00001) * 1000
       )
     )
   serverAvailabilityThreshold: 100

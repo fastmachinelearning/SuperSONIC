@@ -1,16 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.triton.name }}
+  name: {{ include "supersonic.tritonName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: triton
 spec:
   replicas: {{ .Values.triton.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.triton.name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: triton
   template:
     metadata:
       labels:
-        app: {{ .Values.triton.name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: triton
     spec:
       terminationGracePeriodSeconds: 60
       containers:
@@ -37,6 +45,7 @@ spec:
           httpGet:
             path: /v2/health/ready
             port: http
+{{- if not (eq .Values.triton.resetReadinessProbe true) }}
         readinessProbe:
           exec:
             command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
@@ -45,6 +54,7 @@ spec:
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 10
+{{- end }}
         lifecycle:
           preStop:
             exec:

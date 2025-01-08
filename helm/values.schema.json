@@ -5,6 +5,7 @@
     "default": {},
     "title": "Root Schema",
     "required": [
+        "nameOverride",
         "triton",
         "envoy",
         "prometheus",
@@ -14,12 +15,19 @@
         "tolerations"
     ],
     "properties": {
+        "nameOverride": {
+            "type": "string",
+            "default": "",
+            "title": "The nameOverride Schema",
+            "examples": [
+                ""
+            ]
+        },
         "triton": {
             "type": "object",
             "default": {},
             "title": "The triton Schema",
             "required": [
-                "name",
                 "replicas",
                 "image",
                 "command",
@@ -27,17 +35,10 @@
                 "resources",
                 "affinity",
                 "modelRepository",
-                "service"
+                "service",
+                "resetReadinessProbe"
             ],
             "properties": {
-                "name": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The name Schema",
-                    "examples": [
-                        "sonic-server-triton"
-                    ]
-                },
                 "replicas": {
                     "type": "integer",
                     "default": 0,
@@ -112,7 +113,7 @@
                                     "default": 0,
                                     "title": "The cpu Schema",
                                     "examples": [
-                                        2
+                                        1
                                     ]
                                 },
                                 "memory": {
@@ -120,13 +121,13 @@
                                     "default": "",
                                     "title": "The memory Schema",
                                     "examples": [
-                                        "16G"
+                                        "2G"
                                     ]
                                 }
                             },
                             "examples": [{
-                                "cpu": 2,
-                                "memory": "16G"
+                                "cpu": 1,
+                                "memory": "2G"
                             }]
                         },
                         "requests": {
@@ -143,7 +144,7 @@
                                     "default": 0,
                                     "title": "The cpu Schema",
                                     "examples": [
-                                        2
+                                        1
                                     ]
                                 },
                                 "memory": {
@@ -151,24 +152,24 @@
                                     "default": "",
                                     "title": "The memory Schema",
                                     "examples": [
-                                        "16G"
+                                        "2G"
                                     ]
                                 }
                             },
                             "examples": [{
-                                "cpu": 2,
-                                "memory": "16G"
+                                "cpu": 1,
+                                "memory": "2G"
                             }]
                         }
                     },
                     "examples": [{
                         "limits": {
-                            "cpu": 2,
-                            "memory": "16G"
+                            "cpu": 1,
+                            "memory": "2G"
                         },
                         "requests": {
-                            "cpu": 2,
-                            "memory": "16G"
+                            "cpu": 1,
+                            "memory": "2G"
                         }
                     }]
                 },
@@ -374,10 +375,17 @@
                             "protocol": "TCP"
                         }]
                     }]
+                },
+                "resetReadinessProbe": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "The resetReadinessProbe Schema",
+                    "examples": [
+                        false
+                    ]
                 }
             },
             "examples": [{
-                "name": "sonic-server-triton",
                 "replicas": 1,
                 "image": "fastml/triton-torchgeo:22.07-py3-geometric",
                 "command": [
@@ -389,12 +397,12 @@
                 ],
                 "resources": {
                     "limits": {
-                        "cpu": 2,
-                        "memory": "16G"
+                        "cpu": 1,
+                        "memory": "2G"
                     },
                     "requests": {
-                        "cpu": 2,
-                        "memory": "16G"
+                        "cpu": 1,
+                        "memory": "2G"
                     }
                 },
                 "affinity": {},
@@ -426,7 +434,8 @@
                         "targetPort": 8002,
                         "protocol": "TCP"
                     }]
-                }
+                },
+                "resetReadinessProbe": false
             }]
         },
         "envoy": {
@@ -527,7 +536,7 @@
                                     "default": 0,
                                     "title": "The cpu Schema",
                                     "examples": [
-                                        2
+                                        1
                                     ]
                                 },
                                 "memory": {
@@ -535,13 +544,13 @@
                                     "default": "",
                                     "title": "The memory Schema",
                                     "examples": [
-                                        "4G"
+                                        "2G"
                                     ]
                                 }
                             },
                             "examples": [{
-                                "cpu": 2,
-                                "memory": "4G"
+                                "cpu": 1,
+                                "memory": "2G"
                             }]
                         },
                         "limits": {
@@ -558,7 +567,7 @@
                                     "default": 0,
                                     "title": "The cpu Schema",
                                     "examples": [
-                                        2
+                                        1
                                     ]
                                 },
                                 "memory": {
@@ -566,24 +575,24 @@
                                     "default": "",
                                     "title": "The memory Schema",
                                     "examples": [
-                                        "4G"
+                                        "2G"
                                     ]
                                 }
                             },
                             "examples": [{
-                                "cpu": 2,
-                                "memory": "4G"
+                                "cpu": 1,
+                                "memory": "2G"
                             }]
                         }
                     },
                     "examples": [{
                         "requests": {
-                            "cpu": 2,
-                            "memory": "4G"
+                            "cpu": 1,
+                            "memory": "2G"
                         },
                         "limits": {
-                            "cpu": 2,
-                            "memory": "4G"
+                            "cpu": 1,
+                            "memory": "2G"
                         }
                     }]
                 },
@@ -772,12 +781,12 @@
                 ],
                 "resources": {
                     "requests": {
-                        "cpu": 2,
-                        "memory": "4G"
+                        "cpu": 1,
+                        "memory": "2G"
                     },
                     "limits": {
-                        "cpu": 2,
-                        "memory": "4G"
+                        "cpu": 1,
+                        "memory": "2G"
                     }
                 },
                 "service": {
@@ -884,6 +893,7 @@
                 "enabled",
                 "minReplicas",
                 "maxReplicas",
+                "idleReplicaCount",
                 "scaleUp",
                 "scaleDown"
             ],
@@ -910,6 +920,14 @@
                     "title": "The maxReplicas Schema",
                     "examples": [
                         2
+                    ]
+                },
+                "idleReplicaCount": {
+                    "type": "integer",
+                    "default": 0,
+                    "title": "The idleReplicaCount Schema",
+                    "examples": [
+                        1
                     ]
                 },
                 "scaleUp": {
@@ -999,6 +1017,7 @@
                 "enabled": false,
                 "minReplicas": 1,
                 "maxReplicas": 2,
+                "idleReplicaCount": 1,
                 "scaleUp": {
                     "window": 120,
                     "period": 30,
@@ -1061,8 +1080,8 @@
         }
     },
     "examples": [{
+        "nameOverride": "",
         "triton": {
-            "name": "sonic-server-triton",
             "replicas": 1,
             "image": "fastml/triton-torchgeo:22.07-py3-geometric",
             "command": [
@@ -1074,12 +1093,12 @@
             ],
             "resources": {
                 "limits": {
-                    "cpu": 2,
-                    "memory": "16G"
+                    "cpu": 1,
+                    "memory": "2G"
                 },
                 "requests": {
-                    "cpu": 2,
-                    "memory": "16G"
+                    "cpu": 1,
+                    "memory": "2G"
                 }
             },
             "affinity": {},
@@ -1111,7 +1130,8 @@
                     "targetPort": 8002,
                     "protocol": "TCP"
                 }]
-            }
+            },
+            "resetReadinessProbe": false
         },
         "envoy": {
             "enabled": true,
@@ -1128,12 +1148,12 @@
             ],
             "resources": {
                 "requests": {
-                    "cpu": 2,
-                    "memory": "4G"
+                    "cpu": 1,
+                    "memory": "2G"
                 },
                 "limits": {
-                    "cpu": 2,
-                    "memory": "4G"
+                    "cpu": 1,
+                    "memory": "2G"
                 }
             },
             "service": {
@@ -1172,6 +1192,7 @@
             "enabled": false,
             "minReplicas": 1,
             "maxReplicas": 2,
+            "idleReplicaCount": 1,
             "scaleUp": {
                 "window": 120,
                 "period": 30,

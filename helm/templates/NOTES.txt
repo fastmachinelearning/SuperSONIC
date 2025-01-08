@@ -1,0 +1,29 @@
+
+---
+
+   ____                  ___  ___  _  _ ___ ___ 
+  / __/_ _____  ___ ____/ __|/ _ \| \| |_ _/ __|
+ _\ \/ // / _ \/ -_) __/\__ \ (_) | .` || | (__ 
+/___/\_,_/ .__/\__/_/   |___/\___/|_|\_|___\___|
+        /_/                                      
+
+SuperSONIC chart successfully installed!
+
+  Chart name: {{ .Chart.Name }}
+  Release name: {{ .Release.Name }}
+  Instance name *: {{ (include "supersonic.name" .) }}
+  * equal to release name, unless nameOverride is specified.
+
+Uninstall as follows:
+
+  helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+{{- if .Values.ingress.enabled }}
+
+Once the Triton servers are running, you can send inference requests to the following address:
+
+  {{ .Values.ingress.hostName }}:443
+
+{{- end }}
+
+---

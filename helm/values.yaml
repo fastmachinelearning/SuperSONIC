@@ -1,9 +1,9 @@
 # Default configuration values for SuperSONIC
 
-triton:
-  # -- Name of the Nvidia Triton inference server Deployment
-  name: "sonic-server-triton"
+# -- Unique identifier of SuperSONIC instance (equal to release name by default)
+nameOverride: ""
 
+triton:
   # -- Number of Triton server instances (if autoscaling is disabled)
   replicas: 1
 
@@ -72,6 +72,8 @@ triton:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
+  # -- If ture, will ignore custom readinness probe settings (not recommended when using autoscaler)
+  resetReadinessProbe: false
 
 envoy:
   # -- Enable Envoy Proxy
@@ -167,6 +169,12 @@ autoscaler:
   # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
   minReplicas: 1
   maxReplicas: 2
+
+  # -- Number of idle Triton servers.
+  # If set to 0, the server will release all GPUs.
+  # Be careful: if the scaling metric is extracted from Triton servers,
+  # it will be unavailable, and scaling from 0 to 1 will never happen.
+  idleReplicaCount: 1
   scaleUp:
     window: 120
     period: 30
