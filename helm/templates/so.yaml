@@ -18,7 +18,9 @@ spec:
     kind: Deployment
   pollingInterval: 30
   cooldownPeriod: 120
-  idleReplicaCount: {{ default 1 .Values.autoscaler.idleReplicas }}
+{{- if (eq .Values.autoscaler.zeroIdleReplicas true) }}
+  idleReplicaCount: 0
+{{- end }}
   minReplicaCount: {{ default 1 .Values.autoscaler.minReplicas }}
   maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicas }}
   advanced:

@@ -893,7 +893,7 @@
                 "enabled",
                 "minReplicas",
                 "maxReplicas",
-                "idleReplicaCount",
+                "zeroIdleReplicas",
                 "scaleUp",
                 "scaleDown"
             ],
@@ -922,12 +922,12 @@
                         2
                     ]
                 },
-                "idleReplicaCount": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The idleReplicaCount Schema",
+                "zeroIdleReplicas": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "The zeroIdleReplicas Schema",
                     "examples": [
-                        1
+                        false
                     ]
                 },
                 "scaleUp": {
@@ -1017,7 +1017,7 @@
                 "enabled": false,
                 "minReplicas": 1,
                 "maxReplicas": 2,
-                "idleReplicaCount": 1,
+                "zeroIdleReplicas": false,
                 "scaleUp": {
                     "window": 120,
                     "period": 30,
@@ -1192,7 +1192,7 @@
             "enabled": false,
             "minReplicas": 1,
             "maxReplicas": 2,
-            "idleReplicaCount": 1,
+            "zeroIdleReplicas": false,
             "scaleUp": {
                 "window": 120,
                 "period": 30,
