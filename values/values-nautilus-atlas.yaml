@@ -68,17 +68,7 @@ prometheus:
   url: "prometheus.nrp-nautilus.io"
   port: 443
   scheme: https
-  serverAvailabilityMetric: |-
-    sum(
-      sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"atlas-sonic.*"}[5m:1m])
-      )
-      /
-      sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"atlas-sonic.*"}[5m:1m]) + 0.00001) * 1000
-      )
-    )
-  serverAvailabilityThreshold: 100
+  serverLoadMetricThreshold: 100
 autoscaler:
   enabled: False
   minReplicas: 0

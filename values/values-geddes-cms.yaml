@@ -1,5 +1,3 @@
-nameOverride: supersonic-cms
-
 triton: 
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   image: fastml/triton-torchgeo:22.07-py3-geometric # run3
@@ -16,8 +14,8 @@ triton:
       --strict-model-config=false \
       --exit-timeout-secs=60
   resources:
-    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+    limits: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
+    requests: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
   service:
     labels:
       scrape_metrics: "true"
@@ -51,22 +49,12 @@ prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverAvailabilityMetric: |-
-    sum(
-      rate(
-        label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"supersonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-      /
-      rate(
-        label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"supersonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-    )
-  serverAvailabilityThreshold: 100
+  serverAvailabilityThreshold: 10
 
 autoscaler:
-  enabled: False
-#   minReplicas: 9
-#   maxReplicas: 9
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
 ingress:
   enabled: false
 

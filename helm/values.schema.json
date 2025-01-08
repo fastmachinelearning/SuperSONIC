@@ -823,8 +823,8 @@
                 "url",
                 "port",
                 "scheme",
-                "serverAvailabilityMetric",
-                "serverAvailabilityThreshold"
+                "serverLoadMetric",
+                "serverLoadMetricThreshold"
             ],
             "properties": {
                 "enabled": {
@@ -859,18 +859,18 @@
                         "https"
                     ]
                 },
-                "serverAvailabilityMetric": {
+                "serverLoadMetric": {
                     "type": "string",
                     "default": "",
-                    "title": "The serverAvailabilityMetric Schema",
+                    "title": "The serverLoadMetric Schema",
                     "examples": [
-                        "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)"
+                        ""
                     ]
                 },
-                "serverAvailabilityThreshold": {
+                "serverLoadMetricThreshold": {
                     "type": "integer",
                     "default": 0,
-                    "title": "The serverAvailabilityThreshold Schema",
+                    "title": "The serverLoadMetricThreshold Schema",
                     "examples": [
                         100
                     ]
@@ -881,8 +881,8 @@
                 "url": "",
                 "port": 443,
                 "scheme": "https",
-                "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
-                "serverAvailabilityThreshold": 100
+                "serverLoadMetric": "",
+                "serverLoadMetricThreshold": 100
             }]
         },
         "autoscaler": {
@@ -1185,8 +1185,8 @@
             "url": "",
             "port": 443,
             "scheme": "https",
-            "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
-            "serverAvailabilityThreshold": 100
+            "serverLoadMetric": "",
+            "serverLoadMetricThreshold": 100
         },
         "autoscaler": {
             "enabled": false,

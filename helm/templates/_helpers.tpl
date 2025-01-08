@@ -14,3 +14,19 @@
 {{- define "supersonic.envoyName" -}}
 {{- printf "%s-envoy" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{- define "supersonic.defaultMetric" -}}
+{{- if not ( eq .Values.prometheus.serverAvailabilityMetric "" ) }}
+  {{- printf "%s" .Values.prometheus.serverAvailabilityMetric -}}
+{{- else }}
+sum(
+    sum by (pod) (
+        rate(nv_inference_queue_duration_us{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m])
+    )
+    /
+    sum by (pod) (
+        ((rate(nv_inference_exec_count{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m]) + 0.000000000000001) * 1000)
+    )
+)
+{{- end }}
+{{- end }}

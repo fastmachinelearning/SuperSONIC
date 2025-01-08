@@ -145,20 +145,11 @@ prometheus:
 
   # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
   ## the same metric can be used by KEDA autoscaler.
-  ## The example below is average queue time for inference requests arriving at the server, in milliseconds.
-  serverAvailabilityMetric: |-
-    sum(
-      sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"sonic-server.*"}[5m:1m])
-      )
-      /
-      sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"sonic-server.*"}[5m:1m])) * 1000
-      )
-    )
+  ## Default metric is defined in templates/_helpers.tpl
+  serverLoadMetric: ""
   
   # -- Threshold for the metric
-  serverAvailabilityThreshold: 100
+  serverLoadMetricThreshold: 100
 
 autoscaler:
 

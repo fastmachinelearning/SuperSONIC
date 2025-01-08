@@ -47,17 +47,7 @@ prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverAvailabilityMetric: |-
-    sum(
-      rate(
-        label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"ci-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-      /
-      rate(
-        label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"ci-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-    )
-  serverAvailabilityThreshold: 100
+  serverLoadMetricThreshold: 100
 autoscaler:
   enabled: true
   minReplicas: 1

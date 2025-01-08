@@ -9,16 +9,14 @@ function envoy_on_request(request_handle)
     if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then
         request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", false)
 
-        local query = SERVER_AVAIL_METRIC
-        local metric_threshold = tonumber(SERVER_AVAIL_THRESHOLD)
+        local query = SERVER_LOAD_METRIC
+        local metric_threshold = tonumber(SERVER_LOAD_THRESHOLD)
         local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
-
-        -- request_handle:logInfo("Query: " .. query)
-
         local encoded_query = encode_query(query)
 
         request_handle:logInfo("Prometheus URL: " .. "PROMETHEUS_URL")
         request_handle:logInfo("Prometheus scheme: " .. "PROMETHEUS_SCHEME")
+        request_handle:logInfo("Query: " .. query)
         request_handle:logInfo("Encoded query: " .. encoded_query)
 
         local headers, body = request_handle:httpCall(
