@@ -2,7 +2,9 @@ name: docs
 
 on:
   push:
-    branches: [ "**" ]
+    branches:
+      - "master"
+      - "docs"
 
 jobs:
   pages:

@@ -118,7 +118,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{ .triton.name }}
+                      address: {{ .tritonName }}
                       port_value: {{ .tritonGrpcPort }}
 {{- end }}
 {{- end }}
@@ -143,6 +143,7 @@ static_resources:
     {{- $envoyAdminPort = .port }}
   {{- end }}
 {{- end }}
+{{- $tritonName := include "supersonic.tritonName" . }}
 
 {{- /* Create a context to pass to the template */}}
 {{- $envoyContext := dict
@@ -152,12 +153,17 @@ static_resources:
     "prometheus" .Values.prometheus
     "envoy" .Values.envoy
     "triton" .Values.triton
+    "tritonName" $tritonName
 }}
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.envoy.name }}-envoy-config
+  name: {{ include "supersonic.name" . }}-envoy-config
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
@@ -166,13 +172,17 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.envoy.name }}-lua-config
+  name: {{ include "supersonic.name" . }}-lua-config
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
 data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}
     {{- $luaConfig := $.Files.Get .Values.envoy.configs.luaConfig | nindent 4 }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_METRIC" (quote .Values.prometheus.serverAvailabilityMetric) }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_AVAIL_THRESHOLD" (quote .Values.prometheus.serverAvailabilityThreshold) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.defaultMetric" . | quote) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.prometheus.serverLoadThreshold) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .Values.prometheus.url }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .Values.prometheus.scheme }}
     {{ $luaConfig | indent 4 }}

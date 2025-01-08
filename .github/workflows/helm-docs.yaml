@@ -27,7 +27,7 @@ jobs:
       - name: Run helm-docs
         run: |
           cd helm/
-          helm-docs
+          helm-docs --sort-values-order=file
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
@@ -39,6 +39,7 @@ jobs:
           git config user.email "actions@github.com"
 
           # Add and commit changes
+          git pull
           git add helm/README.md
           git commit -m "Update helm README" || echo "No changes to commit"
 

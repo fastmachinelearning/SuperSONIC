@@ -1,9 +1,9 @@
 # Default configuration values for SuperSONIC
 
-triton:
-  # -- Name of the Nvidia Triton inference server Deployment
-  name: "sonic-server-triton"
+# -- Unique identifier of SuperSONIC instance (equal to release name by default)
+nameOverride: ""
 
+triton:
   # -- Number of Triton server instances (if autoscaling is disabled)
   replicas: 1
 
@@ -72,6 +72,8 @@ triton:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
+  # -- If ture, will ignore custom readinness probe settings (not recommended when using autoscaler)
+  resetReadinessProbe: false
 
 envoy:
   # -- Enable Envoy Proxy
@@ -96,17 +98,9 @@ envoy:
       cpu: 1
       memory: "2G"
     limits:
-      cpu: 1
-      memory: "2G"
+      cpu: 2
+      memory: "4G"
   service:
-    # -- Service type: ClusterIP or LoadBalancer.
-    # If ClusterIP is chosen, you need to enable an Ingress for the servers.
-    type: "LoadBalancer"
-
-    # -- I don't remember why this label is here.
-    labels:
-      envoy: "true"
-
     # -- Envoy Service ports
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
@@ -143,20 +137,11 @@ prometheus:
 
   # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
   ## the same metric can be used by KEDA autoscaler.
-  ## The example below is average queue time for inference requests arriving at the server, in milliseconds.
-  serverAvailabilityMetric: |-
-    sum(
-      sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"sonic-server.*"}[5m:1m])
-      )
-      /
-      sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"sonic-server.*"}[5m:1m])) * 1000
-      )
-    )
+  ## Default metric is defined in templates/_helpers.tpl
+  serverLoadMetric: ""
   
   # -- Threshold for the metric
-  serverAvailabilityThreshold: 100
+  serverLoadThreshold: 100
 
 autoscaler:
 
@@ -167,6 +152,12 @@ autoscaler:
   # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
   minReplicas: 1
   maxReplicas: 2
+
+  # -- If set to true, the server will release all GPUs when idle.
+  # Be careful: if the scaling metric is extracted from Triton servers,
+  # it will be unavailable, and scaling from 0 to 1 will never happen.
+  zeroIdleReplicas: false
+
   scaleUp:
     window: 120
     period: 30

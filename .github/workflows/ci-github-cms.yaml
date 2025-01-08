@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - "**"
-  pull_request:
-    branches:
-      - master
 
 jobs:
   deploy-at-github:
@@ -51,29 +48,29 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          helm upgrade --install super-sonic helm \
+          helm upgrade --install supersonic ./helm \
             --values values/values-cms-ci.yaml -n cms
-
 
       - name: Wait for pods to be running
         run: |
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-envoy --timeout 120s -n cms
-          while ! kubectl logs deployment/sonic-ci-triton -n cms --all-containers=true; do
-              echo "Waiting for containers to become available..."
-              kubectl describe pods -n cms -l app=sonic-ci-triton
-              sleep 60
-          done
-          kubectl wait --for condition=Ready pod -l app=sonic-ci-triton --timeout 300s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
 
       - name: Validate Deployment
         run: |
           kubectl get all -n cms
 
-      # - name: Run Test CMSSW Workflow
-      #   run: |
-      #     # TODO
-      #     sleep 120
-              
+      - name: Run Perf Analyzer Job
+        run: |
+          kubectl apply -f ci/perf-analyzer-job.yaml
+          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=180s || \
+          (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
+
+          POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
+          echo "========== Perf Analyzer Logs =========="
+          kubectl logs -n cms "$POD_NAME"
+          echo "========================================"
+
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster

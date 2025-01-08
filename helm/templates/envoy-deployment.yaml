@@ -10,16 +10,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.envoy.name }}
+  name: {{ include "supersonic.envoyName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
 spec:
   replicas: {{ .Values.envoy.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.envoy.name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: envoy
   template:
     metadata:
       labels:
-        app: {{ .Values.envoy.name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: envoy
     spec:
       containers:
       - name: envoy
@@ -28,20 +36,20 @@ spec:
         ports:
         - containerPort: {{ $envoyGrpcPort }}
         volumeMounts:
-        - name: {{ .Values.envoy.name }}-envoy-config
+        - name: {{ include "supersonic.name" . }}-envoy-config
           mountPath: /etc/envoy
-        - name: {{ .Values.envoy.name }}-lua-volume
+        - name: {{ include "supersonic.name" . }}-lua-volume
           mountPath: /etc/envoy/lua
           readOnly: true
         resources:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
       volumes:
-      - name: {{ .Values.envoy.name }}-envoy-config
+      - name: {{ include "supersonic.name" . }}-envoy-config
         configMap:
-          name: {{ .Values.envoy.name }}-envoy-config
-      - name: {{ .Values.envoy.name }}-lua-volume
+          name: {{ include "supersonic.name" . }}-envoy-config
+      - name: {{ include "supersonic.name" . }}-lua-volume
         configMap:
-          name: {{ .Values.envoy.name }}-lua-config
+          name: {{ include "supersonic.name" . }}-lua-config
           items:
           - key: envoy-filter.lua
             path: envoy-filter.lua

@@ -1,1193 +1,411 @@
 {
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$id": "http://example.com/example.json",
-    "type": "object",
-    "default": {},
-    "title": "Root Schema",
-    "required": [
-        "triton",
-        "envoy",
-        "prometheus",
-        "autoscaler",
-        "ingress",
-        "nodeSelector",
-        "tolerations"
-    ],
-    "properties": {
-        "triton": {
-            "type": "object",
-            "default": {},
-            "title": "The triton Schema",
-            "required": [
-                "name",
-                "replicas",
-                "image",
-                "command",
-                "args",
-                "resources",
-                "affinity",
-                "modelRepository",
-                "service"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The name Schema",
-                    "examples": [
-                        "sonic-server-triton"
-                    ]
-                },
-                "replicas": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The replicas Schema",
-                    "examples": [
-                        1
-                    ]
-                },
-                "image": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The image Schema",
-                    "examples": [
-                        "fastml/triton-torchgeo:22.07-py3-geometric"
-                    ]
-                },
-                "command": {
-                    "type": "array",
-                    "default": [],
-                    "title": "The command Schema",
-                    "items": {
-                        "type": "string",
-                        "title": "A Schema",
-                        "examples": [
-                            "/bin/sh",
-                            "-c"
-                        ]
-                    },
-                    "examples": [
-                        ["/bin/sh",
-                            "-c"
-                        ]
-                    ]
-                },
-                "args": {
-                    "type": "array",
-                    "default": [],
-                    "title": "The args Schema",
-                    "items": {
-                        "type": "string",
-                        "default": "",
-                        "title": "A Schema",
-                        "examples": [
-                            "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
-                        ]
-                    },
-                    "examples": [
-                        [
-                            "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"]
-                    ]
-                },
-                "resources": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The resources Schema",
-                    "required": [
-                        "limits",
-                        "requests"
-                    ],
-                    "properties": {
-                        "limits": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The limits Schema",
-                            "required": [
-                                "cpu",
-                                "memory"
-                            ],
-                            "properties": {
-                                "cpu": {
-                                    "type": "integer",
-                                    "default": 0,
-                                    "title": "The cpu Schema",
-                                    "examples": [
-                                        2
-                                    ]
-                                },
-                                "memory": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The memory Schema",
-                                    "examples": [
-                                        "16G"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "cpu": 2,
-                                "memory": "16G"
-                            }]
-                        },
-                        "requests": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The requests Schema",
-                            "required": [
-                                "cpu",
-                                "memory"
-                            ],
-                            "properties": {
-                                "cpu": {
-                                    "type": "integer",
-                                    "default": 0,
-                                    "title": "The cpu Schema",
-                                    "examples": [
-                                        2
-                                    ]
-                                },
-                                "memory": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The memory Schema",
-                                    "examples": [
-                                        "16G"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "cpu": 2,
-                                "memory": "16G"
-                            }]
-                        }
-                    },
-                    "examples": [{
-                        "limits": {
-                            "cpu": 2,
-                            "memory": "16G"
-                        },
-                        "requests": {
-                            "cpu": 2,
-                            "memory": "16G"
-                        }
-                    }]
-                },
-                "affinity": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The affinity Schema",
-                    "required": [],
-                    "properties": {},
-                    "examples": [{}]
-                },
-                "modelRepository": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The modelRepository Schema",
-                    "required": [
-                        "mountPath",
-                        "storageType",
-                        "cvmfsPvc"
-                    ],
-                    "properties": {
-                        "mountPath": {
-                            "type": "string",
-                            "default": "",
-                            "title": "The mountPath Schema",
-                            "examples": [
-                                "/cvmfs"
-                            ]
-                        },
-                        "storageType": {
-                            "type": "string",
-                            "default": "",
-                            "title": "The storageType Schema",
-                            "examples": [
-                                "cvmfs-pvc"
-                            ]
-                        },
-                        "cvmfsPvc": {
-                            "type": "boolean",
-                            "default": false,
-                            "title": "The cvmfsPvc Schema",
-                            "examples": [
-                                false
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "mountPath": "/cvmfs",
-                        "storageType": "cvmfs-pvc",
-                        "cvmfsPvc": false
-                    }]
-                },
-                "service": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The service Schema",
-                    "required": [
-                        "labels",
-                        "annotations",
-                        "ports"
-                    ],
-                    "properties": {
-                        "labels": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The labels Schema",
-                            "required": [
-                                "scrape_metrics"
-                            ],
-                            "properties": {
-                                "scrape_metrics": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The scrape_metrics Schema",
-                                    "examples": [
-                                        "true"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "scrape_metrics": "true"
-                            }]
-                        },
-                        "annotations": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The annotations Schema",
-                            "required": [],
-                            "properties": {},
-                            "examples": [{}]
-                        },
-                        "ports": {
-                            "type": "array",
-                            "default": [],
-                            "title": "The ports Schema",
-                            "items": {
-                                "type": "object",
-                                "title": "A Schema",
-                                "required": [
-                                    "name",
-                                    "port",
-                                    "targetPort",
-                                    "protocol"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "title": "The name Schema",
-                                        "examples": [
-                                            "http",
-                                            "grpc",
-                                            "metrics"
-                                        ]
-                                    },
-                                    "port": {
-                                        "type": "integer",
-                                        "title": "The port Schema",
-                                        "examples": [
-                                            8000,
-                                            8001,
-                                            8002
-                                        ]
-                                    },
-                                    "targetPort": {
-                                        "type": "integer",
-                                        "title": "The targetPort Schema",
-                                        "examples": [
-                                            8000,
-                                            8001,
-                                            8002
-                                        ]
-                                    },
-                                    "protocol": {
-                                        "type": "string",
-                                        "title": "The protocol Schema",
-                                        "examples": [
-                                            "TCP"
-                                        ]
-                                    }
-                                },
-                                "examples": [{
-                                    "name": "http",
-                                    "port": 8000,
-                                    "targetPort": 8000,
-                                    "protocol": "TCP"
-                                },
-                                {
-                                    "name": "grpc",
-                                    "port": 8001,
-                                    "targetPort": 8001,
-                                    "protocol": "TCP"
-                                },
-                                {
-                                    "name": "metrics",
-                                    "port": 8002,
-                                    "targetPort": 8002,
-                                    "protocol": "TCP"
-                                }]
-                            },
-                            "examples": [
-                                [{
-                                    "name": "http",
-                                    "port": 8000,
-                                    "targetPort": 8000,
-                                    "protocol": "TCP"
-                                },
-                                {
-                                    "name": "grpc",
-                                    "port": 8001,
-                                    "targetPort": 8001,
-                                    "protocol": "TCP"
-                                },
-                                {
-                                    "name": "metrics",
-                                    "port": 8002,
-                                    "targetPort": 8002,
-                                    "protocol": "TCP"
-                                }]
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "labels": {
-                            "scrape_metrics": "true"
-                        },
-                        "annotations": {},
-                        "ports": [{
-                            "name": "http",
-                            "port": 8000,
-                            "targetPort": 8000,
-                            "protocol": "TCP"
-                        },
-                        {
-                            "name": "grpc",
-                            "port": 8001,
-                            "targetPort": 8001,
-                            "protocol": "TCP"
-                        },
-                        {
-                            "name": "metrics",
-                            "port": 8002,
-                            "targetPort": 8002,
-                            "protocol": "TCP"
-                        }]
-                    }]
-                }
-            },
-            "examples": [{
-                "name": "sonic-server-triton",
-                "replicas": 1,
-                "image": "fastml/triton-torchgeo:22.07-py3-geometric",
-                "command": [
-                    "/bin/sh",
-                    "-c"
-                ],
-                "args": [
-                    "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
-                ],
-                "resources": {
-                    "limits": {
-                        "cpu": 2,
-                        "memory": "16G"
-                    },
-                    "requests": {
-                        "cpu": 2,
-                        "memory": "16G"
-                    }
-                },
-                "affinity": {},
-                "modelRepository": {
-                    "mountPath": "/cvmfs",
-                    "storageType": "cvmfs-pvc",
-                    "cvmfsPvc": false
-                },
-                "service": {
-                    "labels": {
-                        "scrape_metrics": "true"
-                    },
-                    "annotations": {},
-                    "ports": [{
-                        "name": "http",
-                        "port": 8000,
-                        "targetPort": 8000,
-                        "protocol": "TCP"
-                    },
-                    {
-                        "name": "grpc",
-                        "port": 8001,
-                        "targetPort": 8001,
-                        "protocol": "TCP"
-                    },
-                    {
-                        "name": "metrics",
-                        "port": 8002,
-                        "targetPort": 8002,
-                        "protocol": "TCP"
-                    }]
-                }
-            }]
-        },
-        "envoy": {
-            "type": "object",
-            "default": {},
-            "title": "The envoy Schema",
-            "required": [
-                "enabled",
-                "name",
-                "replicas",
-                "image",
-                "args",
-                "resources",
-                "service",
-                "configs",
-                "loadBalancerPolicy",
-                "auth"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "title": "The enabled Schema",
-                    "examples": [
-                        true
-                    ]
-                },
-                "name": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The name Schema",
-                    "examples": [
-                        "sonic-server"
-                    ]
-                },
-                "replicas": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The replicas Schema",
-                    "examples": [
-                        1
-                    ]
-                },
-                "image": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The image Schema",
-                    "examples": [
-                        "envoyproxy/envoy:v1.30-latest"
-                    ]
-                },
-                "args": {
-                    "type": "array",
-                    "default": [],
-                    "title": "The args Schema",
-                    "items": {
-                        "type": "string",
-                        "title": "A Schema",
-                        "examples": [
-                            "--config-path",
-                            "/etc/envoy/envoy.yaml",
-                            "--log-level",
-                            "info",
-                            "--log-path",
-                            "/dev/stdout"
-                        ]
-                    },
-                    "examples": [
-                        ["--config-path",
-                            "/etc/envoy/envoy.yaml",
-                            "--log-level",
-                            "info",
-                            "--log-path",
-                            "/dev/stdout"
-                        ]
-                    ]
-                },
-                "resources": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The resources Schema",
-                    "required": [
-                        "requests",
-                        "limits"
-                    ],
-                    "properties": {
-                        "requests": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The requests Schema",
-                            "required": [
-                                "cpu",
-                                "memory"
-                            ],
-                            "properties": {
-                                "cpu": {
-                                    "type": "integer",
-                                    "default": 0,
-                                    "title": "The cpu Schema",
-                                    "examples": [
-                                        2
-                                    ]
-                                },
-                                "memory": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The memory Schema",
-                                    "examples": [
-                                        "4G"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "cpu": 2,
-                                "memory": "4G"
-                            }]
-                        },
-                        "limits": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The limits Schema",
-                            "required": [
-                                "cpu",
-                                "memory"
-                            ],
-                            "properties": {
-                                "cpu": {
-                                    "type": "integer",
-                                    "default": 0,
-                                    "title": "The cpu Schema",
-                                    "examples": [
-                                        2
-                                    ]
-                                },
-                                "memory": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The memory Schema",
-                                    "examples": [
-                                        "4G"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "cpu": 2,
-                                "memory": "4G"
-                            }]
-                        }
-                    },
-                    "examples": [{
-                        "requests": {
-                            "cpu": 2,
-                            "memory": "4G"
-                        },
-                        "limits": {
-                            "cpu": 2,
-                            "memory": "4G"
-                        }
-                    }]
-                },
-                "service": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The service Schema",
-                    "required": [
-                        "type",
-                        "labels",
-                        "ports"
-                    ],
-                    "properties": {
-                        "type": {
-                            "type": "string",
-                            "default": "",
-                            "title": "The type Schema",
-                            "examples": [
-                                "LoadBalancer"
-                            ]
-                        },
-                        "labels": {
-                            "type": "object",
-                            "default": {},
-                            "title": "The labels Schema",
-                            "required": [
-                                "envoy"
-                            ],
-                            "properties": {
-                                "envoy": {
-                                    "type": "string",
-                                    "default": "",
-                                    "title": "The envoy Schema",
-                                    "examples": [
-                                        "true"
-                                    ]
-                                }
-                            },
-                            "examples": [{
-                                "envoy": "true"
-                            }]
-                        },
-                        "ports": {
-                            "type": "array",
-                            "default": [],
-                            "title": "The ports Schema",
-                            "items": {
-                                "type": "object",
-                                "title": "A Schema",
-                                "required": [
-                                    "name",
-                                    "port",
-                                    "targetPort"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "title": "The name Schema",
-                                        "examples": [
-                                            "grpc",
-                                            "admin"
-                                        ]
-                                    },
-                                    "port": {
-                                        "type": "integer",
-                                        "title": "The port Schema",
-                                        "examples": [
-                                            8001,
-                                            9901
-                                        ]
-                                    },
-                                    "targetPort": {
-                                        "type": "integer",
-                                        "title": "The targetPort Schema",
-                                        "examples": [
-                                            8001,
-                                            9901
-                                        ]
-                                    }
-                                },
-                                "examples": [{
-                                    "name": "grpc",
-                                    "port": 8001,
-                                    "targetPort": 8001
-                                },
-                                {
-                                    "name": "admin",
-                                    "port": 9901,
-                                    "targetPort": 9901
-                                }]
-                            },
-                            "examples": [
-                                [{
-                                    "name": "grpc",
-                                    "port": 8001,
-                                    "targetPort": 8001
-                                },
-                                {
-                                    "name": "admin",
-                                    "port": 9901,
-                                    "targetPort": 9901
-                                }]
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "type": "LoadBalancer",
-                        "labels": {
-                            "envoy": "true"
-                        },
-                        "ports": [{
-                            "name": "grpc",
-                            "port": 8001,
-                            "targetPort": 8001
-                        },
-                        {
-                            "name": "admin",
-                            "port": 9901,
-                            "targetPort": 9901
-                        }]
-                    }]
-                },
-                "configs": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The configs Schema",
-                    "required": [
-                        "luaConfig"
-                    ],
-                    "properties": {
-                        "luaConfig": {
-                            "type": "string",
-                            "default": "",
-                            "title": "The luaConfig Schema",
-                            "examples": [
-                                "cfg/envoy-filter.lua"
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "luaConfig": "cfg/envoy-filter.lua"
-                    }]
-                },
-                "loadBalancerPolicy": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The loadBalancerPolicy Schema",
-                    "examples": [
-                        "LEAST_REQUEST"
-                    ]
-                },
-                "auth": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The auth Schema",
-                    "required": [
-                        "enabled"
-                    ],
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": false,
-                            "title": "The enabled Schema",
-                            "examples": [
-                                false
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "enabled": false
-                    }]
-                }
-            },
-            "examples": [{
-                "enabled": true,
-                "name": "sonic-server",
-                "replicas": 1,
-                "image": "envoyproxy/envoy:v1.30-latest",
-                "args": [
-                    "--config-path",
-                    "/etc/envoy/envoy.yaml",
-                    "--log-level",
-                    "info",
-                    "--log-path",
-                    "/dev/stdout"
-                ],
-                "resources": {
-                    "requests": {
-                        "cpu": 2,
-                        "memory": "4G"
-                    },
-                    "limits": {
-                        "cpu": 2,
-                        "memory": "4G"
-                    }
-                },
-                "service": {
-                    "type": "LoadBalancer",
-                    "labels": {
-                        "envoy": "true"
-                    },
-                    "ports": [{
-                        "name": "grpc",
-                        "port": 8001,
-                        "targetPort": 8001
-                    },
-                    {
-                        "name": "admin",
-                        "port": 9901,
-                        "targetPort": 9901
-                    }]
-                },
-                "configs": {
-                    "luaConfig": "cfg/envoy-filter.lua"
-                },
-                "loadBalancerPolicy": "LEAST_REQUEST",
-                "auth": {
-                    "enabled": false
-                }
-            }]
-        },
-        "prometheus": {
-            "type": "object",
-            "default": {},
-            "title": "The prometheus Schema",
-            "required": [
-                "enabled",
-                "url",
-                "port",
-                "scheme",
-                "serverAvailabilityMetric",
-                "serverAvailabilityThreshold"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "title": "The enabled Schema",
-                    "examples": [
-                        false
-                    ]
-                },
-                "url": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The url Schema",
-                    "examples": [
-                        ""
-                    ]
-                },
-                "port": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The port Schema",
-                    "examples": [
-                        443
-                    ]
-                },
-                "scheme": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The scheme Schema",
-                    "examples": [
-                        "https"
-                    ]
-                },
-                "serverAvailabilityMetric": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The serverAvailabilityMetric Schema",
-                    "examples": [
-                        "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)"
-                    ]
-                },
-                "serverAvailabilityThreshold": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The serverAvailabilityThreshold Schema",
-                    "examples": [
-                        100
-                    ]
-                }
-            },
-            "examples": [{
-                "enabled": false,
-                "url": "",
-                "port": 443,
-                "scheme": "https",
-                "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
-                "serverAvailabilityThreshold": 100
-            }]
-        },
-        "autoscaler": {
-            "type": "object",
-            "default": {},
-            "title": "The autoscaler Schema",
-            "required": [
-                "enabled",
-                "minReplicas",
-                "maxReplicas",
-                "scaleUp",
-                "scaleDown"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "title": "The enabled Schema",
-                    "examples": [
-                        false
-                    ]
-                },
-                "minReplicas": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The minReplicas Schema",
-                    "examples": [
-                        1
-                    ]
-                },
-                "maxReplicas": {
-                    "type": "integer",
-                    "default": 0,
-                    "title": "The maxReplicas Schema",
-                    "examples": [
-                        2
-                    ]
-                },
-                "scaleUp": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The scaleUp Schema",
-                    "required": [
-                        "window",
-                        "period",
-                        "stepsize"
-                    ],
-                    "properties": {
-                        "window": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The window Schema",
-                            "examples": [
-                                120
-                            ]
-                        },
-                        "period": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The period Schema",
-                            "examples": [
-                                30
-                            ]
-                        },
-                        "stepsize": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The stepsize Schema",
-                            "examples": [
-                                1
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "window": 120,
-                        "period": 30,
-                        "stepsize": 1
-                    }]
-                },
-                "scaleDown": {
-                    "type": "object",
-                    "default": {},
-                    "title": "The scaleDown Schema",
-                    "required": [
-                        "window",
-                        "period",
-                        "stepsize"
-                    ],
-                    "properties": {
-                        "window": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The window Schema",
-                            "examples": [
-                                120
-                            ]
-                        },
-                        "period": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The period Schema",
-                            "examples": [
-                                30
-                            ]
-                        },
-                        "stepsize": {
-                            "type": "integer",
-                            "default": 0,
-                            "title": "The stepsize Schema",
-                            "examples": [
-                                1
-                            ]
-                        }
-                    },
-                    "examples": [{
-                        "window": 120,
-                        "period": 30,
-                        "stepsize": 1
-                    }]
-                }
-            },
-            "examples": [{
-                "enabled": false,
-                "minReplicas": 1,
-                "maxReplicas": 2,
-                "scaleUp": {
-                    "window": 120,
-                    "period": 30,
-                    "stepsize": 1
-                },
-                "scaleDown": {
-                    "window": 120,
-                    "period": 30,
-                    "stepsize": 1
-                }
-            }]
-        },
-        "ingress": {
-            "type": "object",
-            "default": {},
-            "title": "The ingress Schema",
-            "required": [
-                "enabled",
-                "hostName"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "title": "The enabled Schema",
-                    "examples": [
-                        false
-                    ]
-                },
-                "hostName": {
-                    "type": "string",
-                    "default": "",
-                    "title": "The hostName Schema",
-                    "examples": [
-                        ""
-                    ]
-                }
-            },
-            "examples": [{
-                "enabled": false,
-                "hostName": ""
-            }]
-        },
-        "nodeSelector": {
-            "type": "object",
-            "default": {},
-            "title": "The nodeSelector Schema",
-            "required": [],
-            "properties": {},
-            "examples": [{}]
-        },
-        "tolerations": {
-            "type": "array",
-            "default": [],
-            "title": "The tolerations Schema",
-            "items": {},
-            "examples": [
-                []
-            ]
-        }
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "nameOverride": {
+      "type": "string"
     },
-    "examples": [{
-        "triton": {
-            "name": "sonic-server-triton",
-            "replicas": 1,
-            "image": "fastml/triton-torchgeo:22.07-py3-geometric",
-            "command": [
-                "/bin/sh",
-                "-c"
-            ],
-            "args": [
-                "/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"
-            ],
-            "resources": {
-                "limits": {
-                    "cpu": 2,
-                    "memory": "16G"
+    "triton": {
+      "type": "object",
+      "properties": {
+        "replicas": {
+          "type": "integer"
+        },
+        "image": {
+          "type": "string"
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "integer"
                 },
-                "requests": {
-                    "cpu": 2,
-                    "memory": "16G"
+                "memory": {
+                  "type": "string"
                 }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
             },
-            "affinity": {},
-            "modelRepository": {
-                "mountPath": "/cvmfs",
-                "storageType": "cvmfs-pvc",
-                "cvmfsPvc": false
-            },
-            "service": {
-                "labels": {
-                    "scrape_metrics": "true"
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "integer"
                 },
-                "annotations": {},
-                "ports": [{
-                    "name": "http",
-                    "port": 8000,
-                    "targetPort": 8000,
-                    "protocol": "TCP"
-                },
-                {
-                    "name": "grpc",
-                    "port": 8001,
-                    "targetPort": 8001,
-                    "protocol": "TCP"
-                },
-                {
-                    "name": "metrics",
-                    "port": 8002,
-                    "targetPort": 8002,
-                    "protocol": "TCP"
-                }]
-            }
-        },
-        "envoy": {
-            "enabled": true,
-            "name": "sonic-server",
-            "replicas": 1,
-            "image": "envoyproxy/envoy:v1.30-latest",
-            "args": [
-                "--config-path",
-                "/etc/envoy/envoy.yaml",
-                "--log-level",
-                "info",
-                "--log-path",
-                "/dev/stdout"
-            ],
-            "resources": {
-                "requests": {
-                    "cpu": 2,
-                    "memory": "4G"
-                },
-                "limits": {
-                    "cpu": 2,
-                    "memory": "4G"
+                "memory": {
+                  "type": "string"
                 }
-            },
-            "service": {
-                "type": "LoadBalancer",
-                "labels": {
-                    "envoy": "true"
-                },
-                "ports": [{
-                    "name": "grpc",
-                    "port": 8001,
-                    "targetPort": 8001
-                },
-                {
-                    "name": "admin",
-                    "port": 9901,
-                    "targetPort": 9901
-                }]
-            },
-            "configs": {
-                "luaConfig": "cfg/envoy-filter.lua"
-            },
-            "loadBalancerPolicy": "LEAST_REQUEST",
-            "auth": {
-                "enabled": false
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
             }
+          },
+          "required": [
+            "limits",
+            "requests"
+          ]
         },
-        "prometheus": {
-            "enabled": false,
-            "url": "",
-            "port": 443,
-            "scheme": "https",
-            "serverAvailabilityMetric": "sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)",
-            "serverAvailabilityThreshold": 100
+        "affinity": {
+          "type": "object"
         },
-        "autoscaler": {
-            "enabled": false,
-            "minReplicas": 1,
-            "maxReplicas": 2,
-            "scaleUp": {
-                "window": 120,
-                "period": 30,
-                "stepsize": 1
+        "modelRepository": {
+          "type": "object",
+          "properties": {
+            "mountPath": {
+              "type": "string"
             },
-            "scaleDown": {
-                "window": 120,
-                "period": 30,
-                "stepsize": 1
+            "storageType": {
+              "type": "string"
+            },
+            "cvmfsPvc": {
+              "type": "boolean"
             }
+          },
+          "required": [
+            "cvmfsPvc",
+            "mountPath",
+            "storageType"
+          ]
         },
-        "ingress": {
-            "enabled": false,
-            "hostName": ""
+        "service": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "object",
+              "properties": {
+                "scrape_metrics": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scrape_metrics"
+              ]
+            },
+            "annotations": {
+              "type": "object"
+            },
+            "ports": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "port": {
+                    "type": "integer"
+                  },
+                  "targetPort": {
+                    "type": "integer"
+                  },
+                  "protocol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "port",
+                  "protocol",
+                  "targetPort"
+                ]
+              }
+            }
+          },
+          "required": [
+            "annotations",
+            "labels",
+            "ports"
+          ]
         },
-        "nodeSelector": {},
-        "tolerations": []
-    }]
+        "resetReadinessProbe": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "affinity",
+        "args",
+        "command",
+        "image",
+        "modelRepository",
+        "replicas",
+        "resetReadinessProbe",
+        "resources",
+        "service"
+      ]
+    },
+    "envoy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "replicas": {
+          "type": "integer"
+        },
+        "image": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "integer"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "integer"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            }
+          },
+          "required": [
+            "limits",
+            "requests"
+          ]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "ports": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "port": {
+                    "type": "integer"
+                  },
+                  "targetPort": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "name",
+                  "port",
+                  "targetPort"
+                ]
+              }
+            }
+          },
+          "required": [
+            "ports"
+          ]
+        },
+        "configs": {
+          "type": "object",
+          "properties": {
+            "luaConfig": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "luaConfig"
+          ]
+        },
+        "loadBalancerPolicy": {
+          "type": "string"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        }
+      },
+      "required": [
+        "args",
+        "auth",
+        "configs",
+        "enabled",
+        "image",
+        "loadBalancerPolicy",
+        "name",
+        "replicas",
+        "resources",
+        "service"
+      ]
+    },
+    "prometheus": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "serverLoadMetric": {
+          "type": "string"
+        },
+        "serverLoadThreshold": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "enabled",
+        "port",
+        "scheme",
+        "serverLoadMetric",
+        "serverLoadThreshold",
+        "url"
+      ]
+    },
+    "autoscaler": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "minReplicas": {
+          "type": "integer"
+        },
+        "maxReplicas": {
+          "type": "integer"
+        },
+        "zeroIdleReplicas": {
+          "type": "boolean"
+        },
+        "scaleUp": {
+          "type": "object",
+          "properties": {
+            "window": {
+              "type": "integer"
+            },
+            "period": {
+              "type": "integer"
+            },
+            "stepsize": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "period",
+            "stepsize",
+            "window"
+          ]
+        },
+        "scaleDown": {
+          "type": "object",
+          "properties": {
+            "window": {
+              "type": "integer"
+            },
+            "period": {
+              "type": "integer"
+            },
+            "stepsize": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "period",
+            "stepsize",
+            "window"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "maxReplicas",
+        "minReplicas",
+        "scaleDown",
+        "scaleUp",
+        "zeroIdleReplicas"
+      ]
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "hostName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "hostName"
+      ]
+    },
+    "nodeSelector": {
+      "type": "object"
+    },
+    "tolerations": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "autoscaler",
+    "envoy",
+    "ingress",
+    "nameOverride",
+    "nodeSelector",
+    "prometheus",
+    "tolerations",
+    "triton"
+  ]
 }
