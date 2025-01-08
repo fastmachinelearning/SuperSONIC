@@ -1,4 +1,8 @@
-{{- if .Values.envoy.enabled }}
+{{- if .Values.envoy.enabled -}}
+{{- $envoyServiceType := "LoadBalancer" -}}
+{{- if .Values.ingress.enabled -}}
+{{- $envoyServiceType = "ClusterIP" -}}
+{{- end }}
 
 apiVersion: v1
 kind: Service
@@ -8,20 +12,17 @@ metadata:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
-{{ toYaml .Values.envoy.service.labels | nindent 4 }}
 spec:
-  type:  {{ .Values.envoy.service.type }}
+  type: {{ $envoyServiceType }}
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
   ports:
-  {{- range .Values.envoy.service.ports }}
-  - name: {{ .name }}
-    port: {{ .port }}
-    targetPort: {{ .targetPort }}
-    protocol: {{ .protocol }}
-  {{- end }}
----
-
+{{- range .Values.envoy.service.ports }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: {{ .protocol }}
+{{- end }}
 {{- end }}
