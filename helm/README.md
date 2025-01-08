@@ -38,8 +38,8 @@ A Helm chart for SuperSONIC
 | prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
 | prometheus.port | int | `443` |  |
 | prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
-| prometheus.serverAvailabilityMetric | string | `"sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)"` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # The example below is average queue time for inference requests arriving at the server, in milliseconds. |
-| prometheus.serverAvailabilityThreshold | int | `100` | Threshold for the metric |
+| prometheus.serverLoadMetric | string | `""` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # Default metric is defined in templates/_helpers.tpl |
+| prometheus.serverLoadMetricThreshold | int | `100` | Threshold for the metric |
 | autoscaler.enabled | bool | `false` | Enable autoscaling |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
