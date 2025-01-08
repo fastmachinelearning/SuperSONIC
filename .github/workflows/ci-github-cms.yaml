@@ -51,16 +51,10 @@ jobs:
           helm upgrade --install supersonic ./helm \
             --values values/values-cms-ci.yaml -n cms
 
-
       - name: Wait for pods to be running
         run: |
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
-          while ! kubectl logs deployment/supersonic-triton -n cms --all-containers=true; do
-              echo "Waiting for containers to become available..."
-              # kubectl describe pods -n cms -l app.kubernetes.io/component=triton
-              sleep 10
-          done
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
 
       - name: Validate Deployment
@@ -75,8 +69,6 @@ jobs:
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
           echo "========== Perf Analyzer Logs =========="
-          kubectl describe pod -n cms "$POD_NAME"
-          echo "========================================"
           kubectl logs -n cms "$POD_NAME"
           echo "========================================"
 
