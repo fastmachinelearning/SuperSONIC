@@ -12,12 +12,11 @@ Pre-requisites
 Installation
 ~~~~~~~~~~~~~~
 
-   1. Create a values file with your configuration. You can use the provided
-      example file as a starting point, and modify it to suit your needs:
-
-      .. code:: shell
-
-         cp values.yaml values/<your-values.yaml>
+   1. Create a values file with your configuration.
+      
+      - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/master/values>`_
+      - `Full list of configuration parameters <https://github.com/fastmachinelearning/SuperSONIC/blob/master/helm/values.yaml>`_
+      - `Configuration reference <configuration-reference>`_
 
    2. Modify the following command to install the chart at your cluster:
 
@@ -39,7 +38,7 @@ Uninstall SuperSONIC
 
    .. code:: shell
 
-      helm uninstall <release-name>  -n <namespace>
+      helm uninstall <release-name> -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~
@@ -48,13 +47,6 @@ The SuperSONIC Helm chart will install
 components depicted at the diagram below, excluding Prometheus and model repository,
 which must be connected by specifying relevant parameters in configuration file
 (see :doc:`configuration reference <configuration-reference>`).
-
-For correct behavior, the server saturation metric
-(``prometheus.serverAvailabilityMetric``) used by Envoy proxy
-and autoscaler must be carefully defined. It is recommended to start
-with examining the metric in Prometheus interface, in order to define an
-appropriate threshold and avoid typos in the metric definition.
-
 
 The KEDA autoscaler can be enabled/disabled via the
 ``autoscaler.enabled`` parameter.

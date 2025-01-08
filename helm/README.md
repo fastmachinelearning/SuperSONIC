@@ -27,9 +27,7 @@ A Helm chart for SuperSONIC
 | envoy.replicas | int | `1` | Number of Envoy Proxy pods in Deployment |
 | envoy.image | string | `"envoyproxy/envoy:v1.30-latest"` | Envoy Proxy Docker image |
 | envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
-| envoy.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
-| envoy.service.type | string | `"LoadBalancer"` | Service type: ClusterIP or LoadBalancer. If ClusterIP is chosen, you need to enable an Ingress for the servers. |
-| envoy.service.labels | object | `{"envoy":"true"}` | I don't remember why this label is here. |
+| envoy.resources | object | `{"limits":{"cpu":2,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
 | envoy.configs | object | `{"luaConfig":"cfg/envoy-filter.lua"}` | Configuration files for Envoy  |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
@@ -38,12 +36,12 @@ A Helm chart for SuperSONIC
 | prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
 | prometheus.port | int | `443` |  |
 | prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
-| prometheus.serverAvailabilityMetric | string | `"sum(\n  sum by (pod) (\n    rate(nv_inference_queue_duration_us{pod=~\"sonic-server.*\"}[5m:1m])\n  )\n  /\n  sum by (pod) (\n    (rate(nv_inference_exec_count{pod=~\"sonic-server.*\"}[5m:1m])) * 1000\n  )\n)"` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # The example below is average queue time for inference requests arriving at the server, in milliseconds. |
-| prometheus.serverAvailabilityThreshold | int | `100` | Threshold for the metric |
+| prometheus.serverLoadMetric | string | `""` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # Default metric is defined in templates/_helpers.tpl |
+| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
 | autoscaler.enabled | bool | `false` | Enable autoscaling |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
-| autoscaler.idleReplicaCount | int | `1` | Number of idle Triton servers. If set to 0, the server will release all GPUs. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
+| autoscaler.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
 | autoscaler.scaleUp.window | int | `120` |  |
 | autoscaler.scaleUp.period | int | `30` |  |
 | autoscaler.scaleUp.stepsize | int | `1` |  |

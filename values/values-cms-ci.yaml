@@ -13,51 +13,17 @@ triton:
   resources:
     limits: { cpu: 1, memory: 3Gi}
     requests: { cpu: 1, memory: 3Gi}
-  service:
-    labels:
-      scrape_metrics: "true"
-    annotations:
-      metallb.universe.tf/address-pool: geddes-private-pool
-    ports:
-      - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
-      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
-      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
   modelRepository:
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   resetReadinessProbe: true
 envoy:
   enabled: true
-  image: envoyproxy/envoy:v1.30-latest
-  args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
-  resources:
-    requests: { cpu: 1, memory: 2Gi }
-    limits: { cpu: 1, memory: 2Gi }
-  service:
-    type: LoadBalancer
-    labels:
-      envoy: "true"
-    ports:
-      - { name: grpc, port: 8001, targetPort: 8001 }
-      - { name: admin, port: 9901, targetPort: 9901 }
-  configs:
-    luaConfig: "cfg/envoy-filter.lua"
-  loadBalancerPolicy: LEAST_REQUEST
 prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverAvailabilityMetric: |-
-    sum(
-      rate(
-        label_replace(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"ci-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-      /
-      rate(
-        label_replace(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_grpc", pod=~"ci-sonic.*"}, "pod", "$1", "pod", "(.*)-(.*)-(.*)$")
-      [5m:1m])
-    )
-  serverAvailabilityThreshold: 100
+  serverLoadThreshold: 100
 autoscaler:
   enabled: true
   minReplicas: 1

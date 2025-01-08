@@ -33,8 +33,3 @@ The main components of SuperSONIC are:
 |:---|:---:|:---:|:---:|
 | **[Geddes cluster](https://www.rcac.purdue.edu/compute/geddes) (Purdue)**   | ✅ | - | - |
 | **[Nautilus cluster](https://docs.nationalresearchplatform.org) (NRP)**    | ✅  |  ⏳ |   ✅   |
-
-
-## Useful links
-
-- Generating JSON schema for Helm chart from `vaules.yaml`: [https://www.arthurkoziel.com/validate-helm-chart-values-with-json-schemas/](https://www.arthurkoziel.com/validate-helm-chart-values-with-json-schemas/)

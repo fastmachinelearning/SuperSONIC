@@ -1,5 +1,3 @@
-nameOverride: atlas-sonic
-
 triton:
   image: milescb/traccc-aas:v1.0
   affinity:
@@ -29,58 +27,18 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-  service:
-    labels:
-      scrape_metrics: "true"
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
-    ports:
-      - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
-      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
-      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
   modelRepository:
     storageType: cvmfs-pvc
     mountPath: /cvmfs
 envoy:
   enabled: true
-  image: envoyproxy/envoy:v1.30-latest
-  args:
-    [
-      "--config-path",
-      "/etc/envoy/envoy.yaml",
-      "--log-level",
-      "info",
-      "--log-path",
-      "/dev/stdout",
-    ]
-  resources:
-    requests: { cpu: 1, memory: 2Gi }
-    limits: { cpu: 2, memory: 4Gi }
-  service:
-    type: ClusterIP
-    labels:
-      envoy: "true"
-    ports:
-      - { name: grpc, port: 8001, targetPort: 8001 }
-      - { name: admin, port: 9901, targetPort: 9901 }
-  configs:
-    luaConfig: "cfg/envoy-filter.lua"
-  loadBalancerPolicy: LEAST_REQUEST
 prometheus:
   url: "prometheus.nrp-nautilus.io"
   port: 443
   scheme: https
-  serverAvailabilityMetric: |-
-    sum(
-      sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"atlas-sonic.*"}[5m:1m])
-      )
-      /
-      sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"atlas-sonic.*"}[5m:1m]) + 0.00001) * 1000
-      )
-    )
-  serverAvailabilityThreshold: 100
+  serverLoadThreshold: 100
 autoscaler:
   enabled: False
   minReplicas: 0
