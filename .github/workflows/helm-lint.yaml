@@ -1,4 +1,4 @@
-name: generate schema & helm lint
+name: helm lint
 
 on:
   push:

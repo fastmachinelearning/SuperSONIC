@@ -39,7 +39,7 @@ Uninstall SuperSONIC
 
    .. code:: shell
 
-      helm uninstall <release-name>  -n <namespace>
+      helm uninstall <release-name> -n <namespace>
 
 Architecture
 ~~~~~~~~~~~~~~~
@@ -48,13 +48,6 @@ The SuperSONIC Helm chart will install
 components depicted at the diagram below, excluding Prometheus and model repository,
 which must be connected by specifying relevant parameters in configuration file
 (see :doc:`configuration reference <configuration-reference>`).
-
-For correct behavior, the server saturation metric
-(``prometheus.serverAvailabilityMetric``) used by Envoy proxy
-and autoscaler must be carefully defined. It is recommended to start
-with examining the metric in Prometheus interface, in order to define an
-appropriate threshold and avoid typos in the metric definition.
-
 
 The KEDA autoscaler can be enabled/disabled via the
 ``autoscaler.enabled`` parameter.
