@@ -12,12 +12,11 @@ Pre-requisites
 Installation
 ~~~~~~~~~~~~~~
 
-   1. Create a values file with your configuration. You can use the provided
-      example file as a starting point, and modify it to suit your needs:
-
-      .. code:: shell
-
-         cp values.yaml values/<your-values.yaml>
+   1. Create a values file with your configuration.
+      
+      - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/master/values>`_
+      - `Full list of configuration parameters <https://github.com/fastmachinelearning/SuperSONIC/blob/master/helm/values.yaml>`_
+      - `Configuration reference <configuration-reference>`_
 
    2. Modify the following command to install the chart at your cluster:
 
