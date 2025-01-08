@@ -39,7 +39,7 @@ A Helm chart for SuperSONIC
 | prometheus.port | int | `443` |  |
 | prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
 | prometheus.serverLoadMetric | string | `""` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # Default metric is defined in templates/_helpers.tpl |
-| prometheus.serverLoadMetricThreshold | int | `100` | Threshold for the metric |
+| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
 | autoscaler.enabled | bool | `false` | Enable autoscaling |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
