@@ -116,7 +116,7 @@ envoy:
       fill_interval: 12s
 
     # -- This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency).
-    # The metric is taken from parameter prometheus.serverLoadMetric, and the threshold is set by prometheus.serverLoadThreshold.
+    # The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``.
     # These parameters are the same as those used by the KEDA autoscaler.
     prometheus_based:
       # -- Enable rate limiter
@@ -136,26 +136,11 @@ envoy:
     url: ""
     port: 443
 
-# -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
-prometheus:
-  # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
-  url: ""
-  port: 443
-
-  # -- Specify whether Prometheus endpoint is exposed as http or https
-  scheme: "https"
-
-  # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
-  ## the same metric can be used by KEDA autoscaler.
-  ## Default metric (inference queue latency) is defined in templates/_helpers.tpl
-  serverLoadMetric: ""
-  
-  # -- Threshold for the metric
-  serverLoadThreshold: 100
-
 autoscaler:
 
-  # -- Enable autoscaling
+  # -- Enable autoscaling (requires Prometheus to also be enabled).
+  # Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``,
+  # new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``.
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
@@ -176,6 +161,22 @@ autoscaler:
     window: 120
     period: 30
     stepsize: 1
+
+# -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
+prometheus:
+  # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
+  url: ""
+  port: 443
+
+  # -- Specify whether Prometheus endpoint is exposed as http or https
+  scheme: "https"
+
+  # -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
+  ## Default metric (inference queue latency) is defined in templates/_helpers.tpl
+  serverLoadMetric: ""
+  
+  # -- Threshold for the metric
+  serverLoadThreshold: 100
 
 ingress:
   enabled: false
