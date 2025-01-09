@@ -243,6 +243,29 @@
             "ports"
           ]
         },
+        "rate_limiter": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "max_tokens": {
+              "type": "integer"
+            },
+            "tokens_per_fill": {
+              "type": "integer"
+            },
+            "fill_interval": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "fill_interval",
+            "max_tokens",
+            "tokens_per_fill"
+          ]
+        },
         "configs": {
           "type": "object",
           "properties": {
@@ -277,6 +300,7 @@
         "image",
         "loadBalancerPolicy",
         "name",
+        "rate_limiter",
         "replicas",
         "resources",
         "service"
