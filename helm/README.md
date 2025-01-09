@@ -12,7 +12,7 @@ A Helm chart for SuperSONIC
 | triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
 | triton.image | string | `"fastml/triton-torchgeo:22.07-py3-geometric"` | Docker image for the Triton server |
 | triton.command | list | `["/bin/sh","-c"]` | Command and arguments to run in Triton container |
-| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
+| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/tmp/ \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
 | triton.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource limits and requests for each Triton instance. You can add necessary GPU request here. |
 | triton.affinity | object | `{}` | Affinity rules for Triton pods - another way to request GPUs |
 | triton.modelRepository | object | `{"cvmfsPvc":false,"mountPath":"/cvmfs","storageType":"cvmfs-pvc"}` | Model repository configuration |
