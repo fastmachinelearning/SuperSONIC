@@ -15,6 +15,7 @@ triton:
   args: 
     - |
       /opt/tritonserver/bin/tritonserver \
+      --model-repository=/tmp/ \
       --log-verbose=0 \
       --exit-timeout-secs=60
 
