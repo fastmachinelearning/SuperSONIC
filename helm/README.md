@@ -29,6 +29,10 @@ A Helm chart for SuperSONIC
 | envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
 | envoy.resources | object | `{"limits":{"cpu":2,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
+| envoy.rate_limiter.enabled | bool | `false` | Enable rate limiter in Envoy proxy |
+| envoy.rate_limiter.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
+| envoy.rate_limiter.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
+| envoy.rate_limiter.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
 | envoy.configs | object | `{"luaConfig":"cfg/envoy-filter.lua"}` | Configuration files for Envoy  |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
 | envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
