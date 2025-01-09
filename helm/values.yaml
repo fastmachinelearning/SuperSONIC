@@ -15,10 +15,7 @@ triton:
   args: 
     - |
       /opt/tritonserver/bin/tritonserver \
-      --model-repository=/path-to-models/ \
-      --allow-gpu-metrics=true \
       --log-verbose=0 \
-      --strict-model-config=false \
       --exit-timeout-secs=60
 
   # -- Resource limits and requests for each Triton instance.
@@ -101,20 +98,31 @@ envoy:
       cpu: 2
       memory: "4G"
   service:
+    type: ClusterIP
     # -- Envoy Service ports
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
+
   rate_limiter:
-    # -- Enable rate limiter in Envoy proxy
-    enabled: false
-    # -- Maximum number of simultaneous connections to the Envoy Proxy.
-    # Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens.
-    max_tokens: 5
-    # -- ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established.
-    tokens_per_fill: 1
-    # -- For example, adding a new token every 12 seconds allows 5 new connections every minute.
-    fill_interval: 12s
+    # -- This rate limiter explicitly controls the number of client connections to the Envoy Proxy.
+    listener_level:
+      # -- Enable rate limiter
+      enabled: false
+      # -- Maximum number of simultaneous connections to the Envoy Proxy.
+      # Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens.
+      max_tokens: 5
+      # -- ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established.
+      tokens_per_fill: 1
+      # -- For example, adding a new token every 12 seconds allows 5 new connections every minute.
+      fill_interval: 12s
+
+    # -- This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency).
+    # The metric is taken from parameter prometheus.serverLoadMetric, and the threshold is set by prometheus.serverLoadThreshold.
+    # These parameters are the same as those used by the KEDA autoscaler.
+    prometheus_based:
+      # -- Enable rate limiter
+      enabled: false  
 
   # -- Configuration files for Envoy 
   configs:

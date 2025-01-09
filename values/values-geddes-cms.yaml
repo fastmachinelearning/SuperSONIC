@@ -31,12 +31,14 @@ envoy:
     enabled: true
     max_tokens: 5
     tokens_per_fill: 1
-    fill_interval: 60s
+    fill_interval: 12s
+  service:
+    type: LoadBalancer
 prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverLoadThreshold: 10
+  serverLoadThreshold: 100
 
 autoscaler:
   enabled: true

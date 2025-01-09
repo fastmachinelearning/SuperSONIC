@@ -14,7 +14,7 @@ static_resources:
         socket_address:
           address: 0.0.0.0
           port_value: {{ .envoyGrpcPort }}
-      {{- with .envoy.rate_limiter }}
+      {{- with .envoy.rate_limiter.listener_level }}
       {{- if .enabled }}
       listener_filters:
         - name: envoy.filters.listener.local_ratelimit
@@ -26,7 +26,6 @@ static_resources:
               tokens_per_fill: {{ .tokens_per_fill }}
               fill_interval: {{ .fill_interval }}
       {{- end }}
-      {{- else }}
       {{- end }}
       filter_chains:
         - filters:
@@ -46,11 +45,16 @@ static_resources:
                           route:
                             cluster: triton_grpc_service
                 http_filters:
+                  {{- with .envoy.rate_limiter.prometheus_based }}
+                  {{- if .enabled }}
                   - name: envoy.filters.http.lua
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       default_source_code:
                         filename: /etc/envoy/lua/envoy-filter.lua
+                  {{- end }}
+                  {{- end }}
+
                   {{- with .envoy.auth }}
                   {{- if .enabled }}
                   - name: envoy.filters.http.JwtAuthentication
@@ -73,13 +77,14 @@ static_resources:
                         requires: 
                           provider_name: provider_icecube
                   {{- end }}
-                  {{- else }}
                   {{- end }}
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
                 http2_protocol_options: {}
   clusters:
+    {{- with .envoy.rate_limiter.prometheus_based }}
+    {{- if .enabled }}
     - name: prometheus_cluster
       connect_timeout: 5s
       type: LOGICAL_DNS
@@ -91,14 +96,17 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{ .prometheus.url }}
-                      port_value: {{ .prometheus.port }}
-      {{- if eq .prometheus.scheme "https" }}
+                      address: {{ $.prometheus.url }}
+                      port_value: {{ $.prometheus.port }}
+      {{- if eq $.prometheus.scheme "https" }}
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
       {{- end }}
+    {{- end }}
+    {{- end }}
+
     {{- with .envoy.auth }}
     {{- if .enabled }}
     - name: auth_cluster
@@ -114,11 +122,10 @@ static_resources:
                       address: {{- .url }}
                       port_value: {{- .port }}
       transport_socket:
-          name: envoy.transport_sockets.tls
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
     {{- end }}
-    {{- else }}
     {{- end }}
     - name: triton_grpc_service
       connect_timeout: 0.25s

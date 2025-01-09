@@ -20,14 +20,12 @@ triton:
 envoy:
   enabled: true
   rate_limiter:
-    enabled: true
-    max_tokens: 5
-    tokens_per_fill: 1
-    fill_interval: 12s
+    listener_level:
+      enabled: true
+      max_tokens: 5
+      tokens_per_fill: 1
+      fill_interval: 12s
 prometheus:
-  url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-  port: 8080
-  scheme: http
   serverLoadThreshold: 100
 autoscaler:
   enabled: true
