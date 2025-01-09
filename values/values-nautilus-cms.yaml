@@ -18,6 +18,7 @@ triton:
     limits: { cpu: 2, memory: 16G}
     requests: { cpu: 2, memory: 16G}
   modelRepository:
+    enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   affinity:

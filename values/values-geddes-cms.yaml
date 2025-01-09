@@ -22,6 +22,7 @@ triton:
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
+    enabled: true
     storageType: cvmfs-hostPath
     mountPath: /cvmfs
 envoy:
