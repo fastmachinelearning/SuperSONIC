@@ -326,33 +326,6 @@
         "service"
       ]
     },
-    "prometheus": {
-      "type": "object",
-      "properties": {
-        "url": {
-          "type": "string"
-        },
-        "port": {
-          "type": "integer"
-        },
-        "scheme": {
-          "type": "string"
-        },
-        "serverLoadMetric": {
-          "type": "string"
-        },
-        "serverLoadThreshold": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "port",
-        "scheme",
-        "serverLoadMetric",
-        "serverLoadThreshold",
-        "url"
-      ]
-    },
     "autoscaler": {
       "type": "object",
       "properties": {
@@ -414,6 +387,33 @@
         "scaleDown",
         "scaleUp",
         "zeroIdleReplicas"
+      ]
+    },
+    "prometheus": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "serverLoadMetric": {
+          "type": "string"
+        },
+        "serverLoadThreshold": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "port",
+        "scheme",
+        "serverLoadMetric",
+        "serverLoadThreshold",
+        "url"
       ]
     },
     "ingress": {
