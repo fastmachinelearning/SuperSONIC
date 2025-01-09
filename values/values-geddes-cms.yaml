@@ -16,6 +16,7 @@ triton:
   resources:
     limits: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
     requests: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
+  service:
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
@@ -26,6 +27,11 @@ envoy:
   resources:
     requests: { cpu: 8, memory: 8Gi }
     limits: { cpu: 16, memory: 8Gi }
+  rate_limiter:
+    enabled: true
+    max_tokens: 5
+    tokens_per_fill: 1
+    fill_interval: 60s
 prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080

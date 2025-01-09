@@ -27,8 +27,6 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-    annotations:
-      metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
     storageType: cvmfs-pvc
     mountPath: /cvmfs
