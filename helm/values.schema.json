@@ -91,15 +91,7 @@
           "type": "object",
           "properties": {
             "labels": {
-              "type": "object",
-              "properties": {
-                "scrape_metrics": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "scrape_metrics"
-              ]
+              "type": "object"
             },
             "annotations": {
               "type": "object"
@@ -158,9 +150,6 @@
       "properties": {
         "enabled": {
           "type": "boolean"
-        },
-        "name": {
-          "type": "string"
         },
         "replicas": {
           "type": "integer"
@@ -278,27 +267,20 @@
               "properties": {
                 "enabled": {
                   "type": "boolean"
+                },
+                "luaConfig": {
+                  "type": "string"
                 }
               },
               "required": [
-                "enabled"
+                "enabled",
+                "luaConfig"
               ]
             }
           },
           "required": [
             "listener_level",
             "prometheus_based"
-          ]
-        },
-        "configs": {
-          "type": "object",
-          "properties": {
-            "luaConfig": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "luaConfig"
           ]
         },
         "loadBalancerPolicy": {
@@ -309,21 +291,39 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "jwt_issuer": {
+              "type": "string"
+            },
+            "jwt_remote_jwks_uri": {
+              "type": "string"
+            },
+            "audiences": {
+              "type": "array"
+            },
+            "url": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
             }
           },
           "required": [
-            "enabled"
+            "audiences",
+            "enabled",
+            "jwt_issuer",
+            "jwt_remote_jwks_uri",
+            "port",
+            "url"
           ]
         }
       },
       "required": [
         "args",
         "auth",
-        "configs",
         "enabled",
         "image",
         "loadBalancerPolicy",
-        "name",
         "rate_limiter",
         "replicas",
         "resources",
@@ -333,9 +333,6 @@
     "prometheus": {
       "type": "object",
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
         "url": {
           "type": "string"
         },
@@ -353,7 +350,6 @@
         }
       },
       "required": [
-        "enabled",
         "port",
         "scheme",
         "serverLoadMetric",
