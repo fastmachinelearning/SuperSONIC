@@ -71,20 +71,16 @@
         "modelRepository": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "mountPath": {
               "type": "string"
-            },
-            "storageType": {
-              "type": "string"
-            },
-            "cvmfsPvc": {
-              "type": "boolean"
             }
           },
           "required": [
-            "cvmfsPvc",
-            "mountPath",
-            "storageType"
+            "enabled",
+            "mountPath"
           ]
         },
         "service": {
