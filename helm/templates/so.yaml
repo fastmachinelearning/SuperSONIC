@@ -45,7 +45,7 @@ spec:
     metadata:
       serverAddress: {{ $prometheusAddress }}
       metricName: autoscaler-metric
-      threshold: {{ .Values.prometheus.serverAvailabilityThreshold | quote }}
+      threshold: {{ .Values.prometheus.serverLoadThreshold | quote }}
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}
 ---

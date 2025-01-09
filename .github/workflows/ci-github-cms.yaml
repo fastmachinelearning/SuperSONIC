@@ -56,6 +56,7 @@ jobs:
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
+          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
 
       - name: Validate Deployment
         run: |
