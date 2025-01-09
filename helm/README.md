@@ -15,9 +15,8 @@ A Helm chart for SuperSONIC
 | triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/tmp/ \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
 | triton.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource limits and requests for each Triton instance. You can add necessary GPU request here. |
 | triton.affinity | object | `{}` | Affinity rules for Triton pods - another way to request GPUs |
-| triton.modelRepository | object | `{"cvmfsPvc":false,"mountPath":"/cvmfs","storageType":"cvmfs-pvc"}` | Model repository configuration |
-| triton.modelRepository.mountPath | string | `"/cvmfs"` | Model repository mount path |
-| triton.modelRepository.cvmfsPvc | bool | `false` | Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster) |
+| triton.modelRepository | object | `{"enabled":false,"mountPath":""}` | Model repository configuration |
+| triton.modelRepository.mountPath | string | `""` | Model repository mount path |
 | triton.service.labels | object | `{}` |  |
 | triton.service.annotations | object | `{}` |  |
 | triton.service.ports | list | `[{"name":"http","port":8000,"protocol":"TCP","targetPort":8000},{"name":"grpc","port":8001,"protocol":"TCP","targetPort":8001},{"name":"metrics","port":8002,"protocol":"TCP","targetPort":8002}]` | Ports for communication with Triton servers |
