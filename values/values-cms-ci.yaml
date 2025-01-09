@@ -19,6 +19,11 @@ triton:
   resetReadinessProbe: true
 envoy:
   enabled: true
+  rate_limiter:
+    enabled: true
+    max_tokens: 5
+    tokens_per_fill: 1
+    fill_interval: 12s
 prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080

@@ -105,7 +105,16 @@ envoy:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
-
+  rate_limiter:
+    # -- Enable rate limiter in Envoy proxy
+    enabled: false
+    # -- Maximum number of simultaneous connections to the Envoy Proxy.
+    # Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens.
+    max_tokens: 5
+    # -- ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established.
+    tokens_per_fill: 1
+    # -- For example, adding a new token every 12 seconds allows 5 new connections every minute.
+    fill_interval: 12s
 
   # -- Configuration files for Envoy 
   configs:

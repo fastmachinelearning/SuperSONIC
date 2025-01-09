@@ -14,6 +14,20 @@ static_resources:
         socket_address:
           address: 0.0.0.0
           port_value: {{ .envoyGrpcPort }}
+      {{- with .envoy.rate_limiter }}
+      {{- if .enabled }}
+      listener_filters:
+        - name: envoy.filters.listener.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.listener.local_ratelimit.v3.LocalRateLimit
+            stat_prefix: local_rate_limiter
+            token_bucket:
+              max_tokens: {{ .max_tokens }}
+              tokens_per_fill: {{ .tokens_per_fill }}
+              fill_interval: {{ .fill_interval }}
+      {{- end }}
+      {{- else }}
+      {{- end }}
       filter_chains:
         - filters:
             - name: envoy.filters.network.http_connection_manager
