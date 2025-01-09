@@ -14,16 +14,20 @@ triton:
     limits: { cpu: 1, memory: 3Gi}
     requests: { cpu: 1, memory: 3Gi}
   modelRepository:
+    enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   resetReadinessProbe: true
 envoy:
   enabled: true
-prometheus:
-  url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-  port: 8080
-  scheme: http
-  serverLoadThreshold: 100
+  service:
+    type: LoadBalancer
+  rate_limiter:
+    listener_level:
+      enabled: true
+      max_tokens: 5
+      tokens_per_fill: 1
+      fill_interval: 12s
 autoscaler:
   enabled: true
   minReplicas: 1

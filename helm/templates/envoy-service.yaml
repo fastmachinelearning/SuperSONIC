@@ -1,9 +1,4 @@
-{{- if .Values.envoy.enabled -}}
-{{- $envoyServiceType := "LoadBalancer" -}}
-{{- if .Values.ingress.enabled -}}
-{{- $envoyServiceType = "ClusterIP" -}}
-{{- end }}
-
+{{ if .Values.envoy.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: envoy
 spec:
-  type: {{ $envoyServiceType }}
+  type: {{ .Values.envoy.service.type }}
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}

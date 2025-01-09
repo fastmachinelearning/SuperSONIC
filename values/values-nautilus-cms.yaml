@@ -17,9 +17,8 @@ triton:
   resources:
     limits: { cpu: 2, memory: 16G}
     requests: { cpu: 2, memory: 16G}
-    annotations:
-      metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
+    enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   affinity:

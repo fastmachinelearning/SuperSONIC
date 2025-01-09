@@ -11,6 +11,7 @@ The main components of SuperSONIC are:
 - [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
 - Dynamic muti-purpose [Envoy Proxy](envoyproxy.io):
   - Load balancing
+  - Client connection rate limiting
   - GPU saturation prevention
   - Token-based authentication (optional)
 - Load-based autoscaling via [KEDA](keda.sh)

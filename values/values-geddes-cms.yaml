@@ -16,9 +16,13 @@ triton:
   resources:
     limits: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
     requests: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
+  service:
+    labels:
+      scrape_metrics: "true"
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
+    enabled: true
     storageType: cvmfs-hostPath
     mountPath: /cvmfs
 envoy:
@@ -26,11 +30,18 @@ envoy:
   resources:
     requests: { cpu: 8, memory: 8Gi }
     limits: { cpu: 16, memory: 8Gi }
+  rate_limiter:
+    enabled: true
+    max_tokens: 5
+    tokens_per_fill: 1
+    fill_interval: 12s
+  service:
+    type: LoadBalancer
 prometheus:
   url: "prometheus-service.cms.geddes.rcac.purdue.edu"
   port: 8080
   scheme: http
-  serverLoadThreshold: 10
+  serverLoadThreshold: 100
 
 autoscaler:
   enabled: true

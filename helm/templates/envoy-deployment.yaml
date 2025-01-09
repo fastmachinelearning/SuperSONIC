@@ -38,21 +38,25 @@ spec:
         volumeMounts:
         - name: {{ include "supersonic.name" . }}-envoy-config
           mountPath: /etc/envoy
+        {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
         - name: {{ include "supersonic.name" . }}-lua-volume
           mountPath: /etc/envoy/lua
           readOnly: true
+        {{- end }}
         resources:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
       volumes:
       - name: {{ include "supersonic.name" . }}-envoy-config
         configMap:
           name: {{ include "supersonic.name" . }}-envoy-config
+      {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
       - name: {{ include "supersonic.name" . }}-lua-volume
         configMap:
           name: {{ include "supersonic.name" . }}-lua-config
           items:
           - key: envoy-filter.lua
             path: envoy-filter.lua
+      {{- end }}
 
 
 {{- if .Values.nodeSelector }}

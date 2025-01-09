@@ -12,33 +12,37 @@ A Helm chart for SuperSONIC
 | triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
 | triton.image | string | `"fastml/triton-torchgeo:22.07-py3-geometric"` | Docker image for the Triton server |
 | triton.command | list | `["/bin/sh","-c"]` | Command and arguments to run in Triton container |
-| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"` |  |
+| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/tmp/ \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
 | triton.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource limits and requests for each Triton instance. You can add necessary GPU request here. |
 | triton.affinity | object | `{}` | Affinity rules for Triton pods - another way to request GPUs |
-| triton.modelRepository | object | `{"cvmfsPvc":false,"mountPath":"/cvmfs","storageType":"cvmfs-pvc"}` | Model repository configuration |
-| triton.modelRepository.mountPath | string | `"/cvmfs"` | Model repository mount path |
-| triton.modelRepository.cvmfsPvc | bool | `false` | Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster) |
-| triton.service.labels.scrape_metrics | string | `"true"` |  |
+| triton.modelRepository | object | `{"enabled":false,"mountPath":""}` | Model repository configuration |
+| triton.modelRepository.mountPath | string | `""` | Model repository mount path |
+| triton.service.labels | object | `{}` |  |
 | triton.service.annotations | object | `{}` |  |
 | triton.service.ports | list | `[{"name":"http","port":8000,"protocol":"TCP","targetPort":8000},{"name":"grpc","port":8001,"protocol":"TCP","targetPort":8001},{"name":"metrics","port":8002,"protocol":"TCP","targetPort":8002}]` | Ports for communication with Triton servers |
 | triton.resetReadinessProbe | bool | `false` | If ture, will ignore custom readinness probe settings (not recommended when using autoscaler) |
 | envoy.enabled | bool | `true` | Enable Envoy Proxy |
-| envoy.name | string | `"sonic-server"` | Envoy Proxy Deployment name |
 | envoy.replicas | int | `1` | Number of Envoy Proxy pods in Deployment |
 | envoy.image | string | `"envoyproxy/envoy:v1.30-latest"` | Envoy Proxy Docker image |
 | envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
 | envoy.resources | object | `{"limits":{"cpu":2,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
+| envoy.service.type | string | `"ClusterIP"` | This is the client-facing endpoint. In order to be able to connect to it, either enable ingress, or use type: LoadBalancer. |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
-| envoy.configs | object | `{"luaConfig":"cfg/envoy-filter.lua"}` | Configuration files for Envoy  |
+| envoy.rate_limiter.listener_level | object | `{"enabled":false,"fill_interval":"12s","max_tokens":5,"tokens_per_fill":1}` | This rate limiter explicitly controls the number of client connections to the Envoy Proxy. |
+| envoy.rate_limiter.listener_level.enabled | bool | `false` | Enable rate limiter |
+| envoy.rate_limiter.listener_level.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
+| envoy.rate_limiter.listener_level.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
+| envoy.rate_limiter.listener_level.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
+| envoy.rate_limiter.prometheus_based | object | `{"enabled":false,"luaConfig":"cfg/envoy-filter.lua"}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``. These parameters are the same as those used by the KEDA autoscaler. |
+| envoy.rate_limiter.prometheus_based.enabled | bool | `false` | Enable rate limiter |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
 | envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
-| prometheus.enabled | bool | `false` | Enable Prometheus |
-| prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
-| prometheus.port | int | `443` |  |
-| prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
-| prometheus.serverLoadMetric | string | `""` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # Default metric is defined in templates/_helpers.tpl |
-| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
-| autoscaler.enabled | bool | `false` | Enable autoscaling |
+| envoy.auth.jwt_issuer | string | `""` |  |
+| envoy.auth.jwt_remote_jwks_uri | string | `""` |  |
+| envoy.auth.audiences | list | `[]` |  |
+| envoy.auth.url | string | `""` |  |
+| envoy.auth.port | int | `443` |  |
+| autoscaler.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``, new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``. |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
 | autoscaler.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
@@ -48,6 +52,11 @@ A Helm chart for SuperSONIC
 | autoscaler.scaleDown.window | int | `120` |  |
 | autoscaler.scaleDown.period | int | `30` |  |
 | autoscaler.scaleDown.stepsize | int | `1` |  |
+| prometheus | object | `{"port":443,"scheme":"https","serverLoadMetric":"","serverLoadThreshold":100,"url":""}` | Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter |
+| prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
+| prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
+| prometheus.serverLoadMetric | string | `""` | A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl |
+| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
 | ingress.enabled | bool | `false` |  |
 | ingress.hostName | string | `""` |  |
 | nodeSelector | object | `{}` | Node selector for all pods (Triton and Envoy) |

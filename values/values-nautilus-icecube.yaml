@@ -33,6 +33,7 @@ triton:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 24Gi }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 20Gi }
   modelRepository:
+    enabled: true
     storageType: cvmfs-pvc
     mountPath: /models
 envoy:

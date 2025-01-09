@@ -71,35 +71,23 @@
         "modelRepository": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "mountPath": {
               "type": "string"
-            },
-            "storageType": {
-              "type": "string"
-            },
-            "cvmfsPvc": {
-              "type": "boolean"
             }
           },
           "required": [
-            "cvmfsPvc",
-            "mountPath",
-            "storageType"
+            "enabled",
+            "mountPath"
           ]
         },
         "service": {
           "type": "object",
           "properties": {
             "labels": {
-              "type": "object",
-              "properties": {
-                "scrape_metrics": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "scrape_metrics"
-              ]
+              "type": "object"
             },
             "annotations": {
               "type": "object"
@@ -159,9 +147,6 @@
         "enabled": {
           "type": "boolean"
         },
-        "name": {
-          "type": "string"
-        },
         "replicas": {
           "type": "integer"
         },
@@ -216,6 +201,9 @@
         "service": {
           "type": "object",
           "properties": {
+            "type": {
+              "type": "string"
+            },
             "ports": {
               "type": "array",
               "items": {
@@ -240,18 +228,55 @@
             }
           },
           "required": [
-            "ports"
+            "ports",
+            "type"
           ]
         },
-        "configs": {
+        "rate_limiter": {
           "type": "object",
           "properties": {
-            "luaConfig": {
-              "type": "string"
+            "listener_level": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "max_tokens": {
+                  "type": "integer"
+                },
+                "tokens_per_fill": {
+                  "type": "integer"
+                },
+                "fill_interval": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "fill_interval",
+                "max_tokens",
+                "tokens_per_fill"
+              ]
+            },
+            "prometheus_based": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "luaConfig": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "luaConfig"
+              ]
             }
           },
           "required": [
-            "luaConfig"
+            "listener_level",
+            "prometheus_based"
           ]
         },
         "loadBalancerPolicy": {
@@ -262,55 +287,43 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "jwt_issuer": {
+              "type": "string"
+            },
+            "jwt_remote_jwks_uri": {
+              "type": "string"
+            },
+            "audiences": {
+              "type": "array"
+            },
+            "url": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
             }
           },
           "required": [
-            "enabled"
+            "audiences",
+            "enabled",
+            "jwt_issuer",
+            "jwt_remote_jwks_uri",
+            "port",
+            "url"
           ]
         }
       },
       "required": [
         "args",
         "auth",
-        "configs",
         "enabled",
         "image",
         "loadBalancerPolicy",
-        "name",
+        "rate_limiter",
         "replicas",
         "resources",
         "service"
-      ]
-    },
-    "prometheus": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "url": {
-          "type": "string"
-        },
-        "port": {
-          "type": "integer"
-        },
-        "scheme": {
-          "type": "string"
-        },
-        "serverLoadMetric": {
-          "type": "string"
-        },
-        "serverLoadThreshold": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "enabled",
-        "port",
-        "scheme",
-        "serverLoadMetric",
-        "serverLoadThreshold",
-        "url"
       ]
     },
     "autoscaler": {
@@ -374,6 +387,33 @@
         "scaleDown",
         "scaleUp",
         "zeroIdleReplicas"
+      ]
+    },
+    "prometheus": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "serverLoadMetric": {
+          "type": "string"
+        },
+        "serverLoadThreshold": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "port",
+        "scheme",
+        "serverLoadMetric",
+        "serverLoadThreshold",
+        "url"
       ]
     },
     "ingress": {
