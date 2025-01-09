@@ -12,7 +12,7 @@ A Helm chart for SuperSONIC
 | triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
 | triton.image | string | `"fastml/triton-torchgeo:22.07-py3-geometric"` | Docker image for the Triton server |
 | triton.command | list | `["/bin/sh","-c"]` | Command and arguments to run in Triton container |
-| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/path-to-models/ \\\n--allow-gpu-metrics=true \\\n--log-verbose=0 \\\n--strict-model-config=false \\\n--exit-timeout-secs=60\n"` |  |
+| triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
 | triton.resources | object | `{"limits":{"cpu":1,"memory":"2G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource limits and requests for each Triton instance. You can add necessary GPU request here. |
 | triton.affinity | object | `{}` | Affinity rules for Triton pods - another way to request GPUs |
 | triton.modelRepository | object | `{"cvmfsPvc":false,"mountPath":"/cvmfs","storageType":"cvmfs-pvc"}` | Model repository configuration |
@@ -28,11 +28,15 @@ A Helm chart for SuperSONIC
 | envoy.image | string | `"envoyproxy/envoy:v1.30-latest"` | Envoy Proxy Docker image |
 | envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
 | envoy.resources | object | `{"limits":{"cpu":2,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
+| envoy.service.type | string | `"ClusterIP"` |  |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
-| envoy.rate_limiter.enabled | bool | `false` | Enable rate limiter in Envoy proxy |
-| envoy.rate_limiter.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
-| envoy.rate_limiter.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
-| envoy.rate_limiter.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
+| envoy.rate_limiter.listener_level | object | `{"enabled":false,"fill_interval":"12s","max_tokens":5,"tokens_per_fill":1}` | This rate limiter explicitly controls the number of client connections to the Envoy Proxy. |
+| envoy.rate_limiter.listener_level.enabled | bool | `false` | Enable rate limiter |
+| envoy.rate_limiter.listener_level.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
+| envoy.rate_limiter.listener_level.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
+| envoy.rate_limiter.listener_level.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
+| envoy.rate_limiter.prometheus_based | object | `{"enabled":false}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter prometheus.serverLoadMetric, and the threshold is set by prometheus.serverLoadThreshold. These parameters are the same as those used by the KEDA autoscaler. |
+| envoy.rate_limiter.prometheus_based.enabled | bool | `false` | Enable rate limiter |
 | envoy.configs | object | `{"luaConfig":"cfg/envoy-filter.lua"}` | Configuration files for Envoy  |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
 | envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
