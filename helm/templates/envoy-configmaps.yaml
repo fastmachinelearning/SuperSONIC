@@ -190,6 +190,8 @@ data:
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
 ---
 
+{{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+{{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -201,7 +203,7 @@ metadata:
 data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}
-    {{- $luaConfig := $.Files.Get .Values.envoy.configs.luaConfig | nindent 4 }}
+    {{- $luaConfig := $.Files.Get .Values.envoy.rate_limiter.prometheus_based.luaConfig | nindent 4 }}
     {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.defaultMetric" . | quote) }}
     {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.prometheus.serverLoadThreshold) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .Values.prometheus.url }}
@@ -209,5 +211,6 @@ data:
     {{ $luaConfig | indent 4 }}
 
 ---
+{{- end }}
 
 {{- end }}

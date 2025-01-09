@@ -59,8 +59,7 @@ triton:
     #   path:
 
   service:
-    labels:
-      scrape_metrics: "true"
+    labels: {}
     annotations: {}
 
     # -- Ports for communication with Triton servers
@@ -75,9 +74,6 @@ triton:
 envoy:
   # -- Enable Envoy Proxy
   enabled: true
-
-  # -- Envoy Proxy Deployment name
-  name: "sonic-server"
 
   # -- Number of Envoy Proxy pods in Deployment
   replicas: 1
@@ -98,6 +94,8 @@ envoy:
       cpu: 2
       memory: "4G"
   service:
+    # -- This is the client-facing endpoint. In order to be able to connect to it,
+    # either enable ingress, or use type: LoadBalancer.
     type: ClusterIP
     # -- Envoy Service ports
     ports:
@@ -122,11 +120,8 @@ envoy:
     # These parameters are the same as those used by the KEDA autoscaler.
     prometheus_based:
       # -- Enable rate limiter
-      enabled: false  
-
-  # -- Configuration files for Envoy 
-  configs:
-    luaConfig: "cfg/envoy-filter.lua"
+      enabled: false
+      luaConfig: "cfg/envoy-filter.lua" 
 
   # -- Envoy load balancer policy.
   # Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
@@ -135,16 +130,14 @@ envoy:
   auth:
     # -- Enable authentication in Envoy proxy
     enabled: false
-    # jwt_issuer:
-    # jwt_remote_jwks_uri:
-    # audiences: []
-    # url:
-    # port:
+    jwt_issuer: ""
+    jwt_remote_jwks_uri: ""
+    audiences: []
+    url: ""
+    port: 443
 
+# -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
 prometheus:
-  # -- Enable Prometheus
-  enabled: false
-
   # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
   url: ""
   port: 443
@@ -154,7 +147,7 @@ prometheus:
 
   # -- A metric which Envoy Proxy can use to decide whether to accept new client connections;
   ## the same metric can be used by KEDA autoscaler.
-  ## Default metric is defined in templates/_helpers.tpl
+  ## Default metric (inference queue latency) is defined in templates/_helpers.tpl
   serverLoadMetric: ""
   
   # -- Threshold for the metric

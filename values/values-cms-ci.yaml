@@ -19,14 +19,14 @@ triton:
   resetReadinessProbe: true
 envoy:
   enabled: true
+  service:
+    type: LoadBalancer
   rate_limiter:
     listener_level:
       enabled: true
       max_tokens: 5
       tokens_per_fill: 1
       fill_interval: 12s
-prometheus:
-  serverLoadThreshold: 100
 autoscaler:
   enabled: true
   minReplicas: 1

@@ -17,6 +17,8 @@ triton:
     limits: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
     requests: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
   service:
+    labels:
+      scrape_metrics: "true"
     annotations:
       metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
