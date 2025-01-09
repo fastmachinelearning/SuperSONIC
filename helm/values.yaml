@@ -48,8 +48,6 @@ triton:
 
     ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
     # storageType: "cvmfs-pvc"
-    # -- Whether to create a PVC for CMVFS (CVMFS StorageClass must be present at the cluster)
-    # cvmfsPvc: true
     
     ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
     # storageType: "cvmfs"
