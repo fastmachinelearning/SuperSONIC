@@ -33,7 +33,7 @@ A Helm chart for SuperSONIC
 | envoy.rate_limiter.listener_level.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
 | envoy.rate_limiter.listener_level.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
 | envoy.rate_limiter.listener_level.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
-| envoy.rate_limiter.prometheus_based | object | `{"enabled":false,"luaConfig":"cfg/envoy-filter.lua"}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter prometheus.serverLoadMetric, and the threshold is set by prometheus.serverLoadThreshold. These parameters are the same as those used by the KEDA autoscaler. |
+| envoy.rate_limiter.prometheus_based | object | `{"enabled":false,"luaConfig":"cfg/envoy-filter.lua"}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``. These parameters are the same as those used by the KEDA autoscaler. |
 | envoy.rate_limiter.prometheus_based.enabled | bool | `false` | Enable rate limiter |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
 | envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
@@ -42,12 +42,7 @@ A Helm chart for SuperSONIC
 | envoy.auth.audiences | list | `[]` |  |
 | envoy.auth.url | string | `""` |  |
 | envoy.auth.port | int | `443` |  |
-| prometheus | object | `{"port":443,"scheme":"https","serverLoadMetric":"","serverLoadThreshold":100,"url":""}` | Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter |
-| prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
-| prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
-| prometheus.serverLoadMetric | string | `""` | A metric which Envoy Proxy can use to decide whether to accept new client connections; # the same metric can be used by KEDA autoscaler. # Default metric (inference queue latency) is defined in templates/_helpers.tpl |
-| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
-| autoscaler.enabled | bool | `false` | Enable autoscaling |
+| autoscaler.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``, new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``. |
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
 | autoscaler.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
@@ -57,6 +52,11 @@ A Helm chart for SuperSONIC
 | autoscaler.scaleDown.window | int | `120` |  |
 | autoscaler.scaleDown.period | int | `30` |  |
 | autoscaler.scaleDown.stepsize | int | `1` |  |
+| prometheus | object | `{"port":443,"scheme":"https","serverLoadMetric":"","serverLoadThreshold":100,"url":""}` | Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter |
+| prometheus.url | string | `""` | Prometheus server url and port number (find in documentation of a given cluster or ask admins) |
+| prometheus.scheme | string | `"https"` | Specify whether Prometheus endpoint is exposed as http or https |
+| prometheus.serverLoadMetric | string | `""` | A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl |
+| prometheus.serverLoadThreshold | int | `100` | Threshold for the metric |
 | ingress.enabled | bool | `false` |  |
 | ingress.hostName | string | `""` |  |
 | nodeSelector | object | `{}` | Node selector for all pods (Triton and Envoy) |
