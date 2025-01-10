@@ -27,14 +27,21 @@ jobs:
 
       - name: Build Sphinx documentation
         run: |
-          sphinx-build -b html docs/ docs/_build/html
+          sphinx-build docs/ docs/_build/html
+
+      - name: Clone gh-pages branch
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git clone --branch gh-pages https://github.com/fastmachinelearning/SuperSONIC.git gh-pages
+          cp -r docs/_build/html/* gh-pages/docs-build/
 
       - name: Add CNAME file for custom domain
-        run: echo "fastmachinelearning.org/SuperSONIC" > docs/_build/html/CNAME
+        run: echo "fastmachinelearning.org/SuperSONIC" > gh-pages/docs-build/CNAME
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
-          publish_branch: gh-pages
+      - name: Commit and push changes
+        run: |
+          cd gh-pages
+          git add docs-build
+          git commit -m "Update website"
+          git push
