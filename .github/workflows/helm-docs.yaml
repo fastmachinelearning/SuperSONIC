@@ -26,7 +26,7 @@ jobs:
       # Run helm-docs
       - name: Run helm-docs
         run: |
-          cd helm/
+          cd charts/supersonic/
           helm-docs --sort-values-order=file
 
       # Commit and push changes to the same branch
@@ -40,7 +40,7 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/README.md
+          git add charts/supersonic/README.md
           git commit -m "Update helm README" || echo "No changes to commit"
 
           # Push changes back to the same branch

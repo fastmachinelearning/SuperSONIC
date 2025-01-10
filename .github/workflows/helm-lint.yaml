@@ -41,7 +41,7 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/values.schema.json
+          git add charts/supersonic/values.schema.json
           git commit -m "Update JSON schema" || echo "No changes to commit"
 
           # Push changes back to the same branch
@@ -49,7 +49,7 @@ jobs:
 
       - name: Lint values.yaml files in values/ directory
         run: |
-          CHART_PATH="helm/"
+          CHART_PATH="charts/supersonic/"
           VALUES_DIR="values/"
 
           for VALUES_FILE in "$VALUES_DIR"/*.yaml; do
