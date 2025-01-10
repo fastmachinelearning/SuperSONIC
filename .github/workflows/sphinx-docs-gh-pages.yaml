@@ -1,0 +1,40 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - "**"
+      # - "master"
+      # - "docs"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Build Sphinx documentation
+        run: |
+          sphinx-build -b html docs/ docs/_build/html
+
+      - name: Add CNAME file for custom domain
+        run: echo "fastmachinelearning.org/SuperSONIC" > docs/_build/html/CNAME
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          publish_branch: gh-pages
