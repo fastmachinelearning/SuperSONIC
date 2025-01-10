@@ -31,8 +31,8 @@ jobs:
 
       - name: Clone gh-pages branch
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git clone --branch gh-pages https://github.com/fastmachinelearning/SuperSONIC.git gh-pages
 
       - name: Create docs-build directory if not present
