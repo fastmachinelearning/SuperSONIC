@@ -29,7 +29,7 @@ jobs:
 
       - name: Generate JSON schema
         run: |
-          python ci/yaml-to-schema.py helm/values.yaml helm/values.schema.json
+          python ci/yaml-to-schema.py charts/supersonic/values.yaml charts/supersonic/values.schema.json
 
       - name: Commit and push changes
         env:
