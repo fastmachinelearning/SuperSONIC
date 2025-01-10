@@ -34,14 +34,14 @@ jobs:
           git fetch origin gh-pages
           git checkout gh-pages
   
-      - name: Create docs-build directory if not present
-        run: mkdir -p docs-build
+      - name: Create docs directory if not present
+        run: mkdir -p docs
 
-      - name: Copy build files to docs-build
-        run: cp -r docs/_build/html/* docs-build/
+      - name: Copy build files to docs
+        run: cp -r docs/_build/html/* docs/
 
       - name: Add CNAME file for custom domain
-        run: echo "fastmachinelearning.org/SuperSONIC" > docs-build/CNAME
+        run: echo "fastmachinelearning.org/SuperSONIC" > docs/CNAME
 
       - name: Commit and push changes
         env:
@@ -51,6 +51,6 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          git add docs-build
+          git add docs
           git commit -m "Update Sphinx documentation" || echo "No changes to commit"
           git push origin gh-pages
