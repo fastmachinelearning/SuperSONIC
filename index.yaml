@@ -3,12 +3,12 @@ entries:
   supersonic:
   - apiVersion: v2
     appVersion: "0.1"
-    created: "2025-01-10T14:41:28.323162-05:00"
+    created: "2025-01-10T15:04:33.796222-05:00"
     description: A Helm chart for SuperSONIC
-    digest: f16d6f8ee04406b42d4b86e91d1f282dc8be5a3249e90f0e38e41d224df20722
+    digest: d2980005c900811c557609f5d307003f1e0c30938eb663f237ab6a0863a5de2e
     icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_512.png
     name: supersonic
     urls:
-    - https://fastmachinelearning.org/SuperSONIC/charts/supersonic-0.1.0.tgz
+    - https://fastmachinelearning.org/SuperSONIC/supersonic-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-10T14:41:28.322568-05:00"
+generated: "2025-01-10T15:04:33.79512-05:00"
