@@ -3,6 +3,8 @@
 ![helm lint](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-lint.yaml/badge.svg)
 ![helm docs](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-docs.yaml/badge.svg)
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/supersonic)](https://artifacthub.io/packages/search?repo=supersonic)
+
 # SuperSONIC
 
 The SuperSONIC project implements **common server infrastructure for GPU inference-as-a-service** to accelerate machine learining algorithms at large high energy physics (HEP) and multi-messenger astrophysics (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
