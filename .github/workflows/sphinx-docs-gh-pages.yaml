@@ -1,4 +1,4 @@
-name: docs
+name: sphinx docs & helm package
 
 on:
   push:
@@ -32,7 +32,6 @@ jobs:
 
       - name: Build Sphinx documentation
         run: |
-          # build dir
           mkdir -p docs-build
           sphinx-build docs/ docs-build/
           rm -rf docs/
@@ -41,18 +40,14 @@ jobs:
         run: |
           helm package helm/
           helm repo index . --url https://fastmachinelearning.org/SuperSONIC/
+
+          # putting the generated files together with documentation to host on gh-pages
           mv *.tgz index.yaml docs-build/
 
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
-  
-      # - name: Create docs directory if not present
-      #   run: mkdir -p docs
-
-      # - name: Copy build files to docs
-      #   run: cp -r docs/_build/html/* docs/
 
       - name: Add CNAME file for custom domain
         run: echo "fastmachinelearning.org/SuperSONIC" > docs-build/CNAME
