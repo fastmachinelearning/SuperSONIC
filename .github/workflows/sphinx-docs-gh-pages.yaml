@@ -31,7 +31,6 @@ jobs:
           mkdir -p docs-build
           sphinx-build docs/ docs-build/
           rm -rf docs/
-          mv docs-build docs
 
       - name: Switch to gh-pages branch
         run: |
@@ -55,6 +54,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+          git rm docs/* -r
+          mv docs-build docs
           git add docs
           git commit -m "Update Sphinx documentation" || echo "No changes to commit"
           git push origin gh-pages
