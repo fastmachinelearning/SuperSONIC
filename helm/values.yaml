@@ -8,7 +8,7 @@ triton:
   replicas: 1
 
   # -- Docker image for the Triton server
-  image: "fastml/triton-torchgeo:22.07-py3-geometric"
+  image: "nvcr.io/nvidia/tritonserver:24.12-py3-min"
   
   # -- Command and arguments to run in Triton container
   command: ["/bin/sh", "-c"]
