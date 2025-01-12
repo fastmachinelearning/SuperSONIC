@@ -27,21 +27,25 @@ jobs:
 
       - name: Build Sphinx documentation
         run: |
-          sphinx-build docs/ docs/_build/html
+          # build dir
+          mkdir -p docs-build
+          sphinx-build docs/ docs-build/
+          rm -rf docs/
+          mv docs-build docs
 
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
   
-      - name: Create docs directory if not present
-        run: mkdir -p docs
+      # - name: Create docs directory if not present
+      #   run: mkdir -p docs
 
-      - name: Copy build files to docs
-        run: cp -r docs/_build/html/* docs/
+      # - name: Copy build files to docs
+      #   run: cp -r docs/_build/html/* docs/
 
       - name: Add CNAME file for custom domain
-        run: echo "fastmachinelearning.org/SuperSONIC" > docs/CNAME
+        run: echo "fastmachinelearning.org/SuperSONIC" > docs-build/CNAME
 
       - name: Commit and push changes
         env:
