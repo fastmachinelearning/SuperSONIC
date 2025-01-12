@@ -66,6 +66,7 @@ jobs:
           git config user.email "actions@github.com"
 
           git rm docs/* -r
+          rm -rf docs
           mv docs-build docs
           git add docs
           git commit -m "Update Sphinx documentation" || echo "No changes to commit"
