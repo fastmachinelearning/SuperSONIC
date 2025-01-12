@@ -15,6 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
       - name: Set up Python environment
         uses: actions/setup-python@v4
         with:
@@ -31,6 +36,12 @@ jobs:
           mkdir -p docs-build
           sphinx-build docs/ docs-build/
           rm -rf docs/
+
+      - name: Package Helm chart
+        run: |
+          helm package helm/
+          helm repo index . --url https://fastmachinelearning.org/SuperSONIC/
+          mv *.tgz index.yaml docs-build/
 
       - name: Switch to gh-pages branch
         run: |
