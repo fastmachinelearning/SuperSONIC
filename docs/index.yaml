@@ -2,18 +2,19 @@ apiVersion: v1
 entries:
   supersonic:
   - annotations:
+      artifacthub.io/category: ai-machine-learning
       artifacthub.io/links: |
         - name: GitHub
           url: https://github.com/fastmachinelearning/SuperSONIC/
     apiVersion: v2
-    appVersion: v0.1.0
-    created: "2025-01-12T22:25:48.066197658Z"
+    created: "2025-01-12T22:56:40.688775108Z"
     description: A Helm chart for SuperSONIC
-    digest: 1881fefe9bc37bedeb81171afe28b72e15cff918f977e5510752ad3a796972b1
+    digest: 0cc67f39dcc68e4e6b266ada3f7c6d598e437899278f9d266a15f131871ed34d
     home: https://fastmachinelearning.org/SuperSONIC/
     icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_512.png?raw=true
     name: supersonic
+    type: application
     urls:
     - https://fastmachinelearning.org/SuperSONIC/supersonic-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-12T22:25:48.065301029Z"
+generated: "2025-01-12T22:56:40.687874596Z"
