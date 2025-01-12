@@ -44,6 +44,9 @@ jobs:
           # putting the generated files together with documentation to host on gh-pages
           mv *.tgz index.yaml docs-build/
 
+          # Copy metadata for Artifact Hub
+          cp helm/artifacthub-repo.yaml docs-build/
+
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages
