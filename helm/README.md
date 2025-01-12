@@ -4,6 +4,8 @@
 
 A Helm chart for SuperSONIC
 
+**Homepage:** <https://fastmachinelearning.org/SuperSONIC/>
+
 ## Values
 
 | Key | Type | Default | Description |
