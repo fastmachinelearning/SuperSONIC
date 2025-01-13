@@ -32,7 +32,7 @@ jobs:
 
       - name: Copy README.md from root
         run: |
-          cp ../README.md README.md
+          cp README.md helm/README.md
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
