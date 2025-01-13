@@ -27,7 +27,7 @@ The main components of SuperSONIC are:
 ## Server diagram
 
 <p align="center">
-  <img src="docs/img/diagram.svg" alt="diagram" width="700"/>
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/diagram.svg" alt="diagram" width="700"/>
 </p>
 
 ## Status of deployment
