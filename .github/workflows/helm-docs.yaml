@@ -27,7 +27,7 @@ jobs:
       - name: Run helm-docs
         run: |
           cd helm/
-          helm-docs --sort-values-order=file
+          helm-docs --template-files=configuration-reference.md.gotmpl --sort-values-order=file --output-file=configuration-reference.md
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
@@ -40,7 +40,7 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/README.md
+          git add helm/configuration-reference.md
           git commit -m "Update helm README" || echo "No changes to commit"
 
           # Push changes back to the same branch
