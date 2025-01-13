@@ -1,9 +1,3 @@
-{{- define "chart.githubReadme" -}}
-{{- if .Files.Get "../../README.md" -}}
-{{ .Files.Get "../../README.md" | nindent 0 }}
-{{- end -}}
-{{- end -}}
-
 {{ template "chart.header" . }}
 {{ template "chart.deprecationWarning" . }}
 
@@ -13,7 +7,7 @@
 
 {{ template "chart.homepageLine" . }}
 
-{{ template "chart.githubReadme" . }}
+{{ readFile "../README.md" }}
 
 {{ template "chart.maintainersSection" . }}
 
