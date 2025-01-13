@@ -27,9 +27,12 @@ jobs:
       - name: Run helm-docs
         run: |
           cd helm/
-          helm-docs --template-files=helm-docs/README.md.gotmpl --output-file=README.md
           helm-docs --template-files=helm-docs/configuration-reference.md.gotmpl --sort-values-order=file --output-file=configuration-reference.md
           mv configuration-reference.md ../docs/configuration-reference.md
+
+      - name: Copy README.md from root
+        run: |
+          cp ../README.md README.md
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
