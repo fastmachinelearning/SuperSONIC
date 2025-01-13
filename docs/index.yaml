@@ -7,9 +7,9 @@ entries:
         - name: GitHub
           url: https://github.com/fastmachinelearning/SuperSONIC/
     apiVersion: v2
-    created: "2025-01-13T20:17:08.34195649Z"
+    created: "2025-01-13T20:18:46.537275277Z"
     description: A Helm chart for SuperSONIC
-    digest: 2a0855a8b5c4514719359a3095ebf5bf2524d79aba46f3d42bdc905ba69c1294
+    digest: f4a0c54aa7ff1fd91d1f5881a759f02ce97b66d48d3b3462ef4a1504a3443b37
     home: https://fastmachinelearning.org/SuperSONIC/
     icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_512.png?raw=true
     name: supersonic
@@ -17,4 +17,4 @@ entries:
     urls:
     - https://fastmachinelearning.org/SuperSONIC/supersonic-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-13T20:17:08.341086779Z"
+generated: "2025-01-13T20:18:46.536345189Z"
