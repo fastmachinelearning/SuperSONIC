@@ -26,9 +26,10 @@ jobs:
       # Run helm-docs
       - name: Run helm-docs
         run: |
-          cd helm/
-          helm-docs --template-files=helm-docs/configuration-reference.md.gotmpl --sort-values-order=file --output-file=configuration-reference.md
-          mv configuration-reference.md ../docs/configuration-reference.md
+          cd docs/
+          helm-docs --template-files=configuration-reference.md.gotmpl \
+            --sort-values-order=file --output-file=configuration-reference.md \
+            --chart-search-root=../helm
 
       - name: Copy README.md from root
         run: |
