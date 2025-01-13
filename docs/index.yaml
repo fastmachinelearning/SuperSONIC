@@ -7,10 +7,10 @@ entries:
         - name: GitHub
           url: https://github.com/fastmachinelearning/SuperSONIC/
     apiVersion: v2
-    created: "2025-01-13T20:53:50.42224486Z"
+    created: "2025-01-13T20:55:08.637704188Z"
     description: Server infrastructure for inference-as-a-service in large scientific
       experiments.
-    digest: 5103aaa3efc11241fac4357313b4061ce22947f657191c2b9cf2084c4c6c4318
+    digest: cee56b28f69b14c6f35afaa2e0ebfe6b6dd8d53cd4026ab0ba83b04c89805ec9
     home: https://fastmachinelearning.org/SuperSONIC/
     icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_512.png?raw=true
     name: supersonic
@@ -18,4 +18,4 @@ entries:
     urls:
     - https://fastmachinelearning.org/SuperSONIC/supersonic-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-13T20:53:50.421394903Z"
+generated: "2025-01-13T20:55:08.636774916Z"
