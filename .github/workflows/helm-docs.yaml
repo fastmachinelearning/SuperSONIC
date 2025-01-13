@@ -27,7 +27,9 @@ jobs:
       - name: Run helm-docs
         run: |
           cd helm/
+          helm-docs --template-files=README.md.gotmpl --output-file=README.md
           helm-docs --template-files=configuration-reference.md.gotmpl --sort-values-order=file --output-file=configuration-reference.md
+          mv configuration-reference.md ../docs/configuration-reference.md
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
@@ -40,8 +42,10 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/configuration-reference.md
-          git commit -m "Update helm README" || echo "No changes to commit"
+          #cleanup
+          git rm helm/configuration-reference.md
+          git add helm/README.md docs/configuration-reference.md
+          git commit -m "Update helm docs" || echo "No changes to commit"
 
           # Push changes back to the same branch
           git push origin HEAD
