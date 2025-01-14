@@ -87,43 +87,42 @@
 <p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.</p>
 <section id="triton-inference-server-configuration">
 <h2>Triton Inference Server Configuration<a class="headerlink" href="#triton-inference-server-configuration" title="Link to this heading"></a></h2>
-<ol class="arabic">
-<li><p>Select a Triton Inference Server version.</p>
-<blockquote>
-<div><ul class="simple">
+<section id="select-a-triton-inference-server-version">
+<h3>#. Select a Triton Inference Server version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h3>
+<ul class="simple">
 <li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
 <li><p>You can also use custom-built Triton images.</p></li>
-<li><p>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a>
-for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p></li>
-</ul>
-</div></blockquote>
-<p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
+<li><dl class="simple">
+<dt>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a></dt><dd><p>for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p>
+</dd>
+</dl>
 </li>
-<li><p>Configure Triton model repository.</p>
-<ul class="simple">
+</ul>
+<p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
+</section>
+<section id="configure-triton-model-repository">
+<h3>#. Configure Triton model repository.<a class="headerlink" href="#configure-triton-model-repository" title="Link to this heading"></a></h3>
+<ul>
 <li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">triton.args</span></code> parameter in the values file.
 The parameter contains the full command that launches a Triton server; you can specify
 one or multiple model repositories via the <code class="docutils literal notranslate"><span class="pre">--model-repository</span></code> flag.</p></li>
-<li><p>For example, the following command loads multiple CMS models hosted at CVMFS:</p></li>
-</ul>
-<blockquote>
-<div><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">args</span><span class="p">:</span>
+<li><p>For example, the following command loads multiple CMS models hosted at CVMFS:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">args</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">/opt/tritonserver/bin/tritonserver \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--allow-gpu-metrics=true \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--log-verbose=0 \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--strict-model-config=false \</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--exit-timeout-secs=60</span>
+<span class="w">   </span><span class="no">/opt/tritonserver/bin/tritonserver \</span>
+<span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \</span>
+<span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \</span>
+<span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \</span>
+<span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \</span>
+<span class="w">   </span><span class="no">--allow-gpu-metrics=true \</span>
+<span class="w">   </span><span class="no">--log-verbose=0 \</span>
+<span class="w">   </span><span class="no">--strict-model-config=false \</span>
+<span class="w">   </span><span class="no">--exit-timeout-secs=60</span>
 </pre></div>
 </div>
-<ul class="simple">
+</li>
 <li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.</p></li>
-<li><p>The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
-</ul>
+<li><p>The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
 <span class="nt">modelRepository</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># Set to `true` to enable model repository mounting</span>
@@ -137,7 +136,7 @@ one or multiple model repositories via the <code class="docutils literal notrans
 <span class="w">  </span><span class="c1">## Option 1: mount an arbitrary PersistentVolumeClaim</span>
 <span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pvc&quot;</span>
 <span class="w">  </span><span class="nt">pvc</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">claimName</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">claimName</span><span class="p">:</span>
 
 <span class="w">  </span><span class="c1">## -- OR --</span>
 <span class="w">  </span><span class="c1">## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)</span>
@@ -151,13 +150,15 @@ one or multiple model repositories via the <code class="docutils literal notrans
 <span class="w">  </span><span class="c1">## Option 4: mount an NFS storage volume</span>
 <span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nfs&quot;</span>
 <span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">server</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">path</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span>
 </pre></div>
 </div>
-</div></blockquote>
 </li>
-<li><p>Select resources for Triton pods.</p>
+</ul>
+</section>
+<section id="select-resources-for-triton-pods">
+<h3>#. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
 <ul>
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>
@@ -185,14 +186,13 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </div>
 </li>
 </ul>
-</li>
-</ol>
+</section>
 </section>
 <section id="envoy-proxy-configuration">
 <h2>Envoy Proxy Configuration<a class="headerlink" href="#envoy-proxy-configuration" title="Link to this heading"></a></h2>
 <p>By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.</p>
-<ol class="arabic" start="5">
-<li><p>Configure external endpoint for Envoy Proxy.</p>
+<section id="configure-external-endpoint-for-envoy-proxy">
+<h3>#. Configure external endpoint for Envoy Proxy.<a class="headerlink" href="#configure-external-endpoint-for-envoy-proxy" title="Link to this heading"></a></h3>
 <p>Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.</p>
 <p>There are two options:</p>
 <ol class="arabic">
@@ -216,8 +216,9 @@ Please contact cluster administrators for more information.</p>
 <p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;load_balancer_url&gt;:8001</span></code> and NOT use SSL.</p>
 </li>
 </ol>
-</li>
-<li><p>(optional) Configure rate limiting in Envoy Proxy.</p>
+</section>
+<section id="optional-configure-rate-limiting-in-envoy-proxy">
+<h3>#. (optional) Configure rate limiting in Envoy Proxy.<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h3>
 <p>There are two types of rate limiting available in Envoy Proxy: <em>listener-level</em>, and <em>prometheus-based</em>.</p>
 <ul>
 <li><p><strong>Listener-level rate limiting</strong> allows to explicitly limit the number of client connections established to the Envoy proxy endpoint.
@@ -225,6 +226,20 @@ It can be useful to prevent overloading the proxy with too many simultaneous cli
 <p>The listener-level rate limiting is implemented via “token bucket” algorithm.
 Each new connection consumes a token from the bucket, and the bucket is refilled at a constant rate.</p>
 <p>Example configuration in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">rate_limiter</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">listener_level</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># -- Enable rate limiter</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="c1"># -- Maximum number of simultaneous connections to the Envoy Proxy.</span>
+<span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="c1"># -- ``tokens_per_fill`` tokens are added to the &quot;bucket&quot; every ``fill_interval``, allowing new connections to be established.</span>
+<span class="w">      </span><span class="nt">tokens_per_fill</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="c1"># -- For example, adding a new token every 12 seconds allows 5 new connections every minute.</span>
+<span class="w">      </span><span class="nt">fill_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12s</span>
+</pre></div>
+</div>
 </li>
 <li><p><strong>Prometheus-based rate limiting</strong> allows an additional layer of rate limiting based on a metric queried from a Prometheus server.
 This can be useful to dynamically control server load and stop accepting new connections when GPUs are saturated.</p>
@@ -234,13 +249,12 @@ any other requests in order not to slow down the inferences.</p>
 <p>The metric and thershold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see below).</p>
 </li>
 </ul>
-</li>
-</ol>
+</section>
 </section>
 <section id="prometheus-configuration">
 <h2>Prometheus Configuration<a class="headerlink" href="#prometheus-configuration" title="Link to this heading"></a></h2>
-<ol class="arabic" start="7">
-<li><p>(optional) Connect to Prometheus server.</p>
+<section id="optional-connect-to-prometheus-server">
+<h3>#. (optional) Connect to Prometheus server.<a class="headerlink" href="#optional-connect-to-prometheus-server" title="Link to this heading"></a></h3>
 <p>If you are using either the Prometheus-based rate limiter or the KEDA autoscaler,
 you need to connect SuperSONIC to an existing Prometheus server. This is done via
 the <code class="docutils literal notranslate"><span class="pre">prometheus.url</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus.port</span></code> parameters in the values file,
@@ -252,22 +266,19 @@ The default metric is the inference queue time at the Triton servers, as defined
 <p>When the metric value exceeds the threshold, the following happens:
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests.</p>
-</li>
-</ol>
+</section>
 </section>
 <section id="autoscaler-configuration">
 <h2>Autoscaler Configuration<a class="headerlink" href="#autoscaler-configuration" title="Link to this heading"></a></h2>
-<ol class="arabic" start="8">
-<li><p>(optional) Enable KEDA autoscaler.</p>
-<blockquote>
-<div><p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
+<section id="optional-enable-keda-autoscaler">
+<h3>#. (optional) Enable KEDA autoscaler.<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h3>
+<p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
 can be enabled via the <code class="docutils literal notranslate"><span class="pre">autoscaler.enabled</span></code> parameter in the values file.</p>
 <p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicas</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicas</span></code> define the range in which
 the number of Triton servers can scale.</p>
 <p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">autoscaler</span><span class="p">:</span>
-
-<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
@@ -282,9 +293,7 @@ the number of Triton servers can scale.</p>
 <span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
-</div></blockquote>
-</li>
-</ol>
+</section>
 </section>
 </section>
 
