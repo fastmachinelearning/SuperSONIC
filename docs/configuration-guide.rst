@@ -2,6 +2,7 @@ Configuration Guide
 ####################
 
 The following guide will help you configure ``values.yaml`` file for a SuperSONIC deployment.
+The full list of parameters can be found in the `Configuration Reference <configuration-reference>`_.
 
 Triton Inference Server Configuration
 ****************************************
@@ -19,6 +20,8 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 2. Configure Triton model repository.
 =============================================
    
+- To learn about the structure of model repositories, refer to the
+  `NVIDIA Model Repository Guide <https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html>`_.
 - Model repositories are specified in the ``triton.args`` parameter in the values file.
   The parameter contains the full command that launches a Triton server; you can specify
   one or multiple model repositories via the ``--model-repository`` flag.
@@ -41,39 +44,46 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 - Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
   The following options for model repository mouning are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
 
-  .. code-block:: yaml
+.. raw:: html
 
-     # -- Model repository configuration
-     modelRepository:
-       # Set to `true` to enable model repository mounting
-       enabled: true
+    <details>
+    <summary>Model repository configuration</summary>
 
-       # -- Model repository mount path (e.g /cvmfs/)
-       mountPath: ""
+    .. code-block:: yaml
 
-       ## Model repository options:
+        # -- Model repository configuration
+        modelRepository:
+          # Set to `true` to enable model repository mounting
+          enabled: true
 
-       ## Option 1: mount an arbitrary PersistentVolumeClaim
-       storageType: "pvc"
-       pvc:
-       claimName: 
+          # -- Model repository mount path (e.g /cvmfs/)
+          mountPath: ""
 
-       ## -- OR --
-       ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
-       storageType: "cvmfs-pvc"
-       
-       ## -- OR --
-       ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-       storageType: "cvmfs"
+          ## Model repository options:
 
-       ## -- OR --
-       ## Option 4: mount an NFS storage volume
-       storageType: "nfs"
-       nfs:
-       server:
-       path:
+          ## Option 1: mount an arbitrary PersistentVolumeClaim
+          storageType: "pvc"
+          pvc:
+          claimName: 
 
-1. Select resources for Triton pods.
+          ## -- OR --
+          ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
+          storageType: "cvmfs-pvc"
+          
+          ## -- OR --
+          ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
+          storageType: "cvmfs"
+
+          ## -- OR --
+          ## Option 4: mount an NFS storage volume
+          storageType: "nfs"
+          nfs:
+          server:
+          path:
+
+    </details>
+
+3. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
