@@ -19,6 +19,14 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Configure GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+  
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
