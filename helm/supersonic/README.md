@@ -1,13 +1,14 @@
-![ci [CMS]](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/ci-github-cms.yaml/badge.svg)
-![docs](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/sphinx-docs.yaml/badge.svg)
-![helm lint](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-lint.yaml/badge.svg)
-![helm docs](https://github.com/fastmachinelearning/SuperSONIC/actions/workflows/helm-docs.yaml/badge.svg)
-
+![Version](https://img.shields.io/github/v/release/fastmachinelearning/SuperSONIC)
+![License](https://img.shields.io/github/license/fastmachinelearning/SuperSONIC)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/supersonic)](https://artifacthub.io/packages/search?repo=supersonic)
+![Downloads](https://img.shields.io/github/downloads/fastmachinelearning/SuperSONIC/total)
+
 
 # SuperSONIC
 
-The SuperSONIC project implements **common server infrastructure for GPU inference-as-a-service** to accelerate machine learining algorithms at large high energy physics (HEP) and multi-messenger astrophysics (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
+The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") project implements server infrastructure for **inference-as-a-service**
+applications in large high energy physics (HEP) and multi-messenger astrophysics
+(MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
 The main components of SuperSONIC are:
 - [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
@@ -15,14 +16,21 @@ The main components of SuperSONIC are:
   - Load balancing
   - Client connection rate limiting
   - GPU saturation prevention
-  - Token-based authentication (optional)
+  - Token-based authentication
 - Load-based autoscaling via [KEDA](keda.sh)
 
-## Documentation
 
-- [Documentation](http://fastmachinelearning.org/SuperSONIC/ "Documentation")
-  - [Installation](http://fastmachinelearning.org/SuperSONIC/getting-started.html "Installation")
-  - [Helm chart parameters](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Parameters")
+## Installation
+
+```
+helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
+helm install <release-name> supersonic/supersonic --values values.yaml
+```
+
+To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
+
+The full list of configuration parameters is available here: [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference")
+
 
 ## Server diagram
 
