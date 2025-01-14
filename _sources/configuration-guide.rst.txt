@@ -81,9 +81,10 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      server:
      path:
 
+.. raw:: html
    </details>
 
-|
+
 
 3. Select resources for Triton pods.
 =============================================
