@@ -88,7 +88,7 @@
 <section id="triton-inference-server-configuration">
 <h2>Triton Inference Server Configuration<a class="headerlink" href="#triton-inference-server-configuration" title="Link to this heading"></a></h2>
 <section id="select-a-triton-inference-server-version">
-<h3>#. Select a Triton Inference Server version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h3>
+<h3>1. Select a Triton Inference Server version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
 <li><p>You can also use custom-built Triton images.</p></li>
@@ -101,7 +101,7 @@
 <p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
 </section>
 <section id="configure-triton-model-repository">
-<h3>#. Configure Triton model repository.<a class="headerlink" href="#configure-triton-model-repository" title="Link to this heading"></a></h3>
+<h3>2. Configure Triton model repository.<a class="headerlink" href="#configure-triton-model-repository" title="Link to this heading"></a></h3>
 <ul>
 <li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">triton.args</span></code> parameter in the values file.
 The parameter contains the full command that launches a Triton server; you can specify
@@ -158,7 +158,7 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </ul>
 </section>
 <section id="select-resources-for-triton-pods">
-<h3>#. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
+<h3>3. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
 <ul>
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>
@@ -192,10 +192,10 @@ one or multiple model repositories via the <code class="docutils literal notrans
 <h2>Envoy Proxy Configuration<a class="headerlink" href="#envoy-proxy-configuration" title="Link to this heading"></a></h2>
 <p>By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.</p>
 <section id="configure-external-endpoint-for-envoy-proxy">
-<h3>#. Configure external endpoint for Envoy Proxy.<a class="headerlink" href="#configure-external-endpoint-for-envoy-proxy" title="Link to this heading"></a></h3>
+<h3>4. Configure external endpoint for Envoy Proxy.<a class="headerlink" href="#configure-external-endpoint-for-envoy-proxy" title="Link to this heading"></a></h3>
 <p>Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.</p>
 <p>There are two options:</p>
-<ol class="arabic">
+<ul>
 <li><p><strong>Ingress</strong>: Use an Ingress to expose the Envoy proxy to the outside world.
 You can configure the Ingress resource via the <code class="docutils literal notranslate"><span class="pre">ingress</span></code> parameters in the values file:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ingress</span><span class="p">:</span>
@@ -215,10 +215,10 @@ not be allowed at some Kubernetes clusters. To enable this, set the following pa
 Please contact cluster administrators for more information.</p>
 <p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;load_balancer_url&gt;:8001</span></code> and NOT use SSL.</p>
 </li>
-</ol>
+</ul>
 </section>
 <section id="optional-configure-rate-limiting-in-envoy-proxy">
-<h3>#. (optional) Configure rate limiting in Envoy Proxy.<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h3>
+<h3>5. (optional) Configure rate limiting in Envoy Proxy.<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h3>
 <p>There are two types of rate limiting available in Envoy Proxy: <em>listener-level</em>, and <em>prometheus-based</em>.</p>
 <ul>
 <li><p><strong>Listener-level rate limiting</strong> allows to explicitly limit the number of client connections established to the Envoy proxy endpoint.
@@ -254,7 +254,7 @@ any other requests in order not to slow down the inferences.</p>
 <section id="prometheus-configuration">
 <h2>Prometheus Configuration<a class="headerlink" href="#prometheus-configuration" title="Link to this heading"></a></h2>
 <section id="optional-connect-to-prometheus-server">
-<h3>#. (optional) Connect to Prometheus server.<a class="headerlink" href="#optional-connect-to-prometheus-server" title="Link to this heading"></a></h3>
+<h3>6. (optional) Connect to Prometheus server.<a class="headerlink" href="#optional-connect-to-prometheus-server" title="Link to this heading"></a></h3>
 <p>If you are using either the Prometheus-based rate limiter or the KEDA autoscaler,
 you need to connect SuperSONIC to an existing Prometheus server. This is done via
 the <code class="docutils literal notranslate"><span class="pre">prometheus.url</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus.port</span></code> parameters in the values file,
@@ -271,7 +271,7 @@ The default metric is the inference queue time at the Triton servers, as defined
 <section id="autoscaler-configuration">
 <h2>Autoscaler Configuration<a class="headerlink" href="#autoscaler-configuration" title="Link to this heading"></a></h2>
 <section id="optional-enable-keda-autoscaler">
-<h3>#. (optional) Enable KEDA autoscaler.<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h3>
+<h3>7. (optional) Enable KEDA autoscaler.<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h3>
 <p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
 can be enabled via the <code class="docutils literal notranslate"><span class="pre">autoscaler.enabled</span></code> parameter in the values file.</p>
 <p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicas</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicas</span></code> define the range in which
