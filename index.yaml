@@ -1,0 +1,21 @@
+apiVersion: v1
+entries:
+  supersonic:
+  - annotations:
+      artifacthub.io/category: ai-machine-learning
+      artifacthub.io/links: |
+        - name: GitHub
+          url: https://github.com/fastmachinelearning/SuperSONIC/
+    apiVersion: v2
+    created: "2025-01-14T21:13:37.12163916Z"
+    description: Server infrastructure for inference-as-a-service in large scientific
+      experiments.
+    digest: 162bc92ae5a966c9b220217e1e3a623d707072b92823a015f907e8063107bfbc
+    home: https://fastmachinelearning.org/SuperSONIC/
+    icon: https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_512.png?raw=true
+    name: supersonic
+    type: application
+    urls:
+    - https://github.com/fastmachinelearning/SuperSONIC/releases/download/supersonic-0.1.0/supersonic-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-01-14T21:13:37.121664657Z"
