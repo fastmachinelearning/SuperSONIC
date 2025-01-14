@@ -41,9 +41,9 @@ jobs:
 
       - name: Copy artifacthub-repo.yaml to gh-pages
         run: |
-            git rm -r --cached .cr-release-packages/
             git fetch origin gh-pages:gh-pages
             git checkout gh-pages
+            git rm -r --cached .cr-release-packages/
             git checkout ${{ github.ref }} -- helm/supersonic/artifacthub-repo.yaml
             git add helm/supersonic/artifacthub-repo.yaml
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}"
