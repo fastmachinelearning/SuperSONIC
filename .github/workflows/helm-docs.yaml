@@ -26,8 +26,15 @@ jobs:
       # Run helm-docs
       - name: Run helm-docs
         run: |
-          cd helm/
-          helm-docs --sort-values-order=file
+          helm-docs --chart-search-root=helm/supersonic \
+            --template-files=../../docs/.values-table.md.gotmpl \
+            --output-file=../../docs/.values-table.md \
+            --sort-values-order=file
+            
+
+      - name: Copy README.md from root
+        run: |
+          cp README.md helm/supersonic/README.md
 
       # Commit and push changes to the same branch
       - name: Commit and push changes
@@ -40,8 +47,8 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/README.md
-          git commit -m "Update helm README" || echo "No changes to commit"
+          git add helm/supersonic/README.md docs/.values-table.md
+          git commit -m "Update helm docs" || echo "No changes to commit"
 
           # Push changes back to the same branch
           git push origin HEAD
