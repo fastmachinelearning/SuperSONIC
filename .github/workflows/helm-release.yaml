@@ -37,3 +37,12 @@ jobs:
           charts_dir: helm
           skip_existing: true
           mark_as_latest: true
+
+      - name: Copy artifacthub-repo.yaml to gh-pages
+        run: |
+            git fetch origin gh-pages:gh-pages
+            git checkout gh-pages
+            git checkout ${{ github.ref }} -- helm/supersonic/artifacthub-repo.yaml
+            git add helm/supersonic/artifacthub-repo.yaml
+            git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}"
+            git push origin gh-pages
