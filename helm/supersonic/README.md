@@ -24,7 +24,7 @@ The main components of SuperSONIC are:
 
 ```
 helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
-helm install <release-name> supersonic/supersonic --values values.yaml
+helm install <release-name> supersonic/supersonic --values <your-values.yaml> -n <namespace>
 ```
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
