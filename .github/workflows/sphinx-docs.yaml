@@ -46,7 +46,7 @@ jobs:
 
           # Move newly built docs into root
           rm -rf _*
-          rm -rf .*
+          rm -rf .doctrees .buildinfo .nojekyll
           mv docs-build/* docs-build/.* .
           rm -rf docs-build
           git add .
