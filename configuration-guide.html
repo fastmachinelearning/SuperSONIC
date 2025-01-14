@@ -92,11 +92,8 @@
 <ul class="simple">
 <li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
 <li><p>You can also use custom-built Triton images.</p></li>
-<li><dl class="simple">
-<dt>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a></dt><dd><p>for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p>
-</dd>
-</dl>
-</li>
+<li><p>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a>
+for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p></li>
 </ul>
 <p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
 </section>
@@ -121,8 +118,8 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </pre></div>
 </div>
 </li>
-<li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.</p></li>
-<li><p>The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
+<li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
+The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
 <span class="nt">modelRepository</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># Set to `true` to enable model repository mounting</span>
@@ -158,7 +155,7 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </ul>
 </section>
 <section id="select-resources-for-triton-pods">
-<h3>3. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
+<h3>1. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
 <ul>
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>

@@ -12,7 +12,7 @@ Triton Inference Server Configuration
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
 - You can also use custom-built Triton images.
 - Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_ 
-    for compatibility information (CUDA versions, NVIDIA drivers, etc.).
+  for compatibility information (CUDA versions, NVIDIA drivers, etc.).
 
 Triton version must be specified in the ``triton.image`` parameter in the values file.
 
@@ -39,7 +39,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
         --exit-timeout-secs=60 
 
 - Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-- The following options for model repository mouning are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
+  The following options for model repository mouning are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
 
   .. code-block:: yaml
 
@@ -73,7 +73,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        server:
        path:
 
-3. Select resources for Triton pods.
+1. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
