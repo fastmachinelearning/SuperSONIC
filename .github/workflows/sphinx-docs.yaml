@@ -44,9 +44,6 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          git rm -r docs/*
-          rm -rf docs
-
           # Move newly built docs into root
           rm -rf _*
           rm -rf .*
