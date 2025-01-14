@@ -43,8 +43,8 @@ jobs:
         run: |
             git fetch origin gh-pages:gh-pages
             git checkout gh-pages
-            git rm -r --cached .cr-release-packages/
             git checkout ${{ github.ref }} -- helm/supersonic/artifacthub-repo.yaml
             git add helm/supersonic/artifacthub-repo.yaml
+            git rm -r --cached .cr-release-packages/
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}"
             git push origin gh-pages
