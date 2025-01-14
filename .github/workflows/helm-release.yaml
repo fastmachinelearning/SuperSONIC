@@ -1,4 +1,4 @@
-name: Release Helm Chart
+name: helm-release
 
 on:
   push:
@@ -19,10 +19,8 @@ jobs:
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
+        env:
+            CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          owner: fastmachinelearning
-          repo: SuperSONIC
           pages_branch: gh-pages
-          pages_directory: charts
           charts_dir: helm

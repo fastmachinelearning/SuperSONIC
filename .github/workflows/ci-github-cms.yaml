@@ -48,7 +48,7 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          helm upgrade --install supersonic ./helm \
+          helm upgrade --install supersonic ./helm/supersonic \
             --values values/values-cms-ci.yaml -n cms
 
       - name: CVMFS Mount ready
