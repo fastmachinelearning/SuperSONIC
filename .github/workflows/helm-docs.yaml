@@ -27,7 +27,7 @@ jobs:
       - name: Run helm-docs
         run: |
           cd docs/
-          helm-docs --template-files=.values-table.md.gotmpl \
+          helm-docs --template-files=../../docs/.values-table.md.gotmpl \
             --sort-values-order=file --output-file=../../docs/.values-table.md \
             --chart-search-root=../helm/supersonic
 
