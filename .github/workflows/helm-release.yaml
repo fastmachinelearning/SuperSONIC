@@ -37,6 +37,7 @@ jobs:
           charts_dir: helm
           skip_existing: true
           mark_as_latest: true
+          packages_with_index: false
 
       - name: Copy artifacthub-repo.yaml to gh-pages
         run: |
