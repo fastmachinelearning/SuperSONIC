@@ -23,6 +23,7 @@ Installation
       .. code:: shell
 
          helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
+         helm repo update
          helm install <release-name> supersonic/supersonic --values <your-values.yaml> -n <namespace>
 
       Use a unique meaningful lowercase value as <release-name>, for example

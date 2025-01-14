@@ -46,7 +46,7 @@ jobs:
         
             # Switch to gh-pages branch
             git checkout gh-pages
-            
+
             # Copy artifacthub-repo.yaml from the current branch
             git checkout "${{ github.ref }}" -- helm/supersonic/artifacthub-repo.yaml
         

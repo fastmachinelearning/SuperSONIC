@@ -24,6 +24,7 @@ The main components of SuperSONIC are:
 
 ```
 helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
+helm repo update
 helm install <release-name> supersonic/supersonic --values <your-values.yaml> -n <namespace>
 ```
 
