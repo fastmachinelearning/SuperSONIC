@@ -6,7 +6,7 @@ The following guide will help you configure ``values.yaml`` file for a SuperSONI
 Triton Inference Server Configuration
 ****************************************
 
-#. Select a Triton Inference Server version
+1. Select a Triton Inference Server version
 =============================================
 
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
@@ -16,7 +16,7 @@ Triton Inference Server Configuration
 
 Triton version must be specified in the ``triton.image`` parameter in the values file.
 
-#. Configure Triton model repository.
+2. Configure Triton model repository.
 =============================================
    
 - Model repositories are specified in the ``triton.args`` parameter in the values file.
@@ -73,7 +73,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        server:
        path:
 
-#. Select resources for Triton pods.
+3. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
@@ -108,14 +108,14 @@ Envoy Proxy Configuration
 
 By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
 
-#. Configure external endpoint for Envoy Proxy.
+4. Configure external endpoint for Envoy Proxy.
 ================================================
 
 Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.
 
 There are two options:
 
-1. **Ingress**: Use an Ingress to expose the Envoy proxy to the outside world.
+-  **Ingress**: Use an Ingress to expose the Envoy proxy to the outside world.
    You can configure the Ingress resource via the ``ingress`` parameters in the values file:
 
    .. code-block:: yaml
@@ -126,7 +126,7 @@ There are two options:
 
    In this case, the client connections should be established to  ``<ingress_url>:443`` and use SSL.
 
-2. **LoadBalancer Service**: This option allows to expose the Envoy proxy without using Ingress, but it may
+-  **LoadBalancer Service**: This option allows to expose the Envoy proxy without using Ingress, but it may
    not be allowed at some Kubernetes clusters. To enable this, set the following parameters in the values file:
 
    - ``envoy.service.type: LoadBalancer``
@@ -138,7 +138,7 @@ There are two options:
    In this case, the client connections should be established to  ``<load_balancer_url>:8001`` and NOT use SSL.
 
 
-#. (optional) Configure rate limiting in Envoy Proxy.
+5. (optional) Configure rate limiting in Envoy Proxy.
 ======================================================
    
 There are two types of rate limiting available in Envoy Proxy: *listener-level*, and *prometheus-based*.
@@ -179,7 +179,7 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 Prometheus Configuration
 ****************************************
 
-#. (optional) Connect to Prometheus server.
+6. (optional) Connect to Prometheus server.
 ======================================================
 
 If you are using either the Prometheus-based rate limiter or the KEDA autoscaler,
@@ -199,7 +199,7 @@ When the metric value exceeds the threshold, the following happens:
 Autoscaler Configuration
 ****************************************
 
-#. (optional) Enable KEDA autoscaler.
+7. (optional) Enable KEDA autoscaler.
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
