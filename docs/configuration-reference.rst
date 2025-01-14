@@ -2,5 +2,5 @@
 Configuration Reference
 ----------------------------
 
-.. include:: configuration-reference.md
+.. include:: .values-table.md
    :parser: myst_parser.sphinx_

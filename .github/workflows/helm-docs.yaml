@@ -27,8 +27,8 @@ jobs:
       - name: Run helm-docs
         run: |
           cd docs/
-          helm-docs --template-files=configuration-reference.md.gotmpl \
-            --sort-values-order=file --output-file=../../docs/configuration-reference.md \
+          helm-docs --template-files=.values-table.md.gotmpl \
+            --sort-values-order=file --output-file=../../docs/.values-table.md \
             --chart-search-root=../helm/supersonic
 
       - name: Copy README.md from root
@@ -46,7 +46,7 @@ jobs:
 
           # Add and commit changes
           git pull
-          git add helm/supersonic/README.md docs/configuration-reference.md
+          git add helm/supersonic/README.md docs/.values-table.md
           git commit -m "Update helm docs" || echo "No changes to commit"
 
           # Push changes back to the same branch
