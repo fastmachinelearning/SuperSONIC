@@ -84,7 +84,8 @@
              
   <section id="configuration-guide">
 <h1>Configuration Guide<a class="headerlink" href="#configuration-guide" title="Link to this heading"></a></h1>
-<p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.</p>
+<p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.
+The full list of parameters can be found in the <a class="reference external" href="configuration-reference">Configuration Reference</a>.</p>
 <section id="triton-inference-server-configuration">
 <h2>Triton Inference Server Configuration<a class="headerlink" href="#triton-inference-server-configuration" title="Link to this heading"></a></h2>
 <section id="select-a-triton-inference-server-version">
@@ -100,6 +101,8 @@ for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p></li>
 <section id="configure-triton-model-repository">
 <h3>2. Configure Triton model repository.<a class="headerlink" href="#configure-triton-model-repository" title="Link to this heading"></a></h3>
 <ul>
+<li><p>To learn about the structure of model repositories, refer to the
+<a class="reference external" href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html">NVIDIA Model Repository Guide</a>.</p></li>
 <li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">triton.args</span></code> parameter in the values file.
 The parameter contains the full command that launches a Triton server; you can specify
 one or multiple model repositories via the <code class="docutils literal notranslate"><span class="pre">--model-repository</span></code> flag.</p></li>
@@ -119,43 +122,46 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </div>
 </li>
 <li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
-<span class="nt">modelRepository</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># Set to `true` to enable model repository mounting</span>
-<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-
-<span class="w">  </span><span class="c1"># -- Model repository mount path (e.g /cvmfs/)</span>
-<span class="w">  </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-
-<span class="w">  </span><span class="c1">## Model repository options:</span>
-
-<span class="w">  </span><span class="c1">## Option 1: mount an arbitrary PersistentVolumeClaim</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pvc&quot;</span>
-<span class="w">  </span><span class="nt">pvc</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">claimName</span><span class="p">:</span>
-
-<span class="w">  </span><span class="c1">## -- OR --</span>
-<span class="w">  </span><span class="c1">## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs-pvc&quot;</span>
-
-<span class="w">  </span><span class="c1">## -- OR --</span>
-<span class="w">  </span><span class="c1">## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs&quot;</span>
-
-<span class="w">  </span><span class="c1">## -- OR --</span>
-<span class="w">  </span><span class="c1">## Option 4: mount an NFS storage volume</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nfs&quot;</span>
-<span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">server</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">path</span><span class="p">:</span>
-</pre></div>
-</div>
-</li>
+The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
 </ul>
-</section>
+<details>
+<summary>Model repository configuration</summary>
+
+.. code-block:: yaml
+
+    # -- Model repository configuration
+    modelRepository:
+      # Set to `true` to enable model repository mounting
+      enabled: true
+
+      # -- Model repository mount path (e.g /cvmfs/)
+      mountPath: ""
+
+      ## Model repository options:
+
+      ## Option 1: mount an arbitrary PersistentVolumeClaim
+      storageType: "pvc"
+      pvc:
+      claimName:
+
+      ## -- OR --
+      ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
+      storageType: "cvmfs-pvc"
+
+      ## -- OR --
+      ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
+      storageType: "cvmfs"
+
+      ## -- OR --
+      ## Option 4: mount an NFS storage volume
+      storageType: "nfs"
+      nfs:
+      server:
+      path:
+
+</details></section>
 <section id="select-resources-for-triton-pods">
-<h3>1. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
+<h3>3. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
 <ul>
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>
