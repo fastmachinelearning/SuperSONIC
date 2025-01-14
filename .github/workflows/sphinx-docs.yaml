@@ -45,6 +45,7 @@ jobs:
           git config user.email "actions@github.com"
 
           git rm -r docs/*
+          rm -rf docs
 
           # Move newly built docs into docs/
           mv docs-build docs

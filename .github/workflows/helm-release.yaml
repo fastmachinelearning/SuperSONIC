@@ -1,4 +1,4 @@
-name: helm-release
+name: helm release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "**"
 
 jobs:
-  release:
+  helm-release:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
