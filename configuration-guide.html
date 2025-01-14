@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration Guide &mdash; SuperSONIC  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=cba22156" />
+
+  
+    <link rel="shortcut icon" href="_static/SuperSONIC_small.svg"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/SuperSONIC_light.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration-reference.html">Configuration Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SuperSONIC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration Guide</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/configuration-guide.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration-guide">
+<h1>Configuration Guide<a class="headerlink" href="#configuration-guide" title="Link to this heading"></a></h1>
+<p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.</p>
+<section id="triton-inference-server-configuration">
+<h2>Triton Inference Server Configuration<a class="headerlink" href="#triton-inference-server-configuration" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Select a Triton Inference Server version.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
+<li><p>You can also use custom-built Triton images.</p></li>
+<li><p>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a>
+for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p></li>
+</ul>
+</div></blockquote>
+<p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
+</li>
+<li><p>Configure Triton model repository.</p>
+<ul class="simple">
+<li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">triton.args</span></code> parameter in the values file.
+The parameter contains the full command that launches a Triton server; you can specify
+one or multiple model repositories via the <code class="docutils literal notranslate"><span class="pre">--model-repository</span></code> flag.</p></li>
+<li><p>For example, the following command loads multiple CMS models hosted at CVMFS:</p></li>
+</ul>
+<blockquote>
+<div><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">args</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">/opt/tritonserver/bin/tritonserver \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--allow-gpu-metrics=true \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--log-verbose=0 \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--strict-model-config=false \</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--exit-timeout-secs=60</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.</p></li>
+<li><p>The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
+<span class="nt">modelRepository</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Set to `true` to enable model repository mounting</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="c1"># -- Model repository mount path (e.g /cvmfs/)</span>
+<span class="w">  </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">  </span><span class="c1">## Model repository options:</span>
+
+<span class="w">  </span><span class="c1">## Option 1: mount an arbitrary PersistentVolumeClaim</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pvc&quot;</span>
+<span class="w">  </span><span class="nt">pvc</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">claimName</span><span class="p">:</span>
+
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs-pvc&quot;</span>
+
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs&quot;</span>
+
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 4: mount an NFS storage volume</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nfs&quot;</span>
+<span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">server</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Select resources for Triton pods.</p>
+<ul>
+<li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>
+<span class="nt">resources</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">limits</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> nvidia.com/gpu</span><span class="p">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">16G</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> nvidia.com/gpu</span><span class="p">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">16G</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Alternatively, you can use <code class="docutils literal notranslate"><span class="pre">triton.affinity</span></code> to steer Triton pods to nodes with specific GPU models.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example:</span>
+<span class="nt">affinity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodeAffinity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requiredDuringSchedulingIgnoredDuringExecution</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nodeSelectorTerms</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">matchExpressions</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia.com/gpu.product</span>
+<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
+<span class="w">            </span><span class="nt">values</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-A10</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-A40</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-L40</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-L4</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="envoy-proxy-configuration">
+<h2>Envoy Proxy Configuration<a class="headerlink" href="#envoy-proxy-configuration" title="Link to this heading"></a></h2>
+<p>By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.</p>
+<ol class="arabic" start="5">
+<li><p>Configure external endpoint for Envoy Proxy.</p>
+<p>Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.</p>
+<p>There are two options:</p>
+<ol class="arabic">
+<li><p><strong>Ingress</strong>: Use an Ingress to expose the Envoy proxy to the outside world.
+You can configure the Ingress resource via the <code class="docutils literal notranslate"><span class="pre">ingress</span></code> parameters in the values file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_url&gt;&quot;</span>
+</pre></div>
+</div>
+<p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;ingress_url&gt;:443</span></code> and use SSL.</p>
+</li>
+<li><p><strong>LoadBalancer Service</strong>: This option allows to expose the Envoy proxy without using Ingress, but it may
+not be allowed at some Kubernetes clusters. To enable this, set the following parameters in the values file:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">envoy.service.type:</span> <span class="pre">LoadBalancer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ingress.enabled:</span> <span class="pre">false</span></code></p></li>
+</ul>
+<p>The LoadBalancer service can then be mapped to an external URL, depending on the settings of a given cluster.
+Please contact cluster administrators for more information.</p>
+<p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;load_balancer_url&gt;:8001</span></code> and NOT use SSL.</p>
+</li>
+</ol>
+</li>
+<li><p>(optional) Configure rate limiting in Envoy Proxy.</p>
+<p>There are two types of rate limiting available in Envoy Proxy: <em>listener-level</em>, and <em>prometheus-based</em>.</p>
+<ul>
+<li><p><strong>Listener-level rate limiting</strong> allows to explicitly limit the number of client connections established to the Envoy proxy endpoint.
+It can be useful to prevent overloading the proxy with too many simultaneous client connections.</p>
+<p>The listener-level rate limiting is implemented via “token bucket” algorithm.
+Each new connection consumes a token from the bucket, and the bucket is refilled at a constant rate.</p>
+<p>Example configuration in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
+</li>
+<li><p><strong>Prometheus-based rate limiting</strong> allows an additional layer of rate limiting based on a metric queried from a Prometheus server.
+This can be useful to dynamically control server load and stop accepting new connections when GPUs are saturated.</p>
+<p>This rate limiter can be enabled via the <code class="docutils literal notranslate"><span class="pre">envoy.rate_limiter.prometheus_based</span></code> parameter in the values file.</p>
+<p>At the moment, this functionality is configured to only reject <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests to Triton servers, and it ignores
+any other requests in order not to slow down the inferences.</p>
+<p>The metric and thershold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see below).</p>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="prometheus-configuration">
+<h2>Prometheus Configuration<a class="headerlink" href="#prometheus-configuration" title="Link to this heading"></a></h2>
+<ol class="arabic" start="7">
+<li><p>(optional) Connect to Prometheus server.</p>
+<p>If you are using either the Prometheus-based rate limiter or the KEDA autoscaler,
+you need to connect SuperSONIC to an existing Prometheus server. This is done via
+the <code class="docutils literal notranslate"><span class="pre">prometheus.url</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus.port</span></code> parameters in the values file,
+and you can choose between <code class="docutils literal notranslate"><span class="pre">http</span></code> and <code class="docutils literal notranslate"><span class="pre">https</span></code> schemes using <code class="docutils literal notranslate"><span class="pre">prometheus.scheme</span></code> parameter.</p>
+<p>Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
+They are defined in the <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code> parameters in the values file.
+The default metric is the inference queue time at the Triton servers, as defined
+<a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/blob/1793fdad3bf74bf9cdf33737b64c5f8486a6357f/helm/supersonic/templates/_helpers.tpl#L22">here</a>.</p>
+<p>When the metric value exceeds the threshold, the following happens:
+- Autoscaler scales up the number of Triton servers if possible.
+- Envoy proxy rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests.</p>
+</li>
+</ol>
+</section>
+<section id="autoscaler-configuration">
+<h2>Autoscaler Configuration<a class="headerlink" href="#autoscaler-configuration" title="Link to this heading"></a></h2>
+<ol class="arabic" start="8">
+<li><p>(optional) Enable KEDA autoscaler.</p>
+<blockquote>
+<div><p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
+can be enabled via the <code class="docutils literal notranslate"><span class="pre">autoscaler.enabled</span></code> parameter in the values file.</p>
+<p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicas</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicas</span></code> define the range in which
+the number of Triton servers can scale.</p>
+<p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">autoscaler</span><span class="p">:</span>
+
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">  </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+
+<span class="w">  </span><span class="nt">scaleUp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">    </span><span class="nt">period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">scaleDown</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">    </span><span class="nt">period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fast Machine Learning Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
