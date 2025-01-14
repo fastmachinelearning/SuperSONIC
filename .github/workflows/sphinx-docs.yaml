@@ -3,7 +3,7 @@ name: sphinx docs
 on:
   push:
     branches:
-      - '**'
+      - 'master'
 
 jobs:
   build-and-deploy:
