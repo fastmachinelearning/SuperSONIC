@@ -35,3 +35,5 @@ jobs:
         with:
           pages_branch: gh-pages
           charts_dir: helm
+          skip_existing: true
+          mark_as_latest: true
