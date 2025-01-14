@@ -2,5 +2,5 @@
 Configuration Reference
 ----------------------------
 
-.. include:: ../helm/README.md
+.. include:: .values-table.md
    :parser: myst_parser.sphinx_

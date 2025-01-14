@@ -1,0 +1,61 @@
+name: helm release
+
+on:
+  push:
+    branches:
+      - "master"
+
+
+jobs:
+  helm-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Configure GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        env:
+            CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          pages_branch: gh-pages
+          charts_dir: helm
+          skip_existing: true
+          mark_as_latest: true
+          packages_with_index: false
+
+      - name: Copy artifacthub-repo.yaml to gh-pages
+        run: |
+            # Fetch gh-pages locally so we can switch to it
+            git fetch origin gh-pages:gh-pages
+        
+            # Switch to gh-pages branch
+            git checkout gh-pages
+            
+            # Copy artifacthub-repo.yaml from the current branch
+            git checkout "${{ github.ref }}" -- helm/supersonic/artifacthub-repo.yaml
+        
+            # Move it into the root level as requested
+            mv helm/supersonic/artifacthub-repo.yaml artifacthub-repo.yaml
+        
+            # Stage and commit
+            git add artifacthub-repo.yaml
+            git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
+        
+            # Push to gh-pages
+            git push origin gh-pages

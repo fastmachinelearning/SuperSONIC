@@ -1,20 +1,55 @@
-name: docs
+name: sphinx docs
 
 on:
   push:
     branches:
-      - "master"
-      - "docs"
+      - 'master'
 
 jobs:
-  pages:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
+
     steps:
-    - id: deployment
-      uses: sphinx-notes/pages@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Build Sphinx documentation
+        run: |
+          mkdir -p docs-build
+          sphinx-build docs/ docs-build/
+
+      - name: Switch to gh-pages branch
+        run: |
+          git pull
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+      - name: Add CNAME file for custom domain
+        run: echo "fastmachinelearning.org/SuperSONIC" > docs-build/CNAME
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Move newly built docs into root
+          rm -rf _*
+          rm -rf .doctrees .buildinfo .nojekyll
+          mv docs-build/* docs-build/.* .
+          rm -rf docs-build
+          git add .
+          git commit -m "Update Sphinx documentation" || echo "No changes to commit"
+          git push origin gh-pages
