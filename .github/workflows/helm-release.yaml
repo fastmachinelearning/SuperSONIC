@@ -3,7 +3,7 @@ name: helm release
 on:
   push:
     branches:
-      - "master"
+      - "**"
 
 
 jobs:
@@ -41,9 +41,21 @@ jobs:
 
       - name: Copy artifacthub-repo.yaml to gh-pages
         run: |
+            # Fetch gh-pages locally so we can switch to it
             git fetch origin gh-pages:gh-pages
+        
+            # Switch to gh-pages branch
             git checkout gh-pages
-            git checkout ${{ github.ref }} -- helm/supersonic/artifacthub-repo.yaml
-            git add helm/supersonic/artifacthub-repo.yaml
-            git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" || echo "No changes to commit"
+            
+            # Copy artifacthub-repo.yaml from the current branch
+            git checkout "${{ github.ref }}" -- helm/supersonic/artifacthub-repo.yaml
+        
+            # Move it into the root level as requested
+            mv helm/supersonic/artifacthub-repo.yaml artifacthub-repo.yaml
+        
+            # Stage and commit
+            git add artifacthub-repo.yaml
+            git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
+        
+            # Push to gh-pages
             git push origin gh-pages
