@@ -30,6 +30,7 @@ jobs:
 
       - name: Switch to gh-pages branch
         run: |
+          git pull
           git fetch origin gh-pages
           git checkout gh-pages
 
