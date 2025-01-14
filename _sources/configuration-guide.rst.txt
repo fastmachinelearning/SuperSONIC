@@ -82,11 +82,14 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      path:
 
 .. raw:: html
+
    </details>
 
+.. raw:: html
 
+    <br><br>
 
-3. Select resources for Triton pods.
+1. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
