@@ -48,8 +48,8 @@ jobs:
           rm -rf docs
 
           # Move newly built docs into root
-          mv docs-build/* .
+          mv docs-build/* docs-build/.* .
           rm -rf docs-build
-          git add *
+          git add .
           git commit -m "Update Sphinx documentation" || echo "No changes to commit"
           git push origin gh-pages
