@@ -3,7 +3,7 @@ name: helm release
 on:
   push:
     branches:
-      - "**"
+      - "master"
 
 
 jobs:
@@ -53,8 +53,6 @@ jobs:
             # Move it into the root level as requested
             mv helm/supersonic/artifacthub-repo.yaml artifacthub-repo.yaml
         
-            git rm -r helm/supersonic/
-
             # Stage and commit
             git add artifacthub-repo.yaml
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
