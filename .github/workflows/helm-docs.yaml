@@ -28,7 +28,7 @@ jobs:
         run: |
           cd docs/
           helm-docs --template-files=configuration-reference.md.gotmpl \
-            --sort-values-order=file --output-file=configuration-reference.md \
+            --sort-values-order=file --output-file=../../docs/configuration-reference.md \
             --chart-search-root=../helm/supersonic
 
       - name: Copy README.md from root
