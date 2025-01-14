@@ -47,47 +47,49 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 .. raw:: html
 
     <details>
-    <summary>Model repository configuration</summary>
+    <summary>Model repository options</summary>
 
-    .. code-block:: yaml
+.. code-block:: yaml
 
-        # -- Model repository configuration
-        modelRepository:
-          # Set to `true` to enable model repository mounting
-          enabled: true
+   # -- Model repository configuration
+   modelRepository:
+     # Set to `true` to enable model repository mounting
+     enabled: true
 
-          # -- Model repository mount path (e.g /cvmfs/)
-          mountPath: ""
+     # -- Model repository mount path (e.g /cvmfs/)
+     mountPath: ""
 
-          ## Model repository options:
+     ## Model repository options:
 
-          ## Option 1: mount an arbitrary PersistentVolumeClaim
-          storageType: "pvc"
-          pvc:
-          claimName: 
+     ## Option 1: mount an arbitrary PersistentVolumeClaim
+     storageType: "pvc"
+     pvc:
+     claimName: 
 
-          ## -- OR --
-          ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
-          storageType: "cvmfs-pvc"
-          
-          ## -- OR --
-          ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-          storageType: "cvmfs"
+     ## -- OR --
+     ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
+     storageType: "cvmfs-pvc"
+     
+     ## -- OR --
+     ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
+     storageType: "cvmfs"
 
-          ## -- OR --
-          ## Option 4: mount an NFS storage volume
-          storageType: "nfs"
-          nfs:
-          server:
-          path:
+     ## -- OR --
+     ## Option 4: mount an NFS storage volume
+     storageType: "nfs"
+     nfs:
+     server:
+     path:
 
-    </details>
+   </details>
+
+|
 
 3. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
-     
+
   .. code-block:: yaml
 
      # Example:
@@ -118,7 +120,7 @@ Envoy Proxy Configuration
 
 By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
 
-4. Configure external endpoint for Envoy Proxy.
+1. Configure external endpoint for Envoy Proxy.
 ================================================
 
 Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.

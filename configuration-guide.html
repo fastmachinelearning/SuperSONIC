@@ -125,41 +125,43 @@ one or multiple model repositories via the <code class="docutils literal notrans
 The following options for model repository mouning are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
 </ul>
 <details>
-<summary>Model repository configuration</summary>
+<summary>Model repository options</summary><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
+<span class="nt">modelRepository</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Set to `true` to enable model repository mounting</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-.. code-block:: yaml
+<span class="w">  </span><span class="c1"># -- Model repository mount path (e.g /cvmfs/)</span>
+<span class="w">  </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 
-    # -- Model repository configuration
-    modelRepository:
-      # Set to `true` to enable model repository mounting
-      enabled: true
+<span class="w">  </span><span class="c1">## Model repository options:</span>
 
-      # -- Model repository mount path (e.g /cvmfs/)
-      mountPath: ""
+<span class="w">  </span><span class="c1">## Option 1: mount an arbitrary PersistentVolumeClaim</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pvc&quot;</span>
+<span class="w">  </span><span class="nt">pvc</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">claimName</span><span class="p">:</span>
 
-      ## Model repository options:
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs-pvc&quot;</span>
 
-      ## Option 1: mount an arbitrary PersistentVolumeClaim
-      storageType: "pvc"
-      pvc:
-      claimName:
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs&quot;</span>
 
-      ## -- OR --
-      ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
-      storageType: "cvmfs-pvc"
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 4: mount an NFS storage volume</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nfs&quot;</span>
+<span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span>
 
-      ## -- OR --
-      ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-      storageType: "cvmfs"
-
-      ## -- OR --
-      ## Option 4: mount an NFS storage volume
-      storageType: "nfs"
-      nfs:
-      server:
-      path:
-
-</details></section>
+<span class="l l-Scalar l-Scalar-Plain">&lt;/details&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
 <section id="select-resources-for-triton-pods">
 <h3>3. Select resources for Triton pods.<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h3>
 <ul>
@@ -195,7 +197,7 @@ The following options for model repository mouning are provided via <code class=
 <h2>Envoy Proxy Configuration<a class="headerlink" href="#envoy-proxy-configuration" title="Link to this heading"></a></h2>
 <p>By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.</p>
 <section id="configure-external-endpoint-for-envoy-proxy">
-<h3>4. Configure external endpoint for Envoy Proxy.<a class="headerlink" href="#configure-external-endpoint-for-envoy-proxy" title="Link to this heading"></a></h3>
+<h3>1. Configure external endpoint for Envoy Proxy.<a class="headerlink" href="#configure-external-endpoint-for-envoy-proxy" title="Link to this heading"></a></h3>
 <p>Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.</p>
 <p>There are two options:</p>
 <ul>
