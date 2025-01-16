@@ -2,19 +2,25 @@
 
 {{- $scaleUp := .Values.autoscaler.scaleUp | default dict }}
 {{- $scaleDown := .Values.autoscaler.scaleDown | default dict }}
-{{- $prometheusAddress := printf "http://%s:%d" .Values.prometheus.url (int .Values.prometheus.port) | quote }}
+{{- $prometheusAddress := printf "%s://%s:%d" .Values.prometheus.scheme .Values.prometheus.url (int .Values.prometheus.port) | quote }}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ .Values.envoy.name }}-tritonserver-scaledobject
+  name: {{ include "supersonic.name" . }}-keda-so
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: keda
 spec:
   scaleTargetRef:
-    name: {{ .Values.triton.name }}
+    name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
   pollingInterval: 30
   cooldownPeriod: 120
+{{- if (eq .Values.autoscaler.zeroIdleReplicas true) }}
   idleReplicaCount: 0
+{{- end }}
   minReplicaCount: {{ default 1 .Values.autoscaler.minReplicas }}
   maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicas }}
   advanced:
@@ -39,9 +45,9 @@ spec:
     metadata:
       serverAddress: {{ $prometheusAddress }}
       metricName: autoscaler-metric
-      threshold: {{ .Values.prometheus.serverAvailabilityThreshold | quote }}
-      query: {{ .Values.prometheus.serverAvailabilityMetric | quote }}
-
+      threshold: {{ .Values.prometheus.serverLoadThreshold | quote }}
+      query: |-
+        {{ include "supersonic.defaultMetric" . | nindent 8 }}
 ---
 
 

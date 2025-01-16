@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "supersonic.tritonName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: triton
+    {{- if .Values.triton.service.labels }}
+{{ toYaml .Values.triton.service.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if .Values.triton.service.annotations }}
+{{ toYaml .Values.triton.service.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  clusterIP: None
+  ports:
+  {{- range .Values.triton.service.ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort }}
+    protocol: {{ .protocol }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: triton

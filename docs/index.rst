@@ -5,6 +5,7 @@
     
     Home <self>
     getting-started
+    configuration-guide
     configuration-reference
 
 SuperSONIC

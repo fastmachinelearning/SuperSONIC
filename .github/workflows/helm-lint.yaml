@@ -2,7 +2,8 @@ name: helm lint
 
 on:
   push:
-    branches: ["**"]
+    branches: 
+      - "**"
 
 jobs:
   helm-lint:
@@ -17,9 +18,38 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml genson
+
+      - name: Generate JSON schema
+        run: |
+          python ci/yaml-to-schema.py helm/supersonic/values.yaml helm/supersonic/values.schema.json
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure Git user
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Add and commit changes
+          git pull
+          git add helm/supersonic/values.schema.json
+          git commit -m "Update JSON schema" || echo "No changes to commit"
+
+          # Push changes back to the same branch
+          git push origin HEAD
+
       - name: Lint values.yaml files in values/ directory
         run: |
-          CHART_PATH="helm/"
+          CHART_PATH="helm/supersonic/"
           VALUES_DIR="values/"
 
           for VALUES_FILE in "$VALUES_DIR"/*.yaml; do

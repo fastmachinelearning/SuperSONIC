@@ -1,16 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.triton.name }}
+  name: {{ include "supersonic.tritonName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: triton
 spec:
   replicas: {{ .Values.triton.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.triton.name }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: triton
   template:
     metadata:
       labels:
-        app: {{ .Values.triton.name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: triton
     spec:
       terminationGracePeriodSeconds: 60
       containers:
@@ -25,10 +33,12 @@ spec:
           protocol: {{ .protocol }}
         {{- end }}
         volumeMounts:
+          {{- if .Values.triton.modelRepository.enabled }}
           - name: model-repository
             mountPath: {{ .Values.triton.modelRepository.mountPath }}
             mountPropagation: HostToContainer
             readOnly: true
+          {{- end }}
         command: {{ toYaml .Values.triton.command | nindent 10 }}
         args:  {{ toYaml .Values.triton.args | nindent 10 }}
         startupProbe:
@@ -37,6 +47,7 @@ spec:
           httpGet:
             path: /v2/health/ready
             port: http
+{{- if not (eq .Values.triton.resetReadinessProbe true) }}
         readinessProbe:
           exec:
             command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
@@ -45,33 +56,30 @@ spec:
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 10
+{{- end }}
         lifecycle:
           preStop:
             exec:
               command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
-{{- if eq .Values.triton.modelRepository.storageType "nfs" }}
       volumes:
+      {{- if .Values.triton.modelRepository.enabled }}
       - name: model-repository
+      {{- if eq .Values.triton.modelRepository.storageType "nfs" }}
         nfs:
           server: {{ .Values.triton.modelRepository.nfs.server }}
           path: {{ .Values.triton.modelRepository.nfs.path }}
-{{- else if eq .Values.triton.modelRepository.storageType "pvc" }}
-      volumes:
-      - name: model-repository
+      {{- else if eq .Values.triton.modelRepository.storageType "pvc" }}
         persistentVolumeClaim:
           claimName: {{ .Values.triton.modelRepository.pvc.claimName }}
-{{- else if eq .Values.triton.modelRepository.storageType "cvmfs-hostPath" }}
-      volumes:
-      - name: model-repository
+      {{- else if eq .Values.triton.modelRepository.storageType "cvmfs-hostPath" }}
         hostPath: 
           path: /cvmfs
-{{- else if eq .Values.triton.modelRepository.storageType "cvmfs-pvc" }}
-      volumes:
-      - name: model-repository
+      {{- else if eq .Values.triton.modelRepository.storageType "cvmfs-pvc" }}
         persistentVolumeClaim:
           claimName: cvmfs
           readOnly: true
-{{- end }}
+      {{- end }}
+      {{- end }}
 
 {{- if .Values.triton.affinity }}
       affinity: {{ toYaml .Values.triton.affinity | nindent 8}}

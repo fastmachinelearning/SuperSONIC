@@ -1,2 +1,2 @@
-helm upgrade --install super-sonic helm \
-  --values values/values-geddes-cms.yaml -n cms
+helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
+helm install supersonic supersonic/supersonic --values values/values-geddes-cms.yaml -n cms
