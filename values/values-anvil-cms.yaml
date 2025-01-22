@@ -1,4 +1,4 @@
-triton: 
+triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   image: fastml/triton-torchgeo:22.07-py3-geometric # run3
   command: ["/bin/sh", "-c"]
@@ -10,49 +10,38 @@ triton:
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
       --allow-gpu-metrics=true \
-      --log-verbose=0 \
+      --log-verbose=1 \
       --strict-model-config=false \
-      --exit-timeout-secs=60
+      --exit-timeout-secs=60 \
+      --backend-config=onnxruntime,enable-global-threadpool=1
   resources:
-    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-  service:
-    labels:
-      scrape_metrics: "true"
-    annotations:
-      metallb.universe.tf/address-pool: geddes-private-pool
+    limits: { cpu: 2, memory: 16G}
+    requests: { cpu: 2, memory: 16G}
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                  - NVIDIA-A10
+                  - NVIDIA-A100-SXM4-80GB
 envoy:
   enabled: true
-  rate_limiter:
-    listener_level:
-      enabled: true
-      max_tokens: 20
-      tokens_per_fill: 5
-      fill_interval: 60s
-  service:
-    type: LoadBalancer
-prometheus:
-  url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-  port: 8080
-  scheme: http
-  serverLoadThreshold: 100
-
+# prometheus:
+#   url: "prometheus.nrp-nautilus.io"
+#   port: 443
+#   scheme: https
+#   serverLoadThreshold: 10
 autoscaler:
-  enabled: true
+  enabled: False
   minReplicas: 1
-  maxReplicas: 7
-
+  maxReplicas: 5
 ingress:
-  enabled: false
-
-nodeSelector: {'cms-af-prod': 'true'}
-
-tolerations:
-  - key: hub.jupyter.org/dedicated
-    operator: Equal
-    value: cms-af
-    effect: NoSchedule
+  enabled: true
+  hostName: sonic-cms.anvilcloud.rcac.purdue.edu

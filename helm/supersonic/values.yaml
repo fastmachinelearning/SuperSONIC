@@ -88,10 +88,10 @@ envoy:
   # Note: an Envoy Proxy with too many connections might run out of CPU
   resources:
     requests:
-      cpu: 1
+      cpu: 2
       memory: "2G"
     limits:
-      cpu: 2
+      cpu: 4
       memory: "4G"
   service:
     # -- This is the client-facing endpoint. In order to be able to connect to it,
@@ -154,12 +154,12 @@ autoscaler:
   zeroIdleReplicas: false
 
   scaleUp:
-    window: 120
-    period: 30
+    window: 5
+    period: 120
     stepsize: 1
   scaleDown:
-    window: 120
-    period: 30
+    window: 600
+    period: 120
     stepsize: 1
 
 # -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
