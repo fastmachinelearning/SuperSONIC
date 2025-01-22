@@ -424,11 +424,19 @@
         },
         "hostName": {
           "type": "string"
+        },
+        "ingressClassName": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object"
         }
       },
       "required": [
+        "annotations",
         "enabled",
-        "hostName"
+        "hostName",
+        "ingressClassName"
       ]
     },
     "nodeSelector": {
