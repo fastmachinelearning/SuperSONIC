@@ -61,7 +61,7 @@ jobs:
 
       - name: Triton server ready
         run: |  
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 600s -n cms
 
       - name: Autoscaler ready
         run: |
