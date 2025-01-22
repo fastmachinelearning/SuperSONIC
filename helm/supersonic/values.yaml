@@ -181,6 +181,8 @@ prometheus:
 ingress:
   enabled: false
   hostName: ""
+  ingressClassName: ""
+  annotations: {}
 
 # -- Node selector for all pods (Triton and Envoy)
 nodeSelector: {}
