@@ -23,9 +23,9 @@ The main components of SuperSONIC are:
 ## Installation
 
 ```
-helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
 helm repo update
-helm install <release-name> supersonic/supersonic --values <your-values.yaml> -n <namespace>
+helm install <release-name> fastml/supersonic --values <your-values.yaml> -n <namespace>
 ```
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
@@ -43,5 +43,6 @@ The full list of configuration parameters is available in the [Configuration ref
 
 |  | **[CMS](https://home.cern/science/experiments/cms)**      | **[ATLAS](https://home.cern/science/experiments/atlas)**    | **[IceCube](https://icecube.wisc.edu)**  |
 |:---|:---:|:---:|:---:|
-| **[Geddes cluster](https://www.rcac.purdue.edu/compute/geddes) (Purdue)**   | ✅ | - | - |
-| **[Nautilus cluster](https://docs.nationalresearchplatform.org) (NRP)**    | ✅  |  ⏳ |   ✅   |
+| **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
+| **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
+| **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |

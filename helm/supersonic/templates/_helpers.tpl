@@ -19,14 +19,12 @@
 {{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
 {{- else }}
-sum(
-    sum by (pod) (
-        rate(nv_inference_queue_duration_us{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m])
-    )
-    /
-    sum by (pod) (
-        (rate(nv_inference_exec_count{pod=~"{{ include "supersonic.name" . }}-triton.*"}[5m:1m]) * 1000) + 0.001
-    )
+sum by (instance) (
+    nv_inference_queue_duration_us{instance=~"{{ include "supersonic.name" . }}"}
+)
+  /
+sum by (instance) (
+    (nv_inference_exec_count{instance=~"{{ include "supersonic.name" . }}"} * 1000) + 0.001
 )
 {{- end }}
 {{- end }}

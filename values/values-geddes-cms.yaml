@@ -14,8 +14,8 @@ triton:
       --strict-model-config=false \
       --exit-timeout-secs=60
   resources:
-    limits: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
-    requests: { nvidia.com/mig-1g.5gb: 1, cpu: 2, memory: 16G}
+    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
   service:
     labels:
       scrape_metrics: "true"
@@ -23,18 +23,16 @@ triton:
       metallb.universe.tf/address-pool: geddes-private-pool
   modelRepository:
     enabled: true
-    storageType: cvmfs-hostPath
+    storageType: cvmfs-pvc
     mountPath: /cvmfs
 envoy:
   enabled: true
-  resources:
-    requests: { cpu: 8, memory: 8Gi }
-    limits: { cpu: 16, memory: 8Gi }
   rate_limiter:
-    enabled: true
-    max_tokens: 5
-    tokens_per_fill: 1
-    fill_interval: 12s
+    listener_level:
+      enabled: true
+      max_tokens: 20
+      tokens_per_fill: 5
+      fill_interval: 60s
   service:
     type: LoadBalancer
 prometheus:
@@ -46,7 +44,8 @@ prometheus:
 autoscaler:
   enabled: true
   minReplicas: 1
-  maxReplicas: 4
+  maxReplicas: 7
+
 ingress:
   enabled: false
 

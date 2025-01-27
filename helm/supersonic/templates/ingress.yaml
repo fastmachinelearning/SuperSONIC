@@ -9,18 +9,12 @@ metadata:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
   annotations:
-    haproxy-ingress.github.io/cors-enable: "true"
-    haproxy-ingress.github.io/backend-protocol: "h2"
-    haproxy-ingress.github.io/proxy-body-size: "512m"
-    haproxy-ingress.github.io/timeout-client: "5m"
-    haproxy-ingress.github.io/timeout-server: "5m"
-    haproxy-ingress.github.io/timeout-connect: "5m"
-    haproxy-ingress.github.io/timeout-http-request: "5m"
-    haproxy-ingress.github.io/timeout-queue: "1m"
-    haproxy-ingress.github.io/health-check-interval: "30s"
-    haproxy-ingress.github.io/health-check-rise-count: "1"
+    {{- if .Values.ingress.annotations }}
+{{ toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- end }}
+
 spec:
-  ingressClassName: haproxy
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   tls:
   - hosts:
       - {{ .Values.ingress.hostName }}

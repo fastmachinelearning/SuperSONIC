@@ -44,6 +44,7 @@ static_resources:
                             prefix: "/"
                           route:
                             cluster: triton_grpc_service
+                            timeout: {{ .envoy.grpc_route_timeout }}
                 http_filters:
                   {{- with .envoy.rate_limiter.prometheus_based }}
                   {{- if .enabled }}
