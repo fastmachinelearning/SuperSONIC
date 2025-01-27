@@ -232,6 +232,9 @@
             "type"
           ]
         },
+        "grpc_route_timeout": {
+          "type": "string"
+        },
         "rate_limiter": {
           "type": "object",
           "properties": {
@@ -318,6 +321,7 @@
         "args",
         "auth",
         "enabled",
+        "grpc_route_timeout",
         "image",
         "loadBalancerPolicy",
         "rate_limiter",
