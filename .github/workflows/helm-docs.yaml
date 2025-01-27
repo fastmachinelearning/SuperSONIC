@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - "**"
+  pull_request:
+    branches: 
+      - "master"
 
 jobs:
   helm-docs:
@@ -13,6 +16,9 @@ jobs:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref }}
 
       # Install helm-docs
       - name: Set up Go
@@ -51,4 +57,4 @@ jobs:
           git commit -m "Update helm docs" || echo "No changes to commit"
 
           # Push changes back to the same branch
-          git push origin HEAD
+          git push origin HEAD:${{ github.head_ref || github.ref }}
