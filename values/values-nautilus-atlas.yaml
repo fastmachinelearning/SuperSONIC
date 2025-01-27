@@ -1,10 +1,6 @@
 triton:
-<<<<<<< HEAD
   name: triton-atlas
   image: milescb/traccc-aas:v1.1
-=======
-  image: milescb/traccc-aas:v1.0
->>>>>>> 8601d218433dd440d6755b13af2c5e6d82db5fd1
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -14,12 +10,12 @@ triton:
                 operator: In
                 values:
                   - NVIDIA-A10
-                  - NVIDIA-A40
+                  # - NVIDIA-A40
                   # - NVIDIA-A100-SXM4-80GB
-                  - NVIDIA-L40
+                  # - NVIDIA-L40
                   # - NVIDIA-A100-80GB-PCIe
                   # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
-                  - NVIDIA-L4
+                  # - NVIDIA-L4
                   # - NVIDIA-A100-PCIE-40GB
                   # - NVIDIA-GH200-480GB
   command: ["/bin/sh", "-c"]
@@ -32,12 +28,14 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
+  replicas: 4
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
 envoy:
   enabled: true
+  loadBalancerPolicy: "ROUND_ROBIN"
 prometheus:
   url: "prometheus.nrp-nautilus.io"
   port: 443
