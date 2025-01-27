@@ -135,5 +135,5 @@ Deployment sites
 SuperSONIC has been successfully tested at the computing clusters listed below.
 We welcome developer help to add more computing centers to this list.
 
-- Purdue University: `Geddes cluster <https://www.rcac.purdue.edu/compute/geddes>`_.
+- Purdue University: `Geddes cluster <https://www.rcac.purdue.edu/compute/geddes>`_, `Anvil cluster <https://www.rcac.purdue.edu/compute/anvil>`_.
 - National Research Platform (NRP): `Nautilus cluster <https://docs.nationalresearchplatform.org/>`_.

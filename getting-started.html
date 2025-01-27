@@ -106,9 +106,9 @@
 </ul>
 </li>
 <li><p>Modify the following command to install the chart at your cluster:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>supersonic<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>fastml<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC
 helm<span class="w"> </span>repo<span class="w"> </span>update
-helm<span class="w"> </span>install<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>supersonic/supersonic<span class="w"> </span>--values<span class="w"> </span>&lt;your-values.yaml&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+helm<span class="w"> </span>install<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>fastml/supersonic<span class="w"> </span>--values<span class="w"> </span>&lt;your-values.yaml&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
 </pre></div>
 </div>
 <p>Use a unique meaningful lowercase value as &lt;release-name&gt;, for example
