@@ -51,21 +51,11 @@ envoy:
   enabled: true
 prometheus:
   external: false
-  url: ""
-  port: 443
-  scheme: https
   serverLoadThreshold: 10
   ingress:
     enabled: true
     hostName: prometheus-cms.nrp-nautilus.io
     ingressClassName: haproxy
-    annotations:
-      haproxy-ingress.github.io/cors-enable: "true"
-      haproxy-ingress.github.io/timeout-client: "5m"
-      haproxy-ingress.github.io/timeout-server: "5m"
-      haproxy-ingress.github.io/timeout-connect: "5m"
-      haproxy-ingress.github.io/timeout-http-request: "5m"
-      haproxy-ingress.github.io/timeout-queue: "1m"
 
 autoscaler:
   enabled: true
