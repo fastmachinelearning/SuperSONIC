@@ -15,6 +15,10 @@
 {{- printf "%s-envoy" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "supersonic.prometheusName" -}}
+{{- printf "%s-prometheus" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "supersonic.defaultMetric" -}}
 {{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}

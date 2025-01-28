@@ -1,0 +1,36 @@
+{{- if not .Values.prometheus.external }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.prometheusName" . }}-config
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+
+    scrape_configs:
+      - job_name: 'triton'
+        static_configs:
+          - targets: ['{{ include "supersonic.tritonName" . }}:8002']
+        metrics_path: /metrics
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            regex: '(.*)'
+            replacement: '{{ include "supersonic.name" . }}'
+
+      - job_name: 'envoy'
+        static_configs:
+          - targets: ['{{ include "supersonic.name" . }}:9901']
+        metrics_path: /stats/prometheus
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            regex: '(.*)'
+            replacement: '{{ include "supersonic.name" . }}'
+{{- end }}
