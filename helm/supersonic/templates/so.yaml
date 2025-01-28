@@ -2,7 +2,12 @@
 
 {{- $scaleUp := .Values.autoscaler.scaleUp | default dict }}
 {{- $scaleDown := .Values.autoscaler.scaleDown | default dict }}
-{{- $prometheusAddress := printf "%s://%s:%d" .Values.prometheus.scheme .Values.prometheus.url (int .Values.prometheus.port) | quote }}
+{{- $prometheusAddress := "" -}}
+{{- if .Values.prometheus.external -}}
+  {{- $prometheusAddress = printf "%s://%s:%d" .Values.prometheus.scheme .Values.prometheus.url (int .Values.prometheus.port) | quote -}}
+{{- else -}}
+  {{- $prometheusAddress = printf "http://%s.%s.svc.cluster.local:9090" (include "supersonic.prometheusName" .) .Release.Namespace | quote -}}
+{{- end -}}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -49,6 +54,5 @@ spec:
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}
 ---
-
 
 {{- end }}

@@ -167,11 +167,16 @@ autoscaler:
 
 # -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
 prometheus:
-  # -- Prometheus server url and port number (find in documentation of a given cluster or ask admins)
+  # -- Whether to use external Prometheus instance (true) or deploy internal one (false)
+  external: true
+
+  # -- External Prometheus server url and port number (find in documentation of a given cluster or ask admins)
+  # Only used when external=true
   url: ""
   port: 443
 
-  # -- Specify whether Prometheus endpoint is exposed as http or https
+  # -- Specify whether external Prometheus endpoint is exposed as http or https
+  # Only used when external=true
   scheme: "https"
 
   # -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
@@ -180,6 +185,13 @@ prometheus:
   
   # -- Threshold for the metric
   serverLoadThreshold: 100
+
+  # -- Ingress configuration for internal Prometheus web UI (only used when external=false)
+  ingress:
+    enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
 
 ingress:
   enabled: false

@@ -28,6 +28,8 @@ envoy:
       max_tokens: 5
       tokens_per_fill: 1
       fill_interval: 12s
+prometheus:
+  external: false
 autoscaler:
   enabled: true
   minReplicas: 1

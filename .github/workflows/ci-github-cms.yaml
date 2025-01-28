@@ -62,6 +62,10 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
 
+      - name: Prometheus ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=prometheus --timeout 120s -n cms
+
       - name: Triton server ready
         run: |  
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
@@ -69,8 +73,7 @@ jobs:
       - name: Autoscaler ready
         run: |
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
-          # Don't check for KEDA ScaledObject readinness - it needs Prometheus to be running.
-          # kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
 
       - name: Validate Deployment
         run: |
