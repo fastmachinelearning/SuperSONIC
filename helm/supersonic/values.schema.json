@@ -396,6 +396,9 @@
     "prometheus": {
       "type": "object",
       "properties": {
+        "external": {
+          "type": "boolean"
+        },
         "url": {
           "type": "string"
         },
@@ -410,9 +413,34 @@
         },
         "serverLoadThreshold": {
           "type": "integer"
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hostName": {
+              "type": "string"
+            },
+            "ingressClassName": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "annotations",
+            "enabled",
+            "hostName",
+            "ingressClassName"
+          ]
         }
       },
       "required": [
+        "external",
+        "ingress",
         "port",
         "scheme",
         "serverLoadMetric",
