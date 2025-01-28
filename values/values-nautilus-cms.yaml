@@ -6,11 +6,8 @@ triton:
     - |
       /opt/tritonserver/bin/tritonserver \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
       --allow-gpu-metrics=true \
-      --log-verbose=1 \
+      --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
@@ -21,6 +18,7 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
+  resetReadinessProbe: true
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -29,24 +27,48 @@ triton:
               - key: nvidia.com/gpu.product
                 operator: In
                 values:
-                  - NVIDIA-A10
-                  - NVIDIA-A40
+                  # - NVIDIA-GeForce-GTX-1070
+                  # - NVIDIA-GeForce-GTX-1080
+                  # - Quadro-M4000
+                  # - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
+                  # - NVIDIA-GeForce-GTX-1080-Ti
+                  # - NVIDIA-GeForce-RTX-2080-Ti
+                  # - NVIDIA-TITAN-Xp
+                  # - Tesla-T4
+                  # - NVIDIA-A10
+                  # - NVIDIA-GeForce-RTX-3090
+                  - NVIDIA-GeForce-RTX-4090
+                  # - NVIDIA-TITAN-RTX
+                  # - NVIDIA-RTX-A5000
+                  # - Quadro-RTX-6000
+                  # - Tesla-V100-SXM2-32GB
+                  # - NVIDIA-A40
+                  # - NVIDIA-L40
+                  # - NVIDIA-RTX-A6000
+                  # - Quadro-RTX-8000
                   # - NVIDIA-A100-SXM4-80GB
-                  - NVIDIA-L40
-                  # - NVIDIA-A100-80GB-PCIe
-                  # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
-                  - NVIDIA-L4
-                  # - NVIDIA-A100-PCIE-40GB
-                  # - NVIDIA-GH200-480GB
 envoy:
   enabled: true
 prometheus:
-  url: "prometheus.nrp-nautilus.io"
+  external: false
+  url: ""
   port: 443
   scheme: https
   serverLoadThreshold: 10
+  ingress:
+    enabled: true
+    hostName: prometheus-cms.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/timeout-client: "5m"
+      haproxy-ingress.github.io/timeout-server: "5m"
+      haproxy-ingress.github.io/timeout-connect: "5m"
+      haproxy-ingress.github.io/timeout-http-request: "5m"
+      haproxy-ingress.github.io/timeout-queue: "1m"
+
 autoscaler:
-  enabled: True
+  enabled: true
   minReplicas: 1
   maxReplicas: 5
 ingress:
@@ -65,3 +87,5 @@ ingress:
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
 
+nodeSelector:
+  topology.kubernetes.io/zone: ucsd
