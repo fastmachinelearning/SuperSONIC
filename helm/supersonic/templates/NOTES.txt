@@ -8,13 +8,13 @@
 
 SuperSONIC chart successfully installed!
 
-┌----------------------------------------------------------------------------─┐
+┌-----------------------------------------------------------------------------┐
 | Chart name: {{ .Chart.Name }}
 | Version: {{ .Chart.Version }}
 | Release name: {{ .Release.Name }}
 | Instance name *: {{ (include "supersonic.name" .) }}
 | * equal to release name, unless nameOverride is specified.
-└----------------------------------------------------------------------------─┘
+└-----------------------------------------------------------------------------┘
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC
 |
