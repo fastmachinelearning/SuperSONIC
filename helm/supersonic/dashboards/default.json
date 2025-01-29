@@ -3,7 +3,7 @@
     "list": []
   },
   "editable": true,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
@@ -572,11 +572,11 @@
               "uid": "prometheus"
             },
             "refId": "A",
-            "expr": "sum (rate(nv_inference_count{release=\"%RELEASE_NAME%\"}[15s]))by(instance)",
+            "expr": "sum (rate(nv_inference_count{release=\"%RELEASE_NAME%\"}[15s]))by(pod)",
             "range": true,
             "instant": false,
             "editorMode": "code",
-            "legendFormat": "{{ instance }}",
+            "legendFormat": "{{ pod }}",
             "exemplar": false,
             "interval": ""
           }
@@ -744,6 +744,101 @@
         },
         "pluginVersion": "10.2.3",
         "description": ""
+    },
+    {
+        "type": "timeseries",
+        "title": "Proportion of requests by pod",
+        "gridPos": {
+          "x": 0,
+          "y": 22,
+          "w": 8,
+          "h": 8
+        },
+        "datasource": {
+          "uid": "prometheus",
+          "type": "prometheus"
+        },
+        "id": 9,
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum by (pod) (rate(nv_inference_count[15s])) / ignoring(pod) group_left sum (rate(nv_inference_count[15s]))",
+            "range": true,
+            "instant": false,
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "editorMode": "code",
+            "legendFormat": "__auto"
+          }
+        ],
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "showLegend": true,
+            "displayMode": "list",
+            "placement": "bottom",
+            "calcs": []
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 55,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "insertNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "percent",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "axisColorMode": "text",
+              "axisBorderShow": false,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "color": {
+              "mode": "palette-classic"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 80,
+                  "color": "red"
+                }
+              ]
+            }
+          },
+          "overrides": []
+        }
     }
 ],
   "refresh": "5s",
