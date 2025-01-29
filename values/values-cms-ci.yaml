@@ -36,3 +36,5 @@ autoscaler:
   maxReplicas: 2
 ingress:
   enabled: false
+grafana:
+  enabled: true
