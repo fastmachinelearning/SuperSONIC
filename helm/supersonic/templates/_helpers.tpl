@@ -27,12 +27,12 @@
 {{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
 {{- else }}
-sum by (instance) (
-    nv_inference_queue_duration_us{instance=~"{{ include "supersonic.name" . }}"}
+sum by (job) (
+    nv_inference_queue_duration_us{job=~"{{ include "supersonic.tritonName" . }}"}
 )
   /
-sum by (instance) (
-    (nv_inference_exec_count{instance=~"{{ include "supersonic.name" . }}"} * 1000) + 0.001
+sum by (job) (
+    (nv_inference_exec_count{job=~"{{ include "supersonic.tritonName" . }}"} * 1000) + 0.001
 )
 {{- end }}
 {{- end }}
