@@ -157,8 +157,8 @@ autoscaler:
   zeroIdleReplicas: false
 
   scaleUp:
-    window: 5
-    period: 120
+    window: 60
+    period: 60
     stepsize: 1
   scaleDown:
     window: 600
