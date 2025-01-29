@@ -90,11 +90,11 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(job)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", job=\"%RELEASE_NAME%\"})",
+            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=\"%RELEASE_NAME%\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
-            "legendFormat": "{{job}}",
+            "legendFormat": "{{release}}",
             "range": true,
             "refId": "A",
             "useBackend": false
@@ -163,7 +163,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -183,103 +183,6 @@
       ],
       "title": "Server Load Metric",
       "type": "timeseries"
-    },
-    {
-        "type": "timeseries",
-        "title": "Inferences per second (all models)",
-        "gridPos": {
-          "x": 0,
-          "y": 14,
-          "w": 10,
-          "h": 10
-        },
-        "datasource": {
-          "uid": "prometheus",
-          "type": "prometheus"
-        },
-        "id": 5,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "refId": "A",
-            "expr": "sum (\n  rate(\n    nv_inference_count{job=\"%RELEASE_NAME%-triton\"}[15s]\n  )\n) by (job)",
-            "range": true,
-            "instant": false,
-            "editorMode": "code",
-            "legendFormat": "{{ job }}",
-            "exemplar": false,
-            "interval": ""
-          }
-        ],
-        "options": {
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          },
-          "legend": {
-            "showLegend": true,
-            "displayMode": "list",
-            "placement": "bottom",
-            "calcs": []
-          }
-        },
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "barAlignment": 0,
-              "lineWidth": 1,
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "spanNulls": false,
-              "insertNulls": false,
-              "showPoints": "auto",
-              "pointSize": 5,
-              "stacking": {
-                "mode": "none",
-                "group": "A"
-              },
-              "axisPlacement": "auto",
-              "axisLabel": "",
-              "axisColorMode": "text",
-              "axisBorderShow": false,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "axisCenteredZero": false,
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "color": {
-              "mode": "palette-classic"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "min": 0,
-            "unit": "none"
-          },
-          "overrides": []
-        },
-        "pluginVersion": "10.2.3",
-        "description": ""
     },
     {
         "datasource": {
@@ -352,7 +255,7 @@
             "calcs": [],
             "displayMode": "list",
             "placement": "bottom",
-            "showLegend": true
+            "showLegend": false
           },
           "tooltip": {
             "mode": "single",
@@ -367,11 +270,11 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(job)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", job=\"%RELEASE_NAME%\"})",
+            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=\"%RELEASE_NAME%\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
-            "legendFormat": "{{job}}",
+            "legendFormat": "{{release}}",
             "range": true,
             "refId": "A",
             "useBackend": false
@@ -401,7 +304,7 @@
               "uid": "prometheus"
             },
             "refId": "A",
-            "expr": "sum by (job) (    rate(nv_inference_compute_infer_duration_us{job=\"%RELEASE_NAME%-triton\"}[15s]))  /sum by (job) (    (rate(nv_inference_exec_count{job=\"%RELEASE_NAME%-triton\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_infer_duration_us{release=\"%RELEASE_NAME%\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"%RELEASE_NAME%\"}[15s]) * 1000) + 0.001)",
             "range": true,
             "instant": false,
             "editorMode": "code",
@@ -413,7 +316,7 @@
               "type": "prometheus"
             },
             "refId": "B",
-            "expr": "sum by (job) (    rate(nv_inference_queue_duration_us{job=\"%RELEASE_NAME%-triton\"}[15s]))  /sum by (job) (    (rate(nv_inference_exec_count{job=\"%RELEASE_NAME%-triton\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_queue_duration_us{release=\"%RELEASE_NAME%\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"%RELEASE_NAME%\"}[15s]) * 1000) + 0.001)",
             "range": true,
             "instant": false,
             "hide": false,
@@ -426,7 +329,7 @@
               "type": "prometheus"
             },
             "refId": "C",
-            "expr": "sum by (job) (    rate(nv_inference_compute_input_duration_us{job=\"%RELEASE_NAME%-triton\"}[15s]))  /sum by (job) (    (rate(nv_inference_exec_count{job=\"%RELEASE_NAME%-triton\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_input_duration_us{release=\"%RELEASE_NAME%\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"%RELEASE_NAME%\"}[15s]) * 1000) + 0.001)",
             "range": true,
             "instant": false,
             "hide": false,
@@ -439,7 +342,7 @@
               "type": "prometheus"
             },
             "refId": "D",
-            "expr": "sum by (job) (    rate(nv_inference_compute_output_duration_us{job=\"%RELEASE_NAME%-triton\"}[15s]))  /sum by (job) (    (rate(nv_inference_exec_count{job=\"%RELEASE_NAME%-triton\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_output_duration_us{release=\"%RELEASE_NAME%\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"%RELEASE_NAME%\"}[15s]) * 1000) + 0.001)",
             "range": true,
             "instant": false,
             "hide": false,
@@ -452,7 +355,7 @@
               "type": "prometheus"
             },
             "refId": "E",
-            "expr": "  sum(\n    rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", job=~\"%RELEASE_NAME%\"}[15s])\n    /\n    rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", job=~\"%RELEASE_NAME%\"}[15s])\n  ) by (job)",
+            "expr": "  sum(\n    rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"%RELEASE_NAME%\"}[15s])\n    /\n    rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"%RELEASE_NAME%\"}[15s])\n  ) by (release)",
             "range": true,
             "instant": false,
             "hide": false,
@@ -550,7 +453,298 @@
             }
           ]
         }
-      }
+    },
+    {
+        "type": "timeseries",
+        "title": "Inferences per second (all servers, all models)",
+        "gridPos": {
+          "x": 0,
+          "y": 14,
+          "w": 6,
+          "h": 8
+        },
+        "datasource": {
+          "uid": "prometheus",
+          "type": "prometheus"
+        },
+        "id": 5,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "refId": "A",
+            "expr": "sum (rate(nv_inference_count{release=\"%RELEASE_NAME%\"}[15s]))by(release)",
+            "range": true,
+            "instant": false,
+            "editorMode": "code",
+            "legendFormat": "{{ release }}",
+            "exemplar": false,
+            "interval": ""
+          }
+        ],
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "showLegend": false,
+            "displayMode": "list",
+            "placement": "right",
+            "calcs": []
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "insertNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "axisColorMode": "text",
+              "axisBorderShow": false,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "color": {
+              "mode": "palette-classic"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "min": 0,
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "pluginVersion": "10.2.3",
+        "description": ""
+    },
+    {
+        "type": "timeseries",
+        "title": "Inferences per second by server (all models)",
+        "gridPos": {
+          "x": 6,
+          "y": 14,
+          "w": 9,
+          "h": 8
+        },
+        "datasource": {
+          "uid": "prometheus",
+          "type": "prometheus"
+        },
+        "id": 5,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "refId": "A",
+            "expr": "sum (rate(nv_inference_count{release=\"%RELEASE_NAME%\"}[15s]))by(instance)",
+            "range": true,
+            "instant": false,
+            "editorMode": "code",
+            "legendFormat": "{{ instance }}",
+            "exemplar": false,
+            "interval": ""
+          }
+        ],
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "showLegend": true,
+            "displayMode": "list",
+            "placement": "right",
+            "calcs": []
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "insertNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "axisColorMode": "text",
+              "axisBorderShow": false,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "color": {
+              "mode": "palette-classic"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "min": 0,
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "pluginVersion": "10.2.3",
+        "description": ""
+    },
+    {
+        "type": "timeseries",
+        "title": "Inferences per second by model (all servers)",
+        "gridPos": {
+          "x": 15,
+          "y": 14,
+          "w": 9,
+          "h": 8
+        },
+        "datasource": {
+          "uid": "prometheus",
+          "type": "prometheus"
+        },
+        "id": 5,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "refId": "A",
+            "expr": "sum (rate(nv_inference_count{release=\"%RELEASE_NAME%\"}[15s]))by(model)",
+            "range": true,
+            "instant": false,
+            "editorMode": "code",
+            "legendFormat": "{{ model }}",
+            "exemplar": false,
+            "interval": ""
+          }
+        ],
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "showLegend": true,
+            "displayMode": "list",
+            "placement": "right",
+            "calcs": []
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "insertNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "axisColorMode": "text",
+              "axisBorderShow": false,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "color": {
+              "mode": "palette-classic"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "min": 0,
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "pluginVersion": "10.2.3",
+        "description": ""
+    }
 ],
   "refresh": "5s",
   "schemaVersion": 38,
