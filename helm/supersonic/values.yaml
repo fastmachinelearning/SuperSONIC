@@ -204,3 +204,18 @@ nodeSelector: {}
 
 # -- Tolerations for all pods (Triton and Envoy)
 tolerations: []
+
+## Grafana Configuration
+grafana:
+  # -- Enable or disable Grafana deployment
+  enabled: false
+  # -- Ingress configuration for Grafana
+  ingress:
+    # -- Enable or disable ingress for Grafana
+    enabled: false
+    # -- Hostname for Grafana ingress
+    hostName: ""
+    # -- Ingress class name (e.g. nginx, haproxy)
+    ingressClassName: haproxy
+    # -- Additional annotations for Grafana ingress
+    annotations: {}
