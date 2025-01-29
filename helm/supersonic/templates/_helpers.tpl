@@ -28,11 +28,11 @@
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
 {{- else }}
 sum by (job) (
-    nv_inference_queue_duration_us{job=~"{{ include "supersonic.tritonName" . }}"}
+    rate(nv_inference_queue_duration_us{job=~"{{ include "supersonic.tritonName" . }}"}[15s])
 )
   /
 sum by (job) (
-    (nv_inference_exec_count{job=~"{{ include "supersonic.tritonName" . }}"} * 1000) + 0.001
+    (rate(nv_inference_exec_count{job=~"{{ include "supersonic.tritonName" . }}"}[15s]) * 1000) + 0.001
 )
 {{- end }}
 {{- end }}
