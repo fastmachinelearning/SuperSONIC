@@ -14,7 +14,7 @@ data:
       evaluation_interval: 5s
 
     scrape_configs:
-      - job_name: 'triton'
+      - job_name: '{{ include "supersonic.tritonName" . }}'
         static_configs:
           - targets: ['{{ include "supersonic.tritonName" . }}:8002']
         metrics_path: /metrics
@@ -24,7 +24,7 @@ data:
             regex: '(.*)'
             replacement: '{{ include "supersonic.name" . }}'
 
-      - job_name: 'envoy'
+      - job_name: '{{ include "supersonic.name" . }}'
         static_configs:
           - targets: ['{{ include "supersonic.name" . }}:9901']
         metrics_path: /stats/prometheus
