@@ -13,4 +13,6 @@ data:
     {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
     {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
+    {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
+    {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
     {{- $dashboard | indent 4 }}

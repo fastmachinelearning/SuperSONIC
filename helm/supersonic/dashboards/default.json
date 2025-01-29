@@ -57,7 +57,10 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": false
+            "spanNulls": false,
+            "thresholdsStyle": {
+                "mode": "dashed"
+              }
           },
           "mappings": [],
           "thresholds": {
@@ -66,6 +69,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": %SERVER_LOAD_THRESHOLD%
               }
             ]
           },
@@ -74,8 +81,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 10,
+        "w": 10,
         "x": 0,
         "y": 4
       },
@@ -99,7 +106,8 @@
             "uid": "prometheus"
           },
           "expr": "%SERVER_LOAD_METRIC%",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "__auto"
         }
       ],
       "title": "Server Load Metric",
