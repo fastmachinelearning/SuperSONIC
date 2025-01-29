@@ -79,3 +79,10 @@ ingress:
 
 nodeSelector:
   topology.kubernetes.io/zone: ucsd
+
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    hostName: grafana-cms.nrp-nautilus.io
+    ingressClassName: haproxy

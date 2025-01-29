@@ -27,4 +27,8 @@ SuperSONIC chart successfully installed!
 {{- if (not .Values.prometheus.external) }}
 | Prometheus UI:           https://{{ .Values.prometheus.ingress.hostName }}
 {{- end }}
+|
+{{- if .Values.grafana.enabled }}
+| Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
+{{- end }}
 └-----------------------------------------------------------------------------┘

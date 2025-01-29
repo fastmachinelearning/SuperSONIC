@@ -50,13 +50,5 @@ spec:
             name: {{ include "supersonic.prometheusName" . }}-config
         - name: prometheus-storage
           emptyDir: {}
-      {{- if .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-{{ toYaml .Values.tolerations | nindent 8 }}
-      {{- end }}
       restartPolicy: Always
 {{- end }}

@@ -1,0 +1,31 @@
+{{- if and .Values.grafana.enabled .Values.grafana.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "supersonic.grafanaName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: grafana
+  annotations:
+    {{- if .Values.grafana.ingress.annotations }}
+{{ toYaml .Values.grafana.ingress.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.grafana.ingress.ingressClassName }}
+  tls:
+  - hosts:
+      - {{ .Values.grafana.ingress.hostName }}
+  rules:
+  - host: {{ .Values.grafana.ingress.hostName }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "supersonic.grafanaName" . }}
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+{{- end }} 

@@ -19,6 +19,10 @@
 {{- printf "%s-prometheus" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "supersonic.grafanaName" -}}
+{{- printf "%s-grafana" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "supersonic.defaultMetric" -}}
 {{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
