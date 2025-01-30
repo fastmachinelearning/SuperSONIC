@@ -18,7 +18,32 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 2,
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "doc",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "SuperSONIC Documentation",
+        "tooltip": "",
+        "type": "link",
+        "url": "https://fastmachinelearning.org/SuperSONIC"
+      },
+      {
+        "asDropdown": false,
+        "icon": "question",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "GitHub Issues",
+        "tooltip": "",
+        "type": "link",
+        "url": "https://github.com/fastmachinelearning/SuperSONIC/issues"
+      }
+    ],
     "liveNow": false,
     "panels": [
       {
@@ -34,6 +59,13 @@
           "y": 0
         },
         "id": 1,
+        "links": [
+          {
+            "targetBlank": true,
+            "title": "Documentation",
+            "url": "http://fastmachinelearning.org/SuperSONIC"
+          }
+        ],
         "options": {
           "code": {
             "language": "plaintext",
@@ -553,7 +585,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     }
                   ]
                 },
@@ -565,7 +598,7 @@
               "h": 8,
               "w": 6,
               "x": 0,
-              "y": 2
+              "y": 16
             },
             "id": 5,
             "options": {
@@ -649,7 +682,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     }
                   ]
                 },
@@ -661,7 +695,7 @@
               "h": 8,
               "w": 9,
               "x": 6,
-              "y": 2
+              "y": 16
             },
             "id": 15,
             "options": {
@@ -745,7 +779,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     }
                   ]
                 },
@@ -757,7 +792,7 @@
               "h": 8,
               "w": 9,
               "x": 15,
-              "y": 2
+              "y": 16
             },
             "id": 16,
             "options": {
@@ -855,7 +890,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -962,7 +998,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -1068,7 +1105,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -1173,14 +1211,6 @@
           "label": "Server Load Metric",
           "name": "server_load_metric",
           "query": "%SERVER_LOAD_METRIC%",
-          "skipUrlSync": false,
-          "type": "constant"
-        },
-        {
-          "hide": 2,
-          "label": "Server Load Threshold",
-          "name": "server_load_threshold",
-          "query": "%SERVER_LOAD_THRESHOLD%",
           "skipUrlSync": false,
           "type": "constant"
         }
