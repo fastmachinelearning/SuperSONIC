@@ -16,4 +16,6 @@ data:
     {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
     {{- $dashboard | indent 4 }}
-  triton.json: {{ $.Files.Get "dashboards/triton.json" | nindent 4 }}
+  triton.json: |-
+      {{- $dashboard := $.Files.Get "dashboards/triton.json" | nindent 4 }}
+      {{- $dashboard | indent 4 }}
