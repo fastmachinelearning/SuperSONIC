@@ -37,6 +37,12 @@ sum by (job) (
 {{- end }}
 {{- end }}
 
+{{- define "supersonic.grpcEndpoint" -}}
+{{- if .Values.ingress.enabled -}}
+{{ .Values.ingress.hostName }}:443
+{{- end }}
+{{- end }}
+
 {{- define "supersonic.prometheusUrl" -}}
 {{- if (not .Values.prometheus.external) -}}
 https://{{ .Values.prometheus.ingress.hostName }}

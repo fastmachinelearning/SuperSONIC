@@ -21,7 +21,7 @@ SuperSONIC chart successfully installed!
 | Uninstall:               helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
 |
 {{- if .Values.ingress.enabled }}
-| gRPC endpoint:           {{ .Values.ingress.hostName }}:443
+| gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
 {{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
