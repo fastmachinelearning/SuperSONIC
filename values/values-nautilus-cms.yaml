@@ -6,47 +6,18 @@ triton:
     - |
       /opt/tritonserver/bin/tritonserver \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
-      --allow-gpu-metrics=true \
       --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
   resources:
-    limits: { cpu: 2, memory: 4G}
-    requests: { cpu: 2, memory: 4G}
+    limits: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
+    requests: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   resetReadinessProbe: true
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: nvidia.com/gpu.product
-                operator: In
-                values:
-                  # - NVIDIA-GeForce-GTX-1070
-                  # - NVIDIA-GeForce-GTX-1080
-                  # - Quadro-M4000
-                  # - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
-                  # - NVIDIA-GeForce-GTX-1080-Ti
-                  # - NVIDIA-GeForce-RTX-2080-Ti
-                  # - NVIDIA-TITAN-Xp
-                  # - Tesla-T4
-                  # - NVIDIA-A10
-                  # - NVIDIA-GeForce-RTX-3090
-                  # - NVIDIA-GeForce-RTX-4090
-                  # - NVIDIA-TITAN-RTX
-                  - NVIDIA-RTX-A5000
-                  # - Quadro-RTX-6000
-                  # - Tesla-V100-SXM2-32GB
-                  # - NVIDIA-A40
-                  # - NVIDIA-L40
-                  # - NVIDIA-RTX-A6000
-                  # - Quadro-RTX-8000
-                  # - NVIDIA-A100-SXM4-80GB
 envoy:
   enabled: true
 prometheus:
@@ -80,8 +51,8 @@ ingress:
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
 
-nodeSelector:
-  topology.kubernetes.io/zone: cwru
+# nodeSelector:
+#   topology.kubernetes.io/zone: ucsd-nrp
 
 grafana:
   enabled: true
