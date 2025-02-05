@@ -92,7 +92,7 @@ jobs:
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
           echo "========== Perf Analyzer Logs =========="
-          kubectl logs -n cms "$POD_NAME"
+          kubectl logs -n cms "$POD_NAME" 
           echo "========================================"
 
       - name: Cleanup
