@@ -66,8 +66,6 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=prometheus --timeout 120s -n cms
           kubectl get svc,pod -l app.kubernetes.io/component=prometheus -n cms
-          echo "Prometheus URL from template:"
-          helm template supersonic ./helm/supersonic --values values/values-cms-ci.yaml -n cms | grep -A 5 "prometheusUrl"
 
       - name: Grafana ready
         run: |
