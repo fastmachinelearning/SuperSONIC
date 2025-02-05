@@ -74,7 +74,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Getting Started</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/getting-started.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/getting-started.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -89,8 +89,7 @@
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><a class="reference external" href="https://kubernetes.io">Kubernetes</a> cluster</p></li>
-<li><p><a class="reference external" href="https://prometheus.io">Prometheus</a> monitoring system (if using autoscaling or rate limiting)</p></li>
-<li><p><a class="reference external" href="https://keda.sh">KEDA (Kubernetes Event-Driven Autoscaling)</a> (if using autoscaling)</p></li>
+<li><p><a class="reference external" href="https://keda.sh">KEDA</a> (if using autoscaling) – may require cluster administrator to install CustomResourceDefinitions.</p></li>
 </ol>
 </div></blockquote>
 </section>
@@ -105,18 +104,25 @@
 <li><p><a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/master/values">Example values.yaml files</a></p></li>
 </ul>
 </li>
-<li><p>Modify the following command to install the chart at your cluster:</p>
+<li><p>Add FastML Helm repository:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>fastml<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC
 helm<span class="w"> </span>repo<span class="w"> </span>update
-helm<span class="w"> </span>install<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>fastml/supersonic<span class="w"> </span>--values<span class="w"> </span>&lt;your-values.yaml&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
 </pre></div>
 </div>
+</li>
+<li><p>Modify the following command to install the chart at your cluster:</p>
 <p>Use a unique meaningful lowercase value as &lt;release-name&gt;, for example
 <code class="docutils literal notranslate"><span class="pre">supersonic-cms-run3</span></code>.
 This value will be used as a prefix for all resources created by the chart,
 unless <code class="docutils literal notranslate"><span class="pre">nameOverride</span></code> is specified in the values file.</p>
 </li>
+<li><p>Successfully executed <code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">install</span></code> command will print a link to auto-generated Grafana dashboard
+and other useful information.</p></li>
 </ol>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/grafana.png"><img alt="Supersonic Grafana dashboard" src="_images/grafana.png" style="height: 250px;" />
+</a>
+</figure>
 </div></blockquote>
 </section>
 <section id="uninstall-supersonic">
@@ -130,7 +136,7 @@ unless <code class="docutils literal notranslate"><span class="pre">nameOverride
 <section id="architecture">
 <h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
 <p>The SuperSONIC Helm chart will install
-components depicted at the diagram below, excluding Prometheus server and model repository,
+components depicted at the diagram below, excluding the model repository,
 which must be connected by specifying relevant parameters in configuration file
 (see <a class="reference internal" href="configuration-guide.html"><span class="doc">configuration guide</span></a>).</p>
 <p>The KEDA autoscaler can be enabled/disabled via the

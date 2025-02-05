@@ -70,7 +70,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Configuration Reference</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/configuration-reference.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/configuration-reference.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -288,12 +288,12 @@
 </tr>
 <tr class="row-odd"><td><p>autoscaler.scaleUp.window</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>autoscaler.scaleUp.period</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>autoscaler.scaleUp.stepsize</p></td>
@@ -380,6 +380,36 @@
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
 <td><p>Tolerations for all pods (Triton and Envoy)</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable or disable Grafana deployment</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.ingress</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;haproxy&quot;}</span></code></p></td>
+<td><p>Ingress configuration for Grafana</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.ingress.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable or disable ingress for Grafana</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.ingress.hostName</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>Hostname for Grafana ingress</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.ingress.ingressClassName</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;haproxy&quot;</span></code></p></td>
+<td><p>Ingress class name (e.g. nginx, haproxy)</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.ingress.annotations</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>Additional annotations for Grafana ingress</p></td>
 </tr>
 </tbody>
 </table>

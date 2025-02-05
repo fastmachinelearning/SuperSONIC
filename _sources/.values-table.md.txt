@@ -41,8 +41,8 @@
 | autoscaler.minReplicas | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
 | autoscaler.maxReplicas | int | `2` |  |
 | autoscaler.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
-| autoscaler.scaleUp.window | int | `5` |  |
-| autoscaler.scaleUp.period | int | `120` |  |
+| autoscaler.scaleUp.window | int | `60` |  |
+| autoscaler.scaleUp.period | int | `60` |  |
 | autoscaler.scaleUp.stepsize | int | `1` |  |
 | autoscaler.scaleDown.window | int | `600` |  |
 | autoscaler.scaleDown.period | int | `120` |  |
@@ -60,3 +60,9 @@
 | ingress.annotations | object | `{}` |  |
 | nodeSelector | object | `{}` | Node selector for all pods (Triton and Envoy) |
 | tolerations | list | `[]` | Tolerations for all pods (Triton and Envoy) |
+| grafana.enabled | bool | `false` | Enable or disable Grafana deployment |
+| grafana.ingress | object | `{"annotations":{},"enabled":false,"hostName":"","ingressClassName":"haproxy"}` | Ingress configuration for Grafana |
+| grafana.ingress.enabled | bool | `false` | Enable or disable ingress for Grafana |
+| grafana.ingress.hostName | string | `""` | Hostname for Grafana ingress |
+| grafana.ingress.ingressClassName | string | `"haproxy"` | Ingress class name (e.g. nginx, haproxy) |
+| grafana.ingress.annotations | object | `{}` | Additional annotations for Grafana ingress |
