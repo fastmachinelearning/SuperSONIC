@@ -1,2 +1,2 @@
-helm repo add supersonic https://fastmachinelearning.org/SuperSONIC
-helm install supersonic supersonic/supersonic --values values/values-geddes-cms.yaml -n cms
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+helm install supersonic fastml/supersonic --values values/values-geddes-cms.yaml -n cms

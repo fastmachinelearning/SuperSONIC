@@ -1,12 +1,5 @@
 {{- if .Values.envoy.enabled }}
 
-{{- $envoyGrpcPort := "" -}}
-{{- range .Values.envoy.service.ports -}}
-  {{- if eq .name "grpc" -}}
-    {{- $envoyGrpcPort = .port -}}
-  {{- end -}}
-{{- end -}}
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,7 +27,10 @@ spec:
         image: {{ .Values.envoy.image }}
         args: {{ toYaml .Values.envoy.args | nindent 10 }}
         ports:
-        - containerPort: {{ $envoyGrpcPort }}
+        {{- range .Values.envoy.service.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+        {{- end }}
         volumeMounts:
         - name: {{ include "supersonic.name" . }}-envoy-config
           mountPath: /etc/envoy

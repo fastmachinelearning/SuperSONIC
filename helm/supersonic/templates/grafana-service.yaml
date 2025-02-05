@@ -1,21 +1,19 @@
-{{- if not .Values.prometheus.external }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "supersonic.prometheusName" . }}
+  name: {{ include "supersonic.grafanaName" . }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/component: grafana
 spec:
-  type: {{ if not .Values.prometheus.ingress.enabled }}LoadBalancer{{ else }}ClusterIP{{ end }}
+  type: ClusterIP
   ports:
-    - port: 9090
+    - port: 80
       targetPort: http
       protocol: TCP
       name: http
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: prometheus
-{{- end }}
+    app.kubernetes.io/component: grafana 

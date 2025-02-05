@@ -476,11 +476,47 @@
     },
     "tolerations": {
       "type": "array"
+    },
+    "grafana": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hostName": {
+              "type": "string"
+            },
+            "ingressClassName": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "annotations",
+            "enabled",
+            "hostName",
+            "ingressClassName"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "ingress"
+      ]
     }
   },
   "required": [
     "autoscaler",
     "envoy",
+    "grafana",
     "ingress",
     "nameOverride",
     "nodeSelector",

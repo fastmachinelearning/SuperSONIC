@@ -65,6 +65,11 @@ jobs:
       - name: Prometheus ready
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=prometheus --timeout 120s -n cms
+          kubectl get svc,pod -l app.kubernetes.io/component=prometheus -n cms
+
+      - name: Grafana ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=grafana --timeout 120s -n cms
 
       - name: Triton server ready
         run: |  

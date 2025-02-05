@@ -21,10 +21,14 @@ SuperSONIC chart successfully installed!
 | Uninstall:               helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
 |
 {{- if .Values.ingress.enabled }}
-| gRPC endpoint:           {{ .Values.ingress.hostName }}:443
+| gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
-{{- if (not .Values.prometheus.external) }}
-| Prometheus UI:           https://{{ .Values.prometheus.ingress.hostName }}
+{{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
+| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
+{{- end }}
+|
+{{- if .Values.grafana.enabled }}
+| Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
 {{- end }}
 └-----------------------------------------------------------------------------┘

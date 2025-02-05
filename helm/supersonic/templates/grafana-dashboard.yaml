@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.grafanaName" . }}-dashboard
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: grafana
+data:
+  default.json: |-
+    {{- $dashboard := $.Files.Get "dashboards/default.json" | fromJson }}
+    {{- $grafana_variables := $.Files.Get "dashboards/variables.json" | fromJson }}
+    {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
+    {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
+    {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
+    {{- $prometheus_url := include "supersonic.prometheusUrl" . }}
+
+    {{- /* Remove any existing templating section from dashboard */ -}}
+    {{- $_ := unset $dashboard "templating" }}
+    
+    {{- /* Merge with variables from variables.json */ -}}
+    {{- $dashboard := merge $dashboard $grafana_variables }}
+    {{- $dashboard := $dashboard | toJson }}
+    
+    {{- /* Replace template variables with actual values */ -}}
+    {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
+    {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
+    {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
+    {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
+    {{- $dashboard := $dashboard | replace "%PROMETHEUS_URL_FULL%" $prometheus_url }}
+    {{- $dashboard := $dashboard | replace "%HEADER%" $header }}
+    {{ $dashboard | nindent 4 }}
+  triton.json: |-
+    {{- $.Files.Get "dashboards/triton.json" | nindent 4 }}

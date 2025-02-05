@@ -14,10 +14,12 @@ The main components of SuperSONIC are:
 - [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
 - Dynamic muti-purpose [Envoy Proxy](envoyproxy.io):
   - Load balancing
-  - Client connection rate limiting
+  - Rate limiting
   - GPU saturation prevention
   - Token-based authentication
 - Load-based autoscaling via [KEDA](keda.sh)
+- [Prometheus](https://prometheus.io) instance (deploy custom or connect to existing)
+- Pre-configured [Grafana](https://grafana.com) dashboard
 
 
 ## Installation
@@ -37,6 +39,12 @@ The full list of configuration parameters is available in the [Configuration ref
 
 <p align="center">
   <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/diagram.svg" alt="diagram" width="700"/>
+</p>
+
+## Grafana dashboard
+
+<p align="center">
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/grafana.png" alt="grafana" width="700"/>
 </p>
 
 ## Status of deployment

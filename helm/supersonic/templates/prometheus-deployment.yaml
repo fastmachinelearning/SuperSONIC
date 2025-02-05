@@ -21,6 +21,7 @@ spec:
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: prometheus
     spec:
+      serviceAccountName: {{ include "supersonic.prometheusName" . }}-sa
       containers:
       - name: prometheus
         image: prom/prometheus:v2.49.1
@@ -50,13 +51,5 @@ spec:
             name: {{ include "supersonic.prometheusName" . }}-config
         - name: prometheus-storage
           emptyDir: {}
-      {{- if .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-{{ toYaml .Values.tolerations | nindent 8 }}
-      {{- end }}
       restartPolicy: Always
 {{- end }}

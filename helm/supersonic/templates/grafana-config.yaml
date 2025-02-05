@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.grafanaName" . }}-datasources
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: grafana
+data:
+  datasources.yaml: |-
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        access: proxy
+        url: {{ if and .Values.prometheus.external .Values.prometheus.url -}}
+          {{- .Values.prometheus.scheme }}://{{ .Values.prometheus.url -}}
+          {{- else -}}
+          http://{{ include "supersonic.prometheusName" . }}:9090
+        {{- end }}
+        isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.grafanaName" . }}-dashboards-config
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: grafana
+data:
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: false 
