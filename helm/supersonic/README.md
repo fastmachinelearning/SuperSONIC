@@ -41,6 +41,12 @@ The full list of configuration parameters is available in the [Configuration ref
   <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/diagram.svg" alt="diagram" width="700"/>
 </p>
 
+## Grafana dashboard
+
+<p align="center">
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/grafana.png" alt="grafana" width="700"/>
+</p>
+
 ## Status of deployment
 
 |  | **[CMS](https://home.cern/science/experiments/cms)**      | **[ATLAS](https://home.cern/science/experiments/atlas)**    | **[IceCube](https://icecube.wisc.edu)**  |
