@@ -101,7 +101,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
        requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
 
-- Alternatively, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models.
+- In addition, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models.
 
   .. code-block:: yaml
 
