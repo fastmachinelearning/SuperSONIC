@@ -64,8 +64,6 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 
-html_show_sourcelink = False
-
 # -- Extension configuration -------------------------------------------------
 html_show_sourcelink = False
 html_logo = "img/SuperSONIC_light.png"
@@ -89,7 +87,7 @@ html_context = {
     'display_github': True,  # Integrate GitHub
     'github_user': 'fastmachinelearning',  # Username
     'github_repo': "SuperSONIC",  # Repo name
-    'github_version': 'main',  # Version
+    'github_version': 'master',  # Version
     'conf_py_path': '/docs/',  # Path in the checkout to the docs root
 }
 html_favicon = 'img/SuperSONIC_small.svg'
