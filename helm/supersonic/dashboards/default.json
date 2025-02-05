@@ -216,6 +216,7 @@
           }
         ],
         "title": "Server Load Metric",
+        "description": "Metric and threshold configured in `prometheus.serverLoadMetric` and `prometheus.serverLoadThreshold` parameters. Default metric: inference queue latency. Default threshold: 100ms.",
         "type": "timeseries"
       },
       {
@@ -387,6 +388,7 @@
           }
         ],
         "title": "Latency Breakdown",
+        "description": "Latency components measured by Triton servers, as well as total latency measured at proxy.",
         "type": "timeseries"
       },
       {

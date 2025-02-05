@@ -199,7 +199,7 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
   At the moment, this functionality is configured to only reject ``RepositoryIndex`` requests to Triton servers, and it ignores
   any other requests in order not to slow down the inferences.
 
-  The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see below).
+  The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
 
 
 Prometheus Configuration
@@ -237,13 +237,16 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
 They are defined in the ``prometheus.serverLoadMetric`` and ``prometheus.serverLoadThreshold`` parameters in the values file.
-The default metric is the inference queue time at the Triton servers, as defined
+The default metric is the inference queue time at the Triton servers, as defined in
 `here <https://github.com/fastmachinelearning/SuperSONIC/blob/1793fdad3bf74bf9cdf33737b64c5f8486a6357f/helm/supersonic/templates/_helpers.tpl#L22>`_.
 
 When the metric value exceeds the threshold, the following happens:
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
+The pre-configured Grafana dashboard contains a graph of this metric, entitled "Server Load Metric".
+The Prometheus query for the graph is automatically inferred from the value of ``prometheus.serverLoadMetric`` parameter.
+The graph also displays the threshold value defined in ``prometheus.serverLoadThreshold`` parameter.
 
 Grafana Configuration
 ****************************************
