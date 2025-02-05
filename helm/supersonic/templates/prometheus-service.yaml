@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: prometheus
 spec:
-  type: ClusterIP
+  type: {{ if not .Values.prometheus.ingress.enabled }}LoadBalancer{{ else }}ClusterIP{{ end }}
   ports:
     - port: 9090
       targetPort: http

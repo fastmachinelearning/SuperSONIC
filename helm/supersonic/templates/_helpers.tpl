@@ -45,7 +45,11 @@ sum by (job) (
 
 {{- define "supersonic.prometheusUrl" -}}
 {{- if (not .Values.prometheus.external) -}}
+{{- if .Values.prometheus.ingress.enabled -}}
 https://{{ .Values.prometheus.ingress.hostName }}
+{{- else -}}
+http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
+{{- end -}}
 {{- else if .Values.prometheus.url -}}
 {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
 {{- end }}
