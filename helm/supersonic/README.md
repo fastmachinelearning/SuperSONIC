@@ -18,8 +18,8 @@ The main components of SuperSONIC are:
   - GPU saturation prevention
   - Token-based authentication
 - Load-based autoscaling via [KEDA](keda.sh)
-- Prometheus instance (deploy custom or connect to existing)
-- Pre-configured Grafana dashboard
+- [Prometheus](https://prometheus.io) instance (deploy custom or connect to existing)
+- Pre-configured [Grafana](https://grafana.com) dashboard
 
 
 ## Installation
