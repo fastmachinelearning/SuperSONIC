@@ -89,7 +89,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 
     <br><br>
 
-1. Select resources for Triton pods.
+3. Select resources for Triton pods.
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
@@ -124,7 +124,7 @@ Envoy Proxy Configuration
 
 By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
 
-1. Configure external endpoint for Envoy Proxy.
+4. Configure external endpoint for Envoy Proxy.
 ================================================
 
 Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.
@@ -195,13 +195,35 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 Prometheus Configuration
 ****************************************
 
-6. (optional) Connect to Prometheus server.
-======================================================
+6. Deploy a Prometheus server or connect to an existing one.
+============================================================
 
-If you are using either the Prometheus-based rate limiter or the KEDA autoscaler,
-you need to connect SuperSONIC to an existing Prometheus server. This is done via
-the ``prometheus.url`` and ``prometheus.port`` parameters in the values file,
-and you can choose between ``http`` and ``https`` schemes using ``prometheus.scheme`` parameter.
+Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
+
+- **Option 1**: Deploy a new Prometheus server (recommended).
+
+  This will allow to configure a shorter scraping interval, resulting in a more responsive
+  rate limiter and autoscaler. Prometheus server typically uses only a small amount of resources
+  and does not require special permissions for installation.
+
+  .. code-block:: yaml
+
+    prometheus:
+      external: false
+      ingress:
+        enabled: true
+        hostName: "<prometheus_url>"
+
+- **Option 2**: Connect to an existing Prometheus server.
+
+  .. code-block:: yaml
+
+    prometheus:
+      external: true
+      url: "<prometheus_url>"
+      port: <prometheus_port>
+      scheme: "https" # or "http"
+
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
 They are defined in the ``prometheus.serverLoadMetric`` and ``prometheus.serverLoadThreshold`` parameters in the values file.
@@ -212,10 +234,28 @@ When the metric value exceeds the threshold, the following happens:
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
+Grafana Configuration
+****************************************
+
+7. Configure Grafana dashboard.
+==========================================
+
+Grafana is used to visualize metrics collected by Prometheus.
+We provide a pre-configured Grafana dashboard which includes many useful metrics,
+including latency breakdown, GPU utilization, and more.
+
+.. code-block:: yaml
+
+   grafana:
+     enabled: true
+     ingress:
+       enabled: true
+       hostName: "<grafana_url>"
+
 Autoscaler Configuration
 ****************************************
 
-7. (optional) Enable KEDA autoscaler.
+8. (optional) Enable KEDA autoscaler.
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
