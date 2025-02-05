@@ -1,8 +1,8 @@
 ![Version](https://img.shields.io/github/v/release/fastmachinelearning/SuperSONIC)
-![License](https://img.shields.io/github/license/fastmachinelearning/SuperSONIC)
+[![DOI](https://zenodo.org/badge/876768230.svg)](https://doi.org/10.5281/zenodo.14815348)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/supersonic)](https://artifacthub.io/packages/search?repo=supersonic)
 ![Downloads](https://img.shields.io/github/downloads/fastmachinelearning/SuperSONIC/total)
-
+![License](https://img.shields.io/github/license/fastmachinelearning/SuperSONIC)
 
 # SuperSONIC
 
