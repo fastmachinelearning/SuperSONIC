@@ -14,8 +14,8 @@ triton:
       --strict-model-config=false \
       --exit-timeout-secs=60
   resources:
-    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
+    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
   service:
     labels:
       scrape_metrics: "true"
@@ -27,19 +27,22 @@ triton:
     mountPath: /cvmfs
 envoy:
   enabled: true
-  rate_limiter:
-    listener_level:
-      enabled: true
-      max_tokens: 20
-      tokens_per_fill: 5
-      fill_interval: 60s
+  loadBalancerPolicy: "ROUND_ROBIN"
   service:
     type: LoadBalancer
 prometheus:
-  url: "prometheus-service.cms.geddes.rcac.purdue.edu"
-  port: 8080
-  scheme: http
+  external: false
   serverLoadThreshold: 100
+  ingress:
+    enabled: true
+    hostName: prometheus-cms.geddes.rcac.purdue.edu
+    ingressClassName: public
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    hostName: grafana-cms.geddes.rcac.purdue.edu
+    ingressClassName: public
 
 autoscaler:
   enabled: true

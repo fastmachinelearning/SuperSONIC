@@ -11,8 +11,8 @@ triton:
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
   resources:
-    limits: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
-    requests: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
+    limits: { cpu: 2, memory: 4G, nvidia.com/a100: 1}
+    requests: { cpu: 2, memory: 4G, nvidia.com/a100: 1}
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -20,6 +20,7 @@ triton:
   resetReadinessProbe: true
 envoy:
   enabled: true
+  loadBalancerPolicy: "ROUND_ROBIN"
 prometheus:
   external: false
   url: prometheus.nrp-nautilus.io
@@ -52,7 +53,7 @@ ingress:
     haproxy-ingress.github.io/health-check-rise-count: "1"
 
 # nodeSelector:
-#   topology.kubernetes.io/zone: ucsd-nrp
+#   topology.kubernetes.io/zone: ucsd
 
 grafana:
   enabled: true
