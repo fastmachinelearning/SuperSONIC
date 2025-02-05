@@ -4,6 +4,7 @@ Configuration Guide
 The following guide will help you configure ``values.yaml`` file for a SuperSONIC deployment.
 The full list of parameters can be found in the `Configuration Reference <configuration-reference>`_.
 
+
 Triton Inference Server Configuration
 ****************************************
 
@@ -17,7 +18,8 @@ Triton Inference Server Configuration
 
 Triton version must be specified in the ``triton.image`` parameter in the values file.
 
-2. Configure Triton model repository.
+
+2. Configure Triton model repository
 =============================================
    
 - To learn about the structure of model repositories, refer to the
@@ -27,22 +29,22 @@ Triton version must be specified in the ``triton.image`` parameter in the values
   one or multiple model repositories via the ``--model-repository`` flag.
 - For example, the following command loads multiple CMS models hosted at CVMFS:
      
-  .. code-block:: yaml
+.. code-block:: yaml
 
-     args: 
-       - |
-        /opt/tritonserver/bin/tritonserver \
-        --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
-        --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
-        --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
-        --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
-        --allow-gpu-metrics=true \
-        --log-verbose=0 \
-        --strict-model-config=false \
-        --exit-timeout-secs=60 
+   args: 
+     - |
+      /opt/tritonserver/bin/tritonserver \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
+      --allow-gpu-metrics=true \
+      --log-verbose=0 \
+      --strict-model-config=false \
+      --exit-timeout-secs=60 
 
 - Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-  The following options for model repository mouning are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
+  The following options for model repository mounting are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
 
 .. raw:: html
 
@@ -64,7 +66,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      ## Option 1: mount an arbitrary PersistentVolumeClaim
      storageType: "pvc"
      pvc:
-     claimName: 
+       claimName: 
 
      ## -- OR --
      ## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)
@@ -78,8 +80,8 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      ## Option 4: mount an NFS storage volume
      storageType: "nfs"
      nfs:
-     server:
-     path:
+       server:
+       path:
 
 .. raw:: html
 
@@ -89,42 +91,49 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 
     <br><br>
 
-3. Select resources for Triton pods.
+
+3. Select resources for Triton pods
 =============================================
 
-- You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file.
+- You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file:
 
-  .. code-block:: yaml
+.. code-block:: yaml
 
-     # Example:
-     resources:
-       limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
-       requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G}
+   resources:
+     limits:
+       nvidia.com/gpu: 1
+       cpu: 2
+       memory: 16G
+     requests:
+       nvidia.com/gpu: 1
+       cpu: 2
+       memory: 16G
 
-- In addition, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models.
+- In addition, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models:
 
-  .. code-block:: yaml
+.. code-block:: yaml
 
-     # Example:
-     affinity:
-       nodeAffinity:
-         requiredDuringSchedulingIgnoredDuringExecution:
-           nodeSelectorTerms:
-             - matchExpressions:
-               - key: nvidia.com/gpu.product
-                 operator: In
-                 values:
-                   - NVIDIA-A10
-                   - NVIDIA-A40
-                   - NVIDIA-L40
-                   - NVIDIA-L4
+   affinity:
+     nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+           - matchExpressions:
+             - key: nvidia.com/gpu.product
+               operator: In
+               values:
+                 - NVIDIA-A10
+                 - NVIDIA-A40
+                 - NVIDIA-L40
+                 - NVIDIA-L4
+
 
 Envoy Proxy Configuration
 ****************************************
 
 By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
 
-4. Configure external endpoint for Envoy Proxy.
+
+4. Configure external endpoint for Envoy Proxy
 ================================================
 
 Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.
@@ -154,7 +163,7 @@ There are two options:
    In this case, the client connections should be established to  ``<load_balancer_url>:8001`` and NOT use SSL.
 
 
-5. (optional) Configure rate limiting in Envoy Proxy.
+5. (optional) Configure rate limiting in Envoy Proxy
 ======================================================
    
 There are two types of rate limiting available in Envoy Proxy: *listener-level*, and *prometheus-based*.
@@ -190,12 +199,13 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
   At the moment, this functionality is configured to only reject ``RepositoryIndex`` requests to Triton servers, and it ignores
   any other requests in order not to slow down the inferences.
 
-  The metric and thershold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see below).
+  The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see below).
+
 
 Prometheus Configuration
 ****************************************
 
-6. Deploy a Prometheus server or connect to an existing one.
+6. Deploy a Prometheus server or connect to an existing one
 ============================================================
 
 Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
@@ -222,7 +232,7 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
       external: true
       url: "<prometheus_url>"
       port: <prometheus_port>
-      scheme: "https" # or "http"
+      scheme: "https"  # or "http"
 
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
@@ -234,10 +244,11 @@ When the metric value exceeds the threshold, the following happens:
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
+
 Grafana Configuration
 ****************************************
 
-7. Configure Grafana dashboard.
+7. Configure Grafana dashboard
 ==========================================
 
 Grafana is used to visualize metrics collected by Prometheus.
@@ -252,10 +263,11 @@ including latency breakdown, GPU utilization, and more.
        enabled: true
        hostName: "<grafana_url>"
 
+
 Autoscaler Configuration
 ****************************************
 
-8. (optional) Enable KEDA autoscaler.
+8. (optional) Enable KEDA autoscaler
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
