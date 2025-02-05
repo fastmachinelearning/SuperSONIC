@@ -36,6 +36,11 @@ Installation
 
    4. Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
       and other useful information.
+   
+   .. figure:: img/grafana.png
+      :align: center
+      :height: 250
+      :alt: Supersonic Grafana dashboard
 
 Uninstall SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
