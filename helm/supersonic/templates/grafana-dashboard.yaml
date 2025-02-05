@@ -9,6 +9,11 @@ metadata:
 data:
   default.json: |-
     {{- $dashboard := $.Files.Get "dashboards/default.json" }}
+    {{- $variables := $.Files.Get "dashboards/variables.json" }}
+    {{- $dashboard := $dashboard | fromJson }}
+    {{- $variables := $variables | fromJson }}
+    {{- $dashboard := merge $dashboard $variables }}
+    {{- $dashboard := $dashboard | toJson }}
     {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
     {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
     {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
