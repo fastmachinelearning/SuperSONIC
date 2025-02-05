@@ -18,32 +18,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 2,
-    "links": [
-      {
-        "asDropdown": false,
-        "icon": "doc",
-        "includeVars": false,
-        "keepTime": false,
-        "tags": [],
-        "targetBlank": true,
-        "title": "SuperSONIC Documentation",
-        "tooltip": "",
-        "type": "link",
-        "url": "https://fastmachinelearning.org/SuperSONIC"
-      },
-      {
-        "asDropdown": false,
-        "icon": "question",
-        "includeVars": false,
-        "keepTime": false,
-        "tags": [],
-        "targetBlank": true,
-        "title": "GitHub Issues",
-        "tooltip": "",
-        "type": "link",
-        "url": "https://github.com/fastmachinelearning/SuperSONIC/issues"
-      }
-    ],
     "liveNow": false,
     "panels": [
       {
@@ -59,20 +33,8 @@
           "y": 0
         },
         "id": 1,
-        "links": [
-          {
-            "targetBlank": true,
-            "title": "Documentation",
-            "url": "http://fastmachinelearning.org/SuperSONIC"
-          }
-        ],
         "options": {
-          "code": {
-            "language": "plaintext",
-            "showLineNumbers": false,
-            "showMiniMap": false
-          },
-          "content": "<div style=\"display: flex; align-items: center;\"><img src=\"https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/SuperSONIC_small_light_256.png?raw=true\" alt=\"SONIC Logo\" style=\"width: 100px; margin-right: 15px;\"><div><h1>SuperSONIC Dashboard</h1><p>Release name: supersonic</p><p>Version: 0.1.1</p></div></div>",
+          "content": "%HEADER%",
           "mode": "html"
         },
         "pluginVersion": "10.2.3",
@@ -1217,6 +1179,30 @@
           "label": "Server Load Threshold",
           "name": "server_load_threshold",
           "query": "%SERVER_LOAD_THRESHOLD%",
+          "skipUrlSync": false,
+          "type": "constant"
+        },
+        {
+          "hide": 2,
+          "label": "Release Name",
+          "name": "release_name",
+          "query": "%RELEASE_NAME%",
+          "skipUrlSync": false,
+          "type": "constant"
+        },
+        {
+          "hide": 2,
+          "label": "Version",
+          "name": "version",
+          "query": "%CHART_VERSION%",
+          "skipUrlSync": false,
+          "type": "constant"
+        },
+        {
+          "hide": 2,
+          "label": "Header",
+          "name": "header",
+          "query": "%HEADER%",
           "skipUrlSync": false,
           "type": "constant"
         }

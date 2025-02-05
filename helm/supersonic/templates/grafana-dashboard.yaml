@@ -8,14 +8,15 @@ metadata:
     app.kubernetes.io/component: grafana
 data:
   default.json: |-
-    {{- $dashboard := $.Files.Get "dashboards/default.json" | nindent 4 }}
+    {{- $dashboard := $.Files.Get "dashboards/default.json" }}
     {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
     {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
     {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
     {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
-    {{- $dashboard | indent 4 }}
+    {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
+    {{- $dashboard := $dashboard | replace "%HEADER%" $header }}
+    {{ $dashboard | nindent 4 }}
   triton.json: |-
-      {{- $dashboard := $.Files.Get "dashboards/triton.json" | nindent 4 }}
-      {{- $dashboard | indent 4 }}
+    {{- $.Files.Get "dashboards/triton.json" | nindent 4 }}
