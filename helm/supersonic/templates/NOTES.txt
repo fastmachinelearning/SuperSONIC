@@ -24,10 +24,8 @@ SuperSONIC chart successfully installed!
 | gRPC endpoint:           {{ .Values.ingress.hostName }}:443
 {{- end }}
 |
-{{- if (not .Values.prometheus.external) }}
-| Prometheus UI:           https://{{ .Values.prometheus.ingress.hostName }}
-{{- else if .Values.prometheus.url }}
-| Prometheus UI:           {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
+{{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
+| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
 {{- end }}
 |
 {{- if .Values.grafana.enabled }}

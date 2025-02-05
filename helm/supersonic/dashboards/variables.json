@@ -60,6 +60,14 @@
         "query": "%CHART_VERSION%",
         "skipUrlSync": false,
         "type": "constant"
+      },
+      {
+        "hide": 2,
+        "label": "Prometheus URL",
+        "name": "prometheus_url_full",
+        "query": "%PROMETHEUS_URL_FULL%",
+        "skipUrlSync": false,
+        "type": "constant"
       }
     ]
   }

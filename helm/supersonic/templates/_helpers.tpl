@@ -36,3 +36,11 @@ sum by (job) (
 )
 {{- end }}
 {{- end }}
+
+{{- define "supersonic.prometheusUrl" -}}
+{{- if (not .Values.prometheus.external) -}}
+https://{{ .Values.prometheus.ingress.hostName }}
+{{- else if .Values.prometheus.url -}}
+{{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
+{{- end }}
+{{- end }}

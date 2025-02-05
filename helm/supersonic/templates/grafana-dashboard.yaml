@@ -8,19 +8,26 @@ metadata:
     app.kubernetes.io/component: grafana
 data:
   default.json: |-
-    {{- $dashboard := $.Files.Get "dashboards/default.json" }}
-    {{- $variables := $.Files.Get "dashboards/variables.json" }}
-    {{- $dashboard := $dashboard | fromJson }}
-    {{- $variables := $variables | fromJson }}
-    {{- $dashboard := merge $dashboard $variables }}
+    {{- $dashboard := $.Files.Get "dashboards/default.json" | fromJson }}
+    {{- $grafana_variables := $.Files.Get "dashboards/variables.json" | fromJson }}
+    {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
+    {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
+    {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
+    {{- $prometheus_url := include "supersonic.prometheusUrl" . }}
+
+    {{- /* Remove any existing templating section from dashboard */ -}}
+    {{- $_ := unset $dashboard "templating" }}
+    
+    {{- /* Merge with variables from variables.json */ -}}
+    {{- $dashboard := merge $dashboard $grafana_variables }}
     {{- $dashboard := $dashboard | toJson }}
+    
+    {{- /* Replace template variables with actual values */ -}}
     {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
     {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
-    {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
-    {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
-    {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
+    {{- $dashboard := $dashboard | replace "%PROMETHEUS_URL_FULL%" $prometheus_url }}
     {{- $dashboard := $dashboard | replace "%HEADER%" $header }}
     {{ $dashboard | nindent 4 }}
   triton.json: |-
