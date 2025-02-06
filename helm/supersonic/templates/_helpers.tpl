@@ -37,12 +37,12 @@ Get Envoy name
 {{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
   {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
 {{- else }}
-sum by (job) (
-    rate(nv_inference_queue_duration_us{job=~"{{ include "supersonic.tritonName" . }}"}[15s])
+sum by (release) (
+    rate(nv_inference_queue_duration_us{release=~"{{ include "supersonic.name" . }}"}[15s])
 )
   /
-sum by (job) (
-    (rate(nv_inference_exec_count{job=~"{{ include "supersonic.tritonName" . }}"}[15s]) * 1000) + 0.001
+sum by (release) (
+    (rate(nv_inference_exec_count{release=~"{{ include "supersonic.name" . }}"}[15s]) * 1000) + 0.001
 )
 {{- end }}
 {{- end }}
