@@ -42,25 +42,9 @@ Scaling threshold: {{ .Values.prometheus.serverLoadThreshold }}{{"\n"}}
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
-{{- if .Values.prometheus.external }}
-| Prometheus UI:           {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
-{{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
-| Prometheus UI:           http://{{ include "supersonic.existingPrometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-|                         kubectl port-forward svc/{{ include "supersonic.existingPrometheusName" . }} -n {{ .Release.Namespace }} 9090:9090
-{{- else if not .Values.prometheus.external }}
-| Prometheus UI:           http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-|                         kubectl port-forward svc/{{ include "supersonic.prometheusName" . }} -n {{ .Release.Namespace }} 9090:9090
-{{- end }}
+| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
 |
 {{- if .Values.grafana.enabled }}
-{{- if .Values.grafana.ingress.enabled }}
-| Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
-{{- else if (eq (include "supersonic.grafanaExists" .) "true") }}
-| Grafana dashboard:       http://{{ include "supersonic.existingGrafanaName" . }}.{{ .Release.Namespace }}.svc.cluster.local
-|                         kubectl port-forward svc/{{ include "supersonic.existingGrafanaName" . }} -n {{ .Release.Namespace }} 3000:80
-{{- else }}
-| Grafana dashboard:       http://{{ include "supersonic.grafanaName" . }}.{{ .Release.Namespace }}.svc.cluster.local
-|                         kubectl port-forward svc/{{ include "supersonic.grafanaName" . }} -n {{ .Release.Namespace }} 3000:80
-{{- end }}
+| Grafana dashboard:       {{ include "supersonic.grafanaUrl" . }}
 {{- end }}
 └-----------------------------------------------------------------------------┘

@@ -6,7 +6,7 @@ Get Prometheus name
 {{- end -}}
 
 {{/*
-Check if Prometheus service exists in the namespace (from any release)
+Check if Prometheus exists in the namespace (from any release)
 */}}
 {{- define "supersonic.prometheusExists" -}}
 {{- $root := . -}}
@@ -40,17 +40,45 @@ Get existing Prometheus service name (from any release)
 {{- end -}}
 
 {{/*
-Get Prometheus URL (handles external, existing, and new instances)
+Get Prometheus URL (handles external, ingress, existing, and new instances)
 */}}
 {{- define "supersonic.prometheusUrl" -}}
 {{- if .Values.prometheus.external -}}
+  {{- if and .Values.prometheus.url .Values.prometheus.scheme -}}
 {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
-{{- else if (eq (include "supersonic.prometheusExists" .) "true") -}}
-http://{{ include "supersonic.existingPrometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-{{- else -}}
+  {{- else -}}
 http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-{{- end }}
-{{- end }}
+  {{- end -}}
+{{- else if and .Values.prometheus.ingress.enabled .Values.prometheus.ingress.hostName -}}
+https://{{ .Values.prometheus.ingress.hostName }}
+{{- else -}}
+  {{- $foundIngress := false -}}
+  {{- if (lookup "networking.k8s.io/v1" "Ingress" .Release.Namespace "") -}}
+    {{- $root := . -}}
+    {{- range (lookup "networking.k8s.io/v1" "Ingress" .Release.Namespace "").items -}}
+      {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
+                 (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
+                 (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
+        {{- range .spec.rules -}}
+          {{- if .host -}}
+            {{- $foundIngress = true -}}
+https://{{ .host }}
+            {{- break -}}
+          {{- end -}}
+        {{- end -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $foundIngress -}}
+    {{- if (eq (include "supersonic.prometheusExists" .) "true") -}}
+http://{{ include "supersonic.existingPrometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
+    {{- else -}}
+http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Validate RBAC permissions for Prometheus
