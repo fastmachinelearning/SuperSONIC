@@ -15,6 +15,22 @@ SuperSONIC chart successfully installed!
 | Instance name *: {{ (include "supersonic.name" .) }}
 | * equal to release name, unless nameOverride is specified.
 └-----------------------------------------------------------------------------┘
+
+{{- if or (and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true")) (eq (include "supersonic.prometheusExists" .) "true") .Values.prometheus.external }}
+┌-----------------------------------------------------------------------------┐
+| NOTICE: Using existing/external monitoring components
+|
+{{- if and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true") }}
+| • Re-using existing Grafana instance
+{{- end }}
+{{- if .Values.prometheus.external }}
+| • Using external Prometheus at
+{{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
+| • Re-using existing Prometheus instance
+{{- end }}
+└-----------------------------------------------------------------------------┘
+{{- end }}
+
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC
 |
@@ -24,11 +40,25 @@ SuperSONIC chart successfully installed!
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
-{{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
-| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
+{{- if .Values.prometheus.external }}
+| Prometheus UI:           {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
+{{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
+| Prometheus UI:           http://{{ include "supersonic.existingPrometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
+|                         kubectl port-forward svc/{{ include "supersonic.existingPrometheusName" . }} -n {{ .Release.Namespace }} 9090:9090
+{{- else if not .Values.prometheus.external }}
+| Prometheus UI:           http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
+|                         kubectl port-forward svc/{{ include "supersonic.prometheusName" . }} -n {{ .Release.Namespace }} 9090:9090
 {{- end }}
 |
 {{- if .Values.grafana.enabled }}
+{{- if .Values.grafana.ingress.enabled }}
 | Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
+{{- else if (eq (include "supersonic.grafanaExists" .) "true") }}
+| Grafana dashboard:       http://{{ include "supersonic.existingGrafanaName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+|                         kubectl port-forward svc/{{ include "supersonic.existingGrafanaName" . }} -n {{ .Release.Namespace }} 3000:80
+{{- else }}
+| Grafana dashboard:       http://{{ include "supersonic.grafanaName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+|                         kubectl port-forward svc/{{ include "supersonic.grafanaName" . }} -n {{ .Release.Namespace }} 3000:80
+{{- end }}
 {{- end }}
 └-----------------------------------------------------------------------------┘
