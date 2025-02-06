@@ -21,3 +21,12 @@ version: 0.1.2
 doi: 10.5281/zenodo.14816533
 date-released: 2025-02-05
 url: "https://github.com/fastmachinelearning/SuperSONIC"
+abstract: >+
+  Server infrastructure for inference-as-a-service in large
+  scientific experiments.
+keywords:
+  - Kubernetes
+  - NVIDIA Triton Inference Server
+  - inference as a service
+  - GPU
+  - machine learning
