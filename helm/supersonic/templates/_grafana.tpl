@@ -14,7 +14,8 @@ Check if Grafana service exists in the namespace (from any release)
 {{- if (lookup "v1" "Service" .Release.Namespace "") -}}
   {{- range (lookup "v1" "Service" .Release.Namespace "").items -}}
     {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-               (eq (index .metadata.labels "app.kubernetes.io/component") "grafana") -}}
+               (eq (index .metadata.labels "app.kubernetes.io/component") "grafana")
+               (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
       {{- $exists = true -}}
       {{- break -}}
     {{- end -}}
@@ -30,7 +31,8 @@ Get existing Grafana service name (from any release)
 {{- $root := . -}}
 {{- range (lookup "v1" "Service" .Release.Namespace "").items }}
   {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-             (eq (index .metadata.labels "app.kubernetes.io/component") "grafana") }}
+             (eq (index .metadata.labels "app.kubernetes.io/component") "grafana")
+             (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
     {{- .metadata.name -}}
     {{- break }}
   {{- end }}
