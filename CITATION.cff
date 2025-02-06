@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Kondratyev"
+  given-names: "Dmitry"
+  affiliation: Purdue University
+  orcid: "https://orcid.org/0000-0002-7874-2480"
+- family-names: "Chou"
+  given-names: "Yuan-Tang"
+  affiliation: University of Washington
+  orcid: "https://orcid.org/0000-0002-2204-5731"
+- family-names: "Paladino"
+  given-names: "Noah"
+  affiliation: MIT
+  orcid: "https://orcid.org/0000-0003-1225-537X"
+- family-names: "Riedel"
+  given-names: "Benedikt"
+  affiliation: University of Wisconsin-Madison
+  orcid: "https://orcid.org/0000-0002-9524-8943"
+- family-names: "Cochran-Branson"
+  given-names: "Miles"
+  affiliation: University of Washington
+  orcid: "https://orcid.org/0000-0003-1020-1108"
+title: "SuperSONIC"
+version: 0.1.2
+doi: 10.5281/zenodo.14816533
+date-released: 2025-02-05
+url: "https://github.com/fastmachinelearning/SuperSONIC"
+abstract: >+
+  Server infrastructure for inference-as-a-service in large
+  scientific experiments.
+keywords:
+  - Kubernetes
+  - NVIDIA Triton Inference Server
+  - inference as a service
+  - GPU
+  - machine learning
