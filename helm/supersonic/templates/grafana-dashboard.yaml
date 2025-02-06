@@ -1,3 +1,4 @@
+{{- if .Values.grafana.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -32,3 +33,4 @@ data:
     {{ $dashboard | nindent 4 }}
   triton.json: |-
     {{- $.Files.Get "dashboards/triton.json" | nindent 4 }}
+{{- end }}

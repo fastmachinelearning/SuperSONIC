@@ -54,3 +54,15 @@ http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.
 {{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
 {{- end }}
 {{- end }}
+
+{{- define "supersonic.validateRBACPermissions" -}}
+{{- if not .Values.prometheus.external -}}
+  {{- $canReadRoles := false -}}
+  {{- if (lookup "rbac.authorization.k8s.io/v1" "Role" .Release.Namespace "") -}}
+    {{- $canReadRoles = true -}}
+  {{- end -}}
+  {{- if not $canReadRoles -}}
+    {{- fail "\nError: Failed to install Prometheus due to lack of permissions to get 'roles' in API group 'rbac.authorization.k8s.io'.\nEither:\n1. Set prometheus.external=true in value.yaml and provide an external Prometheus URL, or\n2. Request necessary RBAC permissions from your cluster administrator." -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
