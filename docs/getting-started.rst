@@ -15,7 +15,7 @@ Installation
 
       - `Configuration guide <configuration-guide>`_
       - `Configuration reference <configuration-reference>`_
-      - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/master/values>`_
+      - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_
 
    2. Add FastML Helm repository:
 
