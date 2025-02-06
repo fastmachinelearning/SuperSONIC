@@ -3,18 +3,23 @@ message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Kondratyev"
   given-names: "Dmitry"
+  affiliation: Purdue University
   orcid: "https://orcid.org/0000-0002-7874-2480"
 - family-names: "Chou"
   given-names: "Yuan-Tang"
+  affiliation: University of Washington
   orcid: "https://orcid.org/0000-0002-2204-5731"
 - family-names: "Paladino"
   given-names: "Noah"
+  affiliation: MIT
   orcid: "https://orcid.org/0000-0003-1225-537X"
 - family-names: "Riedel"
   given-names: "Benedikt"
+  affiliation: University of Wisconsin-Madison
   orcid: "https://orcid.org/0000-0002-9524-8943"
 - family-names: "Cochran-Branson"
   given-names: "Miles"
+  affiliation: University of Washington
   orcid: "https://orcid.org/0000-0003-1020-1108"
 title: "SuperSONIC"
 version: 0.1.2
