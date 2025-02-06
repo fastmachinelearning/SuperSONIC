@@ -38,13 +38,13 @@ The full list of configuration parameters is available in the [Configuration ref
 ## Server diagram
 
 <p align="center">
-  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/diagram.svg" alt="diagram" width="700"/>
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram.svg" alt="diagram" width="700"/>
 </p>
 
 ## Grafana dashboard
 
 <p align="center">
-  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/master/docs/img/grafana.png" alt="grafana" width="700"/>
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/grafana.png" alt="grafana" width="700"/>
 </p>
 
 ## Status of deployment
