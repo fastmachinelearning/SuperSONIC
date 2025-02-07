@@ -477,7 +477,7 @@
     "tolerations": {
       "type": "array"
     },
-    "grafana": {
+    "grafana-legacy": {
       "type": "object",
       "properties": {
         "enabled": {
@@ -511,12 +511,338 @@
         "enabled",
         "ingress"
       ]
+    },
+    "grafana": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "adminUser": {
+          "type": "string"
+        },
+        "adminPassword": {
+          "type": "string"
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "rbac": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "create"
+          ]
+        },
+        "serviceAccount": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "create"
+          ]
+        },
+        "datasources": {
+          "type": "object",
+          "properties": {
+            "datasources.yaml": {
+              "type": "object",
+              "properties": {
+                "apiVersion": {
+                  "type": "integer"
+                },
+                "datasources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "access": {
+                        "type": "string"
+                      },
+                      "isDefault": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "access",
+                      "isDefault",
+                      "name",
+                      "type"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "apiVersion",
+                "datasources"
+              ]
+            }
+          },
+          "required": [
+            "datasources.yaml"
+          ]
+        },
+        "dashboardProviders": {
+          "type": "object",
+          "properties": {
+            "dashboardproviders.yaml": {
+              "type": "object",
+              "properties": {
+                "apiVersion": {
+                  "type": "integer"
+                },
+                "providers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "orgId": {
+                        "type": "integer"
+                      },
+                      "folder": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "disableDeletion": {
+                        "type": "boolean"
+                      },
+                      "editable": {
+                        "type": "boolean"
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "path"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "disableDeletion",
+                      "editable",
+                      "folder",
+                      "name",
+                      "options",
+                      "orgId",
+                      "type"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "apiVersion",
+                "providers"
+              ]
+            }
+          },
+          "required": [
+            "dashboardproviders.yaml"
+          ]
+        },
+        "dashboardsConfigMaps": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "default"
+          ]
+        },
+        "grafana.ini": {
+          "type": "object",
+          "properties": {
+            "auth": {
+              "type": "object",
+              "properties": {
+                "disable_login_form": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "disable_login_form"
+              ]
+            },
+            "auth.anonymous": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "org_role": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "org_role"
+              ]
+            },
+            "dashboards": {
+              "type": "object",
+              "properties": {
+                "default_home_dashboard_path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "default_home_dashboard_path"
+              ]
+            }
+          },
+          "required": [
+            "auth",
+            "auth.anonymous",
+            "dashboards"
+          ]
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "integer"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            }
+          },
+          "required": [
+            "limits",
+            "requests"
+          ]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "targetPort": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "port",
+            "targetPort",
+            "type"
+          ]
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "path": {
+              "type": "string"
+            },
+            "pathType": {
+              "type": "string"
+            },
+            "ingressClassName": {
+              "type": "string"
+            },
+            "hosts": {
+              "type": "array"
+            },
+            "tls": {
+              "type": "array"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "annotations",
+            "enabled",
+            "hosts",
+            "ingressClassName",
+            "path",
+            "pathType",
+            "tls"
+          ]
+        }
+      },
+      "required": [
+        "adminPassword",
+        "adminUser",
+        "dashboardProviders",
+        "dashboardsConfigMaps",
+        "datasources",
+        "enabled",
+        "grafana.ini",
+        "ingress",
+        "persistence",
+        "rbac",
+        "resources",
+        "service",
+        "serviceAccount"
+      ]
     }
   },
   "required": [
     "autoscaler",
     "envoy",
     "grafana",
+    "grafana-legacy",
     "ingress",
     "nameOverride",
     "nodeSelector",
