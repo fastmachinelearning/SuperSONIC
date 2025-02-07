@@ -18,7 +18,7 @@ SuperSONIC chart successfully installed!
 
 Scaling metric:{{ if not ( eq .Values.prometheus.serverLoadMetric "" ) }}    {{ .Values.prometheus.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
 
-Scaling threshold: {{ .Values.prometheus.serverLoadThreshold }}{{"\n"}}
+Scaling threshold: {{ include "supersonic.serverLoadThreshold" . }}{{"\n"}}
 
 {{- if or (and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true")) (eq (include "supersonic.prometheusExists" .) "true") .Values.prometheus.external }}
 ┌-----------------------------------------------------------------------------┐

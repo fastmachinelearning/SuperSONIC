@@ -25,20 +25,6 @@ Get Envoy name
 {{- printf "%s-envoy" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "supersonic.defaultMetric" -}}
-{{- if not ( eq .Values.prometheus.serverLoadMetric "" ) }}
-  {{- printf "%s" .Values.prometheus.serverLoadMetric -}}
-{{- else }}
-sum by (release) (
-    rate(nv_inference_queue_duration_us{release=~"{{ include "supersonic.name" . }}"}[15s])
-)
-  /
-sum by (release) (
-    (rate(nv_inference_exec_count{release=~"{{ include "supersonic.name" . }}"}[15s]) * 1000) + 0.001
-)
-{{- end }}
-{{- end }}
-
 {{/*
 Get gRPC endpoint
 */}}
