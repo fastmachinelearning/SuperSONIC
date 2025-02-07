@@ -70,7 +70,7 @@ jobs:
 
       - name: Grafana ready
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=grafana --timeout 120s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
 
       - name: Triton server ready
         run: |  
