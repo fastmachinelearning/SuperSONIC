@@ -1,4 +1,4 @@
-{{- include "supersonic.validateRBACPermissions" . -}}
+# {{- include "supersonic.validateRBACPermissions" . -}}
 {{- if not .Values.prometheus.external }}
 apiVersion: apps/v1
 kind: Deployment
