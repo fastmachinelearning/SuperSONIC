@@ -2,10 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "supersonic.grafanaName" . }}-dashboard
+  name: {{ .Release.Name }}-grafana-default-dashboard
   labels:
-    app.kubernetes.io/name: {{ .Chart.Name }}
-    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    grafana_dashboard: "1"
     app.kubernetes.io/component: grafana
 data:
   default.json: |-
@@ -31,6 +30,4 @@ data:
     {{- $dashboard := $dashboard | replace "%PROMETHEUS_URL_FULL%" $prometheus_url }}
     {{- $dashboard := $dashboard | replace "%HEADER%" $header }}
     {{ $dashboard | nindent 4 }}
-  triton.json: |-
-    {{- $.Files.Get "dashboards/triton.json" | nindent 4 }}
-{{- end }}
+{{- end }} 

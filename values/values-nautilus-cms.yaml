@@ -55,9 +55,41 @@ ingress:
 # nodeSelector:
 #   topology.kubernetes.io/zone: ucsd
 
-grafana:
+# Legacy Grafana configuration (deprecated)
+grafana-legacy:
   enabled: true
   ingress:
     enabled: true
     hostName: grafana-cms.nrp-nautilus.io
     ingressClassName: haproxy
+
+# New Grafana subchart configuration
+grafana:
+  enabled: true
+  
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          url: https://prometheus.nrp-nautilus.io
+          isDefault: true
+  
+  ingress:
+    enabled: true
+    hosts:
+      - grafana-cms.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-cms.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+      haproxy-ingress.github.io/timeout-http-request: "5m"
+  
+  grafana.ini:
+    server:
+      root_url: https://grafana-cms.nrp-nautilus.io
+

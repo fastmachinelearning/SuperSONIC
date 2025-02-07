@@ -66,3 +66,39 @@ http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Validate that there is no existing Grafana instance when enabling a new one
+*/}}
+{{- define "supersonic.validateGrafana" -}}
+{{- if .Values.grafana.enabled -}}
+  {{- if (lookup "v1" "Service" .Release.Namespace "") -}}
+    {{- $root := . -}}
+    {{- range (lookup "v1" "Service" .Release.Namespace "").items -}}
+      {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "grafana") 
+                 (eq (index .metadata.labels "app.kubernetes.io/instance") "supersonic")}}
+        {{- $releaseName := index .metadata.annotations "meta.helm.sh/release-name" -}}
+        {{- $podName := "" -}}
+        {{- if (lookup "v1" "Pod" $root.Release.Namespace "") -}}
+          {{- range (lookup "v1" "Pod" $root.Release.Namespace "").items -}}
+            {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "grafana") 
+                       (eq (index .metadata.labels "app.kubernetes.io/instance") $releaseName) }}
+              {{- $podName = .metadata.name -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $supersonic_release := "" -}}
+        {{- if (lookup "v1" "Service" $root.Release.Namespace "") -}}
+          {{- range (lookup "v1" "Service" $root.Release.Namespace "").items -}}
+            {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
+                       (eq (index .metadata.labels "app.kubernetes.io/instance") $releaseName) }}
+              {{- $supersonic_release = $releaseName -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- fail (printf "\n\nError: Found existing Grafana instance in the namespace:\n    • Pod name: %s\n    • Related to SuperSONIC release: %s\nTo proceed, either:\n    1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, or\n    2. Remove the existing Grafana instance by running:\n        helm upgrade %s fastml/supersonic --reuse-values --set grafana.enabled=false -n %s" $podName (default "standalone Grafana" $supersonic_release) $releaseName $root.Release.Namespace) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

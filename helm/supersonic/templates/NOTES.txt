@@ -1,4 +1,6 @@
 ---
+{{- /* Run validation checks */ -}}
+{{- include "supersonic.validateGrafana" . -}}
 
    ____                  ___  ___  _  _ ___ ___ 
   / __/_ _____  ___ ____/ __|/ _ \| \| |_ _/ __|
@@ -29,6 +31,6 @@ SuperSONIC chart successfully installed!
 {{- end }}
 |
 {{- if .Values.grafana.enabled }}
-| Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
+| Grafana dashboard:       {{ if .Values.grafana.ingress.enabled }}https://{{ (index .Values.grafana.ingress.hosts 0) }}{{ else }}http://{{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local{{ end }}
 {{- end }}
 └-----------------------------------------------------------------------------┘

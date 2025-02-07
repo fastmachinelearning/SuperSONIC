@@ -10,3 +10,9 @@ annotations:
   artifacthub.io/links: |
     - name: GitHub
       url: https://github.com/fastmachinelearning/SuperSONIC/
+
+dependencies:
+  - name: grafana
+    version: "8.9.0"  # Latest stable version as of now
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana-legacy.enabled

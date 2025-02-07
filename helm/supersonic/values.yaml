@@ -206,7 +206,9 @@ nodeSelector: {}
 tolerations: []
 
 ## Grafana Configuration
-grafana:
+## Legacy configuration - DEPRECATED, will be removed in future versions
+## These parameters control the templated Grafana deployment and will be removed in future versions
+grafana-legacy:  # Renamed from grafana to avoid conflicts
   # -- Enable or disable Grafana deployment
   enabled: false
   # -- Ingress configuration for Grafana
@@ -218,4 +220,80 @@ grafana:
     # -- Ingress class name (e.g. nginx, haproxy)
     ingressClassName: haproxy
     # -- Additional annotations for Grafana ingress
+    annotations: {}
+
+## Grafana Helm Chart Configuration
+## Configuration for the official Grafana Helm chart (https://github.com/grafana/helm-charts)
+grafana:
+  enabled: false  # Will be enabled when grafana-legacy.enabled is true during migration
+  adminUser: admin
+  adminPassword: admin
+  persistence:
+    enabled: false
+  rbac:
+    create: false
+  serviceAccount:
+    create: false
+
+  # -- Grafana datasources configuration
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+
+  # -- Grafana dashboard providers configuration
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  # -- Grafana dashboard ConfigMaps
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+
+  # -- Grafana.ini configuration
+  grafana.ini:
+    auth:
+      disable_login_form: true
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+    dashboards:
+      default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
+
+  # -- Resource limits and requests for Grafana
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # -- Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+  # -- Ingress configuration
+  ingress:
+    enabled: false
+    path: /
+    pathType: ImplementationSpecific
+    ingressClassName: ""
+    hosts: []
+    tls: []
     annotations: {}
