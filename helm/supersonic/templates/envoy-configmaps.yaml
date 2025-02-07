@@ -216,7 +216,7 @@ data:
     {{- if .Values.prometheus.external }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .Values.prometheus.url }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .Values.prometheus.scheme }}
-    {{- else if (include "supersonic.prometheusExists" .) }}
+    {{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" (printf "%s.%s.svc.cluster.local" (include "supersonic.existingPrometheusName" .) .Release.Namespace) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" "http" }}
     {{- else }}
