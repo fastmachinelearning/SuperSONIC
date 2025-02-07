@@ -1,4 +1,4 @@
-{{- if .Values.grafana.enabled }}
+{{- if and .Values.grafana.enabled (ne (include "supersonic.grafanaExists" .) "true") }}
 apiVersion: v1
 kind: Service
 metadata:

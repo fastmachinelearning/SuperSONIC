@@ -15,6 +15,24 @@ SuperSONIC chart successfully installed!
 | Instance name *: {{ (include "supersonic.name" .) }}
 | * equal to release name, unless nameOverride is specified.
 └-----------------------------------------------------------------------------┘
+
+Scaling metric:{{ if not ( eq .Values.prometheus.serverLoadMetric "" ) }}    {{ .Values.prometheus.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
+
+Scaling threshold: {{ include "supersonic.serverLoadThreshold" . }}{{"\n"}}
+
+{{- if or (and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true")) (eq (include "supersonic.prometheusExists" .) "true") .Values.prometheus.external }}
+┌-----------------------------------------------------------------------------┐
+| NOTICE: Using existing/external monitoring components
+{{- if and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true") }}
+| • Re-using existing Grafana instance
+{{- end }}
+{{- if .Values.prometheus.external }}
+| • Using external Prometheus instance
+{{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
+| • Re-using existing Prometheus instance
+{{- end }}
+└-----------------------------------------------------------------------------┘
+{{- end }}
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC
 |
@@ -24,11 +42,9 @@ SuperSONIC chart successfully installed!
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
-{{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
 | Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
-{{- end }}
 |
 {{- if .Values.grafana.enabled }}
-| Grafana dashboard:       https://{{ .Values.grafana.ingress.hostName }}
+| Grafana dashboard:       {{ include "supersonic.grafanaUrl" . }}
 {{- end }}
 └-----------------------------------------------------------------------------┘

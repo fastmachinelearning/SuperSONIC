@@ -11,8 +11,8 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(release)",
-        "hide": 2,
+        "definition": "label_values(up{app=\"%CHART_NAME%\", namespace=\"%NAMESPACE%\"}, release)",
+        "hide": 0,
         "includeAll": true,
         "label": "Release",
         "multi": true,
@@ -20,7 +20,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(release)",
+          "query": "label_values(up{app=\"%CHART_NAME%\", namespace=\"%NAMESPACE%\"}, release)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -42,14 +42,6 @@
         "label": "Server Load Threshold",
         "name": "server_load_threshold",
         "query": "%SERVER_LOAD_THRESHOLD%",
-        "skipUrlSync": false,
-        "type": "constant"
-      },
-      {
-        "hide": 2,
-        "label": "Release Name",
-        "name": "release_name",
-        "query": "%RELEASE_NAME%",
         "skipUrlSync": false,
         "type": "constant"
       },
