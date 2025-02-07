@@ -38,3 +38,5 @@ ingress:
   enabled: false
 grafana:
   enabled: true
+grafana-legacy:
+  enabled: true
