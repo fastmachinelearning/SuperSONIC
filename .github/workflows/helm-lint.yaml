@@ -55,6 +55,7 @@ jobs:
 
       - name: Lint values.yaml files in values/ directory
         run: |
+          helm dependency build ./helm/supersonic
           CHART_PATH="helm/supersonic/"
           VALUES_DIR="values/"
 
