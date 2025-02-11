@@ -170,6 +170,9 @@ prometheus:
   # -- Whether to use external Prometheus instance (true) or deploy internal one (false)
   external: true
 
+  # -- Enable or disable Prometheus deployment via subchart
+  enabled: false  # Set to true to deploy Prometheus via subchart
+
   # -- External Prometheus server url and port number (find in documentation of a given cluster or ask admins)
   # Only used when external=true
   url: ""
@@ -192,6 +195,56 @@ prometheus:
     hostName: ""
     ingressClassName: ""
     annotations: {}
+
+  # -- Prometheus Helm chart configuration (https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)
+  server:
+    useExistingClusterRoleName: supersonic-prometheus-role
+    releaseNamespace: true
+    persistentVolume:
+      enabled: false
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+    retention: 15d
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    service:
+      enabled: true
+      servicePort: 9090
+    configMapOverrideName: prometheus-config
+    ingress:
+      enabled: true
+      hosts: []
+      ingressClassName: ""
+      annotations: {}
+      tls:
+        - hosts: []
+
+  serviceAccounts:
+    server:
+      create: false
+      name: supersonic-prometheus-sa
+
+  rbac:
+    create: false
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+  kube-state-metrics:
+    enabled: false
+  prometheus-node-exporter:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  configmapReload:
+    prometheus:
+      enabled: false
 
 ingress:
   enabled: false
@@ -244,6 +297,10 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
+          url: http://supersonic-prometheus-server:9090
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
 
   # -- Grafana dashboard providers configuration
   dashboardProviders:

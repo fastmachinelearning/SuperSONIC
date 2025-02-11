@@ -11,8 +11,8 @@ triton:
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
   resources:
-    limits: { cpu: 2, memory: 4G, nvidia.com/a100: 1}
-    requests: { cpu: 2, memory: 4G, nvidia.com/a100: 1}
+    limits: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
+    requests: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -22,15 +22,21 @@ envoy:
   enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"
 prometheus:
+  enabled: true
   external: false
-  url: prometheus.nrp-nautilus.io
-  port: 443
-  scheme: https
-  serverLoadThreshold: 100
-  ingress:
-    enabled: true
-    hostName: prometheus-cms.nrp-nautilus.io
-    ingressClassName: haproxy
+  server:
+    ingress:
+      enabled: true
+      hosts:
+        - prometheus-cms.nrp-nautilus.io
+      tls:
+        - hosts:
+            - prometheus-cms.nrp-nautilus.io
+      ingressClassName: haproxy
+      annotations:
+        haproxy-ingress.github.io/cors-enable: "true"
+        haproxy-ingress.github.io/proxy-body-size: "512m"
+        haproxy-ingress.github.io/timeout-http-request: "5m"
 
 autoscaler:
   enabled: true
@@ -66,15 +72,6 @@ grafana-legacy:
 # New Grafana subchart configuration
 grafana:
   enabled: true
-  
-  datasources:
-    datasources.yaml:
-      datasources:
-        - name: prometheus
-          type: prometheus
-          access: proxy
-          url: https://prometheus.nrp-nautilus.io
-          isDefault: true
   
   ingress:
     enabled: true

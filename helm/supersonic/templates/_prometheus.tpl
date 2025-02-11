@@ -43,15 +43,23 @@ Get existing Prometheus service name (from any release)
 Get Prometheus URL (handles external, ingress, existing, and new instances)
 */}}
 {{- define "supersonic.prometheusUrl" -}}
-{{- if (not .Values.prometheus.external) -}}
+{{- if .Values.prometheus.external -}}
+{{- if .Values.prometheus.url -}}
+{{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
+{{- end -}}
+{{- else if .Values.prometheus.enabled -}}
+{{- if .Values.prometheus.ingress.enabled -}}
+https://{{ .Values.prometheus.ingress.hostName }}
+{{- else -}}
+http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.prometheus.server.service.servicePort }}
+{{- end -}}
+{{- else -}}
 {{- if .Values.prometheus.ingress.enabled -}}
 https://{{ .Values.prometheus.ingress.hostName }}
 {{- else -}}
 http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
 {{- end -}}
-{{- else if .Values.prometheus.url -}}
-{{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
-{{- end }}
+{{- end -}}
 {{- end }}
 
 {{/*
