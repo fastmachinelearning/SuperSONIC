@@ -29,7 +29,18 @@ Get Envoy proxy name
 Get gRPC endpoint for client connections
 */}}
 {{- define "supersonic.grpcEndpoint" -}}
-{{- if .Values.envoy.ingress.enabled -}}
-{{ .Values.envoy.ingress.hostName }}:443
-{{- end }}
+{{- if .Values.envoy.enabled -}}
+  {{- if .Values.envoy.ingress.enabled -}}
+    {{- printf "%s:443" .Values.envoy.ingress.hostName -}}
+  {{- else -}}
+    {{- $serviceName := include "supersonic.name" . -}}
+    {{- $grpcPort := 8001 -}}
+    {{- range .Values.envoy.service.ports -}}
+      {{- if eq .name "grpc" -}}
+        {{- $grpcPort = .port -}}
+      {{- end -}}
+    {{- end -}}
+    {{- printf "%s.%s.svc.cluster.local:%d" $serviceName .Release.Namespace $grpcPort -}}
+  {{- end -}}
+{{- end -}}
 {{- end -}}

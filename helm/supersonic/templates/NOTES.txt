@@ -26,7 +26,7 @@ SuperSONIC chart successfully installed!
 |
 | Uninstall:               helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
 |
-{{- if .Values.ingress.enabled }}
+{{- if .Values.envoy.enabled }}
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
