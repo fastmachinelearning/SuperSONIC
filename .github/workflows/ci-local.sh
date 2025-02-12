@@ -41,7 +41,8 @@ kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
 
 # 7. Deploy the Helm chart for supersonic
 echo "Deploying Helm chart for supersonic..."
-helm dependency update ./helm/supersonic
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
 helm dependency build ./helm/supersonic
 helm upgrade --install supersonic ./helm/supersonic --values values/values-cms-ci.yaml -n cms
 
