@@ -172,6 +172,12 @@ autoscaler:
     period: 120
     stepsize: 1
 
+# -- Node selector for all pods (Triton and Envoy)
+nodeSelector: {}
+
+# -- Tolerations for all pods (Triton and Envoy)
+tolerations: []
+
 # -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
 prometheus:
   external:
@@ -209,7 +215,7 @@ prometheus:
       servicePort: 9090
     configMapOverrideName: prometheus-config
     ingress:
-      enabled: true
+      enabled: false
       hosts: []
       ingressClassName: ""
       annotations: {}
@@ -242,12 +248,6 @@ ingress:
   hostName: ""
   ingressClassName: ""
   annotations: {}
-
-# -- Node selector for all pods (Triton and Envoy)
-nodeSelector: {}
-
-# -- Tolerations for all pods (Triton and Envoy)
-tolerations: []
 
 ## Grafana Helm Chart Configuration
 ## Configuration for the official Grafana Helm chart (https://github.com/grafana/helm-charts)
