@@ -28,9 +28,6 @@ envoy:
       max_tokens: 5
       tokens_per_fill: 1
       fill_interval: 12s
-  resources:
-    limits: { cpu: 100m, memory: 128Mi}
-    requests: { cpu: 100m, memory: 128Mi}
 prometheus:
   enabled: true
 grafana:
