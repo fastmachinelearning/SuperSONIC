@@ -18,6 +18,6 @@ sum by (release) (
 {{/*
 Get server load threshold (defaults to 100 if not set)
 */}}
-{{- define "supersonic.serverLoadThreshold" -}}
+{{- define "supersonic.defaultThreshold" -}}
 {{- default 100 .Values.serverLoadThreshold -}}
 {{- end -}} 

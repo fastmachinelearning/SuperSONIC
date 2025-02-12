@@ -31,6 +31,6 @@ SuperSONIC chart successfully installed!
 {{- end }}
 |
 {{- if .Values.grafana.enabled }}
-| Grafana dashboard:       {{- if and .Values.grafana.ingress.enabled .Values.grafana.ingress.hosts }}https://{{ index .Values.grafana.ingress.hosts 0 }}{{- else }}http://{{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local{{- end }}
+| Grafana dashboard:       {{ include "supersonic.grafanaUrl" . }}
 {{- end }}
 └-----------------------------------------------------------------------------┘
