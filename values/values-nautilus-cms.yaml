@@ -1,4 +1,5 @@
 serverLoadThreshold: 100
+
 triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   image: fastml/triton-torchgeo:22.07-py3-geometric # run3
@@ -19,6 +20,7 @@ triton:
     storageType: cvmfs-pvc
     mountPath: /cvmfs
   resetReadinessProbe: true
+
 envoy:
   enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"

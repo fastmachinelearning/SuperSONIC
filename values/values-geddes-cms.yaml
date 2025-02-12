@@ -27,6 +27,7 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
+
 envoy:
   enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"

@@ -36,6 +36,7 @@ envoy:
   ingress:
     enabled: true
     hostName: sonic-cms.anvilcloud.rcac.purdue.edu
+
 autoscaler:
   enabled: False
   minReplicas: 1

@@ -38,6 +38,7 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /models
+
 envoy:
   enabled: true
   auth:
@@ -62,6 +63,7 @@ envoy:
       haproxy-ingress.github.io/timeout-queue: "1m"
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
+
 autoscaler:
   enabled: false
   minReplicas: 0
