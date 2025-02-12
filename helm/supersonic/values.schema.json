@@ -399,6 +399,9 @@
         "external": {
           "type": "boolean"
         },
+        "enabled": {
+          "type": "boolean"
+        },
         "url": {
           "type": "string"
         },
@@ -436,15 +439,279 @@
             "hostName",
             "ingressClassName"
           ]
+        },
+        "server": {
+          "type": "object",
+          "properties": {
+            "useExistingClusterRoleName": {
+              "type": "string"
+            },
+            "releaseNamespace": {
+              "type": "boolean"
+            },
+            "persistentVolume": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "integer"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                }
+              },
+              "required": [
+                "limits",
+                "requests"
+              ]
+            },
+            "retention": {
+              "type": "string"
+            },
+            "global": {
+              "type": "object",
+              "properties": {
+                "scrape_interval": {
+                  "type": "string"
+                },
+                "evaluation_interval": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "evaluation_interval",
+                "scrape_interval"
+              ]
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "servicePort": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "enabled",
+                "servicePort"
+              ]
+            },
+            "configMapOverrideName": {
+              "type": "string"
+            },
+            "ingress": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "hosts": {
+                  "type": "array"
+                },
+                "ingressClassName": {
+                  "type": "string"
+                },
+                "annotations": {
+                  "type": "object"
+                },
+                "tls": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hosts": {
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "hosts"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "annotations",
+                "enabled",
+                "hosts",
+                "ingressClassName",
+                "tls"
+              ]
+            }
+          },
+          "required": [
+            "configMapOverrideName",
+            "global",
+            "ingress",
+            "persistentVolume",
+            "releaseNamespace",
+            "resources",
+            "retention",
+            "service",
+            "useExistingClusterRoleName"
+          ]
+        },
+        "serviceAccounts": {
+          "type": "object",
+          "properties": {
+            "server": {
+              "type": "object",
+              "properties": {
+                "create": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "create",
+                "name"
+              ]
+            }
+          },
+          "required": [
+            "server"
+          ]
+        },
+        "rbac": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "create"
+          ]
+        },
+        "alertmanager": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "pushgateway": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "kube-state-metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "prometheus-node-exporter": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "prometheus-pushgateway": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        "configmapReload": {
+          "type": "object",
+          "properties": {
+            "prometheus": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            }
+          },
+          "required": [
+            "prometheus"
+          ]
         }
       },
       "required": [
+        "alertmanager",
+        "configmapReload",
+        "enabled",
         "external",
         "ingress",
+        "kube-state-metrics",
         "port",
+        "prometheus-node-exporter",
+        "prometheus-pushgateway",
+        "pushgateway",
+        "rbac",
         "scheme",
+        "server",
         "serverLoadMetric",
         "serverLoadThreshold",
+        "serviceAccounts",
         "url"
       ]
     },
@@ -582,13 +849,33 @@
                       },
                       "isDefault": {
                         "type": "boolean"
+                      },
+                      "url": {
+                        "type": "string"
+                      },
+                      "jsonData": {
+                        "type": "object",
+                        "properties": {
+                          "timeInterval": {
+                            "type": "string"
+                          },
+                          "tlsSkipVerify": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "timeInterval",
+                          "tlsSkipVerify"
+                        ]
                       }
                     },
                     "required": [
                       "access",
                       "isDefault",
+                      "jsonData",
                       "name",
-                      "type"
+                      "type",
+                      "url"
                     ]
                   }
                 }
