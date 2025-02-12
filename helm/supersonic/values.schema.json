@@ -238,6 +238,29 @@
             "type"
           ]
         },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hostName": {
+              "type": "string"
+            },
+            "ingressClassName": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "annotations",
+            "enabled",
+            "hostName",
+            "ingressClassName"
+          ]
+        },
         "grpc_route_timeout": {
           "type": "string"
         },
@@ -329,6 +352,7 @@
         "enabled",
         "grpc_route_timeout",
         "image",
+        "ingress",
         "loadBalancerPolicy",
         "rate_limiter",
         "replicas",
@@ -703,29 +727,6 @@
         "serviceAccounts"
       ]
     },
-    "ingress": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "hostName": {
-          "type": "string"
-        },
-        "ingressClassName": {
-          "type": "string"
-        },
-        "annotations": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "annotations",
-        "enabled",
-        "hostName",
-        "ingressClassName"
-      ]
-    },
     "grafana": {
       "type": "object",
       "properties": {
@@ -1076,7 +1077,6 @@
     "autoscaler",
     "envoy",
     "grafana",
-    "ingress",
     "nameOverride",
     "nodeSelector",
     "prometheus",
