@@ -1,4 +1,4 @@
- {{/*
+{{/*
 Get Grafana name
 */}}
 {{- define "supersonic.grafanaName" -}}
@@ -95,4 +95,54 @@ To proceed, either:
       {{- end -}}
     {{- end -}}
   {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Grafana address consistency across ingress host, TLS host, and root_url
+*/}}
+{{- define "supersonic.validateGrafanaAddressConsistency" -}}
+{{- if and .Values.grafana.enabled .Values.grafana.ingress.enabled -}}
+  {{- /* Extract and validate ingress host */ -}}
+  {{- if not .Values.grafana.ingress.hosts -}}
+    {{- fail "Parameter missing: grafana.ingress.hosts" -}}
+  {{- end -}}
+  {{- $ingressHost := first .Values.grafana.ingress.hosts -}}
+
+  {{- /* Validate TLS host if TLS is enabled */ -}}
+  {{- if .Values.grafana.ingress.tls -}}
+    {{- if not (first .Values.grafana.ingress.tls).hosts -}}
+      {{- fail "Parameter missing: grafana.ingress.tls[0].hosts" -}}
+    {{- end -}}
+    {{- $tlsHost := first (first .Values.grafana.ingress.tls).hosts -}}
+    {{- if ne $ingressHost $tlsHost -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.ingress.tls[0].hosts[0]: %s" $ingressHost) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- /* Validate root_url if specified */ -}}
+  {{- if (index .Values.grafana "grafana.ini").server.root_url -}}
+    {{- $rootUrl := (index .Values.grafana "grafana.ini").server.root_url -}}
+    {{- $expectedRootUrl := printf "https://%s" $ingressHost -}}
+    {{- if ne $rootUrl $expectedRootUrl -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.grafana.ini.server.root_url: %s" $expectedRootUrl) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Grafana configuration values
+*/}}
+{{- define "supersonic.validateGrafanaValues" -}}
+{{- $releaseName := include "supersonic.name" . -}}
+
+{{- /* Validate default dashboard name */ -}}
+{{- if .Values.grafana.dashboardsConfigMaps -}}
+    {{- $configMapName := .Values.grafana.dashboardsConfigMaps.default -}}
+    {{- $expectedName := printf "%s-grafana-default-dashboard" $releaseName -}}
+    {{- if ne $configMapName $expectedName -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.dashboardsConfigMaps.default: %s" $expectedName) -}}
+    {{- end -}}
+{{- end -}}
 {{- end -}}

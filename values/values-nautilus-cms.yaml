@@ -1,3 +1,4 @@
+serverLoadThreshold: 100
 triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   image: fastml/triton-torchgeo:22.07-py3-geometric # run3
@@ -37,10 +38,29 @@ prometheus:
         haproxy-ingress.github.io/proxy-body-size: "512m"
         haproxy-ingress.github.io/timeout-http-request: "5m"
 
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - grafana-cms.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-cms.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+      haproxy-ingress.github.io/timeout-http-request: "5m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-cms.nrp-nautilus.io
+
 autoscaler:
   enabled: true
   minReplicas: 1
   maxReplicas: 5
+
 ingress:
   enabled: true
   hostName: sonic-cms.nrp-nautilus.io
@@ -60,24 +80,4 @@ ingress:
 # nodeSelector:
 #   topology.kubernetes.io/zone: ucsd
 
-# New Grafana subchart configuration
-grafana:
-  enabled: true
-  
-  ingress:
-    enabled: true
-    hosts:
-      - grafana-cms.nrp-nautilus.io
-    tls:
-      - hosts:
-          - grafana-cms.nrp-nautilus.io
-    ingressClassName: haproxy
-    annotations:
-      haproxy-ingress.github.io/cors-enable: "true"
-      haproxy-ingress.github.io/proxy-body-size: "512m"
-      haproxy-ingress.github.io/timeout-http-request: "5m"
-  
-  grafana.ini:
-    server:
-      root_url: https://grafana-cms.nrp-nautilus.io
 

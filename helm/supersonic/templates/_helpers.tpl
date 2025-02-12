@@ -33,5 +33,3 @@ Get gRPC endpoint for client connections
 {{ .Values.ingress.hostName }}:443
 {{- end }}
 {{- end -}}
-
-{{- end -}}

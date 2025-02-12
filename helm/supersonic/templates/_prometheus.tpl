@@ -107,3 +107,62 @@ Validate RBAC permissions for Prometheus
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Validate Prometheus configuration values
+*/}}
+{{- define "supersonic.validatePrometheusValues" -}}
+{{- $releaseName := include "supersonic.name" . -}}
+
+{{- /* Validate cluster role name */ -}}
+{{- if .Values.prometheus.server.useExistingClusterRoleName -}}
+  {{- $expectedRole := printf "%s-prometheus-role" $releaseName -}}
+  {{- if ne .Values.prometheus.server.useExistingClusterRoleName $expectedRole -}}
+    {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.useExistingClusterRoleName: %s" $expectedRole) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Validate service account name */ -}}
+{{- if .Values.prometheus.serviceAccounts.server.name -}}
+  {{- $expectedSA := printf "%s-prometheus-sa" $releaseName -}}
+  {{- if ne .Values.prometheus.serviceAccounts.server.name $expectedSA -}}
+    {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.serviceAccounts.server.name: %s" $expectedSA) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Validate Prometheus server URL in datasources */ -}}
+{{- if .Values.grafana.enabled -}}
+  {{- range (index .Values.grafana "datasources.yaml").datasources -}}
+    {{- if and (eq .type "prometheus") .url -}}
+      {{- $expectedURL := printf "http://%s-prometheus-server:9090" $releaseName -}}
+      {{- if ne .url $expectedURL -}}
+        {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.datasources.yaml.datasources[].url: %s" $expectedURL) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Prometheus address consistency across ingress host and TLS host
+*/}}
+{{- define "supersonic.validatePrometheusAddressConsistency" -}}
+{{- if and .Values.prometheus.enabled .Values.prometheus.server.ingress.enabled -}}
+  {{- /* Extract and validate ingress host */ -}}
+  {{- if not .Values.prometheus.server.ingress.hosts -}}
+    {{- fail "Parameter missing: prometheus.server.ingress.hosts" -}}
+  {{- end -}}
+  {{- $ingressHost := first .Values.prometheus.server.ingress.hosts -}}
+
+  {{- /* Validate TLS host if TLS is enabled */ -}}
+  {{- if .Values.prometheus.server.ingress.tls -}}
+    {{- if not (first .Values.prometheus.server.ingress.tls).hosts -}}
+      {{- fail "Parameter missing: prometheus.server.ingress.tls[0].hosts" -}}
+    {{- end -}}
+    {{- $tlsHost := first (first .Values.prometheus.server.ingress.tls).hosts -}}
+    {{- if ne $ingressHost $tlsHost -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.ingress.tls[0].hosts[0]: %s" $ingressHost) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
