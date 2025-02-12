@@ -399,6 +399,12 @@
         "zeroIdleReplicas"
       ]
     },
+    "nodeSelector": {
+      "type": "object"
+    },
+    "tolerations": {
+      "type": "array"
+    },
     "prometheus": {
       "type": "object",
       "properties": {
@@ -719,12 +725,6 @@
         "hostName",
         "ingressClassName"
       ]
-    },
-    "nodeSelector": {
-      "type": "object"
-    },
-    "tolerations": {
-      "type": "array"
     },
     "grafana": {
       "type": "object",
