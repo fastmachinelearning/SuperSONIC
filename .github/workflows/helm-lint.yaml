@@ -55,6 +55,8 @@ jobs:
 
       - name: Lint values.yaml files in values/ directory
         run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
           helm dependency build ./helm/supersonic
           CHART_PATH="helm/supersonic/"
           VALUES_DIR="values/"
