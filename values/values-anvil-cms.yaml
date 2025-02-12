@@ -33,10 +33,10 @@ triton:
                   - NVIDIA-A100-SXM4-80GB
 envoy:
   enabled: true
+  ingress:
+    enabled: true
+    hostName: sonic-cms.anvilcloud.rcac.purdue.edu
 autoscaler:
   enabled: False
   minReplicas: 1
   maxReplicas: 5
-ingress:
-  enabled: true
-  hostName: sonic-cms.anvilcloud.rcac.purdue.edu

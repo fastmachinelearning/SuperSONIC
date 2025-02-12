@@ -1,4 +1,4 @@
-{{ if .Values.ingress.enabled | default false }}
+{{ if .Values.envoy.ingress.enabled | default false }}
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -9,17 +9,17 @@ metadata:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
   annotations:
-    {{- if .Values.ingress.annotations }}
-{{ toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- if .Values.envoy.ingress.annotations }}
+{{ toYaml .Values.envoy.ingress.annotations | nindent 4 }}
     {{- end }}
 
 spec:
-  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.envoy.ingress.ingressClassName }}
   tls:
   - hosts:
-      - {{ .Values.ingress.hostName }}
+      - {{ .Values.envoy.ingress.hostName }}
   rules:
-  - host: {{ .Values.ingress.hostName }}
+  - host: {{ .Values.envoy.ingress.hostName }}
     http:
       paths:
       - backend:

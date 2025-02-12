@@ -109,6 +109,13 @@ envoy:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
 
+  # -- Ingress configuration for Envoy
+  ingress:
+    enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
+
   # -- Timeout for gRPC route in Envoy; disabled by default (0s), preventing Envoy from closing connections too early.
   grpc_route_timeout: 0s
 
@@ -242,12 +249,6 @@ prometheus:
   configmapReload:
     prometheus:
       enabled: false
-
-ingress:
-  enabled: false
-  hostName: ""
-  ingressClassName: ""
-  annotations: {}
 
 ## Grafana Helm Chart Configuration
 ## Configuration for the official Grafana Helm chart (https://github.com/grafana/helm-charts)

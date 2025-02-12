@@ -29,7 +29,7 @@ Get Envoy proxy name
 Get gRPC endpoint for client connections
 */}}
 {{- define "supersonic.grpcEndpoint" -}}
-{{- if .Values.ingress.enabled -}}
-{{ .Values.ingress.hostName }}:443
+{{- if .Values.envoy.ingress.enabled -}}
+{{ .Values.envoy.ingress.hostName }}:443
 {{- end }}
 {{- end -}}

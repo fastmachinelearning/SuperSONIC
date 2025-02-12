@@ -22,27 +22,26 @@ triton:
 envoy:
   enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"
+  ingress:
+    enabled: true
+    hostName: sonic-cms.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/backend-protocol: "h2"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+      haproxy-ingress.github.io/timeout-client: "5m"
+      haproxy-ingress.github.io/timeout-server: "5m"
+      haproxy-ingress.github.io/timeout-connect: "5m"
+      haproxy-ingress.github.io/timeout-http-request: "5m"
+      haproxy-ingress.github.io/timeout-queue: "1m"
+      haproxy-ingress.github.io/health-check-interval: "30s"
+      haproxy-ingress.github.io/health-check-rise-count: "1"
 
 autoscaler:
   enabled: true
   minReplicas: 1
   maxReplicas: 5
-
-ingress:
-  enabled: true
-  hostName: sonic-cms.nrp-nautilus.io
-  ingressClassName: haproxy
-  annotations:
-    haproxy-ingress.github.io/cors-enable: "true"
-    haproxy-ingress.github.io/backend-protocol: "h2"
-    haproxy-ingress.github.io/proxy-body-size: "512m"
-    haproxy-ingress.github.io/timeout-client: "5m"
-    haproxy-ingress.github.io/timeout-server: "5m"
-    haproxy-ingress.github.io/timeout-connect: "5m"
-    haproxy-ingress.github.io/timeout-http-request: "5m"
-    haproxy-ingress.github.io/timeout-queue: "1m"
-    haproxy-ingress.github.io/health-check-interval: "30s"
-    haproxy-ingress.github.io/health-check-rise-count: "1"
 
 # nodeSelector:
 #   topology.kubernetes.io/zone: ucsd

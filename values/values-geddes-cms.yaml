@@ -32,6 +32,9 @@ envoy:
   loadBalancerPolicy: "ROUND_ROBIN"
   service:
     type: LoadBalancer
+  ingress:
+    enabled: true
+    hostName: sonic-cms.geddes.rcac.purdue.edu
 
 autoscaler:
   enabled: true
