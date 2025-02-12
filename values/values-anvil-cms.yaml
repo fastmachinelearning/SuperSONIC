@@ -33,11 +33,6 @@ triton:
                   - NVIDIA-A100-SXM4-80GB
 envoy:
   enabled: true
-# prometheus:
-#   url: "prometheus.nrp-nautilus.io"
-#   port: 443
-#   scheme: https
-#   serverLoadThreshold: 10
 autoscaler:
   enabled: False
   minReplicas: 1

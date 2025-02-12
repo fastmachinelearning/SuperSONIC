@@ -1,3 +1,5 @@
+serverLoadThreshold: 100
+
 triton: 
   image: nvcr.io/nvidia/tritonserver:24.06-py3
   affinity:
@@ -45,11 +47,6 @@ envoy:
     audiences: [icecube]
     url: keycloak.icecube.wisc.edu
     port: 443
-prometheus:
-  url: "prometheus.nrp-nautilus.io"
-  port: 443
-  scheme: https
-  serverLoadThreshold: 100
 autoscaler:
   enabled: false
   minReplicas: 0
@@ -69,3 +66,28 @@ ingress:
     haproxy-ingress.github.io/timeout-queue: "1m"
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
+
+prometheus:
+  external:
+    enabled: true
+    url: "prometheus.nrp-nautilus.io"
+    port: 443
+    scheme: https
+
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - grafana-icecube.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-icecube.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/backend-protocol: "h2"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-icecube.nrp-nautilus.io

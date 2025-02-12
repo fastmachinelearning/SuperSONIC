@@ -1,3 +1,5 @@
+serverLoadThreshold: 100
+
 triton:
   name: triton-atlas
   image: milescb/traccc-aas:v1.1
@@ -36,11 +38,6 @@ triton:
 envoy:
   enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"
-prometheus:
-  url: "prometheus.nrp-nautilus.io"
-  port: 443
-  scheme: https
-  serverLoadThreshold: 100
 autoscaler:
   enabled: False
   minReplicas: 0
@@ -60,3 +57,28 @@ ingress:
     haproxy-ingress.github.io/timeout-queue: "1m"
     haproxy-ingress.github.io/health-check-interval: "30s"
     haproxy-ingress.github.io/health-check-rise-count: "1"
+
+prometheus:
+  external:
+    enabled: true
+    url: "prometheus.nrp-nautilus.io"
+    port: 443
+    scheme: https
+
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - grafana-atlas.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-atlas.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/backend-protocol: "h2"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-atlas.nrp-nautilus.io
