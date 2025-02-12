@@ -51,6 +51,7 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
+          helm dependency update ./helm/supersonic
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
             --values values/values-cms-ci.yaml -n cms
