@@ -5,6 +5,12 @@
     "nameOverride": {
       "type": "string"
     },
+    "serverLoadMetric": {
+      "type": "string"
+    },
+    "serverLoadThreshold": {
+      "type": "integer"
+    },
     "triton": {
       "type": "object",
       "properties": {
@@ -397,48 +403,30 @@
       "type": "object",
       "properties": {
         "external": {
-          "type": "boolean"
-        },
-        "enabled": {
-          "type": "boolean"
-        },
-        "url": {
-          "type": "string"
-        },
-        "port": {
-          "type": "integer"
-        },
-        "scheme": {
-          "type": "string"
-        },
-        "serverLoadMetric": {
-          "type": "string"
-        },
-        "serverLoadThreshold": {
-          "type": "integer"
-        },
-        "ingress": {
           "type": "object",
           "properties": {
             "enabled": {
               "type": "boolean"
             },
-            "hostName": {
+            "url": {
               "type": "string"
             },
-            "ingressClassName": {
-              "type": "string"
+            "port": {
+              "type": "integer"
             },
-            "annotations": {
-              "type": "object"
+            "scheme": {
+              "type": "string"
             }
           },
           "required": [
-            "annotations",
             "enabled",
-            "hostName",
-            "ingressClassName"
+            "port",
+            "scheme",
+            "url"
           ]
+        },
+        "enabled": {
+          "type": "boolean"
         },
         "server": {
           "type": "object",
@@ -700,19 +688,13 @@
         "configmapReload",
         "enabled",
         "external",
-        "ingress",
         "kube-state-metrics",
-        "port",
         "prometheus-node-exporter",
         "prometheus-pushgateway",
         "pushgateway",
         "rbac",
-        "scheme",
         "server",
-        "serverLoadMetric",
-        "serverLoadThreshold",
-        "serviceAccounts",
-        "url"
+        "serviceAccounts"
       ]
     },
     "ingress": {
@@ -1098,6 +1080,8 @@
     "nameOverride",
     "nodeSelector",
     "prometheus",
+    "serverLoadMetric",
+    "serverLoadThreshold",
     "tolerations",
     "triton"
   ]
