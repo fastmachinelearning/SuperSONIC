@@ -23,7 +23,6 @@ envoy:
   loadBalancerPolicy: "ROUND_ROBIN"
 prometheus:
   enabled: true
-  external: false
   server:
     ingress:
       enabled: true

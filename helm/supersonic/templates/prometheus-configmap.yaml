@@ -1,4 +1,4 @@
-{{- if and .Values.prometheus.enabled (not .Values.prometheus.external) }}
+{{- if and .Values.prometheus.enabled (not .Values.prometheus.external.enabled) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

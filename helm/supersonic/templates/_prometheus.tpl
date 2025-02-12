@@ -6,6 +6,60 @@ Get Prometheus name
 {{- end -}}
 
 {{/*
+Get Prometheus scheme
+*/}}
+{{- define "supersonic.prometheusScheme" -}}
+{{- if .Values.prometheus.external.enabled -}}
+    {{- .Values.prometheus.external.scheme -}}
+{{- else if .Values.prometheus.enabled -}}
+    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.tls -}}
+        {{- printf "https" -}}
+    {{- else -}}
+        {{- printf "http" -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get Prometheus host
+*/}}
+{{- define "supersonic.prometheusHost" -}}
+{{- if .Values.prometheus.external.enabled -}}
+    {{- .Values.prometheus.external.url -}}
+{{- else if .Values.prometheus.enabled -}}
+    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.hosts -}}
+        {{- first .Values.prometheus.server.ingress.hosts -}}
+    {{- else -}}
+        {{- printf "%s-prometheus-server.%s.svc.cluster.local" (include "supersonic.name" .) .Release.Namespace -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get Prometheus port
+*/}}
+{{- define "supersonic.prometheusPort" -}}
+{{- if .Values.prometheus.external.enabled -}}
+    {{- .Values.prometheus.external.port -}}
+{{- else if .Values.prometheus.enabled -}}
+    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.tls -}}
+        {{- printf "443" -}}
+    {{- else if .Values.prometheus.server.ingress.enabled -}}
+        {{- printf "80" -}}
+    {{- else -}}
+        {{- .Values.prometheus.server.service.servicePort | default "9090" -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get full Prometheus URL
+*/}}
+{{- define "supersonic.prometheusUrl" -}}
+{{- printf "%s://%s:%s" (include "supersonic.prometheusScheme" .) (include "supersonic.prometheusHost" .) (include "supersonic.prometheusPort" .) -}}
+{{- end -}}
+
+{{/*
 Check if Prometheus exists in the namespace (from any release)
 */}}
 {{- define "supersonic.prometheusExists" -}}
@@ -38,29 +92,6 @@ Get existing Prometheus service name (from any release)
   {{- end }}
 {{- end }}
 {{- end -}}
-
-{{/*
-Get Prometheus URL (handles external, ingress, existing, and new instances)
-*/}}
-{{- define "supersonic.prometheusUrl" -}}
-{{- if .Values.prometheus.external -}}
-{{- if .Values.prometheus.url -}}
-{{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
-{{- end -}}
-{{- else if .Values.prometheus.enabled -}}
-{{- if .Values.prometheus.ingress.enabled -}}
-https://{{ .Values.prometheus.ingress.hostName }}
-{{- else -}}
-http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.prometheus.server.service.servicePort }}
-{{- end -}}
-{{- else -}}
-{{- if .Values.prometheus.ingress.enabled -}}
-https://{{ .Values.prometheus.ingress.hostName }}
-{{- else -}}
-http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-{{- end -}}
-{{- end -}}
-{{- end }}
 
 {{/*
 Validate RBAC permissions for Prometheus

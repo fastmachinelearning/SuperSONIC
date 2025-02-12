@@ -3,6 +3,13 @@
 # -- Unique identifier of SuperSONIC instance (equal to release name by default)
 nameOverride: ""
 
+# -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
+## Default metric (inference queue latency) is defined in templates/_helpers.tpl
+serverLoadMetric: ""
+
+# -- Threshold for the metric
+serverLoadThreshold: 100
+
 triton:
   # -- Number of Triton server instances (if autoscaling is disabled)
   replicas: 1
@@ -167,34 +174,18 @@ autoscaler:
 
 # -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
 prometheus:
-  # -- Whether to use external Prometheus instance (true) or deploy internal one (false)
-  external: true
-
-  # -- Enable or disable Prometheus deployment via subchart
-  enabled: false  # Set to true to deploy Prometheus via subchart
-
-  # -- External Prometheus server url and port number (find in documentation of a given cluster or ask admins)
-  # Only used when external=true
-  url: ""
-  port: 443
-
-  # -- Specify whether external Prometheus endpoint is exposed as http or https
-  # Only used when external=true
-  scheme: "https"
-
-  # -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
-  ## Default metric (inference queue latency) is defined in templates/_helpers.tpl
-  serverLoadMetric: ""
-  
-  # -- Threshold for the metric
-  serverLoadThreshold: 100
-
-  # -- Ingress configuration for internal Prometheus web UI (only used when external=false)
-  ingress:
+  external:
+    # -- Enable external Prometheus instance
     enabled: false
-    hostName: ""
-    ingressClassName: ""
-    annotations: {}
+    # -- External Prometheus server url
+    url: ""
+    # -- External Prometheus server port number
+    port: 443
+    # -- Specify whether external Prometheus endpoint is exposed as http or https
+    scheme: "https"
+
+  # -- Enable or disable Prometheus subchart deployment
+  enabled: false
 
   # -- Prometheus Helm chart configuration (https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)
   server:

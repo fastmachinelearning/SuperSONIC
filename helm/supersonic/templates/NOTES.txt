@@ -26,7 +26,7 @@ SuperSONIC chart successfully installed!
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
 |
-{{- if (or (not .Values.prometheus.external) .Values.prometheus.url) }}
+{{- if or (.Values.prometheus.external.enabled) .Values.prometheus.enabled }}
 | Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
 {{- end }}
 |
