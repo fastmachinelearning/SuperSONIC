@@ -120,8 +120,8 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{- .url }}
-                      port_value: {{- .port }}
+                      address: {{ .url }}
+                      port_value: {{ .port }}
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
