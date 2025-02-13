@@ -25,6 +25,7 @@ data:
     {{- /* Replace template variables with actual values */ -}}
     {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
     {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
+    {{- $dashboard := $dashboard | replace "%NAMESPACE%" .Release.Namespace }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
     {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
     {{- $dashboard := $dashboard | replace "%PROMETHEUS_URL_FULL%" $prometheus_url }}

@@ -14,7 +14,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(release)",
+        "definition": "label_values({app=\"supersonic\",namespace=\"%NAMESPACE%\"},release)",
         "hide": 0,
         "includeAll": true,
         "label": "Release",
@@ -23,7 +23,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(release)",
+          "query": "label_values({app=\"supersonic\",namespace=\"%NAMESPACE%\"},release)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -61,6 +61,14 @@
         "label": "Prometheus URL",
         "name": "prometheus_url_full",
         "query": "%PROMETHEUS_URL_FULL%",
+        "skipUrlSync": false,
+        "type": "constant"
+      },
+      {
+        "hide": 2,
+        "label": "Namespace",
+        "name": "namespace",
+        "query": "%NAMESPACE%",
         "skipUrlSync": false,
         "type": "constant"
       }

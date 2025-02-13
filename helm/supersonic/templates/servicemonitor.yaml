@@ -22,6 +22,10 @@ spec:
         targetLabel: release
         regex: "(.*)"
         replacement: "{{ include "supersonic.name" . }}"
+      - sourceLabels: [__address__]
+        targetLabel: app
+        regex: "(.*)"
+        replacement: "{{ .Chart.Name }}"
 
 ---
 
@@ -49,3 +53,7 @@ spec:
         targetLabel: release
         regex: "(.*)"
         replacement: "{{ include "supersonic.name" . }}"
+      - sourceLabels: [__address__]
+        targetLabel: app
+        regex: "(.*)"
+        replacement: "{{ .Chart.Name }}"
