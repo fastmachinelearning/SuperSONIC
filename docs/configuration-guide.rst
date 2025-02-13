@@ -137,6 +137,7 @@ There are two options:
    You can configure the Ingress resource via the ``ingress`` parameters in the values file:
 
    .. code-block:: yaml
+
       envoy:
         ingress:
           enabled: true
