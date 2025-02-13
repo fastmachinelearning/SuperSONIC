@@ -9,25 +9,21 @@ Get Grafana name
 Get Grafana scheme
 */}}
 {{- define "supersonic.grafanaScheme" -}}
-{{- if .Values.grafana.ingress.enabled -}}
-    {{- if .Values.grafana.ingress.tls -}}
-        {{- printf "https" -}}
-    {{- else -}}
-        {{- printf "http" -}}
-    {{- end -}}
-{{- else -}}
-    {{- printf "http" -}}
-{{- end -}}
+{{- include "supersonic.common.getServiceScheme" (dict "serviceType" "grafana" "values" .Values) -}}
 {{- end -}}
 
 {{/*
 Get Grafana host
 */}}
 {{- define "supersonic.grafanaHost" -}}
-{{- if and .Values.grafana.ingress.enabled .Values.grafana.ingress.hosts -}}
-    {{- first .Values.grafana.ingress.hosts -}}
+{{- if .Values.grafana.enabled -}}
+    {{- if and .Values.grafana.ingress.enabled .Values.grafana.ingress.hosts -}}
+        {{- first .Values.grafana.ingress.hosts -}}
+    {{- else -}}
+        {{- printf "%s-grafana.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
+    {{- end -}}
 {{- else -}}
-    {{- printf "%s-grafana.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
+    {{- include "supersonic.existingGrafanaHost" . -}}
 {{- end -}}
 {{- end -}}
 
@@ -35,14 +31,18 @@ Get Grafana host
 Get Grafana port
 */}}
 {{- define "supersonic.grafanaPort" -}}
-{{- if .Values.grafana.ingress.enabled -}}
-    {{- if .Values.grafana.ingress.tls -}}
-        {{- printf "443" -}}
+{{- if .Values.grafana.enabled -}}
+    {{- if .Values.grafana.ingress.enabled -}}
+        {{- if .Values.grafana.ingress.tls -}}
+            {{- printf "443" -}}
+        {{- else -}}
+            {{- printf "80" -}}
+        {{- end -}}
     {{- else -}}
-        {{- printf "80" -}}
+        {{- .Values.grafana.service.port | default "80" -}}
     {{- end -}}
 {{- else -}}
-    {{- .Values.grafana.service.port | default "80" -}}
+    {{- include "supersonic.existingGrafanaPort" . -}}
 {{- end -}}
 {{- end -}}
 
@@ -54,95 +54,93 @@ Get full Grafana URL
 {{- end -}}
 
 {{/*
+Check if Grafana exists in the namespace
+*/}}
+{{- define "supersonic.grafanaExists" -}}
+{{- include "supersonic.common.serviceExists" (dict "serviceName" "grafana" "root" .) -}}
+{{- end -}}
+
+{{/*
+Get existing Grafana details
+*/}}
+{{- define "supersonic.getExistingGrafanaDetails" -}}
+{{- include "supersonic.common.getServiceDetails" (dict "serviceType" "grafana" "root" . "defaultPort" "80") -}}
+{{- end -}}
+
+{{/*
+Get existing Grafana scheme
+*/}}
+{{- define "supersonic.existingGrafanaScheme" -}}
+{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
+{{- $details.scheme -}}
+{{- end -}}
+
+{{/*
+Get existing Grafana host
+*/}}
+{{- define "supersonic.existingGrafanaHost" -}}
+{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
+{{- $details.host -}}
+{{- end -}}
+
+{{/*
+Get existing Grafana port
+*/}}
+{{- define "supersonic.existingGrafanaPort" -}}
+{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
+{{- $details.port -}}
+{{- end -}}
+
+{{/*
+Get existing Grafana URL
+*/}}
+{{- define "supersonic.existingGrafanaUrl" -}}
+{{- .Values.grafana.existingUrl -}}
+{{- end -}}
+
+{{/*
 Validate that there is no existing Grafana instance when enabling a new one
 */}}
 {{- define "supersonic.validateGrafana" -}}
 {{- if .Values.grafana.enabled -}}
-  {{- if (lookup "v1" "Service" .Release.Namespace "") -}}
-    {{- $root := . -}}
-    {{- range (lookup "v1" "Service" .Release.Namespace "").items -}}
-      {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "grafana") 
-                 (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-        {{- $releaseName := index .metadata.annotations "meta.helm.sh/release-name" -}}
-        {{- $podName := "" -}}
-        {{- if (lookup "v1" "Pod" $root.Release.Namespace "") -}}
-          {{- range (lookup "v1" "Pod" $root.Release.Namespace "").items -}}
-            {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "grafana") 
-                       (eq (index .metadata.labels "app.kubernetes.io/instance") $releaseName) }}
-              {{- $podName = .metadata.name -}}
-            {{- end -}}
-          {{- end -}}
-        {{- end -}}
-        {{- $supersonic_release := "" -}}
-        {{- if (lookup "v1" "Service" $root.Release.Namespace "") -}}
-          {{- range (lookup "v1" "Service" $root.Release.Namespace "").items -}}
-            {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-                       (eq (index .metadata.labels "app.kubernetes.io/instance") $releaseName) }}
-              {{- $supersonic_release = $releaseName -}}
-            {{- end -}}
-          {{- end -}}
-        {{- end -}}
-        {{- $message := cat "" -}}
-Error: Found existing Grafana instance in the namespace:
-- Pod name: {{ $podName }}
-- Related to SuperSONIC release: {{ default "standalone Grafana" $supersonic_release }}
-
-To proceed, either:
-1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, or
-2. Remove the existing Grafana instance by running:
-   helm upgrade {{ $releaseName }} fastml/supersonic --reuse-values --set grafana.enabled=false -n {{ $root.Release.Namespace }}
-        {{- $message | nindent 0 | fail -}}
-      {{- end -}}
-    {{- end -}}
+  {{- if include "supersonic.grafanaExists" . -}}
+    {{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
+    {{- $url := printf "%s://%s:%s" $details.scheme $details.host $details.port -}}
+    {{- fail (printf "Error: Found existing Grafana instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, OR\n2. Uninstall the existing Grafana instance" .Release.Namespace $url) -}}
   {{- end -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Validate Grafana address consistency across ingress host, TLS host, and root_url
+Validate Grafana address consistency
 */}}
 {{- define "supersonic.validateGrafanaAddressConsistency" -}}
-{{- if and .Values.grafana.enabled .Values.grafana.ingress.enabled -}}
-  {{- /* Extract and validate ingress host */ -}}
-  {{- if not .Values.grafana.ingress.hosts -}}
-    {{- fail "Parameter missing: grafana.ingress.hosts" -}}
-  {{- end -}}
-  {{- $ingressHost := first .Values.grafana.ingress.hosts -}}
-
-  {{- /* Validate TLS host if TLS is enabled */ -}}
-  {{- if .Values.grafana.ingress.tls -}}
-    {{- if not (first .Values.grafana.ingress.tls).hosts -}}
-      {{- fail "Parameter missing: grafana.ingress.tls[0].hosts" -}}
-    {{- end -}}
-    {{- $tlsHost := first (first .Values.grafana.ingress.tls).hosts -}}
-    {{- if ne $ingressHost $tlsHost -}}
-      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.ingress.tls[0].hosts[0]: %s" $ingressHost) -}}
-    {{- end -}}
-  {{- end -}}
-
-  {{- /* Validate root_url if specified */ -}}
-  {{- if (index .Values.grafana "grafana.ini").server.root_url -}}
-    {{- $rootUrl := (index .Values.grafana "grafana.ini").server.root_url -}}
-    {{- $expectedRootUrl := printf "https://%s" $ingressHost -}}
-    {{- if ne $rootUrl $expectedRootUrl -}}
-      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.grafana.ini.server.root_url: %s" $expectedRootUrl) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
+{{- include "supersonic.common.validateAddressConsistency" (dict "serviceType" "grafana" "values" .Values "root" .) -}}
 {{- end -}}
 
 {{/*
 Validate Grafana configuration values
 */}}
 {{- define "supersonic.validateGrafanaValues" -}}
-{{- $releaseName := include "supersonic.name" . -}}
+{{- if .Values.grafana.enabled -}}
+  {{- $releaseName := include "supersonic.name" . -}}
 
-{{- /* Validate default dashboard name */ -}}
-{{- if .Values.grafana.dashboardsConfigMaps -}}
+  {{- /* Validate default dashboard name */ -}}
+  {{- if .Values.grafana.dashboardsConfigMaps -}}
     {{- $configMapName := .Values.grafana.dashboardsConfigMaps.default -}}
     {{- $expectedName := printf "%s-grafana-default-dashboard" $releaseName -}}
     {{- if ne $configMapName $expectedName -}}
       {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.dashboardsConfigMaps.default: %s" $expectedName) -}}
     {{- end -}}
+  {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Get full Grafana URL for display (without standard ports)
+*/}}
+{{- define "supersonic.grafanaDisplayUrl" -}}
+{{- $scheme := include "supersonic.grafanaScheme" . -}}
+{{- $host := include "supersonic.grafanaHost" . -}}
+{{- printf "%s://%s" $scheme $host -}}
 {{- end -}}

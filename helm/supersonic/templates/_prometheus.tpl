@@ -9,15 +9,7 @@ Get Prometheus name
 Get Prometheus scheme
 */}}
 {{- define "supersonic.prometheusScheme" -}}
-{{- if .Values.prometheus.external.enabled -}}
-    {{- .Values.prometheus.external.scheme -}}
-{{- else if .Values.prometheus.enabled -}}
-    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.tls -}}
-        {{- printf "https" -}}
-    {{- else -}}
-        {{- printf "http" -}}
-    {{- end -}}
-{{- end -}}
+{{- include "supersonic.common.getServiceScheme" (dict "serviceType" "prometheus" "values" .Values) -}}
 {{- end -}}
 
 {{/*
@@ -32,6 +24,8 @@ Get Prometheus host
     {{- else -}}
         {{- printf "%s-prometheus-server.%s.svc.cluster.local" (include "supersonic.name" .) .Release.Namespace -}}
     {{- end -}}
+{{- else -}}
+    {{- include "supersonic.existingPrometheusHost" . -}}
 {{- end -}}
 {{- end -}}
 
@@ -49,6 +43,8 @@ Get Prometheus port
     {{- else -}}
         {{- .Values.prometheus.server.service.servicePort | default "9090" -}}
     {{- end -}}
+{{- else -}}
+    {{- include "supersonic.existingPrometheusPort" . -}}
 {{- end -}}
 {{- end -}}
 
@@ -60,37 +56,61 @@ Get full Prometheus URL
 {{- end -}}
 
 {{/*
-Check if Prometheus exists in the namespace (from any release)
+Check if Prometheus exists in the namespace
 */}}
 {{- define "supersonic.prometheusExists" -}}
-{{- $root := . -}}
-{{- $exists := false -}}
-{{- if (lookup "v1" "Service" .Release.Namespace "") -}}
-  {{- range (lookup "v1" "Service" .Release.Namespace "").items -}}
-    {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-               (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
-               (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-      {{- $exists = true -}}
-      {{- break -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- $exists -}}
+{{- include "supersonic.common.serviceExists" (dict "serviceName" "prometheus" "root" .) -}}
 {{- end -}}
 
 {{/*
-Get existing Prometheus service name (from any release)
+Get existing Prometheus details
 */}}
-{{- define "supersonic.existingPrometheusName" -}}
-{{- $root := . -}}
-{{- range (lookup "v1" "Service" .Release.Namespace "").items }}
-  {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-             (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
-             (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-    {{- .metadata.name -}}
-    {{- break }}
-  {{- end }}
-{{- end }}
+{{- define "supersonic.getExistingPrometheusDetails" -}}
+{{- include "supersonic.common.getServiceDetails" (dict "serviceType" "prometheus" "root" . "defaultPort" "9090") -}}
+{{- end -}}
+
+{{/*
+Get existing Prometheus scheme
+*/}}
+{{- define "supersonic.existingPrometheusScheme" -}}
+{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
+{{- $details.scheme -}}
+{{- end -}}
+
+{{/*
+Get existing Prometheus host
+*/}}
+{{- define "supersonic.existingPrometheusHost" -}}
+{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
+{{- $details.host -}}
+{{- end -}}
+
+{{/*
+Get existing Prometheus port
+*/}}
+{{- define "supersonic.existingPrometheusPort" -}}
+{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
+{{- $details.port -}}
+{{- end -}}
+
+{{/*
+Get existing Prometheus URL
+*/}}
+{{- define "supersonic.existingPrometheusUrl" -}}
+{{- .Values.prometheus.existingUrl -}}
+{{- end -}}
+
+{{/*
+Validate that there is no existing Prometheus instance when enabling a new one
+*/}}
+{{- define "supersonic.validatePrometheus" -}}
+{{- if and .Values.prometheus.enabled (not .Values.prometheus.external.enabled) -}}
+  {{- if include "supersonic.prometheusExists" . -}}
+    {{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
+    {{- $url := include "supersonic.prometheusDisplayUrl" . -}}
+    {{- fail (printf "Error: Found existing Prometheus instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set prometheus.enabled=false in values.yaml to use existing Prometheus instance, OR\n2. Set prometheus.external.enabled=true and provide external Prometheus URL, OR\n3. Uninstall the existing Prometheus instance" .Release.Namespace $url) -}}
+  {{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -114,19 +134,21 @@ Validate Prometheus configuration values
 {{- define "supersonic.validatePrometheusValues" -}}
 {{- $releaseName := include "supersonic.name" . -}}
 
-{{- /* Validate cluster role name */ -}}
-{{- if .Values.prometheus.server.useExistingClusterRoleName -}}
-  {{- $expectedRole := printf "%s-prometheus-role" $releaseName -}}
-  {{- if ne .Values.prometheus.server.useExistingClusterRoleName $expectedRole -}}
-    {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.useExistingClusterRoleName: %s" $expectedRole) -}}
+{{- if .Values.prometheus.enabled -}}
+  {{- /* Validate cluster role name */ -}}
+  {{- if .Values.prometheus.server.useExistingClusterRoleName -}}
+    {{- $expectedRole := printf "%s-prometheus-role" $releaseName -}}
+    {{- if ne .Values.prometheus.server.useExistingClusterRoleName $expectedRole -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.useExistingClusterRoleName: %s" $expectedRole) -}}
+    {{- end -}}
   {{- end -}}
-{{- end -}}
 
-{{- /* Validate service account name */ -}}
-{{- if .Values.prometheus.serviceAccounts.server.name -}}
-  {{- $expectedSA := printf "%s-prometheus-sa" $releaseName -}}
-  {{- if ne .Values.prometheus.serviceAccounts.server.name $expectedSA -}}
-    {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.serviceAccounts.server.name: %s" $expectedSA) -}}
+  {{- /* Validate service account name */ -}}
+  {{- if .Values.prometheus.serviceAccounts.server.name -}}
+    {{- $expectedSA := printf "%s-prometheus-sa" $releaseName -}}
+    {{- if ne .Values.prometheus.serviceAccounts.server.name $expectedSA -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.serviceAccounts.server.name: %s" $expectedSA) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -144,25 +166,17 @@ Validate Prometheus configuration values
 {{- end -}}
 
 {{/*
-Validate Prometheus address consistency across ingress host and TLS host
+Validate Prometheus address consistency
 */}}
 {{- define "supersonic.validatePrometheusAddressConsistency" -}}
-{{- if and .Values.prometheus.enabled .Values.prometheus.server.ingress.enabled -}}
-  {{- /* Extract and validate ingress host */ -}}
-  {{- if not .Values.prometheus.server.ingress.hosts -}}
-    {{- fail "Parameter missing: prometheus.server.ingress.hosts" -}}
-  {{- end -}}
-  {{- $ingressHost := first .Values.prometheus.server.ingress.hosts -}}
-
-  {{- /* Validate TLS host if TLS is enabled */ -}}
-  {{- if .Values.prometheus.server.ingress.tls -}}
-    {{- if not (first .Values.prometheus.server.ingress.tls).hosts -}}
-      {{- fail "Parameter missing: prometheus.server.ingress.tls[0].hosts" -}}
-    {{- end -}}
-    {{- $tlsHost := first (first .Values.prometheus.server.ingress.tls).hosts -}}
-    {{- if ne $ingressHost $tlsHost -}}
-      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.ingress.tls[0].hosts[0]: %s" $ingressHost) -}}
-    {{- end -}}
-  {{- end -}}
+{{- include "supersonic.common.validateAddressConsistency" (dict "serviceType" "prometheus" "values" .Values "root" .) -}}
 {{- end -}}
+
+{{/*
+Get full Prometheus URL for display (without standard ports)
+*/}}
+{{- define "supersonic.prometheusDisplayUrl" -}}
+{{- $scheme := include "supersonic.prometheusScheme" . -}}
+{{- $host := include "supersonic.prometheusHost" . -}}
+{{- printf "%s://%s" $scheme $host -}}
 {{- end -}}
