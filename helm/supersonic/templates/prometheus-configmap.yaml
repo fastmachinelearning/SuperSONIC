@@ -32,6 +32,10 @@ data:
             target_label: pod
           - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
             target_label: release
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            target_label: app
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
 
       - job_name: "{{ include "supersonic.envoyName" . }}"
         kubernetes_sd_configs:
@@ -51,5 +55,8 @@ data:
             target_label: pod
           - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
             target_label: release
-
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            target_label: app
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
 {{- end }}
