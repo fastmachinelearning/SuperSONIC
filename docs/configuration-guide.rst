@@ -4,6 +4,7 @@ Configuration Guide
 The following guide will help you configure ``values.yaml`` file for a SuperSONIC deployment.
 The full list of parameters can be found in the `Configuration Reference <configuration-reference>`_.
 
+You can find example values files in the `SuperSONIC GitHub repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_.
 
 1. Select a Triton Inference Server version
 =============================================
@@ -127,14 +128,16 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 4. Configure  Envoy Proxy
 ================================================
 
-By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
+By default, Envoy proxy is enabled and configured to provide per-request
+load balancing between Triton inference servers.
 
-Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.
+Once the SuperSONIC chart is installed, you need an address by which clients
+can connect to the Envoy proxy and send inference requests.
 
 There are two options:
 
--  **Ingress**: Use an Ingress to expose the Envoy proxy to the outside world.
-   You can configure the Ingress resource via the ``ingress`` parameters in the values file:
+-  **Ingress** (recommended): Use an Ingress to expose the Envoy proxy to the outside world.
+   You can configure the Ingress resource via the ``envoy.ingress`` parameters in the values file:
 
    .. code-block:: yaml
 
@@ -146,6 +149,8 @@ There are two options:
           annotations: {}
 
    In this case, the client connections should be established to  ``<ingress_url>:443`` and use SSL.
+
+   For information on how to configure Ingress for your cluster, please refer to cluster documentation or contact cluster administrators.
 
 -  **LoadBalancer Service**: This option allows to expose the Envoy proxy without using Ingress, but it may
    not be allowed at some Kubernetes clusters. To enable this, set the following parameters in the values file:
@@ -213,18 +218,19 @@ At the moment, the only supported authentication method is JWT. Example configur
        url: keycloak.icecube.wisc.edu
        port: 443
 
+
 7. Deploy a Prometheus server or connect to an existing one
 ============================================================
 
 Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
 
-- **Option 1**: Deploy a new Prometheus server (recommended).
+- **Option 1** (recommended): Deploy a new Prometheus server.
 
   This will allow to configure a shorter scraping interval, resulting in a more responsive
   rate limiter and autoscaler. Prometheus server typically uses only a small amount of resources
   and does not require special permissions for installation.
 
-  This option installs Prometheus as a subchart, reasonable default values are pre-configured.
+  This option installs Prometheus as a subchart, the default values for it are set to reasonable values.
   You can further customize the Prometheus installation by passing parameters from
   official Prometheus `values.yaml <https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml>`_ file
   under the ``prometheus`` section of the SuperSONIC values file:
@@ -248,14 +254,15 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 
   If you don't have enough permissions to install a new Prometheus server,
   you can connect to an existing one. If ``prometheus.external.enabled`` is set to ``true``,
-  all  parameters in the ``prometheus`` section, except ``prometheus.external``, are ignored.
+  all  parameters in the ``prometheus`` section, except the ones under
+  ``prometheus.external``, are ignored.
 
   .. code-block:: yaml
 
     prometheus:
       external:
         enabled: true
-          scheme: "https"  # or "http"
+          scheme: "<https or http>"
           url: "<prometheus_url>"
           port: <prometheus_port>
 
@@ -264,11 +271,12 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 ===============================================================
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
-They are defined in the ``serverLoadMetric`` and ``serverLoadThreshold`` parameters in the root level of the values file.
+They are defined in the ``serverLoadMetric`` and ``serverLoadThreshold`` parameters at the root level of the values file.
 The default metric is the inference queue time at the Triton servers, as defined in
 `here <https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl>`_.
 
 When the metric value exceeds the threshold, the following happens:
+
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
@@ -298,6 +306,10 @@ under the ``grafana`` section of the SuperSONIC values file:
 The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,
 
+.. figure:: img/grafana.png
+  :align: center
+  :height: 200
+  :alt: Supersonic Grafana dashboard
 
 10. (optional) Enable KEDA autoscaler
 ==========================================
@@ -310,7 +322,7 @@ can be enabled via the ``autoscaler.enabled`` parameter in the values file.
    Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
    Please contact cluster administrators if this step of installation fails.
 
-The parameters ``autoscaler.minReplicas`` and ``autoscaler.maxReplicas`` define the range in which
+The parameters ``autoscaler.minReplicaCount`` and ``autoscaler.maxReplicaCount`` define the range in which
 the number of Triton servers can scale.
 
 Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:
