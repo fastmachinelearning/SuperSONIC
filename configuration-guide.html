@@ -92,6 +92,7 @@
 <h1>Configuration Guide<a class="headerlink" href="#configuration-guide" title="Link to this heading"></a></h1>
 <p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.
 The full list of parameters can be found in the <a class="reference external" href="configuration-reference">Configuration Reference</a>.</p>
+<p>You can find example values files in the <a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">SuperSONIC GitHub repository</a>.</p>
 <section id="select-a-triton-inference-server-version">
 <h2>1. Select a Triton Inference Server version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h2>
 <ul class="simple">
@@ -198,13 +199,24 @@ The following options for model repository mounting are provided via <code class
 </section>
 <section id="configure-envoy-proxy">
 <h2>4. Configure  Envoy Proxy<a class="headerlink" href="#configure-envoy-proxy" title="Link to this heading"></a></h2>
-<p>By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.</p>
-<p>Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.</p>
+<p>By default, Envoy proxy is enabled and configured to provide per-request
+load balancing between Triton inference servers.</p>
+<p>Once the SuperSONIC chart is installed, you need an address by which clients
+can connect to the Envoy proxy and send inference requests.</p>
 <p>There are two options:</p>
 <ul>
-<li><p><strong>Ingress</strong>: Use an Ingress to expose the Envoy proxy to the outside world.
-You can configure the Ingress resource via the <code class="docutils literal notranslate"><span class="pre">ingress</span></code> parameters in the values file:</p>
+<li><p><strong>Ingress</strong> (recommended): Use an Ingress to expose the Envoy proxy to the outside world.
+You can configure the Ingress resource via the <code class="docutils literal notranslate"><span class="pre">envoy.ingress</span></code> parameters in the values file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_url&gt;&quot;</span>
+<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</pre></div>
+</div>
 <p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;ingress_url&gt;:443</span></code> and use SSL.</p>
+<p>For information on how to configure Ingress for your cluster, please refer to cluster documentation or contact cluster administrators.</p>
 </li>
 <li><p><strong>LoadBalancer Service</strong>: This option allows to expose the Envoy proxy without using Ingress, but it may
 not be allowed at some Kubernetes clusters. To enable this, set the following parameters in the values file:</p>
@@ -269,11 +281,11 @@ any other requests in order not to slow down the inferences.</p>
 <h2>7. Deploy a Prometheus server or connect to an existing one<a class="headerlink" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one" title="Link to this heading"></a></h2>
 <p>Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.</p>
 <ul>
-<li><p><strong>Option 1</strong>: Deploy a new Prometheus server (recommended).</p>
+<li><p><strong>Option 1</strong> (recommended): Deploy a new Prometheus server.</p>
 <p>This will allow to configure a shorter scraping interval, resulting in a more responsive
 rate limiter and autoscaler. Prometheus server typically uses only a small amount of resources
 and does not require special permissions for installation.</p>
-<p>This option installs Prometheus as a subchart, reasonable default values are pre-configured.
+<p>This option installs Prometheus as a subchart, the default values for it are set to reasonable values.
 You can further customize the Prometheus installation by passing parameters from
 official Prometheus <a class="reference external" href="https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml">values.yaml</a> file
 under the <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> section of the SuperSONIC values file:</p>
@@ -294,11 +306,12 @@ an error message will be printed when running <code class="docutils literal notr
 <li><p><strong>Option 2</strong>: Connect to an existing Prometheus server.</p>
 <p>If you don’t have enough permissions to install a new Prometheus server,
 you can connect to an existing one. If <code class="docutils literal notranslate"><span class="pre">prometheus.external.enabled</span></code> is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>,
-all  parameters in the <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> section, except <code class="docutils literal notranslate"><span class="pre">prometheus.external</span></code>, are ignored.</p>
+all  parameters in the <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> section, except the ones under
+<code class="docutils literal notranslate"><span class="pre">prometheus.external</span></code>, are ignored.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">prometheus</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">external</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">scheme</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;https&quot;</span><span class="w">  </span><span class="c1"># or &quot;http&quot;</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">scheme</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&lt;https</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">http&gt;&quot;</span>
 <span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
 <span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;prometheus_port&gt;</span>
 </pre></div>
@@ -309,12 +322,14 @@ all  parameters in the <code class="docutils literal notranslate"><span class="p
 <section id="optional-configure-metrics-for-scaling-and-rate-limiting">
 <h2>8. (optional) Configure metrics for scaling and rate limiting<a class="headerlink" href="#optional-configure-metrics-for-scaling-and-rate-limiting" title="Link to this heading"></a></h2>
 <p>Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
-They are defined in the <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameters in the root level of the values file.
+They are defined in the <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameters at the root level of the values file.
 The default metric is the inference queue time at the Triton servers, as defined in
 <a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl">here</a>.</p>
-<p>When the metric value exceeds the threshold, the following happens:
-- Autoscaler scales up the number of Triton servers if possible.
-- Envoy proxy rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests.</p>
+<p>When the metric value exceeds the threshold, the following happens:</p>
+<ul class="simple">
+<li><p>Autoscaler scales up the number of Triton servers if possible.</p></li>
+<li><p>Envoy proxy rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests.</p></li>
+</ul>
 <p>The pre-configured Grafana dashboard contains a graph of this metric, entitled “Server Load Metric”.
 The Prometheus query for the graph is automatically inferred from the value of <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> parameter.
 The graph also displays the threshold value defined in <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameter.</p>
@@ -335,6 +350,10 @@ under the <code class="docutils literal notranslate"><span class="pre">grafana</
 </div>
 <p>The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/grafana.png"><img alt="Supersonic Grafana dashboard" src="_images/grafana.png" style="height: 200px;" />
+</a>
+</figure>
 </section>
 <section id="optional-enable-keda-autoscaler">
 <h2>10. (optional) Enable KEDA autoscaler<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h2>
@@ -345,7 +364,7 @@ can be enabled via the <code class="docutils literal notranslate"><span class="p
 <p>Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
 Please contact cluster administrators if this step of installation fails.</p>
 </div>
-<p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicas</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicas</span></code> define the range in which
+<p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicaCount</span></code> define the range in which
 the number of Triton servers can scale.</p>
 <p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">autoscaler</span><span class="p">:</span>
