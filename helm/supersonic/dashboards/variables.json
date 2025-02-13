@@ -3,16 +3,19 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": ["supersonic"],
-          "value": ["supersonic"]
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
         "definition": "label_values(release)",
-        "hide": 2,
+        "hide": 0,
         "includeAll": true,
         "label": "Release",
         "multi": true,
@@ -42,14 +45,6 @@
         "label": "Server Load Threshold",
         "name": "server_load_threshold",
         "query": "%SERVER_LOAD_THRESHOLD%",
-        "skipUrlSync": false,
-        "type": "constant"
-      },
-      {
-        "hide": 2,
-        "label": "Release Name",
-        "name": "release_name",
-        "query": "%RELEASE_NAME%",
         "skipUrlSync": false,
         "type": "constant"
       },

@@ -30,10 +30,8 @@ data:
             regex: "8002"
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: pod
-          - source_labels: [__address__]
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
             target_label: release
-            regex: '(.*)'
-            replacement: '{{ include "supersonic.name" . }}'
 
       - job_name: "{{ include "supersonic.envoyName" . }}"
         kubernetes_sd_configs:
@@ -51,9 +49,7 @@ data:
             action: keep
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: pod
-          - source_labels: [__address__]
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
             target_label: release
-            regex: '(.*)'
-            replacement: '{{ include "supersonic.name" . }}'
 
 {{- end }}

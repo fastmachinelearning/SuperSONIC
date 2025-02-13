@@ -17,7 +17,7 @@
     },
     "editable": true,
     "fiscalYearStartMonth": 0,
-    "graphTooltip": 2,
+    "graphTooltip": 1,
     "liveNow": false,
     "panels": [
       {
@@ -112,7 +112,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=\"${release_name}\"})",
+            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -211,7 +211,7 @@
               "uid": "prometheus"
             },
             "expr": "${server_load_metric}",
-            "legendFormat": "__auto",
+            "legendFormat": "{{release}}",
             "refId": "A"
           }
         ],
@@ -328,7 +328,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "sum by (release) (    rate(nv_inference_compute_infer_duration_us{release=\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"${release_name}\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_infer_duration_us{release=~\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"${release_name}\"}[15s]) * 1000) + 0.001)",
             "instant": false,
             "legendFormat": "Inference",
             "range": true,
@@ -340,7 +340,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "sum by (release) (    rate(nv_inference_queue_duration_us{release=\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"${release_name}\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_queue_duration_us{release=~\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"${release_name}\"}[15s]) * 1000) + 0.001)",
             "hide": false,
             "instant": false,
             "legendFormat": "Queue",
@@ -353,7 +353,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "sum by (release) (    rate(nv_inference_compute_input_duration_us{release=\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"${release_name}\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_input_duration_us{release=~\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"${release_name}\"}[15s]) * 1000) + 0.001)",
             "hide": false,
             "instant": false,
             "legendFormat": "Input",
@@ -366,7 +366,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "sum by (release) (    rate(nv_inference_compute_output_duration_us{release=\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=\"${release_name}\"}[15s]) * 1000) + 0.001)",
+            "expr": "sum by (release) (    rate(nv_inference_compute_output_duration_us{release=~\"${release_name}\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"${release_name}\"}[15s]) * 1000) + 0.001)",
             "hide": false,
             "instant": false,
             "legendFormat": "Output",
@@ -379,7 +379,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "  sum(\n    rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=\"${release_name}\"}[15s])\n    /\n    rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=\"${release_name}\"}[15s])\n  ) by (release)",
+            "expr": "  sum(\n    rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"${release_name}\"}[15s])\n    /\n    rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"${release_name}\"}[15s])\n  ) by (release)",
             "hide": false,
             "instant": false,
             "legendFormat": "Total (measured at proxy)",
@@ -477,7 +477,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=\"${release_name}\"})",
+            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -925,7 +925,7 @@
             },
             "editorMode": "code",
             "exemplar": false,
-            "expr": "sum (rate(nv_inference_count{release=\"${release_name}\"}[15s]))by(release)",
+            "expr": "sum (rate(nv_inference_count{release=~\"${release_name}\"}[15s]))by(release)",
             "instant": false,
             "interval": "",
             "legendFormat": "{{ release }}",
@@ -1022,7 +1022,7 @@
             },
             "editorMode": "code",
             "exemplar": false,
-            "expr": "sum (rate(nv_inference_count{release=\"${release_name}\"}[15s]))by(pod)",
+            "expr": "sum (rate(nv_inference_count{release=~\"${release_name}\"}[15s]))by(pod)",
             "instant": false,
             "interval": "",
             "legendFormat": "{{ pod }}",
@@ -1119,7 +1119,7 @@
             },
             "editorMode": "code",
             "exemplar": false,
-            "expr": "sum (rate(nv_inference_count{release=\"${release_name}\"}[15s]))by(model)",
+            "expr": "sum (rate(nv_inference_count{release=~\"${release_name}\"}[15s]))by(model)",
             "instant": false,
             "interval": "",
             "legendFormat": "{{ model }}",
