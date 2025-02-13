@@ -152,4 +152,99 @@ Validate service address consistency
     {{- end -}}
   {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Get service name with prefix
+*/}}
+{{- define "supersonic.common.getServiceName" -}}
+{{- $serviceName := .serviceName -}}
+{{- printf "%s-%s" (include "supersonic.name" .root) $serviceName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Get service display URL (without standard ports)
+*/}}
+{{- define "supersonic.common.getServiceDisplayUrl" -}}
+{{- $scheme := .scheme -}}
+{{- $host := .host -}}
+{{- printf "%s://%s" $scheme $host -}}
+{{- end -}}
+
+{{/*
+Validate no existing service instance when enabling a new one
+*/}}
+{{- define "supersonic.common.validateNoExistingService" -}}
+{{- $serviceType := .serviceType -}}
+{{- $values := .values -}}
+{{- $root := .root -}}
+{{- if and (eq $serviceType "prometheus") (not $values.prometheus.external.enabled) -}}
+  {{- if include "supersonic.common.serviceExists" (dict "serviceName" $serviceType "root" $root) -}}
+    {{- $details := fromJson (include "supersonic.common.getServiceDetails" (dict "serviceType" $serviceType "root" $root)) -}}
+    {{- $url := printf "%s://%s" $details.scheme $details.host -}}
+    {{- fail (printf "Error: Found existing %s instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set %s.enabled=false in values.yaml to use existing instance, OR\n2. Uninstall the existing instance" $serviceType $root.Release.Namespace $url $serviceType) -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get full service URL
+*/}}
+{{- define "supersonic.common.getServiceUrl" -}}
+{{- $scheme := .scheme -}}
+{{- $host := .host -}}
+{{- $port := .port -}}
+{{- printf "%s://%s:%s" $scheme $host $port -}}
+{{- end -}}
+
+{{/*
+Get existing service details by type
+*/}}
+{{- define "supersonic.common.getExistingServiceDetails" -}}
+{{- $serviceType := .serviceType -}}
+{{- $root := .root -}}
+{{- $defaultPort := "" -}}
+{{- if eq $serviceType "prometheus" -}}
+    {{- $defaultPort = "9090" -}}
+{{- else if eq $serviceType "grafana" -}}
+    {{- $defaultPort = "80" -}}
+{{- end -}}
+{{- include "supersonic.common.getServiceDetails" (dict "serviceType" $serviceType "root" $root "defaultPort" $defaultPort) -}}
+{{- end -}}
+
+{{/*
+Get existing service scheme
+*/}}
+{{- define "supersonic.common.getExistingServiceScheme" -}}
+{{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" .) -}}
+{{- $details.scheme -}}
+{{- end -}}
+
+{{/*
+Get existing service host
+*/}}
+{{- define "supersonic.common.getExistingServiceHost" -}}
+{{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" .) -}}
+{{- $details.host -}}
+{{- end -}}
+
+{{/*
+Get existing service port
+*/}}
+{{- define "supersonic.common.getExistingServicePort" -}}
+{{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" .) -}}
+{{- $details.port -}}
+{{- end -}}
+
+{{/*
+Get existing service URL
+*/}}
+{{- define "supersonic.common.getExistingServiceUrl" -}}
+{{- $serviceType := .serviceType -}}
+{{- $values := .values -}}
+{{- if eq $serviceType "prometheus" -}}
+    {{- $values.prometheus.existingUrl -}}
+{{- else if eq $serviceType "grafana" -}}
+    {{- $values.grafana.existingUrl -}}
+{{- end -}}
 {{- end -}} 

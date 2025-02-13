@@ -2,7 +2,7 @@
 Get Prometheus name
 */}}
 {{- define "supersonic.prometheusName" -}}
-{{- printf "%s-prometheus" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- include "supersonic.common.getServiceName" (dict "serviceName" "prometheus" "root" .) -}}
 {{- end -}}
 
 {{/*
@@ -25,7 +25,7 @@ Get Prometheus host
         {{- printf "%s-prometheus-server.%s.svc.cluster.local" (include "supersonic.name" .) .Release.Namespace -}}
     {{- end -}}
 {{- else -}}
-    {{- include "supersonic.existingPrometheusHost" . -}}
+    {{- include "supersonic.common.getExistingServiceHost" (dict "serviceType" "prometheus" "root" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -44,7 +44,7 @@ Get Prometheus port
         {{- .Values.prometheus.server.service.servicePort | default "9090" -}}
     {{- end -}}
 {{- else -}}
-    {{- include "supersonic.existingPrometheusPort" . -}}
+    {{- include "supersonic.common.getExistingServicePort" (dict "serviceType" "prometheus" "root" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -52,7 +52,7 @@ Get Prometheus port
 Get full Prometheus URL
 */}}
 {{- define "supersonic.prometheusUrl" -}}
-{{- printf "%s://%s:%s" (include "supersonic.prometheusScheme" .) (include "supersonic.prometheusHost" .) (include "supersonic.prometheusPort" .) -}}
+{{- include "supersonic.common.getServiceUrl" (dict "scheme" (include "supersonic.prometheusScheme" .) "host" (include "supersonic.prometheusHost" .) "port" (include "supersonic.prometheusPort" .)) -}}
 {{- end -}}
 
 {{/*
@@ -63,54 +63,10 @@ Check if Prometheus exists in the namespace
 {{- end -}}
 
 {{/*
-Get existing Prometheus details
-*/}}
-{{- define "supersonic.getExistingPrometheusDetails" -}}
-{{- include "supersonic.common.getServiceDetails" (dict "serviceType" "prometheus" "root" . "defaultPort" "9090") -}}
-{{- end -}}
-
-{{/*
-Get existing Prometheus scheme
-*/}}
-{{- define "supersonic.existingPrometheusScheme" -}}
-{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
-{{- $details.scheme -}}
-{{- end -}}
-
-{{/*
-Get existing Prometheus host
-*/}}
-{{- define "supersonic.existingPrometheusHost" -}}
-{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
-{{- $details.host -}}
-{{- end -}}
-
-{{/*
-Get existing Prometheus port
-*/}}
-{{- define "supersonic.existingPrometheusPort" -}}
-{{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
-{{- $details.port -}}
-{{- end -}}
-
-{{/*
-Get existing Prometheus URL
-*/}}
-{{- define "supersonic.existingPrometheusUrl" -}}
-{{- .Values.prometheus.existingUrl -}}
-{{- end -}}
-
-{{/*
 Validate that there is no existing Prometheus instance when enabling a new one
 */}}
 {{- define "supersonic.validatePrometheus" -}}
-{{- if and .Values.prometheus.enabled (not .Values.prometheus.external.enabled) -}}
-  {{- if include "supersonic.prometheusExists" . -}}
-    {{- $details := fromJson (include "supersonic.getExistingPrometheusDetails" .) -}}
-    {{- $url := include "supersonic.prometheusDisplayUrl" . -}}
-    {{- fail (printf "Error: Found existing Prometheus instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set prometheus.enabled=false in values.yaml to use existing Prometheus instance, OR\n2. Set prometheus.external.enabled=true and provide external Prometheus URL, OR\n3. Uninstall the existing Prometheus instance" .Release.Namespace $url) -}}
-  {{- end -}}
-{{- end -}}
+{{- include "supersonic.common.validateNoExistingService" (dict "serviceType" "prometheus" "values" .Values "root" .) -}}
 {{- end -}}
 
 {{/*
@@ -176,7 +132,5 @@ Validate Prometheus address consistency
 Get full Prometheus URL for display (without standard ports)
 */}}
 {{- define "supersonic.prometheusDisplayUrl" -}}
-{{- $scheme := include "supersonic.prometheusScheme" . -}}
-{{- $host := include "supersonic.prometheusHost" . -}}
-{{- printf "%s://%s" $scheme $host -}}
+{{- include "supersonic.common.getServiceDisplayUrl" (dict "scheme" (include "supersonic.prometheusScheme" .) "host" (include "supersonic.prometheusHost" .)) -}}
 {{- end -}}

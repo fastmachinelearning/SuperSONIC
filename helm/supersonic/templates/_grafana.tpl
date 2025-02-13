@@ -2,7 +2,7 @@
 Get Grafana name
 */}}
 {{- define "supersonic.grafanaName" -}}
-{{- printf "%s-grafana" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- include "supersonic.common.getServiceName" (dict "serviceName" "grafana" "root" .) -}}
 {{- end -}}
 
 {{/*
@@ -23,7 +23,7 @@ Get Grafana host
         {{- printf "%s-grafana.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
     {{- end -}}
 {{- else -}}
-    {{- include "supersonic.existingGrafanaHost" . -}}
+    {{- include "supersonic.common.getExistingServiceHost" (dict "serviceType" "grafana" "root" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -42,7 +42,7 @@ Get Grafana port
         {{- .Values.grafana.service.port | default "80" -}}
     {{- end -}}
 {{- else -}}
-    {{- include "supersonic.existingGrafanaPort" . -}}
+    {{- include "supersonic.common.getExistingServicePort" (dict "serviceType" "grafana" "root" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -50,7 +50,7 @@ Get Grafana port
 Get full Grafana URL
 */}}
 {{- define "supersonic.grafanaUrl" -}}
-{{- printf "%s://%s:%s" (include "supersonic.grafanaScheme" .) (include "supersonic.grafanaHost" .) (include "supersonic.grafanaPort" .) -}}
+{{- include "supersonic.common.getServiceUrl" (dict "scheme" (include "supersonic.grafanaScheme" .) "host" (include "supersonic.grafanaHost" .) "port" (include "supersonic.grafanaPort" .)) -}}
 {{- end -}}
 
 {{/*
@@ -61,50 +61,12 @@ Check if Grafana exists in the namespace
 {{- end -}}
 
 {{/*
-Get existing Grafana details
-*/}}
-{{- define "supersonic.getExistingGrafanaDetails" -}}
-{{- include "supersonic.common.getServiceDetails" (dict "serviceType" "grafana" "root" . "defaultPort" "80") -}}
-{{- end -}}
-
-{{/*
-Get existing Grafana scheme
-*/}}
-{{- define "supersonic.existingGrafanaScheme" -}}
-{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
-{{- $details.scheme -}}
-{{- end -}}
-
-{{/*
-Get existing Grafana host
-*/}}
-{{- define "supersonic.existingGrafanaHost" -}}
-{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
-{{- $details.host -}}
-{{- end -}}
-
-{{/*
-Get existing Grafana port
-*/}}
-{{- define "supersonic.existingGrafanaPort" -}}
-{{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
-{{- $details.port -}}
-{{- end -}}
-
-{{/*
-Get existing Grafana URL
-*/}}
-{{- define "supersonic.existingGrafanaUrl" -}}
-{{- .Values.grafana.existingUrl -}}
-{{- end -}}
-
-{{/*
 Validate that there is no existing Grafana instance when enabling a new one
 */}}
 {{- define "supersonic.validateGrafana" -}}
 {{- if .Values.grafana.enabled -}}
   {{- if include "supersonic.grafanaExists" . -}}
-    {{- $details := fromJson (include "supersonic.getExistingGrafanaDetails" .) -}}
+    {{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" (dict "serviceType" "grafana" "root" .)) -}}
     {{- $url := printf "%s://%s:%s" $details.scheme $details.host $details.port -}}
     {{- fail (printf "Error: Found existing Grafana instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, OR\n2. Uninstall the existing Grafana instance" .Release.Namespace $url) -}}
   {{- end -}}
@@ -160,7 +122,5 @@ Validate Grafana configuration values
 Get full Grafana URL for display (without standard ports)
 */}}
 {{- define "supersonic.grafanaDisplayUrl" -}}
-{{- $scheme := include "supersonic.grafanaScheme" . -}}
-{{- $host := include "supersonic.grafanaHost" . -}}
-{{- printf "%s://%s" $scheme $host -}}
+{{- include "supersonic.common.getServiceDisplayUrl" (dict "scheme" (include "supersonic.grafanaScheme" .) "host" (include "supersonic.grafanaHost" .)) -}}
 {{- end -}}
