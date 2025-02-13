@@ -6,7 +6,9 @@ Pre-requisites
 ~~~~~~~~~~~~~~~
 
    1. `Kubernetes <https://kubernetes.io>`_ cluster
-   2. `KEDA <https://keda.sh>`_ (if using autoscaling) – may require cluster administrator to install CustomResourceDefinitions.
+   2. `Helm <https://helm.sh>`_
+   3. Access to an existing Prometheus instance in the cluster, or sufficient permissions to deploy a custom instance (preferred).
+   4. `KEDA <https://keda.sh>`_ (if using autoscaling) – may require cluster administrator to install CustomResourceDefinitions.
 
 Installation
 ~~~~~~~~~~~~~~
@@ -17,11 +19,13 @@ Installation
       - `Configuration reference <configuration-reference>`_
       - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_
 
-   2. Add FastML Helm repository:
+   2. Add Helm repositories for SuperSONIC and dependencies:
 
       .. code:: shell
 
          helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+         helm repo add grafana https://grafana.github.io/helm-charts
          helm repo update
 
    3. Modify the following command to install the chart at your cluster:

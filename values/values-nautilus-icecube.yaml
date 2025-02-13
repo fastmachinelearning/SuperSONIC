@@ -66,8 +66,8 @@ envoy:
 
 autoscaler:
   enabled: false
-  minReplicas: 0
-  maxReplicas: 1
+  minReplicaCount: 0
+  maxReplicaCount: 1
 
 prometheus:
   external:

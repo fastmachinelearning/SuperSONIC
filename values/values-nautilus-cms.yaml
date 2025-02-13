@@ -42,8 +42,8 @@ envoy:
 
 autoscaler:
   enabled: true
-  minReplicas: 1
-  maxReplicas: 5
+  minReplicaCount: 1
+  maxReplicaCount: 5
 
 # nodeSelector:
 #   topology.kubernetes.io/zone: ucsd
