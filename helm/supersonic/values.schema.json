@@ -366,10 +366,10 @@
         "enabled": {
           "type": "boolean"
         },
-        "minReplicas": {
+        "minReplicaCount": {
           "type": "integer"
         },
-        "maxReplicas": {
+        "maxReplicaCount": {
           "type": "integer"
         },
         "zeroIdleReplicas": {
@@ -378,10 +378,10 @@
         "scaleUp": {
           "type": "object",
           "properties": {
-            "window": {
+            "stabilizationWindowSeconds": {
               "type": "integer"
             },
-            "period": {
+            "periodSeconds": {
               "type": "integer"
             },
             "stepsize": {
@@ -389,18 +389,18 @@
             }
           },
           "required": [
-            "period",
-            "stepsize",
-            "window"
+            "periodSeconds",
+            "stabilizationWindowSeconds",
+            "stepsize"
           ]
         },
         "scaleDown": {
           "type": "object",
           "properties": {
-            "window": {
+            "stabilizationWindowSeconds": {
               "type": "integer"
             },
-            "period": {
+            "periodSeconds": {
               "type": "integer"
             },
             "stepsize": {
@@ -408,16 +408,16 @@
             }
           },
           "required": [
-            "period",
-            "stepsize",
-            "window"
+            "periodSeconds",
+            "stabilizationWindowSeconds",
+            "stepsize"
           ]
         }
       },
       "required": [
         "enabled",
-        "maxReplicas",
-        "minReplicas",
+        "maxReplicaCount",
+        "minReplicaCount",
         "scaleDown",
         "scaleUp",
         "zeroIdleReplicas"
