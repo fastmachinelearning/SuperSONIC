@@ -1,3 +1,4 @@
+{{- if and .Values.grafana.enabled (ne (include "supersonic.grafanaExists" .) "true") }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -16,4 +17,5 @@ spec:
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: grafana 
+    app.kubernetes.io/component: grafana
+{{- end }} 

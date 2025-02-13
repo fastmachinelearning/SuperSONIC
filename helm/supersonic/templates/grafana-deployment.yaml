@@ -1,3 +1,4 @@
+{{- if and .Values.grafana.enabled (ne (include "supersonic.grafanaExists" .) "true") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,4 +68,5 @@ spec:
             name: {{ include "supersonic.grafanaName" . }}-dashboards-config
         - name: dashboards
           configMap:
-            name: {{ include "supersonic.grafanaName" . }}-dashboard 
+            name: {{ include "supersonic.grafanaName" . }}-dashboard
+{{- end }} 

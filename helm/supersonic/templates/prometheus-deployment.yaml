@@ -1,4 +1,5 @@
-{{- if not .Values.prometheus.external }}
+{{- include "supersonic.validateRBACPermissions" . -}}
+{{- if and (not .Values.prometheus.external) (ne (include "supersonic.prometheusExists" .) "true") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

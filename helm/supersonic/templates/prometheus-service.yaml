@@ -1,4 +1,4 @@
-{{- if not .Values.prometheus.external }}
+{{- if and (not .Values.prometheus.external) (ne (include "supersonic.prometheusExists" .) "true") }}
 apiVersion: v1
 kind: Service
 metadata:

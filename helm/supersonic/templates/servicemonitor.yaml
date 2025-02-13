@@ -16,7 +16,16 @@ spec:
   endpoints:
   - port: metrics
     path: /metrics
-    interval: 15s
+    interval: 5s
+    relabelings:
+      - sourceLabels: [__address__]
+        targetLabel: release
+        regex: "(.*)"
+        replacement: "{{ include "supersonic.name" . }}"
+      - sourceLabels: [__address__]
+        targetLabel: app
+        regex: "(.*)"
+        replacement: "{{ .Chart.Name }}"
 
 ---
 
@@ -38,4 +47,13 @@ spec:
   endpoints:
   - port: admin
     path: /stats/prometheus
-    interval: 15s
+    interval: 5s
+    relabelings:
+      - sourceLabels: [__address__]
+        targetLabel: release
+        regex: "(.*)"
+        replacement: "{{ include "supersonic.name" . }}"
+      - sourceLabels: [__address__]
+        targetLabel: app
+        regex: "(.*)"
+        replacement: "{{ .Chart.Name }}"
