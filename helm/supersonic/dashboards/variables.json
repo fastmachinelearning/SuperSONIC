@@ -3,15 +3,18 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": ["supersonic"],
-          "value": ["supersonic"]
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(up{app=\"%CHART_NAME%\", namespace=\"%NAMESPACE%\"}, release)",
+        "definition": "label_values({app=\"%CHART_NAME%\",namespace=\"%NAMESPACE%\"},release)",
         "hide": 0,
         "includeAll": true,
         "label": "Release",
@@ -20,7 +23,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(up{app=\"%CHART_NAME%\", namespace=\"%NAMESPACE%\"}, release)",
+          "query": "label_values({app=\"%CHART_NAME%\",namespace=\"%NAMESPACE%\"},release)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -55,9 +58,25 @@
       },
       {
         "hide": 2,
+        "label": "Version",
+        "name": "version",
+        "query": "%CHART_NAME%",
+        "skipUrlSync": false,
+        "type": "constant"
+      },
+      {
+        "hide": 2,
         "label": "Prometheus URL",
         "name": "prometheus_url_full",
         "query": "%PROMETHEUS_URL_FULL%",
+        "skipUrlSync": false,
+        "type": "constant"
+      },
+      {
+        "hide": 2,
+        "label": "Namespace",
+        "name": "namespace",
+        "query": "%NAMESPACE%",
         "skipUrlSync": false,
         "type": "constant"
       }

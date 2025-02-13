@@ -14,8 +14,9 @@ function envoy_on_request(request_handle)
         local query_response_template = '"value":%[%d+%.%d+,"([%d%.]+)"%]'
         local encoded_query = encode_query(query)
 
-        request_handle:logInfo("Prometheus URL: " .. "PROMETHEUS_URL")
         request_handle:logInfo("Prometheus scheme: " .. "PROMETHEUS_SCHEME")
+        request_handle:logInfo("Prometheus host: " .. "PROMETHEUS_HOST")
+        request_handle:logInfo("Prometheus port: " .. "PROMETHEUS_PORT")
         request_handle:logInfo("Query: " .. query)
         request_handle:logInfo("Encoded query: " .. encoded_query)
 
@@ -24,8 +25,8 @@ function envoy_on_request(request_handle)
             {
                 [":method"] = "GET",
                 [":path"] = "/api/v1/query?query=" .. encoded_query,
-                [":authority"] = "PROMETHEUS_URL",
-                [":scheme"] = "PROMETHEUS_SCHEME"
+                [":scheme"] = "PROMETHEUS_SCHEME",
+                [":authority"] = "PROMETHEUS_HOST" .. ":" .. "PROMETHEUS_PORT"
             },
             "",
             5000

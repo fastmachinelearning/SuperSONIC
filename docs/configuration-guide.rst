@@ -5,9 +5,6 @@ The following guide will help you configure ``values.yaml`` file for a SuperSONI
 The full list of parameters can be found in the `Configuration Reference <configuration-reference>`_.
 
 
-Triton Inference Server Configuration
-****************************************
-
 1. Select a Triton Inference Server version
 =============================================
 
@@ -127,14 +124,10 @@ Triton version must be specified in the ``triton.image`` parameter in the values
                  - NVIDIA-L4
 
 
-Envoy Proxy Configuration
-****************************************
+4. Configure  Envoy Proxy
+================================================
 
 By default, Envoy proxy is enabled and configured to provide per-request load balancing between Triton inference servers.
-
-
-4. Configure external endpoint for Envoy Proxy
-================================================
 
 Once the SuperSONIC server is installed, you need an URL to which clients can connect and send inference requests.
 
@@ -144,10 +137,12 @@ There are two options:
    You can configure the Ingress resource via the ``ingress`` parameters in the values file:
 
    .. code-block:: yaml
-
-      ingress:
-        enabled: false
-        hostName: "<ingress_url>"
+      envoy:
+        ingress:
+          enabled: true
+          host: "<ingress_url>"
+          ingressClassName: "<ingress_class>"
+          annotations: {}
 
    In this case, the client connections should be established to  ``<ingress_url>:443`` and use SSL.
 
@@ -155,7 +150,7 @@ There are two options:
    not be allowed at some Kubernetes clusters. To enable this, set the following parameters in the values file:
 
    - ``envoy.service.type: LoadBalancer``
-   - ``ingress.enabled: false``
+   - ``envoy.ingress.enabled: false``
   
    The LoadBalancer service can then be mapped to an external URL, depending on the settings of a given cluster.
    Please contact cluster administrators for more information.
@@ -201,11 +196,23 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 
   The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
 
+6. (optional) Configure authentication in Envoy Proxy
+======================================================
 
-Prometheus Configuration
-****************************************
+At the moment, the only supported authentication method is JWT. Example configuration for IceCube:
 
-6. Deploy a Prometheus server or connect to an existing one
+.. code-block:: yaml
+
+   envoy:
+     auth:
+       enabled: true
+       jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
+       jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
+       audiences: [icecube]
+       url: keycloak.icecube.wisc.edu
+       port: 443
+
+7. Deploy a Prometheus server or connect to an existing one
 ============================================================
 
 Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
@@ -216,65 +223,91 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
   rate limiter and autoscaler. Prometheus server typically uses only a small amount of resources
   and does not require special permissions for installation.
 
+  This option installs Prometheus as a subchart, reasonable default values are pre-configured.
+  You can further customize the Prometheus installation by passing parameters from
+  official Prometheus `values.yaml <https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml>`_ file
+  under the ``prometheus`` section of the SuperSONIC values file:
+
   .. code-block:: yaml
 
     prometheus:
-      external: false
-      ingress:
-        enabled: true
-        hostName: "<prometheus_url>"
+      enabled: true
+      <official_prometheus_parameters>
+
+  The parameters you will most likely need to configure in your values file are related to
+  Ingress for web access to Prometheus UI.
+
+  .. warning::
+
+    This option requires permissions to list pods in the installation namespace.
+    Permission validation is performed automatically: if you don't have the necessary permissions,
+    an error message will be printed when running ``helm install`` command.
 
 - **Option 2**: Connect to an existing Prometheus server.
 
+  If you don't have enough permissions to install a new Prometheus server,
+  you can connect to an existing one. If ``prometheus.external.enabled`` is set to ``true``,
+  all  parameters in the ``prometheus`` section, except ``prometheus.external``, are ignored.
+
   .. code-block:: yaml
 
     prometheus:
-      external: true
-      url: "<prometheus_url>"
-      port: <prometheus_port>
-      scheme: "https"  # or "http"
+      external:
+        enabled: true
+          scheme: "https"  # or "http"
+          url: "<prometheus_url>"
+          port: <prometheus_port>
 
+
+8. (optional) Configure metrics for scaling and rate limiting
+===============================================================
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
-They are defined in the ``prometheus.serverLoadMetric`` and ``prometheus.serverLoadThreshold`` parameters in the values file.
+They are defined in the ``serverLoadMetric`` and ``serverLoadThreshold`` parameters in the root level of the values file.
 The default metric is the inference queue time at the Triton servers, as defined in
-`here <https://github.com/fastmachinelearning/SuperSONIC/blob/1793fdad3bf74bf9cdf33737b64c5f8486a6357f/helm/supersonic/templates/_helpers.tpl#L22>`_.
+`here <https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl>`_.
 
 When the metric value exceeds the threshold, the following happens:
 - Autoscaler scales up the number of Triton servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
 The pre-configured Grafana dashboard contains a graph of this metric, entitled "Server Load Metric".
-The Prometheus query for the graph is automatically inferred from the value of ``prometheus.serverLoadMetric`` parameter.
-The graph also displays the threshold value defined in ``prometheus.serverLoadThreshold`` parameter.
+The Prometheus query for the graph is automatically inferred from the value of ``serverLoadMetric`` parameter.
+The graph also displays the threshold value defined in ``serverLoadThreshold`` parameter.
 
-Grafana Configuration
-****************************************
 
-7. Configure Grafana dashboard
+9. (optional) Deploy Grafana dashboard
 ==========================================
 
 Grafana is used to visualize metrics collected by Prometheus.
 We provide a pre-configured Grafana dashboard which includes many useful metrics,
 including latency breakdown, GPU utilization, and more.
 
+Grafana is installed as a subchart with most of the default values pre-configured.
+You can further customize the Grafana installation by passing parameters from
+official Grafana `values.yaml <https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml>`_ file
+under the ``grafana`` section of the SuperSONIC values file:
+
 .. code-block:: yaml
 
    grafana:
      enabled: true
-     ingress:
-       enabled: true
-       hostName: "<grafana_url>"
+     <official_grafana_parameters>
+
+The values you will most likely need to configure in your values file are related to
+Grafana Ingress for web access, and datasources to connect to Prometheus,
 
 
-Autoscaler Configuration
-****************************************
-
-8. (optional) Enable KEDA autoscaler
+10. (optional) Enable KEDA autoscaler
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
 can be enabled via the ``autoscaler.enabled`` parameter in the values file.
+
+.. warning::
+
+   Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
+   Please contact cluster administrators if this step of installation fails.
 
 The parameters ``autoscaler.minReplicas`` and ``autoscaler.maxReplicas`` define the range in which
 the number of Triton servers can scale.
@@ -286,14 +319,14 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
    autoscaler:
      enabled: true
 
-     minReplicas: 1
-     maxReplicas: 10
+     minReplicaCount: 1
+     maxReplicaCount: 10
 
      scaleUp:
-       window: 120
-       period: 30
+       stabilizationWindowSeconds: 120
+       periodSeconds: 30
        stepsize: 1
      scaleDown:
-       window: 120
-       period: 30
+       stabilizationWindowSeconds: 120
+       periodSeconds: 30
        stepsize: 1

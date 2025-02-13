@@ -1,4 +1,11 @@
 ---
+{{- /* Run validation checks */ -}}
+{{- include "supersonic.validateGrafana" . -}}
+{{- include "supersonic.validateGrafanaAddressConsistency" . -}}
+{{- include "supersonic.validateGrafanaValues" . -}}
+{{- include "supersonic.validatePrometheus" . -}}
+{{- include "supersonic.validatePrometheusAddressConsistency" . -}}
+{{- include "supersonic.validatePrometheusValues" . -}}
 
    ____                  ___  ___  _  _ ___ ___ 
   / __/_ _____  ___ ____/ __|/ _ \| \| |_ _/ __|
@@ -16,35 +23,24 @@ SuperSONIC chart successfully installed!
 | * equal to release name, unless nameOverride is specified.
 └-----------------------------------------------------------------------------┘
 
-Scaling metric:{{ if not ( eq .Values.prometheus.serverLoadMetric "" ) }}    {{ .Values.prometheus.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
+Scaling metric:{{ if not ( eq .Values.serverLoadMetric "" ) }}    {{ .Values.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
 
-Scaling threshold: {{ include "supersonic.serverLoadThreshold" . }}{{"\n"}}
+Scaling threshold: {{ include "supersonic.defaultThreshold" . }}
 
-{{- if or (and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true")) (eq (include "supersonic.prometheusExists" .) "true") .Values.prometheus.external }}
-┌-----------------------------------------------------------------------------┐
-| NOTICE: Using existing/external monitoring components
-{{- if and .Values.grafana.enabled (eq (include "supersonic.grafanaExists" .) "true") }}
-| • Re-using existing Grafana instance
-{{- end }}
-{{- if .Values.prometheus.external }}
-| • Using external Prometheus instance
-{{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
-| • Re-using existing Prometheus instance
-{{- end }}
-└-----------------------------------------------------------------------------┘
-{{- end }}
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC
 |
 | Uninstall:               helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if .Values.envoy.enabled }}
 |
-{{- if .Values.ingress.enabled }}
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
+{{- if or .Values.prometheus.external.enabled .Values.prometheus.enabled (include "supersonic.prometheusExists" . ) }}
 |
-| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
+| Prometheus UI:           {{ include "supersonic.prometheusDisplayUrl" . }}
+{{- end }}
+{{- if or .Values.grafana.enabled (include "supersonic.grafanaExists" .) }}
 |
-{{- if .Values.grafana.enabled }}
-| Grafana dashboard:       {{ include "supersonic.grafanaUrl" . }}
+| Grafana dashboard:       {{ include "supersonic.grafanaDisplayUrl" . }}
 {{- end }}
 └-----------------------------------------------------------------------------┘
