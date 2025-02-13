@@ -89,6 +89,8 @@
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><a class="reference external" href="https://kubernetes.io">Kubernetes</a> cluster</p></li>
+<li><p><a class="reference external" href="https://helm.sh">Helm</a></p></li>
+<li><p>Access to an existing Prometheus instance in the cluster, or sufficient permissions to deploy a custom instance (preferred).</p></li>
 <li><p><a class="reference external" href="https://keda.sh">KEDA</a> (if using autoscaling) – may require cluster administrator to install CustomResourceDefinitions.</p></li>
 </ol>
 </div></blockquote>
@@ -104,8 +106,10 @@
 <li><p><a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">Example values.yaml files</a></p></li>
 </ul>
 </li>
-<li><p>Add FastML Helm repository:</p>
+<li><p>Add Helm repositories for SuperSONIC and dependencies:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>fastml<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC
+helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>prometheus-community<span class="w"> </span>https://prometheus-community.github.io/helm-charts
+helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>grafana<span class="w"> </span>https://grafana.github.io/helm-charts
 helm<span class="w"> </span>repo<span class="w"> </span>update
 </pre></div>
 </div>

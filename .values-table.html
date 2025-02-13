@@ -90,6 +90,16 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p>Unique identifier of SuperSONIC instance (equal to release name by default)</p></td>
 </tr>
+<tr class="row-odd"><td><p>serverLoadMetric</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>A metric used by both KEDA autoscaler and Envoy’s prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl</p></td>
+</tr>
+<tr class="row-even"><td><p>serverLoadThreshold</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>Threshold for the metric</p></td>
+</tr>
 <tr class="row-odd"><td><p>triton.replicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
@@ -185,184 +195,134 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">[{&quot;name&quot;:&quot;grpc&quot;,&quot;port&quot;:8001,&quot;targetPort&quot;:8001},{&quot;name&quot;:&quot;admin&quot;,&quot;port&quot;:9901,&quot;targetPort&quot;:9901}]</span></code></p></td>
 <td><p>Envoy Service ports</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.grpc_route_timeout</p></td>
+<tr class="row-even"><td><p>envoy.ingress</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
+<td><p>Ingress configuration for Envoy</p></td>
+</tr>
+<tr class="row-odd"><td><p>envoy.grpc_route_timeout</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0s&quot;</span></code></p></td>
 <td><p>Timeout for gRPC route in Envoy; disabled by default (0s), preventing Envoy from closing connections too early.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;fill_interval&quot;:&quot;12s&quot;,&quot;max_tokens&quot;:5,&quot;tokens_per_fill&quot;:1}</span></code></p></td>
 <td><p>This rate limiter explicitly controls the number of client connections to the Envoy Proxy.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.enabled</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable rate limiter</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.max_tokens</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.max_tokens</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
 <td><p>Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a “token” from the “bucket” which initially contains <code class="docutils literal notranslate"><span class="pre">max_tokens</span></code> tokens.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.tokens_per_fill</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.tokens_per_fill</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">tokens_per_fill</span></code> tokens are added to the “bucket” every <code class="docutils literal notranslate"><span class="pre">fill_interval</span></code>, allowing new connections to be established.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.fill_interval</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.fill_interval</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;12s&quot;</span></code></p></td>
 <td><p>For example, adding a new token every 12 seconds allows 5 new connections every minute.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.prometheus_based</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;luaConfig&quot;:&quot;cfg/envoy-filter.lua&quot;}</span></code></p></td>
 <td><p>This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code>, and the threshold is set by <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code>. These parameters are the same as those used by the KEDA autoscaler.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based.enabled</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.prometheus_based.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable rate limiter</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.loadBalancerPolicy</p></td>
+<tr class="row-odd"><td><p>envoy.loadBalancerPolicy</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;LEAST_REQUEST&quot;</span></code></p></td>
 <td><p>Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.auth.enabled</p></td>
+<tr class="row-even"><td><p>envoy.auth.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable authentication in Envoy proxy</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.auth.jwt_issuer</p></td>
+<tr class="row-odd"><td><p>envoy.auth.jwt_issuer</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.auth.jwt_remote_jwks_uri</p></td>
+<tr class="row-even"><td><p>envoy.auth.jwt_remote_jwks_uri</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.auth.audiences</p></td>
+<tr class="row-odd"><td><p>envoy.auth.audiences</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.auth.url</p></td>
+<tr class="row-even"><td><p>envoy.auth.url</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.auth.port</p></td>
+<tr class="row-odd"><td><p>envoy.auth.port</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">443</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.enabled</p></td>
+<tr class="row-even"><td><p>autoscaler.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code>, new Triton servers will spawn if the metric exceedds the threshold set by <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.minReplicas</p></td>
+<tr class="row-odd"><td><p>autoscaler.minReplicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p>Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start</p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.maxReplicas</p></td>
+<tr class="row-even"><td><p>autoscaler.maxReplicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.zeroIdleReplicas</p></td>
+<tr class="row-odd"><td><p>autoscaler.zeroIdleReplicas</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen.</p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleUp.window</p></td>
+<tr class="row-even"><td><p>autoscaler.scaleUp.window</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleUp.period</p></td>
+<tr class="row-odd"><td><p>autoscaler.scaleUp.period</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleUp.stepsize</p></td>
+<tr class="row-even"><td><p>autoscaler.scaleUp.stepsize</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleDown.window</p></td>
+<tr class="row-odd"><td><p>autoscaler.scaleDown.window</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">600</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleDown.period</p></td>
+<tr class="row-even"><td><p>autoscaler.scaleDown.period</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleDown.stepsize</p></td>
+<tr class="row-odd"><td><p>autoscaler.scaleDown.stepsize</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>prometheus</p></td>
-<td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;external&quot;:true,&quot;ingress&quot;:{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;},&quot;port&quot;:443,&quot;scheme&quot;:&quot;https&quot;,&quot;serverLoadMetric&quot;:&quot;&quot;,&quot;serverLoadThreshold&quot;:100,&quot;url&quot;:&quot;&quot;}</span></code></p></td>
-<td><p>Connection to a Prometheus server is required for KEDA autoscaler and Envoy’s prometheus-based rate limiter</p></td>
-</tr>
-<tr class="row-even"><td><p>prometheus.external</p></td>
-<td><p>bool</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
-<td><p>Whether to use external Prometheus instance (true) or deploy internal one (false)</p></td>
-</tr>
-<tr class="row-odd"><td><p>prometheus.url</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>External Prometheus server url and port number (find in documentation of a given cluster or ask admins) Only used when external=true</p></td>
-</tr>
-<tr class="row-even"><td><p>prometheus.scheme</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;https&quot;</span></code></p></td>
-<td><p>Specify whether external Prometheus endpoint is exposed as http or https Only used when external=true</p></td>
-</tr>
-<tr class="row-odd"><td><p>prometheus.serverLoadMetric</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>A metric used by both KEDA autoscaler and Envoy’s prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl</p></td>
-</tr>
-<tr class="row-even"><td><p>prometheus.serverLoadThreshold</p></td>
-<td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
-<td><p>Threshold for the metric</p></td>
-</tr>
-<tr class="row-odd"><td><p>prometheus.ingress</p></td>
-<td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
-<td><p>Ingress configuration for internal Prometheus web UI (only used when external=false)</p></td>
-</tr>
-<tr class="row-even"><td><p>ingress.enabled</p></td>
-<td><p>bool</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>ingress.hostName</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>ingress.ingressClassName</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>ingress.annotations</p></td>
-<td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>nodeSelector</p></td>
@@ -375,35 +335,105 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
 <td><p>Tolerations for all pods (Triton and Envoy)</p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.enabled</p></td>
+<tr class="row-even"><td><p>prometheus</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;alertmanager&quot;:{&quot;enabled&quot;:false},&quot;configmapReload&quot;:{&quot;prometheus&quot;:{&quot;enabled&quot;:false}},&quot;enabled&quot;:false,&quot;external&quot;:{&quot;enabled&quot;:false,&quot;port&quot;:443,&quot;scheme&quot;:&quot;https&quot;,&quot;url&quot;:&quot;&quot;},&quot;kube-state-metrics&quot;:{&quot;enabled&quot;:false},&quot;prometheus-node-exporter&quot;:{&quot;enabled&quot;:false},&quot;prometheus-pushgateway&quot;:{&quot;enabled&quot;:false},&quot;pushgateway&quot;:{&quot;enabled&quot;:false},&quot;rbac&quot;:{&quot;create&quot;:false},&quot;server&quot;:{&quot;configMapOverrideName&quot;:&quot;prometheus-config&quot;,&quot;global&quot;:{&quot;evaluation_interval&quot;:&quot;5s&quot;,&quot;scrape_interval&quot;:&quot;5s&quot;},&quot;ingress&quot;:{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]},&quot;persistentVolume&quot;:{&quot;enabled&quot;:false},&quot;releaseNamespace&quot;:true,&quot;resources&quot;:{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;500m&quot;,&quot;memory&quot;:&quot;512Mi&quot;}},&quot;retention&quot;:&quot;15d&quot;,&quot;service&quot;:{&quot;enabled&quot;:true,&quot;servicePort&quot;:9090},&quot;useExistingClusterRoleName&quot;:&quot;supersonic-prometheus-role&quot;},&quot;serviceAccounts&quot;:{&quot;server&quot;:{&quot;create&quot;:false,&quot;name&quot;:&quot;supersonic-prometheus-sa&quot;}}}</span></code></p></td>
+<td><p>Connection to a Prometheus server is required for KEDA autoscaler and Envoy’s prometheus-based rate limiter</p></td>
+</tr>
+<tr class="row-odd"><td><p>prometheus.external.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p>Enable or disable Grafana deployment</p></td>
+<td><p>Enable external Prometheus instance</p></td>
+</tr>
+<tr class="row-even"><td><p>prometheus.external.url</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>External Prometheus server url</p></td>
+</tr>
+<tr class="row-odd"><td><p>prometheus.external.port</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">443</span></code></p></td>
+<td><p>External Prometheus server port number</p></td>
+</tr>
+<tr class="row-even"><td><p>prometheus.external.scheme</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;https&quot;</span></code></p></td>
+<td><p>Specify whether external Prometheus endpoint is exposed as http or https</p></td>
+</tr>
+<tr class="row-odd"><td><p>prometheus.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable or disable Prometheus subchart deployment</p></td>
+</tr>
+<tr class="row-even"><td><p>prometheus.server</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;configMapOverrideName&quot;:&quot;prometheus-config&quot;,&quot;global&quot;:{&quot;evaluation_interval&quot;:&quot;5s&quot;,&quot;scrape_interval&quot;:&quot;5s&quot;},&quot;ingress&quot;:{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]},&quot;persistentVolume&quot;:{&quot;enabled&quot;:false},&quot;releaseNamespace&quot;:true,&quot;resources&quot;:{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;500m&quot;,&quot;memory&quot;:&quot;512Mi&quot;}},&quot;retention&quot;:&quot;15d&quot;,&quot;service&quot;:{&quot;enabled&quot;:true,&quot;servicePort&quot;:9090},&quot;useExistingClusterRoleName&quot;:&quot;supersonic-prometheus-role&quot;}</span></code></p></td>
+<td><p>Prometheus Helm chart configuration (https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.adminUser</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.adminPassword</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.persistence.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.rbac.create</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.serviceAccount.create</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.datasources</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;datasources.yaml&quot;:{&quot;apiVersion&quot;:1,&quot;datasources&quot;:[{&quot;access&quot;:&quot;proxy&quot;,&quot;isDefault&quot;:true,&quot;jsonData&quot;:{&quot;timeInterval&quot;:&quot;5s&quot;,&quot;tlsSkipVerify&quot;:true},&quot;name&quot;:&quot;prometheus&quot;,&quot;type&quot;:&quot;prometheus&quot;,&quot;url&quot;:&quot;http://supersonic-prometheus-server:9090&quot;}]}}</span></code></p></td>
+<td><p>Grafana datasources configuration</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.dashboardProviders</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;dashboardproviders.yaml&quot;:{&quot;apiVersion&quot;:1,&quot;providers&quot;:[{&quot;disableDeletion&quot;:false,&quot;editable&quot;:true,&quot;folder&quot;:&quot;&quot;,&quot;name&quot;:&quot;default&quot;,&quot;options&quot;:{&quot;path&quot;:&quot;/var/lib/grafana/dashboards/default&quot;},&quot;orgId&quot;:1,&quot;type&quot;:&quot;file&quot;}]}}</span></code></p></td>
+<td><p>Grafana dashboard providers configuration</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.dashboardsConfigMaps</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;default&quot;:&quot;supersonic-grafana-default-dashboard&quot;}</span></code></p></td>
+<td><p>Grafana dashboard ConfigMaps</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.”grafana.ini”</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;auth&quot;:{&quot;disable_login_form&quot;:true},&quot;auth.anonymous&quot;:{&quot;enabled&quot;:true,&quot;org_role&quot;:&quot;Admin&quot;},&quot;dashboards&quot;:{&quot;default_home_dashboard_path&quot;:&quot;/var/lib/grafana/dashboards/default/default.json&quot;}}</span></code></p></td>
+<td><p>Grafana.ini configuration</p></td>
+</tr>
+<tr class="row-odd"><td><p>grafana.resources</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;100m&quot;,&quot;memory&quot;:&quot;128Mi&quot;}}</span></code></p></td>
+<td><p>Resource limits and requests for Grafana</p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.service</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;port&quot;:80,&quot;targetPort&quot;:3000,&quot;type&quot;:&quot;ClusterIP&quot;}</span></code></p></td>
+<td><p>Service configuration</p></td>
 </tr>
 <tr class="row-odd"><td><p>grafana.ingress</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;haproxy&quot;}</span></code></p></td>
-<td><p>Ingress configuration for Grafana</p></td>
-</tr>
-<tr class="row-even"><td><p>grafana.ingress.enabled</p></td>
-<td><p>bool</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p>Enable or disable ingress for Grafana</p></td>
-</tr>
-<tr class="row-odd"><td><p>grafana.ingress.hostName</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>Hostname for Grafana ingress</p></td>
-</tr>
-<tr class="row-even"><td><p>grafana.ingress.ingressClassName</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;haproxy&quot;</span></code></p></td>
-<td><p>Ingress class name (e.g. nginx, haproxy)</p></td>
-</tr>
-<tr class="row-odd"><td><p>grafana.ingress.annotations</p></td>
-<td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
-<td><p>Additional annotations for Grafana ingress</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;pathType&quot;:&quot;ImplementationSpecific&quot;,&quot;tls&quot;:[]}</span></code></p></td>
+<td><p>Ingress configuration</p></td>
 </tr>
 </tbody>
 </table>
