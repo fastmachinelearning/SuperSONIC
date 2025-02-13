@@ -162,8 +162,8 @@ autoscaler:
 
   # -- Minimum and maximum number of Triton servers.
   # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
-  minReplicas: 1
-  maxReplicas: 2
+  minReplicaCount: 1
+  maxReplicaCount: 2
 
   # -- If set to true, the server will release all GPUs when idle.
   # Be careful: if the scaling metric is extracted from Triton servers,
@@ -171,12 +171,12 @@ autoscaler:
   zeroIdleReplicas: false
 
   scaleUp:
-    window: 60
-    period: 60
+    stabilizationWindowSeconds: 60
+    periodSeconds: 60
     stepsize: 1
   scaleDown:
-    window: 600
-    period: 120
+    stabilizationWindowSeconds: 600
+    periodSeconds: 120
     stepsize: 1
 
 # -- Node selector for all pods (Triton and Envoy)
@@ -185,10 +185,9 @@ nodeSelector: {}
 # -- Tolerations for all pods (Triton and Envoy)
 tolerations: []
 
-# -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
 prometheus:
   external:
-    # -- Enable external Prometheus instance
+    # -- Enable external Prometheus instance. If true, Prometheus parameters outside of prometheus.external will be ignored.
     enabled: false
     # -- External Prometheus server url
     url: ""
@@ -197,10 +196,9 @@ prometheus:
     # -- Specify whether external Prometheus endpoint is exposed as http or https
     scheme: "https"
 
-  # -- Enable or disable Prometheus subchart deployment
+  # -- Enable or disable custom Prometheus deployment
   enabled: false
 
-  # -- Prometheus Helm chart configuration (https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)
   server:
     useExistingClusterRoleName: supersonic-prometheus-role
     releaseNamespace: true
@@ -221,6 +219,8 @@ prometheus:
       enabled: true
       servicePort: 9090
     configMapOverrideName: prometheus-config
+
+    # -- Ingress configuration for Prometheus
     ingress:
       enabled: false
       hosts: []
@@ -253,6 +253,7 @@ prometheus:
 ## Grafana Helm Chart Configuration
 ## Configuration for the official Grafana Helm chart (https://github.com/grafana/helm-charts)
 grafana:
+  # -- Enable Grafana
   enabled: false
   adminUser: admin
   adminPassword: admin
@@ -277,7 +278,6 @@ grafana:
             timeInterval: "5s"
             tlsSkipVerify: true
 
-  # -- Grafana dashboard providers configuration
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -291,11 +291,9 @@ grafana:
           options:
             path: /var/lib/grafana/dashboards/default
 
-  # -- Grafana dashboard ConfigMaps
   dashboardsConfigMaps:
     default: supersonic-grafana-default-dashboard
 
-  # -- Grafana.ini configuration
   grafana.ini:
     auth:
       disable_login_form: true
@@ -305,7 +303,6 @@ grafana:
     dashboards:
       default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
 
-  # -- Resource limits and requests for Grafana
   resources:
     limits:
       cpu: 1
@@ -314,13 +311,12 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
-  # -- Service configuration
   service:
     type: ClusterIP
     port: 80
     targetPort: 3000
 
-  # -- Ingress configuration
+  # -- Ingress configuration for Grafana
   ingress:
     enabled: false
     path: /
