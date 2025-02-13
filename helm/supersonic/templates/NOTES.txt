@@ -1,4 +1,11 @@
 ---
+{{- /* Run validation checks */ -}}
+{{- include "supersonic.validateGrafana" . -}}
+{{- include "supersonic.validateGrafanaAddressConsistency" . -}}
+{{- include "supersonic.validateGrafanaValues" . -}}
+{{- include "supersonic.validatePrometheus" . -}}
+{{- include "supersonic.validatePrometheusAddressConsistency" . -}}
+{{- include "supersonic.validatePrometheusValues" . -}}
 
    ____                  ___  ___  _  _ ___ ___ 
   / __/_ _____  ___ ____/ __|/ _ \| \| |_ _/ __|
@@ -37,14 +44,16 @@ Scaling threshold: {{ include "supersonic.serverLoadThreshold" . }}{{"\n"}}
 | Documentation:           https://fastmachinelearning.org/SuperSONIC
 |
 | Uninstall:               helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if .Values.envoy.enabled }}
 |
-{{- if .Values.ingress.enabled }}
 | gRPC endpoint:           {{ include "supersonic.grpcEndpoint" . }}
 {{- end }}
+{{- if or .Values.prometheus.external.enabled .Values.prometheus.enabled (include "supersonic.prometheusExists" . ) }}
 |
-| Prometheus UI:           {{ include "supersonic.prometheusUrl" . }}
+| Prometheus UI:           {{ include "supersonic.prometheusDisplayUrl" . }}
+{{- end }}
+{{- if or .Values.grafana.enabled (include "supersonic.grafanaExists" .) }}
 |
-{{- if .Values.grafana.enabled }}
-| Grafana dashboard:       {{ include "supersonic.grafanaUrl" . }}
+| Grafana dashboard:       {{ include "supersonic.grafanaDisplayUrl" . }}
 {{- end }}
 └-----------------------------------------------------------------------------┘

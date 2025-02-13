@@ -1,2 +1,4 @@
 # Sphinx Documentation
 docs/_build
+
+*.tgz

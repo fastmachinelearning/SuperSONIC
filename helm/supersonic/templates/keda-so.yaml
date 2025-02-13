@@ -20,21 +20,21 @@ spec:
 {{- if (eq .Values.autoscaler.zeroIdleReplicas true) }}
   idleReplicaCount: 0
 {{- end }}
-  minReplicaCount: {{ default 1 .Values.autoscaler.minReplicas }}
-  maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicas }}
+  minReplicaCount: {{ default 1 .Values.autoscaler.minReplicaCount }}
+  maxReplicaCount: {{ default 14 .Values.autoscaler.maxReplicaCount }}
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
         scaleDown:
-          stabilizationWindowSeconds: {{ default 120 $scaleDown.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleDown.stabilizationWindowSeconds }}
           policies:
-            - periodSeconds: {{ default 30 $scaleDown.period }}
+            - periodSeconds: {{ default 30 $scaleDown.periodSeconds }}
               type: Pods
               value: {{ default 1 $scaleDown.stepsize }}
         scaleUp:
-          stabilizationWindowSeconds: {{ default 120 $scaleUp.window }}
+          stabilizationWindowSeconds: {{ default 120 $scaleUp.stabilizationWindowSeconds }}
           policies:
-            - periodSeconds: {{ default 30 $scaleUp.period }}
+            - periodSeconds: {{ default 30 $scaleUp.periodSeconds }}
               type: Pods
               value: {{ default 1 $scaleUp.stepsize }}
 
@@ -44,7 +44,7 @@ spec:
     metadata:
       serverAddress: {{ include "supersonic.prometheusUrl" . }}
       metricName: autoscaler-metric
-      threshold: {{ .Values.prometheus.serverLoadThreshold | quote }}
+      threshold: {{ .Values.serverLoadThreshold | quote }}
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}
 ---

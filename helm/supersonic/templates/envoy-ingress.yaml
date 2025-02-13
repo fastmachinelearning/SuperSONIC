@@ -1,0 +1,50 @@
+{{/* Validate that the ingress host is not already in use in the current namespace */}}
+{{- if and .Values.envoy.ingress.enabled .Values.envoy.ingress.hostName -}}
+  {{- $hostName := .Values.envoy.ingress.hostName -}}
+  {{- $namespace := .Release.Namespace -}}
+  {{- $currentName := (include "supersonic.name" .) -}}
+  {{- $existingIngresses := (lookup "networking.k8s.io/v1" "Ingress" $namespace "").items -}}
+  {{- range $ingress := $existingIngresses -}}
+    {{- if not (hasPrefix (printf "%s-" $currentName) $ingress.metadata.name) -}}
+      {{- range .spec.rules -}}
+        {{- if eq .host $hostName -}}
+          {{- fail (printf "Error: Ingress host %q is already in use by ingress %q in namespace %q" $hostName $ingress.metadata.name $namespace) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end }}
+
+{{ if .Values.envoy.ingress.enabled | default false }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "supersonic.name" . }}-ingress-grpc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+  annotations:
+    {{- if .Values.envoy.ingress.annotations }}
+{{ toYaml .Values.envoy.ingress.annotations | nindent 4 }}
+    {{- end }}
+
+spec:
+  ingressClassName: {{ .Values.envoy.ingress.ingressClassName }}
+  tls:
+  - hosts:
+      - {{ .Values.envoy.ingress.hostName }}
+  rules:
+  - host: {{ .Values.envoy.ingress.hostName }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "supersonic.name" . }}
+            port:
+              number: 8001
+        path: /
+        pathType: ImplementationSpecific
+
+{{ end }}
