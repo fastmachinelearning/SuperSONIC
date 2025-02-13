@@ -124,6 +124,7 @@ Validate Grafana configuration values
 {{- define "supersonic.validateGrafanaValues" -}}
 {{- if .Values.grafana.enabled -}}
   {{- $releaseName := include "supersonic.name" . -}}
+  {{- $root := . -}}
 
   {{- /* Validate default dashboard name */ -}}
   {{- if .Values.grafana.dashboardsConfigMaps -}}
@@ -131,6 +132,25 @@ Validate Grafana configuration values
     {{- $expectedName := printf "%s-grafana-default-dashboard" $releaseName -}}
     {{- if ne $configMapName $expectedName -}}
       {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.dashboardsConfigMaps.default: %s" $expectedName) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- /* Validate Prometheus datasource URL */ -}}
+  {{- if .Values.grafana.datasources -}}
+    {{- range (index .Values.grafana.datasources "datasources.yaml").datasources -}}
+      {{- if and (eq .type "prometheus") .url -}}
+        {{- if $root.Values.prometheus.external.enabled -}}
+          {{- $expectedURL := printf "%s://%s" $root.Values.prometheus.external.scheme $root.Values.prometheus.external.url -}}
+          {{- if ne .url $expectedURL -}}
+            {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components with external Prometheus, please set the following parameter:\ngrafana:\n  datasources:\n    datasources.yaml:\n      datasources:\n        - name: prometheus\n          type: prometheus\n          access: proxy\n          url: %s" $expectedURL) -}}
+          {{- end -}}
+        {{- else if $root.Values.prometheus.enabled -}}
+          {{- $expectedURL := printf "http://%s-prometheus-server:9090" $releaseName -}}
+          {{- if ne .url $expectedURL -}}
+            {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components with internal Prometheus, please set the following parameter:\ngrafana:\n  datasources:\n    datasources.yaml:\n      datasources:\n        - name: prometheus\n          type: prometheus\n          access: proxy\n          url: %s" $expectedURL) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
