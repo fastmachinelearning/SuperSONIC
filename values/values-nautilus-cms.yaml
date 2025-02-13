@@ -49,7 +49,12 @@ autoscaler:
 #   topology.kubernetes.io/zone: ucsd
 
 prometheus:
-  enabled: true
+  external:
+    enabled: true
+    scheme: https
+    url: prometheus.nrp-nautilus.io
+    port: 443
+  enabled: false
   server:
     ingress:
       enabled: true
@@ -66,6 +71,18 @@ prometheus:
 
 grafana:
   enabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: https://prometheus.nrp-nautilus.io
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
   ingress:
     enabled: true
     hosts:

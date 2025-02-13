@@ -78,6 +78,18 @@ prometheus:
 
 grafana:
   enabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: https://prometheus.nrp-nautilus.io
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
   ingress:
     enabled: true
     hosts:
