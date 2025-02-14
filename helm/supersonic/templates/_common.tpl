@@ -47,7 +47,7 @@ Check if service exists - takes service name as parameter
 {{- $exists := "" -}}
 {{- if (lookup "apps/v1" "Deployment" .root.Release.Namespace "") -}}
   {{- range (lookup "apps/v1" "Deployment" .root.Release.Namespace "").items -}}
-    {{- if eq (index .metadata.labels "app.kubernetes.io/name") $serviceName -}}
+    {{- if and .metadata .metadata.labels (eq (index .metadata.labels "app.kubernetes.io/name") $serviceName) -}}
       {{- $exists = "true" -}}
     {{- end -}}
   {{- end -}}
@@ -68,7 +68,7 @@ Get service details - takes service type and root context as parameters
 {{- /* Try to get details from ingress first */ -}}
 {{- if (lookup "networking.k8s.io/v1" "Ingress" $root.Release.Namespace "") -}}
   {{- range (lookup "networking.k8s.io/v1" "Ingress" $root.Release.Namespace "").items -}}
-    {{- if eq (index .metadata.labels "app.kubernetes.io/name") $serviceType -}}
+    {{- if and .metadata .metadata.labels (eq (index .metadata.labels "app.kubernetes.io/name") $serviceType) -}}
       {{- if .spec.rules -}}
         {{- $details = merge $details (dict "host" (index .spec.rules 0).host) -}}
         {{- if .spec.tls -}}
@@ -86,7 +86,7 @@ Get service details - takes service type and root context as parameters
 {{- if (not $found) -}}
   {{- if (lookup "v1" "Service" $root.Release.Namespace "") -}}
     {{- range (lookup "v1" "Service" $root.Release.Namespace "").items -}}
-      {{- if eq (index .metadata.labels "app.kubernetes.io/name") $serviceType -}}
+      {{- if and .metadata .metadata.labels (eq (index .metadata.labels "app.kubernetes.io/name") $serviceType) -}}
         {{- $details = merge $details (dict "host" (printf "%s.%s.svc.cluster.local" .metadata.name $root.Release.Namespace)) -}}
       {{- end -}}
     {{- end -}}
