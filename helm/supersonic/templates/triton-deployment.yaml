@@ -41,21 +41,24 @@ spec:
           {{- end }}
         command: {{ toYaml .Values.triton.command | nindent 10 }}
         args:  {{ toYaml .Values.triton.args | nindent 10 }}
+{{- if not (eq .Values.triton.startupProbe.reset true) }}
         startupProbe:
-          periodSeconds: 10
-          failureThreshold: 12
+          initialDelaySeconds: {{ .Values.triton.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.triton.startupProbe.periodSeconds }}
+          failureThreshold: {{ .Values.triton.startupProbe.failureThreshold }}
           httpGet:
             path: /v2/health/ready
             port: http
-{{- if not (eq .Values.triton.resetReadinessProbe true) }}
+{{- end}}
+{{- if not (eq .Values.triton.readinessProbe.reset true) }}
         readinessProbe:
           exec:
             command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 10
+          initialDelaySeconds: {{ .Values.triton.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.triton.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.triton.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.triton.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.triton.readinessProbe.failureThreshold }}
 {{- end }}
         lifecycle:
           preStop:

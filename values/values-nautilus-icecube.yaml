@@ -25,10 +25,7 @@ triton:
             - NVIDIA-L4
             # - NVIDIA-A100-PCIE-40GB
             # - NVIDIA-GH200-480GB
-  args: [tritonserver, 
-    --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models, 
-    --log-error=true,
-    --exit-on-error=true]
+  args: [tritonserver --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models --log-error=true --exit-on-error=true]
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 24Gi }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 20Gi }
@@ -36,13 +33,26 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /models
+  readinessProbe:
+    reset: False
+    initialDelaySeconds: 300
+    periodSeconds: 30
+    failureThreshold: 10
+    # command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
+    timeoutSeconds: 5
+    successThreshold: 1
+  startupProbe:
+    reset: False
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    failureThreshold: 10
 envoy:
   enabled: true
   auth:
     enabled: true
     jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
     jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
-    audiences: [icecube]
+    audiences: [icesonic]
     url: keycloak.icecube.wisc.edu
     port: 443
 prometheus:
