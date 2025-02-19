@@ -2,7 +2,9 @@ serverLoadThreshold: 100
 
 triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
-  image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+  # image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+  # image: nvcr.io/nvidia/tritonserver:24.11-py3
+  image: gitlab-registry.nrp-nautilus.io/kondratyevd/supersonic/triton-torchgeo:22.07-py3-geometric
   command: ["/bin/sh", "-c"]
   args: 
     - |
@@ -12,9 +14,21 @@ triton:
       --strict-model-config=false \
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
+  # --trace-config opentelemetry,url=supersonic-tempo:4318/v1/traces \
+  # --trace-config level=TIMESTAMPS \
+
   resources:
-    limits: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
-    requests: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
+    limits: { cpu: 1, memory: 4G, nvidia.com/gpu: 1}
+    requests: { cpu: 1, memory: 4G, nvidia.com/gpu: 1}
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #             - key: nvidia.com/gpu.product
+  #               operator: In
+  #               values:
+  #                 - NVIDIA-GeForce-RTX-3090
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -23,7 +37,9 @@ triton:
 
 envoy:
   enabled: true
-  loadBalancerPolicy: "ROUND_ROBIN"
+  replicas: 2
+  grpc_route_timeout: 500s
+  loadBalancerPolicy: "LEAST_REQUEST"
   ingress:
     enabled: true
     hostName: sonic-cms.nrp-nautilus.io
@@ -43,7 +59,15 @@ envoy:
 autoscaler:
   enabled: true
   minReplicaCount: 1
-  maxReplicaCount: 5
+  maxReplicaCount: 100
+  scaleUp:
+    stabilizationWindowSeconds: 60
+    periodSeconds: 15
+    stepsize: 1
+  scaleDown:
+    stabilizationWindowSeconds: 60
+    periodSeconds: 15
+    stepsize: 1
 
 # nodeSelector:
 #   topology.kubernetes.io/zone: ucsd
@@ -82,4 +106,8 @@ grafana:
     server:
       root_url: https://grafana-cms.nrp-nautilus.io
 
+opentelemetry-collector:
+  enabled: true
+tempo:
+  enabled: true
 

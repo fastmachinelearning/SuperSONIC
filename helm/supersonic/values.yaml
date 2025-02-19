@@ -198,8 +198,8 @@ prometheus:
 
   # -- Enable or disable custom Prometheus deployment
   enabled: false
-
   server:
+    extraFlags: [web.enable-remote-write-receiver]
     useExistingClusterRoleName: supersonic-prometheus-role
     releaseNamespace: true
     persistentVolume:
@@ -277,6 +277,20 @@ grafana:
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
+        - name: tempo
+          type: tempo
+          url: http://supersonic-tempo:3100
+          access: proxy
+          isDefault: false
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+            serviceMap:
+              datasourceUid: 'prometheus'
+            nodeGraph:
+              enabled: true
+
 
   dashboardProviders:
     dashboardproviders.yaml:
@@ -325,3 +339,65 @@ grafana:
     hosts: []
     tls: []
     annotations: {}
+
+# Tempo configuration
+tempo:
+  enabled: true
+  tempo:
+    metricsGenerator:
+      enabled: true
+      remoteWriteUrl: http://supersonic-prometheus-server:9090/api/v1/write
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2G"
+      limits:
+        cpu: "2"
+        memory: "4G"
+    overrides:
+      defaults:
+        metrics_generator_processors:
+          - 'service-graphs'
+          - 'span-metrics'
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+opentelemetry-collector:
+  enabled: true
+  image:
+    repository: "otel/opentelemetry-collector"
+    tag: "0.115.0"
+  mode: deployment
+  command:
+    name: "otelcol"
+  resources:
+    requests:
+      memory: "1G"
+      cpu: "1"
+    limits:
+      memory: "2G"
+      cpu: "1"
+  ports:
+    metrics:
+      enabled: true
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+    exporters:
+      otlp:
+        endpoint: supersonic-tempo:4317
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp]
