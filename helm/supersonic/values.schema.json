@@ -461,6 +461,12 @@
         "server": {
           "type": "object",
           "properties": {
+            "extraFlags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "useExistingClusterRoleName": {
               "type": "string"
             },
@@ -594,6 +600,7 @@
           },
           "required": [
             "configMapOverrideName",
+            "extraFlags",
             "global",
             "ingress",
             "persistentVolume",
@@ -809,12 +816,37 @@
                           },
                           "tlsSkipVerify": {
                             "type": "boolean"
+                          },
+                          "serviceMap": {
+                            "type": "object",
+                            "properties": {
+                              "datasourceUid": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "datasourceUid"
+                            ]
+                          },
+                          "nodeGraph": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "enabled"
+                            ]
                           }
                         },
                         "required": [
                           "timeInterval",
                           "tlsSkipVerify"
                         ]
+                      },
+                      "basicAuth": {
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -1071,6 +1103,376 @@
         "service",
         "serviceAccount"
       ]
+    },
+    "tempo": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "tempo": {
+          "type": "object",
+          "properties": {
+            "metricsGenerator": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "remoteWriteUrl": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "remoteWriteUrl"
+              ]
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                }
+              },
+              "required": [
+                "limits",
+                "requests"
+              ]
+            },
+            "overrides": {
+              "type": "object",
+              "properties": {
+                "defaults": {
+                  "type": "object",
+                  "properties": {
+                    "metrics_generator_processors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "metrics_generator_processors"
+                  ]
+                }
+              },
+              "required": [
+                "defaults"
+              ]
+            },
+            "receivers": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "object",
+                      "properties": {
+                        "grpc": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        },
+                        "http": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "grpc",
+                        "http"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "protocols"
+                  ]
+                }
+              },
+              "required": [
+                "otlp"
+              ]
+            }
+          },
+          "required": [
+            "metricsGenerator",
+            "overrides",
+            "receivers",
+            "resources"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "tempo"
+      ]
+    },
+    "opentelemetry-collector": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repository",
+            "tag"
+          ]
+        },
+        "mode": {
+          "type": "string"
+        },
+        "command": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string"
+                },
+                "cpu": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string"
+                },
+                "cpu": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            }
+          },
+          "required": [
+            "limits",
+            "requests"
+          ]
+        },
+        "ports": {
+          "type": "object",
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            }
+          },
+          "required": [
+            "metrics"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "receivers": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "object",
+                      "properties": {
+                        "grpc": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "grpc"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "protocols"
+                  ]
+                }
+              },
+              "required": [
+                "otlp"
+              ]
+            },
+            "exporters": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "tls": {
+                      "type": "object",
+                      "properties": {
+                        "insecure": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "insecure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "tls"
+                  ]
+                }
+              },
+              "required": [
+                "otlp"
+              ]
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "pipelines": {
+                  "type": "object",
+                  "properties": {
+                    "traces": {
+                      "type": "object",
+                      "properties": {
+                        "receivers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "processors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "exporters": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "exporters",
+                        "processors",
+                        "receivers"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "traces"
+                  ]
+                }
+              },
+              "required": [
+                "pipelines"
+              ]
+            }
+          },
+          "required": [
+            "exporters",
+            "receivers",
+            "service"
+          ]
+        }
+      },
+      "required": [
+        "command",
+        "config",
+        "enabled",
+        "image",
+        "mode",
+        "ports",
+        "resources"
+      ]
     }
   },
   "required": [
@@ -1079,9 +1481,11 @@
     "grafana",
     "nameOverride",
     "nodeSelector",
+    "opentelemetry-collector",
     "prometheus",
     "serverLoadMetric",
     "serverLoadThreshold",
+    "tempo",
     "tolerations",
     "triton"
   ]
