@@ -49,11 +49,18 @@ spec:
           httpGet:
             path: /v2/health/ready
             port: http
+{{ else }}
+        startupProbe:
+          periodSeconds: 10
+          failureThreshold: 12
+          httpGet:
+            path: /v2/health/ready
+            port: http
 {{- end}}
 {{- if not (eq .Values.triton.readinessProbe.reset true) }}
         readinessProbe:
           exec:
-            command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
+            command: {{ toYaml .Values.triton.readinessProbe.command | nindent 12 }}
           initialDelaySeconds: {{ .Values.triton.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.triton.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.triton.readinessProbe.timeoutSeconds }}
@@ -63,7 +70,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
+              command: ["/bin/sh", "-c", "touch", "/tmp/shutdown;", "sleep 60"]
       volumes:
       {{- if .Values.triton.modelRepository.enabled }}
       - name: model-repository

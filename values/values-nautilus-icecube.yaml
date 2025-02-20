@@ -1,7 +1,7 @@
 serverLoadThreshold: 100
 
 triton: 
-  image: nvcr.io/nvidia/tritonserver:24.06-py3
+  image: nvcr.io/nvidia/tritonserver:24.10-py3
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -37,15 +37,15 @@ triton:
     mountPath: /models
   readinessProbe:
     reset: False
-    initialDelaySeconds: 300
+    initialDelaySeconds: 250
     periodSeconds: 30
     failureThreshold: 10
-    # command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
+    command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/models/tglauch_classifier/versions/3/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
     timeoutSeconds: 5
     successThreshold: 1
   startupProbe:
     reset: False
-    initialDelaySeconds: 120
+    initialDelaySeconds: 240
     periodSeconds: 10
     failureThreshold: 10
 envoy:
@@ -99,6 +99,10 @@ grafana:
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
+
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+
   ingress:
     enabled: true
     hosts:
