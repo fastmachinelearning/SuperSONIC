@@ -90,7 +90,7 @@ triton:
   startupProbe:
     # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
     reset: false
-    initialDelaySeconds: 240
+    initialDelaySeconds: 0
     periodSeconds: 10
     failureThreshold: 12
     httpGet:
