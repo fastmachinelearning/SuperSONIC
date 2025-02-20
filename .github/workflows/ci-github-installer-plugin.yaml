@@ -35,7 +35,14 @@ jobs:
           helm repo update
           kubectl create namespace monitoring
           helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
-  
+
+      - name: Install KEDA Autoscaler
+        run: |
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo update
+          kubectl create namespace keda
+          helm install keda kedacore/keda --namespace keda  
+
       - name: Install SuperSONIC via plugin
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
