@@ -147,7 +147,10 @@
               "type": "integer"
             },
             "command": {
-              "type": "array"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
             "timeoutSeconds": {
               "type": "integer"
