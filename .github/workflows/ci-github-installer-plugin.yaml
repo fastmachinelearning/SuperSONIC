@@ -1,0 +1,42 @@
+name: ci [Plugin Install Test]
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  test-installer-plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubernetes cluster with Kind
+        uses: helm/kind-action@v1.6.0
+        with:
+          cluster_name: gh-k8s-cluster
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Create CMS namespace
+        run: |
+          kubectl create namespace cms
+
+      - name: Install SuperSONIC via plugin
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          helm dependency build ./helm/supersonic
+          helm plugin install ./helm/supersonic/plugins/install-supersonic
+          helm install-supersonic --values values/values-cms-ci.yaml -n cms
+
+      - name: Cleanup
+        run: kind delete cluster --name gh-k8s-cluster 
