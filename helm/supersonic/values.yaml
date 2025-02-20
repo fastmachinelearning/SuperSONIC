@@ -79,10 +79,10 @@ triton:
   readinessProbe:
     # -- If true, will reset settings to k8s defaults
     reset: false
-    initialDelaySeconds: 250
-    periodSeconds: 30
+    initialDelaySeconds: 10
+    periodSeconds: 10
     failureThreshold: 10
-    command: []
+    command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
     timeoutSeconds: 5
     successThreshold: 1
 
