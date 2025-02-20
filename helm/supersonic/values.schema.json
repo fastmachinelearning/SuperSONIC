@@ -954,12 +954,24 @@
               "required": [
                 "default_home_dashboard_path"
               ]
+            },
+            "server": {
+              "type": "object",
+              "properties": {
+                "root_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "root_url"
+              ]
             }
           },
           "required": [
             "auth",
             "auth.anonymous",
-            "dashboards"
+            "dashboards",
+            "server"
           ]
         },
         "resources": {
@@ -1039,7 +1051,18 @@
               "type": "array"
             },
             "tls": {
-              "type": "array"
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hosts": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "hosts"
+                ]
+              }
             },
             "annotations": {
               "type": "object"
