@@ -36,7 +36,7 @@ triton:
     storageType: cvmfs-pvc
     mountPath: /models
   readinessProbe:
-    reset: False
+    reset: false
     initialDelaySeconds: 250
     periodSeconds: 30
     failureThreshold: 10
@@ -44,7 +44,7 @@ triton:
     timeoutSeconds: 5
     successThreshold: 1
   startupProbe:
-    reset: False
+    reset: false
     initialDelaySeconds: 240
     periodSeconds: 10
     failureThreshold: 10
