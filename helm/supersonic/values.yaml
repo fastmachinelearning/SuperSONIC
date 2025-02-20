@@ -77,7 +77,7 @@ triton:
 
   # -- Custom readiness probe configuration
   readinessProbe:
-    # -- If true, will reset settings to k8s defaults
+    # -- If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)
     reset: false
     initialDelaySeconds: 10
     periodSeconds: 10
@@ -88,7 +88,7 @@ triton:
 
   # -- Custom startup probe configuration
   startupProbe:
-    # -- If true, will reset settings to k8s defaults
+    # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
     reset: false
     initialDelaySeconds: 240
     periodSeconds: 10
