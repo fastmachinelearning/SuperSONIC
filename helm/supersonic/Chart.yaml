@@ -2,7 +2,7 @@ apiVersion: v2
 name: supersonic
 description: Server infrastructure for inference-as-a-service in large scientific experiments.
 icon: https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/SuperSONIC_small_512.png?raw=true
-version: 0.1.2 
+version: 0.2.0
 type: application
 home: https://fastmachinelearning.org/SuperSONIC/
 annotations:
@@ -10,3 +10,13 @@ annotations:
   artifacthub.io/links: |
     - name: GitHub
       url: https://github.com/fastmachinelearning/SuperSONIC/
+
+dependencies:
+  - name: grafana
+    version: "8.9.0"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+  - name: prometheus
+    version: "27.3.0"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled

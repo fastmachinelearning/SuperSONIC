@@ -97,14 +97,9 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      {{- if $.prometheus.external }}
-                      address: {{ $.prometheus.url }}
-                      port_value: {{ $.prometheus.port }}
-                      {{- else }}
-                      address: {{ printf "%s-prometheus.%s.svc.cluster.local" (include "supersonic.name" $.root) $.root.Release.Namespace }}
-                      port_value: 9090
-                      {{- end }}
-      {{- if and $.prometheus.external (eq $.prometheus.scheme "https") }}
+                      address: {{ include "supersonic.prometheusHost" $.root }}
+                      port_value: {{ include "supersonic.prometheusPort" $.root }}
+      {{- if eq (include "supersonic.prometheusScheme" $.root) "https" }}
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
@@ -212,17 +207,10 @@ data:
     {{- /* Read and process the Lua configuration file */}}
     {{- $luaConfig := $.Files.Get .Values.envoy.rate_limiter.prometheus_based.luaConfig | nindent 4 }}
     {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.defaultMetric" . | quote) }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.prometheus.serverLoadThreshold) }}
-    {{- if .Values.prometheus.external }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" .Values.prometheus.url }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" .Values.prometheus.scheme }}
-    {{- else if (eq (include "supersonic.prometheusExists" .) "true") }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" (printf "%s.%s.svc.cluster.local" (include "supersonic.existingPrometheusName" .) .Release.Namespace) }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" "http" }}
-    {{- else }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_URL" (printf "%s.%s.svc.cluster.local" (include "supersonic.prometheusName" .) .Release.Namespace) }}
-    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" "http" }}
-    {{- end }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.serverLoadThreshold) }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" (include "supersonic.prometheusScheme" .) }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_HOST" (include "supersonic.prometheusHost" .) }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
     {{ $luaConfig | indent 4 }}
 
 ---

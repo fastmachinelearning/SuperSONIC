@@ -51,6 +51,9 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
             --values values/values-cms-ci.yaml -n cms
 
@@ -64,12 +67,12 @@ jobs:
 
       - name: Prometheus ready
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=prometheus --timeout 120s -n cms
-          kubectl get svc,pod -l app.kubernetes.io/component=prometheus -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=prometheus --timeout 120s -n cms
+          kubectl get svc,pod -l app.kubernetes.io/name=prometheus -n cms
 
       - name: Grafana ready
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=grafana --timeout 120s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
 
       - name: Triton server ready
         run: |  

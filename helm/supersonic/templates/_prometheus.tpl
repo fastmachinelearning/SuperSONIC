@@ -2,95 +2,135 @@
 Get Prometheus name
 */}}
 {{- define "supersonic.prometheusName" -}}
-{{- printf "%s-prometheus" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- include "supersonic.common.getServiceName" (dict "serviceName" "prometheus" "root" .) -}}
 {{- end -}}
 
 {{/*
-Check if Prometheus exists in the namespace (from any release)
+Get Prometheus scheme
 */}}
-{{- define "supersonic.prometheusExists" -}}
-{{- $root := . -}}
-{{- $exists := false -}}
-{{- if (lookup "v1" "Service" .Release.Namespace "") -}}
-  {{- range (lookup "v1" "Service" .Release.Namespace "").items -}}
-    {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-               (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
-               (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-      {{- $exists = true -}}
-      {{- break -}}
+{{- define "supersonic.prometheusScheme" -}}
+{{- include "supersonic.common.getServiceScheme" (dict "serviceType" "prometheus" "values" .Values) -}}
+{{- end -}}
+
+{{/*
+Get Prometheus host
+*/}}
+{{- define "supersonic.prometheusHost" -}}
+{{- if .Values.prometheus.external.enabled -}}
+    {{- .Values.prometheus.external.url -}}
+{{- else if .Values.prometheus.enabled -}}
+    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.hosts -}}
+        {{- first .Values.prometheus.server.ingress.hosts -}}
+    {{- else -}}
+        {{- printf "%s-prometheus-server.%s.svc.cluster.local" (include "supersonic.name" .) .Release.Namespace -}}
     {{- end -}}
-  {{- end -}}
+{{- else -}}
+    {{- include "supersonic.common.getExistingServiceHost" (dict "serviceType" "prometheus" "root" .) -}}
 {{- end -}}
-{{- $exists -}}
 {{- end -}}
 
 {{/*
-Get existing Prometheus service name (from any release)
+Get Prometheus port
 */}}
-{{- define "supersonic.existingPrometheusName" -}}
-{{- $root := . -}}
-{{- range (lookup "v1" "Service" .Release.Namespace "").items }}
-  {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-             (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
-             (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-    {{- .metadata.name -}}
-    {{- break }}
-  {{- end }}
-{{- end }}
+{{- define "supersonic.prometheusPort" -}}
+{{- if .Values.prometheus.external.enabled -}}
+    {{- .Values.prometheus.external.port -}}
+{{- else if .Values.prometheus.enabled -}}
+    {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.tls -}}
+        {{- printf "443" -}}
+    {{- else if .Values.prometheus.server.ingress.enabled -}}
+        {{- printf "80" -}}
+    {{- else -}}
+        {{- .Values.prometheus.server.service.servicePort | default "9090" -}}
+    {{- end -}}
+{{- else -}}
+    {{- include "supersonic.common.getExistingServicePort" (dict "serviceType" "prometheus" "root" .) -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
-Get Prometheus URL (handles external, ingress, existing, and new instances)
+Get full Prometheus URL
 */}}
 {{- define "supersonic.prometheusUrl" -}}
-{{- if .Values.prometheus.external -}}
-  {{- if and .Values.prometheus.url .Values.prometheus.scheme -}}
-{{ .Values.prometheus.scheme }}://{{ .Values.prometheus.url }}
-  {{- else -}}
-http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-  {{- end -}}
-{{- else if and .Values.prometheus.ingress.enabled .Values.prometheus.ingress.hostName -}}
-https://{{ .Values.prometheus.ingress.hostName }}
-{{- else -}}
-  {{- $foundIngress := false -}}
-  {{- if (lookup "networking.k8s.io/v1" "Ingress" .Release.Namespace "") -}}
-    {{- $root := . -}}
-    {{- range (lookup "networking.k8s.io/v1" "Ingress" .Release.Namespace "").items -}}
-      {{- if and (eq (index .metadata.labels "app.kubernetes.io/name") "supersonic") 
-                 (eq (index .metadata.labels "app.kubernetes.io/component") "prometheus")
-                 (ne (index .metadata.labels "app.kubernetes.io/instance") (include "supersonic.name" $root))}}
-        {{- range .spec.rules -}}
-          {{- if .host -}}
-            {{- $foundIngress = true -}}
-https://{{ .host }}
-            {{- break -}}
-          {{- end -}}
-        {{- end -}}
-        {{- break -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-  {{- if not $foundIngress -}}
-    {{- if (eq (include "supersonic.prometheusExists" .) "true") -}}
-http://{{ include "supersonic.existingPrometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-    {{- else -}}
-http://{{ include "supersonic.prometheusName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090
-    {{- end -}}
-  {{- end -}}
+{{- include "supersonic.common.getServiceUrl" (dict "scheme" (include "supersonic.prometheusScheme" .) "host" (include "supersonic.prometheusHost" .) "port" (include "supersonic.prometheusPort" .)) -}}
 {{- end -}}
+
+{{/*
+Check if Prometheus exists in the namespace
+*/}}
+{{- define "supersonic.prometheusExists" -}}
+{{- include "supersonic.common.serviceExists" (dict "serviceName" "prometheus" "root" .) -}}
+{{- end -}}
+
+{{/*
+Validate that there is no existing Prometheus instance when enabling a new one
+*/}}
+{{- define "supersonic.validatePrometheus" -}}
+{{- include "supersonic.common.validateNoExistingService" (dict "serviceType" "prometheus" "values" .Values "root" .) -}}
 {{- end -}}
 
 {{/*
 Validate RBAC permissions for Prometheus
 */}}
 {{- define "supersonic.validateRBACPermissions" -}}
-{{- if not .Values.prometheus.external -}}
+{{- if and (not .Values.prometheus.external) (not (include "supersonic.prometheusExists" .)) -}}
   {{- $canReadRoles := false -}}
   {{- if (lookup "rbac.authorization.k8s.io/v1" "Role" .Release.Namespace "") -}}
     {{- $canReadRoles = true -}}
   {{- end -}}
   {{- if not $canReadRoles -}}
-    {{- fail "\nError: Failed to install Prometheus due to lack of permissions to get 'roles' in API group 'rbac.authorization.k8s.io'.\nEither:\n1. Set prometheus.external=true in value.yaml and provide an external Prometheus URL, or\n2. Request necessary RBAC permissions from your cluster administrator." -}}
+    {{- fail "\nError: Failed to install Prometheus due to lack of permissions to get 'roles' in API group 'rbac.authorization.k8s.io'.\nEither:\n1. Set prometheus.external=true in values.yaml and provide an external Prometheus URL, or\n2. Use an existing Prometheus instance in the namespace, or\n3. Request necessary RBAC permissions from your cluster administrator." -}}
   {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Validate Prometheus configuration values
+*/}}
+{{- define "supersonic.validatePrometheusValues" -}}
+{{- $releaseName := include "supersonic.name" . -}}
+
+{{- if .Values.prometheus.enabled -}}
+  {{- /* Validate cluster role name */ -}}
+  {{- if .Values.prometheus.server.useExistingClusterRoleName -}}
+    {{- $expectedRole := printf "%s-prometheus-role" $releaseName -}}
+    {{- if ne .Values.prometheus.server.useExistingClusterRoleName $expectedRole -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.server.useExistingClusterRoleName: %s" $expectedRole) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- /* Validate service account name */ -}}
+  {{- if .Values.prometheus.serviceAccounts.server.name -}}
+    {{- $expectedSA := printf "%s-prometheus-sa" $releaseName -}}
+    {{- if ne .Values.prometheus.serviceAccounts.server.name $expectedSA -}}
+      {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\nprometheus.serviceAccounts.server.name: %s" $expectedSA) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Validate Prometheus server URL in datasources */ -}}
+{{- if .Values.grafana.enabled -}}
+  {{- range (index .Values.grafana "datasources.yaml").datasources -}}
+    {{- if and (eq .type "prometheus") .url -}}
+      {{- $expectedURL := printf "http://%s-prometheus-server:9090" $releaseName -}}
+      {{- if ne .url $expectedURL -}}
+        {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.datasources.yaml.datasources[].url: %s" $expectedURL) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Prometheus address consistency
+*/}}
+{{- define "supersonic.validatePrometheusAddressConsistency" -}}
+{{- include "supersonic.common.validateAddressConsistency" (dict "serviceType" "prometheus" "values" .Values "root" .) -}}
+{{- end -}}
+
+{{/*
+Get full Prometheus URL for display (without standard ports)
+*/}}
+{{- define "supersonic.prometheusDisplayUrl" -}}
+{{- include "supersonic.common.getServiceDisplayUrl" (dict "scheme" (include "supersonic.prometheusScheme" .) "host" (include "supersonic.prometheusHost" .)) -}}
 {{- end -}}

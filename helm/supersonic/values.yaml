@@ -3,6 +3,13 @@
 # -- Unique identifier of SuperSONIC instance (equal to release name by default)
 nameOverride: ""
 
+# -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
+## Default metric (inference queue latency) is defined in templates/_helpers.tpl
+serverLoadMetric: ""
+
+# -- Threshold for the metric
+serverLoadThreshold: 100
+
 triton:
   # -- Number of Triton server instances (if autoscaling is disabled)
   replicas: 1
@@ -102,6 +109,13 @@ envoy:
       - { name: grpc, port: 8001, targetPort: 8001 }
       - { name: admin, port: 9901, targetPort: 9901 }
 
+  # -- Ingress configuration for Envoy
+  ingress:
+    enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
+
   # -- Timeout for gRPC route in Envoy; disabled by default (0s), preventing Envoy from closing connections too early.
   grpc_route_timeout: 0s
 
@@ -148,8 +162,8 @@ autoscaler:
 
   # -- Minimum and maximum number of Triton servers.
   # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
-  minReplicas: 1
-  maxReplicas: 2
+  minReplicaCount: 1
+  maxReplicaCount: 2
 
   # -- If set to true, the server will release all GPUs when idle.
   # Be careful: if the scaling metric is extracted from Triton servers,
@@ -157,47 +171,13 @@ autoscaler:
   zeroIdleReplicas: false
 
   scaleUp:
-    window: 60
-    period: 60
+    stabilizationWindowSeconds: 60
+    periodSeconds: 60
     stepsize: 1
   scaleDown:
-    window: 600
-    period: 120
+    stabilizationWindowSeconds: 600
+    periodSeconds: 120
     stepsize: 1
-
-# -- Connection to a Prometheus server is required for KEDA autoscaler and Envoy's prometheus-based rate limiter
-prometheus:
-  # -- Whether to use external Prometheus instance (true) or deploy internal one (false)
-  external: true
-
-  # -- External Prometheus server url and port number (find in documentation of a given cluster or ask admins)
-  # Only used when external=true
-  url: ""
-  port: 443
-
-  # -- Specify whether external Prometheus endpoint is exposed as http or https
-  # Only used when external=true
-  scheme: "https"
-
-  # -- A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter.
-  ## Default metric (inference queue latency) is defined in templates/_helpers.tpl
-  serverLoadMetric: ""
-  
-  # -- Threshold for the metric
-  serverLoadThreshold: 100
-
-  # -- Ingress configuration for internal Prometheus web UI (only used when external=false)
-  ingress:
-    enabled: false
-    hostName: ""
-    ingressClassName: ""
-    annotations: {}
-
-ingress:
-  enabled: false
-  hostName: ""
-  ingressClassName: ""
-  annotations: {}
 
 # -- Node selector for all pods (Triton and Envoy)
 nodeSelector: {}
@@ -205,17 +185,143 @@ nodeSelector: {}
 # -- Tolerations for all pods (Triton and Envoy)
 tolerations: []
 
-## Grafana Configuration
-grafana:
-  # -- Enable or disable Grafana deployment
+prometheus:
+  external:
+    # -- Enable external Prometheus instance. If true, Prometheus parameters outside of prometheus.external will be ignored.
+    enabled: false
+    # -- External Prometheus server url
+    url: ""
+    # -- External Prometheus server port number
+    port: 443
+    # -- Specify whether external Prometheus endpoint is exposed as http or https
+    scheme: "https"
+
+  # -- Enable or disable custom Prometheus deployment
   enabled: false
+
+  server:
+    useExistingClusterRoleName: supersonic-prometheus-role
+    releaseNamespace: true
+    persistentVolume:
+      enabled: false
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+    retention: 15d
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    service:
+      enabled: true
+      servicePort: 9090
+    configMapOverrideName: prometheus-config
+
+    # -- Ingress configuration for Prometheus
+    ingress:
+      enabled: false
+      hosts: []
+      ingressClassName: ""
+      annotations: {}
+      tls:
+        - hosts: []
+
+  serviceAccounts:
+    server:
+      create: false
+      name: supersonic-prometheus-sa
+
+  rbac:
+    create: false
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+  kube-state-metrics:
+    enabled: false
+  prometheus-node-exporter:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  configmapReload:
+    prometheus:
+      enabled: false
+
+## Grafana Helm Chart Configuration
+## Configuration for the official Grafana Helm chart (https://github.com/grafana/helm-charts)
+grafana:
+  # -- Enable Grafana
+  enabled: false
+  adminUser: admin
+  adminPassword: admin
+  persistence:
+    enabled: false
+  rbac:
+    create: false
+  serviceAccount:
+    create: false
+
+  # -- Grafana datasources configuration
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: http://supersonic-prometheus-server:9090
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+
+  grafana.ini:
+    auth:
+      disable_login_form: true
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+    dashboards:
+      default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
+
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
   # -- Ingress configuration for Grafana
   ingress:
-    # -- Enable or disable ingress for Grafana
     enabled: false
-    # -- Hostname for Grafana ingress
-    hostName: ""
-    # -- Ingress class name (e.g. nginx, haproxy)
-    ingressClassName: haproxy
-    # -- Additional annotations for Grafana ingress
+    path: /
+    pathType: ImplementationSpecific
+    ingressClassName: ""
+    hosts: []
+    tls: []
     annotations: {}
