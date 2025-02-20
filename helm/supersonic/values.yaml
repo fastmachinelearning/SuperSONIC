@@ -200,7 +200,7 @@ prometheus:
   enabled: false
 
   server:
-    useExistingClusterRoleName: supersonic-prometheus-role
+    useExistingClusterRoleName: supersonic-prometheus-role # If installer plugin is used, this value is set by the plugin
     releaseNamespace: true
     persistentVolume:
       enabled: false
@@ -232,7 +232,7 @@ prometheus:
   serviceAccounts:
     server:
       create: false
-      name: supersonic-prometheus-sa
+      name: supersonic-prometheus-sa # If installer plugin is used, this value is set by the plugin
 
   rbac:
     create: false
@@ -269,6 +269,7 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+      # If installer plugin is used, this section is set by the plugin
         - name: prometheus
           type: prometheus
           access: proxy
@@ -292,7 +293,7 @@ grafana:
             path: /var/lib/grafana/dashboards/default
 
   dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
+    default: supersonic-grafana-default-dashboard # If installer plugin is used, this value is set by the plugin
 
   grafana.ini:
     auth:
@@ -302,6 +303,8 @@ grafana:
       org_role: Admin
     dashboards:
       default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
+    server:
+      root_url: "" # If installer plugin is used, this value is set by the plugin
 
   resources:
     limits:
@@ -322,6 +325,7 @@ grafana:
     path: /
     pathType: ImplementationSpecific
     ingressClassName: ""
-    hosts: []
-    tls: []
+    hosts: [] # If installer plugin is used, this value is set by the plugin
+    tls:
+      - hosts: [] # If installer plugin is used, this value is set by the plugin
     annotations: {}
