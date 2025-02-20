@@ -75,9 +75,27 @@ triton:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
-  # -- If ture, will ignore custom readinness probe settings (not recommended when using autoscaler)
-  resetReadinessProbe: false
+  # -- Custom readiness probe configuration
+  readinessProbe:
+    # -- If true, will reset settings to k8s defaults
+    reset: false
+    initialDelaySeconds: 250
+    periodSeconds: 30
+    failureThreshold: 10
+    command: []
+    timeoutSeconds: 5
+    successThreshold: 1
 
+  # -- Custom startup probe configuration
+  startupProbe:
+    # -- If true, will reset settings to k8s defaults
+    reset: false
+    initialDelaySeconds: 240
+    periodSeconds: 10
+    failureThreshold: 12
+    httpGet:
+      path: /v2/health/ready
+      port: http
 envoy:
   # -- Enable Envoy Proxy
   enabled: true

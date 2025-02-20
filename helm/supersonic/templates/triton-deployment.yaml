@@ -47,15 +47,8 @@ spec:
           periodSeconds: {{ .Values.triton.startupProbe.periodSeconds }}
           failureThreshold: {{ .Values.triton.startupProbe.failureThreshold }}
           httpGet:
-            path: /v2/health/ready
-            port: http
-{{ else }}
-        startupProbe:
-          periodSeconds: 10
-          failureThreshold: 12
-          httpGet:
-            path: /v2/health/ready
-            port: http
+            path: {{ .Values.triton.startupProbe.httpGet.path }}
+            port: {{ .Values.triton.startupProbe.httpGet.port }}
 {{- end}}
 {{- if not (eq .Values.triton.readinessProbe.reset true) }}
         readinessProbe:
