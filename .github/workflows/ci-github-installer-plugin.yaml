@@ -1,4 +1,4 @@
-name: test installer plugin
+name: ci [installer plugin]
 
 on:
   push:
@@ -29,6 +29,13 @@ jobs:
         run: |
           kubectl create namespace cms
 
+      - name: Install Prometheus Operator CRDs
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          kubectl create namespace monitoring
+          helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
+  
       - name: Install SuperSONIC via plugin
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
