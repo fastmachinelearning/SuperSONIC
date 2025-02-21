@@ -49,7 +49,7 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo update
           helm dependency build ./helm/supersonic
-          helm plugin install ./helm/supersonic/plugins/install-supersonic
+          helm plugin install ./plugins/install-supersonic
           helm install-supersonic supersonic --values values/values-cms-ci.yaml -n cms
 
       - name: Cleanup
