@@ -45,7 +45,7 @@ jobs:
 
       - name: Install SuperSONIC from remote repo via plugin
         run: |
-          helm plugin install ./plugins/install-supersonic
+          helm plugin install .
           helm install-supersonic supersonic --values values/values-cms-ci.yaml -n cms
 
       - name: Cleanup
