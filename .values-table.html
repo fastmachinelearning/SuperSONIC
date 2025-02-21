@@ -590,44 +590,49 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;/var/lib/grafana/dashboards/default/default.json&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.resources.limits.cpu</p></td>
+<tr class="row-odd"><td><p>grafana.”grafana.ini”.server.root_url</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>grafana.resources.limits.cpu</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.resources.limits.memory</p></td>
+<tr class="row-odd"><td><p>grafana.resources.limits.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1Gi&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.resources.requests.cpu</p></td>
+<tr class="row-even"><td><p>grafana.resources.requests.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;100m&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.resources.requests.memory</p></td>
+<tr class="row-odd"><td><p>grafana.resources.requests.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;128Mi&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.service.type</p></td>
+<tr class="row-even"><td><p>grafana.service.type</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;ClusterIP&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.service.port</p></td>
+<tr class="row-odd"><td><p>grafana.service.port</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">80</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.service.targetPort</p></td>
+<tr class="row-even"><td><p>grafana.service.targetPort</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">3000</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.ingress</p></td>
+<tr class="row-odd"><td><p>grafana.ingress</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;pathType&quot;:&quot;ImplementationSpecific&quot;,&quot;tls&quot;:[]}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;pathType&quot;:&quot;ImplementationSpecific&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]}</span></code></p></td>
 <td><p>Ingress configuration for Grafana</p></td>
 </tr>
 </tbody>
