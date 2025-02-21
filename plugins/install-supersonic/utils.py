@@ -30,6 +30,8 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         help_text.append("  -h, --help              Show help message")
         help_text.append("  -f, --values            Specify values file (optional, will use chart's default values if not provided)")
         help_text.append("  -n, --namespace         Specify Kubernetes namespace")
+        help_text.append("  --local                 Install from local chart path (helm/supersonic)")
+        help_text.append("  --version               Specify chart version (only for non-local installation)")
         help_text.append("")
         help_text.append("Additional flags will be passed directly to 'helm install' command")
         return "\n".join(help_text)
@@ -71,6 +73,17 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         '-n', '--namespace',
         help=argparse.SUPPRESS  # Help is shown in custom format
+    )
+    parser.add_argument(
+        '--local',
+        action='store_true',
+        help=argparse.SUPPRESS,  # Help is shown in custom format
+        default=False
+    )
+    parser.add_argument(
+        '--version',
+        help=argparse.SUPPRESS,  # Help is shown in custom format
+        default=None
     )
     
     return parser

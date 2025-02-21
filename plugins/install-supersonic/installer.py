@@ -15,6 +15,7 @@ from overrides import (
 )
 
 CHART_PATH = "helm/supersonic"
+REPO_CHART = "fastml/supersonic"
 
 def process_values(values_file: Optional[str], release_name: str) -> Dict:
     """Process and merge values files."""
@@ -73,11 +74,26 @@ def main() -> None:
 
     try:
         # Construct and execute helm command
-        cmd = ["helm", "install", args.release_name, CHART_PATH, "-f", tmp_values_file]
+        chart_source = CHART_PATH if args.local else REPO_CHART
+        if not args.local:
+            # Add repositories and update when using remote chart
+            repo_commands = [
+                ["helm", "repo", "add", "fastml", "https://fastmachinelearning.org/SuperSONIC"],
+                ["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"],
+                ["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"],
+                ["helm", "repo", "update"]
+            ]
+            for cmd in repo_commands:
+                print(f"\nExecuting: {' '.join(cmd)}")
+                subprocess.run(cmd, check=True)
+            
+        cmd = ["helm", "install", args.release_name, chart_source, "-f", tmp_values_file]
         if args.namespace:
             cmd.extend(["-n", args.namespace])
         if args.helm_args:
             cmd.extend(args.helm_args)
+        if not args.local and args.version:
+            cmd.extend(["--version", args.version])
             
         print(f"\nExecuting: {' '.join(cmd)}\n")
         result = subprocess.run(cmd)
