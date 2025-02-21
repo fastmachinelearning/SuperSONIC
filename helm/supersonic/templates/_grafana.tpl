@@ -18,7 +18,7 @@ Get Grafana host
 {{- define "supersonic.grafanaHost" -}}
 {{- if .Values.grafana.enabled -}}
     {{- if and .Values.grafana.ingress.enabled .Values.grafana.ingress.hosts -}}
-        {{- first .Values.grafana.ingress.hosts -}}
+        {{- include "supersonic.common.trimUrlScheme" (first .Values.grafana.ingress.hosts) -}}
     {{- else -}}
         {{- printf "%s-grafana.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
     {{- end -}}
@@ -67,7 +67,7 @@ Validate that there is no existing Grafana instance when enabling a new one
 {{- if .Values.grafana.enabled -}}
   {{- if include "supersonic.grafanaExists" . -}}
     {{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" (dict "serviceType" "grafana" "root" .)) -}}
-    {{- $url := printf "%s://%s:%s" $details.scheme $details.host $details.port -}}
+    {{- $url := include "supersonic.common.getServiceDisplayUrl" (dict "scheme" $details.scheme "host" $details.host) -}}
     {{- fail (printf "Error: Found existing Grafana instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, OR\n2. Uninstall the existing Grafana instance" .Release.Namespace $url) -}}
   {{- end -}}
 {{- end -}}
@@ -102,7 +102,7 @@ Validate Grafana configuration values
     {{- range (index .Values.grafana.datasources "datasources.yaml").datasources -}}
       {{- if and (eq .type "prometheus") .url -}}
         {{- if $root.Values.prometheus.external.enabled -}}
-          {{- $expectedURL := printf "%s://%s" $root.Values.prometheus.external.scheme $root.Values.prometheus.external.url -}}
+          {{- $expectedURL := printf "%s://%s" $root.Values.prometheus.external.scheme (include "supersonic.common.trimUrlScheme" $root.Values.prometheus.external.url) -}}
           {{- if ne .url $expectedURL -}}
             {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components with external Prometheus, please set the following parameter:\ngrafana:\n  datasources:\n    datasources.yaml:\n      datasources:\n        - name: prometheus\n          type: prometheus\n          access: proxy\n          url: %s" $expectedURL) -}}
           {{- end -}}

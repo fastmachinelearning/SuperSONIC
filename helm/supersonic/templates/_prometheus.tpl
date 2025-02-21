@@ -17,10 +17,10 @@ Get Prometheus host
 */}}
 {{- define "supersonic.prometheusHost" -}}
 {{- if .Values.prometheus.external.enabled -}}
-    {{- .Values.prometheus.external.url -}}
+    {{- include "supersonic.common.trimUrlScheme" .Values.prometheus.external.url -}}
 {{- else if .Values.prometheus.enabled -}}
     {{- if and .Values.prometheus.server.ingress.enabled .Values.prometheus.server.ingress.hosts -}}
-        {{- first .Values.prometheus.server.ingress.hosts -}}
+        {{- include "supersonic.common.trimUrlScheme" (first .Values.prometheus.server.ingress.hosts) -}}
     {{- else -}}
         {{- printf "%s-prometheus-server.%s.svc.cluster.local" (include "supersonic.name" .) .Release.Namespace -}}
     {{- end -}}
@@ -113,7 +113,7 @@ Validate Prometheus configuration values
   {{- range (index .Values.grafana "datasources.yaml").datasources -}}
     {{- if and (eq .type "prometheus") .url -}}
       {{- $expectedURL := printf "http://%s-prometheus-server:9090" $releaseName -}}
-      {{- if ne .url $expectedURL -}}
+      {{- if ne (include "supersonic.common.trimUrlScheme" .url) (include "supersonic.common.trimUrlScheme" $expectedURL) -}}
         {{- fail (printf "Mismatched configuration. For internal consistency of SuperSONIC components, please set the following parameter:\ngrafana.datasources.yaml.datasources[].url: %s" $expectedURL) -}}
       {{- end -}}
     {{- end -}}
