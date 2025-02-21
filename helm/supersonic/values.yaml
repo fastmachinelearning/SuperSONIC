@@ -75,9 +75,27 @@ triton:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
-  # -- If ture, will ignore custom readinness probe settings (not recommended when using autoscaler)
-  resetReadinessProbe: false
+  # -- Custom readiness probe configuration
+  readinessProbe:
+    # -- If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)
+    reset: false
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 10
+    command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
+    timeoutSeconds: 5
+    successThreshold: 1
 
+  # -- Custom startup probe configuration
+  startupProbe:
+    # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
+    reset: false
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    failureThreshold: 12
+    httpGet:
+      path: /v2/health/ready
+      port: http
 envoy:
   # -- Enable Envoy Proxy
   enabled: true
@@ -200,7 +218,7 @@ prometheus:
   enabled: false
   server:
     extraFlags: [web.enable-remote-write-receiver]
-    useExistingClusterRoleName: supersonic-prometheus-role
+    useExistingClusterRoleName: supersonic-prometheus-role # If installer plugin is used, this value is set by the plugin
     releaseNamespace: true
     persistentVolume:
       enabled: false
@@ -232,7 +250,7 @@ prometheus:
   serviceAccounts:
     server:
       create: false
-      name: supersonic-prometheus-sa
+      name: supersonic-prometheus-sa # If installer plugin is used, this value is set by the plugin
 
   rbac:
     create: false
@@ -269,6 +287,7 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+      # If installer plugin is used, this section is set by the plugin
         - name: prometheus
           type: prometheus
           access: proxy
@@ -306,7 +325,7 @@ grafana:
             path: /var/lib/grafana/dashboards/default
 
   dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
+    default: supersonic-grafana-default-dashboard # If installer plugin is used, this value is set by the plugin
 
   grafana.ini:
     auth:
@@ -316,6 +335,8 @@ grafana:
       org_role: Admin
     dashboards:
       default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
+    server:
+      root_url: "" # If installer plugin is used, this value is set by the plugin
 
   resources:
     limits:
@@ -336,8 +357,9 @@ grafana:
     path: /
     pathType: ImplementationSpecific
     ingressClassName: ""
-    hosts: []
-    tls: []
+    hosts: [] # If installer plugin is used, this value is set by the plugin
+    tls:
+      - hosts: [] # If installer plugin is used, this value is set by the plugin
     annotations: {}
 
 # Tempo configuration

@@ -33,7 +33,8 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
-  resetReadinessProbe: true
+  readinessProbe:
+    reset: true
 
 envoy:
   enabled: true
@@ -74,14 +75,10 @@ autoscaler:
 
 prometheus:
   enabled: true
+  host: "https://prometheus-cms-test.nrp-nautilus.io"
   server:
     ingress:
       enabled: true
-      hosts:
-        - prometheus-cms.nrp-nautilus.io
-      tls:
-        - hosts:
-            - prometheus-cms.nrp-nautilus.io
       ingressClassName: haproxy
       annotations:
         haproxy-ingress.github.io/cors-enable: "true"
@@ -90,21 +87,14 @@ prometheus:
 
 grafana:
   enabled: true
+  host: "https://grafana-cms-test.nrp-nautilus.io"
   ingress:
     enabled: true
-    hosts:
-      - grafana-cms.nrp-nautilus.io
-    tls:
-      - hosts:
-          - grafana-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
       haproxy-ingress.github.io/proxy-body-size: "512m"
       haproxy-ingress.github.io/timeout-http-request: "5m"
-  grafana.ini:
-    server:
-      root_url: https://grafana-cms.nrp-nautilus.io
 
 opentelemetry-collector:
   enabled: true
