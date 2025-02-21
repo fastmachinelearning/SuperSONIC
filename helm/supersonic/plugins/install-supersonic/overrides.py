@@ -8,6 +8,14 @@ def generate_overrides(release_name: str, values: Dict) -> Dict:
     prometheus_host = values.get("prometheus", {}).get("host", "").split("//")[-1]
     grafana_host = values.get("grafana", {}).get("host", "").split("//")[-1]
 
+    if values.get("prometheus", {}).get("external", {}).get("enabled", False):
+        prometheus_server = values.get("prometheus", {}).get("external", {}).get("url", "")
+        prometheus_server = "https://" + prometheus_server.split("//")[-1]
+    elif values.get("prometheus", {}).get("enabled", False):
+        prometheus_server = f"http://{release_name}-prometheus-server:9090"
+    else:
+        prometheus_server = ""
+
     # Define overrides as YAML template
     overrides_yaml = f"""
 prometheus:
@@ -31,7 +39,7 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: http://{release_name}-prometheus-server:9090
+          url: {prometheus_server}
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
