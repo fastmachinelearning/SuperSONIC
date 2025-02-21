@@ -131,8 +131,82 @@
             "ports"
           ]
         },
-        "resetReadinessProbe": {
-          "type": "boolean"
+        "readinessProbe": {
+          "type": "object",
+          "properties": {
+            "reset": {
+              "type": "boolean"
+            },
+            "initialDelaySeconds": {
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "type": "integer"
+            },
+            "failureThreshold": {
+              "type": "integer"
+            },
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "timeoutSeconds": {
+              "type": "integer"
+            },
+            "successThreshold": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "command",
+            "failureThreshold",
+            "initialDelaySeconds",
+            "periodSeconds",
+            "reset",
+            "successThreshold",
+            "timeoutSeconds"
+          ]
+        },
+        "startupProbe": {
+          "type": "object",
+          "properties": {
+            "reset": {
+              "type": "boolean"
+            },
+            "initialDelaySeconds": {
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "type": "integer"
+            },
+            "failureThreshold": {
+              "type": "integer"
+            },
+            "httpGet": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "port"
+              ]
+            }
+          },
+          "required": [
+            "failureThreshold",
+            "httpGet",
+            "initialDelaySeconds",
+            "periodSeconds",
+            "reset"
+          ]
         }
       },
       "required": [
@@ -141,10 +215,11 @@
         "command",
         "image",
         "modelRepository",
+        "readinessProbe",
         "replicas",
-        "resetReadinessProbe",
         "resources",
-        "service"
+        "service",
+        "startupProbe"
       ]
     },
     "envoy": {
