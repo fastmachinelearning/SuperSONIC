@@ -43,12 +43,8 @@ jobs:
           kubectl create namespace keda
           helm install keda kedacore/keda --namespace keda  
 
-      - name: Install SuperSONIC via plugin
+      - name: Install SuperSONIC from remote repo via plugin
         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
-          helm dependency build ./helm/supersonic
           helm plugin install ./plugins/install-supersonic
           helm install-supersonic supersonic --values values/values-cms-ci.yaml -n cms
 

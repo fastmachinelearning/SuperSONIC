@@ -14,28 +14,43 @@ from overrides import (
     generate_overrides
 )
 
-CHART_PATH = "helm/supersonic"
 REPO_CHART = "fastml/supersonic"
 
-def process_values(values_file: Optional[str], release_name: str) -> Dict:
+def process_values(values_file: Optional[str], chart_path: str, release_name: str, use_local: bool, version: Optional[str] = None) -> Dict:
     """Process and merge values files."""
-    if not os.path.isdir(CHART_PATH):
-        print(f"Error: SuperSONIC chart not found at {CHART_PATH}")
-        sys.exit(1)
-
-    default_values = os.path.join(CHART_PATH, "values.yaml")
-    if not os.path.isfile(default_values):
-        print("Error: Default values file not found in chart")
-        sys.exit(1)
-
     print("╔══════════════════════════════════════════════════════════════════════")
     print("║ Running Helm plugin 'install-supersonic' ")
     print("╠══════════════════════════════════════════════════════════════════════")
-    print(f"║ Default values: {default_values} ")
 
-    # Load default values
-    with open(default_values, 'r') as f:
-        result = yaml.safe_load(f) or {}
+    # Get default values
+    if use_local:
+        if not os.path.isdir(chart_path):
+            print(f"Error: SuperSONIC chart not found at {chart_path}")
+            sys.exit(1)
+
+        default_values_path = os.path.join(chart_path, "values.yaml")
+        if not os.path.isfile(default_values_path):
+            print("Error: Default values file not found in chart")
+            sys.exit(1)
+        print(f"║ Default values: {default_values_path} ")
+        with open(default_values_path, 'r') as f:
+            result = yaml.safe_load(f) or {}
+    else:
+        # Add repository and fetch default values from remote
+        subprocess.run(["helm", "repo", "add", "fastml", "https://fastmachinelearning.org/SuperSONIC"], check=True)
+        subprocess.run(["helm", "repo", "update"], check=True)
+        
+        cmd = ["helm", "show", "values", REPO_CHART]
+        if version:
+            cmd.extend(["--version", version])
+        
+        print("║ Fetching default values from remote repository")
+        try:
+            values_output = subprocess.check_output(cmd, text=True)
+            result = yaml.safe_load(values_output) or {}
+        except subprocess.CalledProcessError as e:
+            print(f"Error: Failed to fetch default values from repository: {e}")
+            sys.exit(1)
 
     # Load custom values
     if values_file:
@@ -60,10 +75,10 @@ def process_values(values_file: Optional[str], release_name: str) -> Dict:
 def main() -> None:
     """Main entry point."""
     args, _ = parse_args()
-    
+
     # Process values: merge default values with custom values, then generate overrides
     # and merge them onto the result
-    merged_values = process_values(args.values_file, args.release_name)
+    merged_values = process_values(args.values_file, args.path, args.release_name, args.local, args.version)
     
     # Write generated values to a temporary file
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp:
@@ -74,18 +89,17 @@ def main() -> None:
 
     try:
         # Construct and execute helm command
-        chart_source = CHART_PATH if args.local else REPO_CHART
-        if not args.local:
-            # Add repositories and update when using remote chart
-            repo_commands = [
-                ["helm", "repo", "add", "fastml", "https://fastmachinelearning.org/SuperSONIC"],
-                ["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"],
-                ["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"],
-                ["helm", "repo", "update"]
-            ]
-            for cmd in repo_commands:
-                print(f"\nExecuting: {' '.join(cmd)}")
-                subprocess.run(cmd, check=True)
+        chart_source = args.path if args.local else REPO_CHART
+
+        # Add dependencies
+        repo_commands = [
+            ["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"],
+            ["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"],
+            ["helm", "repo", "update"]
+        ]
+        for cmd in repo_commands:
+            print(f"\nExecuting: {' '.join(cmd)}")
+            subprocess.run(cmd, check=True)
             
         cmd = ["helm", "install", args.release_name, chart_source, "-f", tmp_values_file]
         if args.namespace:
