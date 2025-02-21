@@ -254,5 +254,9 @@ Trim URL scheme and trailing slashes from a URL
 */}}
 {{- define "supersonic.common.trimUrlScheme" -}}
 {{- $url := . -}}
-{{- trimSuffix "://" (trimPrefix "https://" (trimPrefix "http://" $url)) -}}
+{{- if and $url (kindIs "string" $url) -}}
+    {{- trimSuffix "://" (trimPrefix "https://" (trimPrefix "http://" $url)) -}}
+{{- else -}}
+    {{- $url -}}
+{{- end -}}
 {{- end -}} 
