@@ -20,7 +20,7 @@ The main components of SuperSONIC are:
 - (optional) Load-based autoscaling via [KEDA](keda.sh)
 - (optional) [Prometheus](https://prometheus.io) instance (deploy custom or connect to existing)
 - (optional) Pre-configured [Grafana](https://grafana.com) dashboard
-- (optional) [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) and [Tempo](https://opentelemetry.io/docs/tempo/) for advanced monitoring.
+- (optional) [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) and [Grafana Tempo](https://grafana.com/docs/tempo/latest/) for advanced monitoring.
 
 
 ## Installation
