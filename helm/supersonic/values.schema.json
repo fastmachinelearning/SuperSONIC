@@ -1372,6 +1372,9 @@
         "tempo"
       ]
     },
+    "tracing_sampling_rate": {
+      "type": "number"
+    },
     "opentelemetry-collector": {
       "type": "object",
       "properties": {
@@ -1857,6 +1860,7 @@
     "serverLoadThreshold",
     "tempo",
     "tolerations",
+    "tracing_sampling_rate",
     "triton"
   ]
 }
