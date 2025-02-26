@@ -52,6 +52,7 @@ jobs:
       - name: Deploy Helm chart
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm repo update
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
