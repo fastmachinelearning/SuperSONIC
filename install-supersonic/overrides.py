@@ -43,6 +43,19 @@ grafana:
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
+        - name: tempo
+          type: tempo
+          url: http://{release_name}-tempo:3100
+          access: proxy
+          isDefault: false
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+            serviceMap:
+              datasourceUid: 'prometheus'
+            nodeGraph:
+              enabled: true
   ingress:
     hosts: [{grafana_host}]
     tls:

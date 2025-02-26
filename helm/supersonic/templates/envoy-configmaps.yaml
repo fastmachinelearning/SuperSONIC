@@ -34,11 +34,13 @@ static_resources:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 generate_request_id: true
                 tracing:
+                  random_sampling:
+                    value: 1 # 1%
                   provider:
                     name: envoy.tracers.opentelemetry
                     typed_config:
                       "@type": type.googleapis.com/envoy.config.trace.v3.OpenTelemetryConfig
-                      service_name: "supersonic"
+                      service_name: "${POD_NAME}"
                       grpc_service:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
