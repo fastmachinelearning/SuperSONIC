@@ -42,7 +42,7 @@ prometheus:
 grafana:
   enabled: true
 
-open-telemetry:
+opentelemetry-collector:
   enabled: true
 
 tempo:

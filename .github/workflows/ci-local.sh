@@ -42,6 +42,7 @@ kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
 # 7. Deploy the Helm chart for supersonic
 echo "Deploying Helm chart for supersonic..."
 helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 helm repo update
 helm dependency build ./helm/supersonic
 helm upgrade --install supersonic ./helm/supersonic --values values/values-cms-ci.yaml -n cms
@@ -60,6 +61,13 @@ kubectl get svc,pod -l app.kubernetes.io/name=prometheus -n cms
 
 echo "Waiting for Grafana pods to be ready..."
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
+
+echo "Waiting for OpenTelemetry Collector pods to be ready..."
+kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=opentelemetry-collector --timeout 120s -n cms
+
+echo "Waiting for Tempo pods to be ready..."
+kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
+
 
 echo "Waiting for Triton server pods to be ready..."
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
