@@ -95,6 +95,7 @@ def main() -> None:
         repo_commands = [
             ["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"],
             ["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"],
+            ["helm", "repo", "add", "opentelemetry", "https://open-telemetry.github.io/opentelemetry-helm-charts"],
             ["helm", "repo", "update"]
         ]
         for cmd in repo_commands:
