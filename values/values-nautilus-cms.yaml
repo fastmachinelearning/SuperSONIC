@@ -26,8 +26,8 @@ triton:
 # --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
 
   resources:
-    limits: { cpu: 0.4, memory: 3G, nvidia.com/gpu: 1}
-    requests: { cpu: 0.4, memory: 3G, nvidia.com/gpu: 1}
+    limits: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
+    requests: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
   # affinity:
   #   nodeAffinity:
   #     requiredDuringSchedulingIgnoredDuringExecution:
