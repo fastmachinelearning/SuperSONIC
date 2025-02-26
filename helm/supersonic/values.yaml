@@ -393,7 +393,7 @@ tempo:
     readinessProbe:
       initialDelaySeconds: 0
 
-tracing_sampling_rate: 0.001
+tracing_sampling_rate: 0.01
 
 opentelemetry-collector:
   enabled: false

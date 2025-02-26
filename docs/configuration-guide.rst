@@ -343,3 +343,8 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        stabilizationWindowSeconds: 120
        periodSeconds: 30
        stepsize: 1
+
+11.  (optional) Configure advanced monitoring 
+=============================================
+
+Refer to the `advanced monitoring guide <advanced-monitoring>`_.
