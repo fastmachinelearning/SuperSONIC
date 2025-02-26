@@ -2,3 +2,5 @@
 docs/_build
 
 *.tgz
+
+*/__pycache__/
