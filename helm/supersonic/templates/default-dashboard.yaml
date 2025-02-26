@@ -8,7 +8,12 @@ metadata:
     app.kubernetes.io/component: grafana
 data:
   default.json: |-
-    {{- $dashboard := $.Files.Get "dashboards/default.json" | fromJson }}
+    {{- $dashboardPath := "dashboards/default.json" }}
+    {{- $advancedMonitoring := and (index .Values "opentelemetry-collector" "enabled") .Values.tempo.enabled }}
+    {{- if $advancedMonitoring }}
+    {{- $dashboardPath = "dashboards/with-server-map.json" }}
+    {{- end }}
+    {{- $dashboard := $.Files.Get $dashboardPath | fromJson }}
     {{- $grafana_variables := $.Files.Get "dashboards/variables.json" | fromJson }}
     {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
     {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
