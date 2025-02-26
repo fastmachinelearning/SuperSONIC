@@ -33,9 +33,10 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 generate_request_id: true
+                {{- if (index .root.Values "opentelemetry-collector" "enabled") }}
                 tracing:
                   random_sampling:
-                    value: 1 # 1%
+                    value: {{ mulf .root.Values.tracing_sampling_rate 100 }}
                   provider:
                     name: envoy.tracers.opentelemetry
                     typed_config:
@@ -45,6 +46,7 @@ static_resources:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
                         timeout: 0.250s
+                {{- end }}
                 stat_prefix: ingress_grpc
                 codec_type: AUTO
                 route_config:
@@ -141,6 +143,7 @@ static_resources:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
     {{- end }}
     {{- end }}
+    {{- if (index .root.Values "opentelemetry-collector" "enabled") }}
     - name: opentelemetry_collector
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
@@ -156,8 +159,9 @@ static_resources:
           - endpoint:
               address:
                 socket_address:
-                  address: supersonic-opentelemetry-collector
+                  address: {{ .root.Release.Name }}-opentelemetry-collector
                   port_value: 4317
+    {{- end }}
     - name: triton_grpc_service
       connect_timeout: 0.25s
       type: STRICT_DNS
