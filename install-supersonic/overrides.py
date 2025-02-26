@@ -78,7 +78,7 @@ grafana:
     if values.get("opentelemetry-collector", {}).get("enabled", False):
         # Get existing args from values
         triton_args = values.get("triton", {}).get("args", [])
-        sampling_rate = values.get("tracing_sampling_rate")
+        sampling_rate = values.get("tracing_sampling_rate", 0.01)
         if triton_args and sampling_rate>0:
             # Get the first (and should be only) argument string
             args_str = triton_args[0]
