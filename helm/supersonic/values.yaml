@@ -364,7 +364,7 @@ grafana:
 
 # Tempo configuration
 tempo:
-  enabled: true
+  enabled: false
   tempo:
     metricsGenerator:
       enabled: true
@@ -394,7 +394,7 @@ tempo:
       initialDelaySeconds: 0
 
 opentelemetry-collector:
-  enabled: true
+  enabled: false
   image:
     repository: "otel/opentelemetry-collector-contrib"
     tag: "0.120.0"
