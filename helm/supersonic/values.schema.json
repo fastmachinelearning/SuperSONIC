@@ -1333,11 +1333,35 @@
               "required": [
                 "otlp"
               ]
+            },
+            "livenessProbe": {
+              "type": "object",
+              "properties": {
+                "initialDelaySeconds": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "initialDelaySeconds"
+              ]
+            },
+            "readinessProbe": {
+              "type": "object",
+              "properties": {
+                "initialDelaySeconds": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "initialDelaySeconds"
+              ]
             }
           },
           "required": [
+            "livenessProbe",
             "metricsGenerator",
             "overrides",
+            "readinessProbe",
             "receivers",
             "resources"
           ]
@@ -1371,17 +1395,6 @@
         },
         "mode": {
           "type": "string"
-        },
-        "command": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name"
-          ]
         },
         "resources": {
           "type": "object",
@@ -1463,10 +1476,22 @@
                           "required": [
                             "endpoint"
                           ]
+                        },
+                        "http": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
                         }
                       },
                       "required": [
-                        "grpc"
+                        "grpc",
+                        "http"
                       ]
                     }
                   },
@@ -1504,10 +1529,227 @@
                     "endpoint",
                     "tls"
                   ]
+                },
+                "otlphttp": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "tls": {
+                      "type": "object",
+                      "properties": {
+                        "insecure": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "insecure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "tls"
+                  ]
+                },
+                "prometheusremotewrite": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "target_info": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "target_info"
+                  ]
                 }
               },
               "required": [
-                "otlp"
+                "otlp",
+                "otlphttp",
+                "prometheusremotewrite"
+              ]
+            },
+            "processors": {
+              "type": "object",
+              "properties": {
+                "transform": {
+                  "type": "object",
+                  "properties": {
+                    "trace_statements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "context": {
+                            "type": "string"
+                          },
+                          "conditions": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "statements": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "conditions",
+                          "context",
+                          "statements"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "trace_statements"
+                  ]
+                }
+              },
+              "required": [
+                "transform"
+              ]
+            },
+            "connectors": {
+              "type": "object",
+              "properties": {
+                "spanmetrics": {
+                  "type": "object",
+                  "properties": {
+                    "histogram": {
+                      "type": "object",
+                      "properties": {
+                        "explicit": {
+                          "type": "object",
+                          "properties": {
+                            "buckets": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "buckets"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "explicit"
+                      ]
+                    },
+                    "dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "default": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
+                    },
+                    "exemplars": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ]
+                    },
+                    "exclude_dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "dimensions_cache_size": {
+                      "type": "integer"
+                    },
+                    "aggregation_temporality": {
+                      "type": "string"
+                    },
+                    "metrics_flush_interval": {
+                      "type": "string"
+                    },
+                    "metrics_expiration": {
+                      "type": "string"
+                    },
+                    "events": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "dimensions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "dimensions",
+                        "enabled"
+                      ]
+                    },
+                    "resource_metrics_key_attributes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "aggregation_temporality",
+                    "dimensions",
+                    "dimensions_cache_size",
+                    "events",
+                    "exclude_dimensions",
+                    "exemplars",
+                    "histogram",
+                    "metrics_expiration",
+                    "metrics_flush_interval",
+                    "resource_metrics_key_attributes"
+                  ]
+                }
+              },
+              "required": [
+                "spanmetrics"
               ]
             },
             "service": {
@@ -1543,9 +1785,38 @@
                         "processors",
                         "receivers"
                       ]
+                    },
+                    "metrics": {
+                      "type": "object",
+                      "properties": {
+                        "receivers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "processors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "exporters": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "exporters",
+                        "processors",
+                        "receivers"
+                      ]
                     }
                   },
                   "required": [
+                    "metrics",
                     "traces"
                   ]
                 }
@@ -1556,14 +1827,15 @@
             }
           },
           "required": [
+            "connectors",
             "exporters",
+            "processors",
             "receivers",
             "service"
           ]
         }
       },
       "required": [
-        "command",
         "config",
         "enabled",
         "image",
