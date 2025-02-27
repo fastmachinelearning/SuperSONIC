@@ -24,7 +24,7 @@
 | envoy.replicas | int | `1` | Number of Envoy Proxy pods in Deployment |
 | envoy.image | string | `"envoyproxy/envoy:v1.30-latest"` | Envoy Proxy Docker image |
 | envoy.args | list | `["--config-path","/etc/envoy/envoy.yaml","--log-level","info","--log-path","/dev/stdout"]` | Arguments for Envoy |
-| envoy.resources | object | `{"limits":{"cpu":2,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
+| envoy.resources | object | `{"limits":{"cpu":8,"memory":"4G"},"requests":{"cpu":1,"memory":"2G"}}` | Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU |
 | envoy.service.type | string | `"ClusterIP"` | This is the client-facing endpoint. In order to be able to connect to it, either enable ingress, or use type: LoadBalancer. |
 | envoy.service.ports | list | `[{"name":"grpc","port":8001,"targetPort":8001},{"name":"admin","port":9901,"targetPort":9901}]` | Envoy Service ports |
 | envoy.ingress | object | `{"annotations":{},"enabled":false,"hostName":"","ingressClassName":""}` | Ingress configuration for Envoy |
@@ -60,6 +60,7 @@
 | prometheus.external.port | int | `443` | External Prometheus server port number |
 | prometheus.external.scheme | string | `"https"` | Specify whether external Prometheus endpoint is exposed as http or https |
 | prometheus.enabled | bool | `false` | Enable or disable custom Prometheus deployment |
+| prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` |  |
 | prometheus.server.useExistingClusterRoleName | string | `"supersonic-prometheus-role"` |  |
 | prometheus.server.releaseNamespace | bool | `true` |  |
 | prometheus.server.persistentVolume.enabled | bool | `false` |  |
@@ -89,7 +90,7 @@
 | grafana.persistence.enabled | bool | `false` |  |
 | grafana.rbac.create | bool | `false` |  |
 | grafana.serviceAccount.create | bool | `false` |  |
-| grafana.datasources | object | `{"datasources.yaml":{"apiVersion":1,"datasources":[{"access":"proxy","isDefault":true,"jsonData":{"timeInterval":"5s","tlsSkipVerify":true},"name":"prometheus","type":"prometheus","url":"http://supersonic-prometheus-server:9090"}]}}` | Grafana datasources configuration |
+| grafana.datasources | object | `{"datasources.yaml":{"apiVersion":1,"datasources":[{"access":"proxy","isDefault":true,"jsonData":{"timeInterval":"5s","tlsSkipVerify":true},"name":"prometheus","type":"prometheus","url":"http://supersonic-prometheus-server:9090"},{"access":"proxy","basicAuth":false,"isDefault":false,"jsonData":{"nodeGraph":{"enabled":true},"serviceMap":{"datasourceUid":"prometheus"},"timeInterval":"5s","tlsSkipVerify":true},"name":"tempo","type":"tempo","url":"http://supersonic-tempo:3100"}]}}` | Grafana datasources configuration |
 | grafana.dashboardProviders."dashboardproviders.yaml".apiVersion | int | `1` |  |
 | grafana.dashboardProviders."dashboardproviders.yaml".providers[0].name | string | `"default"` |  |
 | grafana.dashboardProviders."dashboardproviders.yaml".providers[0].orgId | int | `1` |  |
@@ -112,3 +113,74 @@
 | grafana.service.port | int | `80` |  |
 | grafana.service.targetPort | int | `3000` |  |
 | grafana.ingress | object | `{"annotations":{},"enabled":false,"hosts":[],"ingressClassName":"","path":"/","pathType":"ImplementationSpecific","tls":[{"hosts":[]}]}` | Ingress configuration for Grafana |
+| tempo.enabled | bool | `false` |  |
+| tempo.tempo.metricsGenerator.enabled | bool | `true` |  |
+| tempo.tempo.metricsGenerator.remoteWriteUrl | string | `"http://supersonic-prometheus-server:9090/api/v1/write"` |  |
+| tempo.tempo.resources.requests.cpu | string | `"1"` |  |
+| tempo.tempo.resources.requests.memory | string | `"2G"` |  |
+| tempo.tempo.resources.limits.cpu | string | `"2"` |  |
+| tempo.tempo.resources.limits.memory | string | `"4G"` |  |
+| tempo.tempo.overrides.defaults.metrics_generator_processors[0] | string | `"service-graphs"` |  |
+| tempo.tempo.overrides.defaults.metrics_generator_processors[1] | string | `"span-metrics"` |  |
+| tempo.tempo.receivers.otlp.protocols.grpc.endpoint | string | `"0.0.0.0:4317"` |  |
+| tempo.tempo.receivers.otlp.protocols.http.endpoint | string | `"0.0.0.0:4318"` |  |
+| tempo.tempo.livenessProbe.initialDelaySeconds | int | `0` |  |
+| tempo.tempo.readinessProbe.initialDelaySeconds | int | `0` |  |
+| tracing_sampling_rate | float | `0.01` |  |
+| opentelemetry-collector.enabled | bool | `false` |  |
+| opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| opentelemetry-collector.image.tag | string | `"0.120.0"` |  |
+| opentelemetry-collector.mode | string | `"deployment"` |  |
+| opentelemetry-collector.resources.requests.memory | string | `"1G"` |  |
+| opentelemetry-collector.resources.requests.cpu | string | `"1"` |  |
+| opentelemetry-collector.resources.limits.memory | string | `"2G"` |  |
+| opentelemetry-collector.resources.limits.cpu | string | `"1"` |  |
+| opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
+| opentelemetry-collector.config.receivers.otlp.protocols.grpc.endpoint | string | `"0.0.0.0:4317"` |  |
+| opentelemetry-collector.config.receivers.otlp.protocols.http.endpoint | string | `"0.0.0.0:4318"` |  |
+| opentelemetry-collector.config.exporters.otlp.endpoint | string | `"http://supersonic-tempo:4317"` |  |
+| opentelemetry-collector.config.exporters.otlp.tls.insecure | bool | `true` |  |
+| opentelemetry-collector.config.exporters.otlphttp.endpoint | string | `"http://supersonic-tempo:4318"` |  |
+| opentelemetry-collector.config.exporters.otlphttp.tls.insecure | bool | `true` |  |
+| opentelemetry-collector.config.exporters.prometheusremotewrite.endpoint | string | `"http://supersonic-prometheus-server:9090/api/v1/write"` |  |
+| opentelemetry-collector.config.exporters.prometheusremotewrite.target_info.enabled | bool | `true` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[0].context | string | `"resource"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[0].conditions[0] | string | `"attributes[\"pod_name\"] != nil"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[0].statements[0] | string | `"replace_match(attributes[\"service.name\"], \"triton-inference-server\", attributes[\"pod_name\"])"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[1].context | string | `"span"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[1].conditions[0] | string | `"name == \"ingress\""` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[1].statements[0] | string | `"set(kind, 3)"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[1].statements[1] | string | `"set(kind.string, \"Client\")"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[2].context | string | `"span"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[2].conditions[0] | string | `"name != \"ingress\""` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[2].statements[0] | string | `"set(kind, 2)"` |  |
+| opentelemetry-collector.config.processors.transform.trace_statements[2].statements[1] | string | `"set(kind.string, \"Server\")"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[0] | string | `"100us"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[1] | string | `"1ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[2] | string | `"2ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[3] | string | `"6ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[4] | string | `"10ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[5] | string | `"100ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[6] | string | `"250ms"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].name | string | `"http.method"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].default | string | `"GET"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.dimensions[1].name | string | `"http.status_code"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.exemplars.enabled | bool | `true` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.exclude_dimensions[0] | string | `"status.code"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.dimensions_cache_size | int | `1000` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.aggregation_temporality | string | `"AGGREGATION_TEMPORALITY_CUMULATIVE"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.metrics_flush_interval | string | `"15s"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.metrics_expiration | string | `"5m"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.events.enabled | bool | `true` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[0].name | string | `"exception.type"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[1].name | string | `"exception.message"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[0] | string | `"service.name"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[1] | string | `"telemetry.sdk.language"` |  |
+| opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[2] | string | `"telemetry.sdk.name"` |  |
+| opentelemetry-collector.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
+| opentelemetry-collector.config.service.pipelines.traces.processors[0] | string | `"transform"` |  |
+| opentelemetry-collector.config.service.pipelines.traces.exporters[0] | string | `"otlp"` |  |
+| opentelemetry-collector.config.service.pipelines.traces.exporters[1] | string | `"spanmetrics"` |  |
+| opentelemetry-collector.config.service.pipelines.metrics.receivers[0] | string | `"spanmetrics"` |  |
+| opentelemetry-collector.config.service.pipelines.metrics.processors[0] | string | `"batch"` |  |
+| opentelemetry-collector.config.service.pipelines.metrics.exporters[0] | string | `"prometheusremotewrite"` |  |
