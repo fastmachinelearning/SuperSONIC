@@ -25,12 +25,13 @@ The main components of SuperSONIC are:
 
 ## Installation
 
+The installation is done via a custom Helm plugin which takes care of
+internal connectivity of the chart components. Standard Helm installation
+is also supported, but requires a lot more manual configuration.
+
 ```
-helm repo add fastml https://fastmachinelearning.org/SuperSONIC
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm install <release-name> fastml/supersonic --values <your-values.yaml> -n <namespace>
+helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
+helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
 ```
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
