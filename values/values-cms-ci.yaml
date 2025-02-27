@@ -38,12 +38,29 @@ autoscaler:
 
 prometheus:
   enabled: true
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
 
 grafana:
   enabled: true
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
 
 opentelemetry-collector:
   enabled: true
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
 
 tempo:
   enabled: true
+  tempo:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "500Mi"
