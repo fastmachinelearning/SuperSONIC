@@ -82,14 +82,14 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
 
-      - name: Triton server ready
-        run: |  
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
-
       - name: Autoscaler ready
         run: |
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
           kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+
+      - name: Triton server ready
+        run: |  
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
 
       - name: Validate Deployment
         run: |
