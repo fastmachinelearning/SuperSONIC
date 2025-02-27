@@ -20,3 +20,11 @@ dependencies:
     version: "27.3.0"
     repository: https://prometheus-community.github.io/helm-charts
     condition: prometheus.enabled
+  - name: tempo
+    version: "1.18.2"
+    repository: https://grafana.github.io/helm-charts
+    condition: tempo.enabled
+  - name: opentelemetry-collector
+    version: "0.115.0"
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    condition: opentelemetry-collector.enabled

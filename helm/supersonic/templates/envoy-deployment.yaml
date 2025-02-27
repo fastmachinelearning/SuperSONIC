@@ -25,7 +25,20 @@ spec:
       containers:
       - name: envoy
         image: {{ .Values.envoy.image }}
+        command:
+          - sh
+          - -c
+          - |
+            apt-get update -y
+            apt-get install -y gettext-base
+            envsubst < /etc/envoy/envoy.yaml > /tmp/envoy.yaml
+            exec envoy -c /tmp/envoy.yaml
         args: {{ toYaml .Values.envoy.args | nindent 10 }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         ports:
         {{- range .Values.envoy.service.ports }}
         - name: {{ .name }}

@@ -52,7 +52,7 @@ jobs:
       - name: Deploy Helm chart
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
             --values values/values-cms-ci.yaml -n cms
@@ -74,14 +74,23 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
 
-      - name: Triton server ready
-        run: |  
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
+      - name: OpenTelemetry Collector ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=opentelemetry-collector --timeout 120s -n cms
+
+      - name: Tempo ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
 
       - name: Autoscaler ready
         run: |
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
           kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+
+      - name: Triton server ready
+        run: |
+          kubectl describe pod -l app.kubernetes.io/component=triton -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
 
       - name: Validate Deployment
         run: |

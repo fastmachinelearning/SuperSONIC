@@ -247,7 +247,7 @@
               "type": "object",
               "properties": {
                 "cpu": {
-                  "type": "integer"
+                  "type": "number"
                 },
                 "memory": {
                   "type": "string"
@@ -262,7 +262,7 @@
               "type": "object",
               "properties": {
                 "cpu": {
-                  "type": "integer"
+                  "type": "number"
                 },
                 "memory": {
                   "type": "string"
@@ -536,6 +536,12 @@
         "server": {
           "type": "object",
           "properties": {
+            "extraFlags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "useExistingClusterRoleName": {
               "type": "string"
             },
@@ -669,6 +675,7 @@
           },
           "required": [
             "configMapOverrideName",
+            "extraFlags",
             "global",
             "ingress",
             "persistentVolume",
@@ -884,12 +891,37 @@
                           },
                           "tlsSkipVerify": {
                             "type": "boolean"
+                          },
+                          "serviceMap": {
+                            "type": "object",
+                            "properties": {
+                              "datasourceUid": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "datasourceUid"
+                            ]
+                          },
+                          "nodeGraph": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "enabled"
+                            ]
                           }
                         },
                         "required": [
                           "timeInterval",
                           "tlsSkipVerify"
                         ]
+                      },
+                      "basicAuth": {
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -1169,6 +1201,651 @@
         "service",
         "serviceAccount"
       ]
+    },
+    "tempo": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "tempo": {
+          "type": "object",
+          "properties": {
+            "metricsGenerator": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "remoteWriteUrl": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "remoteWriteUrl"
+              ]
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                }
+              },
+              "required": [
+                "limits",
+                "requests"
+              ]
+            },
+            "overrides": {
+              "type": "object",
+              "properties": {
+                "defaults": {
+                  "type": "object",
+                  "properties": {
+                    "metrics_generator_processors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "metrics_generator_processors"
+                  ]
+                }
+              },
+              "required": [
+                "defaults"
+              ]
+            },
+            "receivers": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "object",
+                      "properties": {
+                        "grpc": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        },
+                        "http": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "grpc",
+                        "http"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "protocols"
+                  ]
+                }
+              },
+              "required": [
+                "otlp"
+              ]
+            },
+            "livenessProbe": {
+              "type": "object",
+              "properties": {
+                "initialDelaySeconds": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "initialDelaySeconds"
+              ]
+            },
+            "readinessProbe": {
+              "type": "object",
+              "properties": {
+                "initialDelaySeconds": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "initialDelaySeconds"
+              ]
+            }
+          },
+          "required": [
+            "livenessProbe",
+            "metricsGenerator",
+            "overrides",
+            "readinessProbe",
+            "receivers",
+            "resources"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "tempo"
+      ]
+    },
+    "tracing_sampling_rate": {
+      "type": "number"
+    },
+    "opentelemetry-collector": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repository",
+            "tag"
+          ]
+        },
+        "mode": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string"
+                },
+                "cpu": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string"
+                },
+                "cpu": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ]
+            }
+          },
+          "required": [
+            "limits",
+            "requests"
+          ]
+        },
+        "ports": {
+          "type": "object",
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ]
+            }
+          },
+          "required": [
+            "metrics"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "receivers": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "object",
+                      "properties": {
+                        "grpc": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        },
+                        "http": {
+                          "type": "object",
+                          "properties": {
+                            "endpoint": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "endpoint"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "grpc",
+                        "http"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "protocols"
+                  ]
+                }
+              },
+              "required": [
+                "otlp"
+              ]
+            },
+            "exporters": {
+              "type": "object",
+              "properties": {
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "tls": {
+                      "type": "object",
+                      "properties": {
+                        "insecure": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "insecure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "tls"
+                  ]
+                },
+                "otlphttp": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "tls": {
+                      "type": "object",
+                      "properties": {
+                        "insecure": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "insecure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "tls"
+                  ]
+                },
+                "prometheusremotewrite": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "type": "string"
+                    },
+                    "target_info": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "target_info"
+                  ]
+                }
+              },
+              "required": [
+                "otlp",
+                "otlphttp",
+                "prometheusremotewrite"
+              ]
+            },
+            "processors": {
+              "type": "object",
+              "properties": {
+                "transform": {
+                  "type": "object",
+                  "properties": {
+                    "trace_statements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "context": {
+                            "type": "string"
+                          },
+                          "conditions": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "statements": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "conditions",
+                          "context",
+                          "statements"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "trace_statements"
+                  ]
+                }
+              },
+              "required": [
+                "transform"
+              ]
+            },
+            "connectors": {
+              "type": "object",
+              "properties": {
+                "spanmetrics": {
+                  "type": "object",
+                  "properties": {
+                    "histogram": {
+                      "type": "object",
+                      "properties": {
+                        "explicit": {
+                          "type": "object",
+                          "properties": {
+                            "buckets": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "buckets"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "explicit"
+                      ]
+                    },
+                    "dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "default": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
+                    },
+                    "exemplars": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ]
+                    },
+                    "exclude_dimensions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "dimensions_cache_size": {
+                      "type": "integer"
+                    },
+                    "aggregation_temporality": {
+                      "type": "string"
+                    },
+                    "metrics_flush_interval": {
+                      "type": "string"
+                    },
+                    "metrics_expiration": {
+                      "type": "string"
+                    },
+                    "events": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "dimensions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "dimensions",
+                        "enabled"
+                      ]
+                    },
+                    "resource_metrics_key_attributes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "aggregation_temporality",
+                    "dimensions",
+                    "dimensions_cache_size",
+                    "events",
+                    "exclude_dimensions",
+                    "exemplars",
+                    "histogram",
+                    "metrics_expiration",
+                    "metrics_flush_interval",
+                    "resource_metrics_key_attributes"
+                  ]
+                }
+              },
+              "required": [
+                "spanmetrics"
+              ]
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "pipelines": {
+                  "type": "object",
+                  "properties": {
+                    "traces": {
+                      "type": "object",
+                      "properties": {
+                        "receivers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "processors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "exporters": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "exporters",
+                        "processors",
+                        "receivers"
+                      ]
+                    },
+                    "metrics": {
+                      "type": "object",
+                      "properties": {
+                        "receivers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "processors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "exporters": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "exporters",
+                        "processors",
+                        "receivers"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "metrics",
+                    "traces"
+                  ]
+                }
+              },
+              "required": [
+                "pipelines"
+              ]
+            }
+          },
+          "required": [
+            "connectors",
+            "exporters",
+            "processors",
+            "receivers",
+            "service"
+          ]
+        }
+      },
+      "required": [
+        "config",
+        "enabled",
+        "image",
+        "mode",
+        "ports",
+        "resources"
+      ]
     }
   },
   "required": [
@@ -1177,10 +1854,13 @@
     "grafana",
     "nameOverride",
     "nodeSelector",
+    "opentelemetry-collector",
     "prometheus",
     "serverLoadMetric",
     "serverLoadThreshold",
+    "tempo",
     "tolerations",
+    "tracing_sampling_rate",
     "triton"
   ]
 }

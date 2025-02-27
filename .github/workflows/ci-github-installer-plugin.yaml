@@ -46,7 +46,7 @@ jobs:
       - name: Install SuperSONIC from remote repo via plugin
         run: |
           helm plugin install .
-          helm install-supersonic supersonic --values values/values-cms-ci.yaml -n cms
+          helm install-supersonic supersonic --local --values values/values-cms-ci.yaml -n cms
 
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster 

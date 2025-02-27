@@ -112,7 +112,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+            "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -477,7 +477,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+            "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -816,7 +816,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "nv_gpu_memory_used_bytes{namespace=~\"${namespace}\"}",
+            "expr": "nv_gpu_memory_used_bytes{namespace=~\"${namespace}\"}/nv_gpu_memory_total_bytes{namespace=~\"${namespace}\"}",
             "hide": false,
             "instant": false,
             "legendFormat": "{{pod}}",
@@ -1130,6 +1130,56 @@
         ],
         "title": "Inferences per second by model (all servers)",
         "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 35
+        },
+        "id": 18,
+        "panels": [],
+        "title": "Service Map",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "tempo"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 10,
+          "w": 12,
+          "x": 0,
+          "y": 35
+        },
+        "id": 21,
+        "options": {
+          "edges": {},
+          "nodes": {},
+          "zoomMode": "cooperative"
+        },
+        "pluginVersion": "11.5.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "tempo"
+            },
+            "limit": 20,
+            "queryType": "serviceMap",
+            "refId": "A",
+            "tableType": "traces"
+          }
+        ],
+        "title": "Service Map",
+        "type": "nodeGraph"
       }
     ],
     "refresh": "5s",

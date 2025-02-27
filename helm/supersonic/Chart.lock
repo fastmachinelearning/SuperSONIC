@@ -5,5 +5,11 @@ dependencies:
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
   version: 27.3.0
-digest: sha256:0e64db91a28a1fed4cd5b8b080af6859681e6e290fb2cc261d59474770d56b16
-generated: "2025-02-11T23:09:12.270167-05:00"
+- name: tempo
+  repository: https://grafana.github.io/helm-charts
+  version: 1.18.2
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.115.0
+digest: sha256:fb0c81b98607a41e6df281e3441cef3a9966cadc5aa430b8d7dc15c8d835c094
+generated: "2025-02-18T16:52:48.611616-05:00"

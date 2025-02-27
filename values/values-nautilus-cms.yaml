@@ -2,29 +2,47 @@ serverLoadThreshold: 100
 
 triton:
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
-  image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+  # image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+  image: nvcr.io/nvidia/tritonserver:24.11-py3
+  # image: yongbinfeng/tritonserver:rhel8.9_v3
+  # image: gitlab-registry.nrp-nautilus.io/kondratyevd/supersonic/triton-torchgeo:22.07-py3-geometric
   command: ["/bin/sh", "-c"]
   args: 
     - |
       /opt/tritonserver/bin/tritonserver \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
       --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60 \
       --backend-config=onnxruntime,enable-global-threadpool=1
+# --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
+
   resources:
-    limits: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
-    requests: { cpu: 2, memory: 4G, nvidia.com/gpu: 1}
+    limits: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
+    requests: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #             - key: nvidia.com/gpu.product
+  #               operator: In
+  #               values:
+  #                 - NVIDIA-GeForce-RTX-3090
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
-  readinessProbe:
-    reset: true
+  # readinessProbe:
+  #   reset: true
 
 envoy:
   enabled: true
-  loadBalancerPolicy: "ROUND_ROBIN"
+  replicas: 1
+  grpc_route_timeout: 5s
+  loadBalancerPolicy: "LEAST_REQUEST"
   ingress:
     enabled: true
     hostName: sonic-cms.nrp-nautilus.io
@@ -44,14 +62,22 @@ envoy:
 autoscaler:
   enabled: true
   minReplicaCount: 1
-  maxReplicaCount: 5
+  maxReplicaCount: 100
+  scaleUp:
+    stabilizationWindowSeconds: 60
+    periodSeconds: 15
+    stepsize: 1
+  scaleDown:
+    stabilizationWindowSeconds: 60
+    periodSeconds: 15
+    stepsize: 1
 
-# nodeSelector:
-#   topology.kubernetes.io/zone: ucsd
+nodeSelector:
+  topology.kubernetes.io/zone: ucsd
 
 prometheus:
   enabled: true
-  host: "https://prometheus-cms-test.nrp-nautilus.io"
+  host: "https://prometheus-cms.nrp-nautilus.io"
   server:
     ingress:
       enabled: true
@@ -63,7 +89,7 @@ prometheus:
 
 grafana:
   enabled: true
-  host: "https://grafana-cms-test.nrp-nautilus.io"
+  host: "https://grafana-cms.nrp-nautilus.io"
   ingress:
     enabled: true
     ingressClassName: haproxy
@@ -72,4 +98,9 @@ grafana:
       haproxy-ingress.github.io/proxy-body-size: "512m"
       haproxy-ingress.github.io/timeout-http-request: "5m"
 
+tracing_sampling_rate: 0.001
+opentelemetry-collector:
+  enabled: true
+tempo:
+  enabled: true
 
