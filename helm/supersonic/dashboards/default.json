@@ -229,6 +229,7 @@
             "color": {
               "mode": "palette-classic"
             },
+            "unit": "ms",
             "custom": {
               "axisBorderShow": false,
               "axisCenteredZero": false,
