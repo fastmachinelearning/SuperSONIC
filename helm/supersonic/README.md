@@ -4,7 +4,13 @@
 ![Downloads](https://img.shields.io/github/downloads/fastmachinelearning/SuperSONIC/total)
 ![License](https://img.shields.io/github/license/fastmachinelearning/SuperSONIC)
 
-# SuperSONIC
+<h1>
+<span style="margin: -10px -10px -10px -5px">
+  <img src="./docs/img/SuperSONIC_small_light_128.png#gh-dark-mode-only" alt="logo" height="40">
+  <img src="./docs/img/SuperSONIC_small_128.png#gh-light-mode-only" alt="logo" height="40">
+</span>
+   SuperSONIC
+</h1>
 
 The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") project implements server infrastructure for **inference-as-a-service**
 applications in large high energy physics (HEP) and multi-messenger astrophysics
@@ -41,7 +47,8 @@ The full list of configuration parameters is available in the [Configuration ref
 ## Server diagram
 
 <p align="center">
-  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram.svg" alt="diagram" width="700"/>
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram.svg#gh-light-mode-only" alt="diagram" width="700"/>
+  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram-dark.svg#gh-dark-mode-only" alt="diagram-dark" width="700"/>
 </p>
 
 ## Grafana dashboard
