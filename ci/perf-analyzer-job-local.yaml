@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: perf-analyzer-job
+  namespace: sonic-server
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: 1000
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: perf-analyzer
+        image: nvcr.io/nvidia/tritonserver:24.11-py3-sdk
+        command: ["/bin/bash"]
+        args:
+          - "-c"
+          - |
+            echo "Running perf_analyzer..."
+            perf_analyzer -i grpc \
+                          -m deeptau_2018v2p5 \
+                          -u supersonic.sonic-server.svc.cluster.local:8001 \
+                          --async -p 1 -b 100 \
+                          --request-count=100000 \
+                          --concurrency-range=8 --input-data "random"
+        resources:
+          requests:
+            cpu: 1
+            memory: "2G"
+          limits:
+            cpu: 1
+            memory: "2G"
+      # nodeSelector:
+      #   topology.kubernetes.io/zone: ucsd
