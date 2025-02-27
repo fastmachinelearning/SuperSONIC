@@ -113,10 +113,10 @@ envoy:
   # Note: an Envoy Proxy with too many connections might run out of CPU
   resources:
     requests:
-      cpu: 1
+      cpu: 1.0
       memory: "2G"
     limits:
-      cpu: 8
+      cpu: 8.0
       memory: "4G"
   service:
     # -- This is the client-facing endpoint. In order to be able to connect to it,
