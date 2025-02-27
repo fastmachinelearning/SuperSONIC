@@ -12,7 +12,7 @@ triton:
       --exit-timeout-secs=60
   resources:
     limits: { cpu: 1, memory: 3Gi}
-    requests: { cpu: 1, memory: 3Gi}
+    requests: { cpu: 1, memory: 1Gi}
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -22,6 +22,9 @@ triton:
 
 envoy:
   enabled: true
+  resources:
+    requests:
+      memory: "128Mi"
   service:
     type: LoadBalancer
   rate_limiter:
@@ -41,21 +44,21 @@ prometheus:
   resources:
     requests:
       cpu: "100m"
-      memory: "500Mi"
+      memory: "128Mi"
 
 grafana:
   enabled: true
   resources:
     requests:
       cpu: "100m"
-      memory: "500Mi"
+      memory: "128Mi"
 
 opentelemetry-collector:
   enabled: true
   resources:
     requests:
       cpu: "100m"
-      memory: "500Mi"
+      memory: "128Mi"
 
 tempo:
   enabled: true
@@ -63,4 +66,4 @@ tempo:
     resources:
       requests:
         cpu: "100m"
-        memory: "500Mi"
+        memory: "128Mi"
