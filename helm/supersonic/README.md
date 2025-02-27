@@ -6,8 +6,8 @@
 
 <h1>
 <span style="margin: -10px -10px -10px -5px">
-  <img src="./docs/img/SuperSONIC_small_light_128.png#gh-dark-mode-only" alt="logo" height="54">
-  <img src="./docs/img/SuperSONIC_small_128.png#gh-light-mode-only" alt="logo" height="54">
+  <img src="./docs/img/SuperSONIC_small_light_128.png#gh-dark-mode-only" alt="logo" height="40">
+  <img src="./docs/img/SuperSONIC_small_128.png#gh-light-mode-only" alt="logo" height="40">
 </span>
    SuperSONIC
 </h1>
