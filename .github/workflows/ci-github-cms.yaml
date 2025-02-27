@@ -88,7 +88,8 @@ jobs:
           kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
 
       - name: Triton server ready
-        run: |  
+        run: |
+          kubectl describe pod -l app.kubernetes.io/component=triton -n cms
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
 
       - name: Validate Deployment
