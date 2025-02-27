@@ -24,6 +24,7 @@ envoy:
   enabled: true
   resources:
     requests:
+      cpu: 0.1
       memory: "128Mi"
   service:
     type: LoadBalancer
