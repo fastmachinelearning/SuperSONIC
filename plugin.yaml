@@ -2,8 +2,8 @@ name: "install-supersonic"
 version: "0.1.0"
 usage: "Installer for SuperSONIC Helm chart"
 description: "A Helm plugin to install SuperSONIC chart with automatic values merging and template replacement"
-command: "./install-supersonic/installer.py"
+command: "./installer-plugin/installer.py"
 hooks:
   install: |
     #!/bin/sh
-    chmod +x ./install-supersonic/installer.py
+    chmod +x ./installer-plugin/installer.py
