@@ -10,7 +10,9 @@ metadata:
     app.kubernetes.io/component: metrics-collector
 spec:
   selector:
-    app: metrics-collector
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: metrics-collector
   ports:
   - port: 8003
     targetPort: 8003
