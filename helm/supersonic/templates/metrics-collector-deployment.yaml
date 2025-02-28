@@ -1,0 +1,45 @@
+{{- if .Values.metricsCollector.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supersonic.name" . }}-metrics-collector
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: metrics-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-collector
+  template:
+    metadata:
+      labels:
+        app: metrics-collector
+    spec:
+      containers:
+      - name: metrics-collector
+        image: python:3.11-slim
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          cd /app
+          pip install --no-cache-dir -r /app/requirements.txt
+          PYTHONPATH=/app PROMETHEUS_URL={{ include "supersonic.prometheusUrl" . | quote }} \
+          gunicorn --bind {{ .Values.metricsCollector.host | default "0.0.0.0" }}:{{ .Values.metricsCollector.port | default 8003 }} \
+            --workers 4 \
+            --timeout 120 \
+            --access-logfile - \
+            --error-logfile - \
+            "serve:app"
+        ports:
+        - containerPort: {{ .Values.metricsCollector.port | default 8003 }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ include "supersonic.name" . }}-metrics-collector-config
+{{- end }}
