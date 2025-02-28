@@ -92,12 +92,15 @@ def main() -> None:
         chart_source = args.path if args.local else REPO_CHART
 
         # Add dependencies
-        repo_commands = [
-            ["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"],
-            ["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"],
-            ["helm", "repo", "add", "opentelemetry", "https://open-telemetry.github.io/opentelemetry-helm-charts"],
-            ["helm", "dependency", "build", chart_source]
-        ]
+        repo_commands = []
+        if merged_values.get("prometheus", {}).get("enabled", False):
+            repo_commands.append(["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"])
+        if merged_values.get("grafana", {}).get("enabled", False):
+            repo_commands.append(["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"])
+        if merged_values.get("opentelemetry-collector", {}).get("enabled", False):
+            repo_commands.append(["helm", "repo", "add", "opentelemetry", "https://open-telemetry.github.io/opentelemetry-helm-charts"])
+        repo_commands.append(["helm", "dependency", "build", chart_source])
+
         for cmd in repo_commands:
             print(f"\nExecuting: {' '.join(cmd)}")
             subprocess.run(cmd, check=True)
