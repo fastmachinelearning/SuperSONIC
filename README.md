@@ -34,6 +34,10 @@ helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
 helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
 ```
 
+The new `helm install-supersonic` command accepts the same flags that can be passed to `helm install` command, and two additional flags:
+- `--local`: if set, the chart will be installed from the local directory specified by `--path` flag; if not set, the latest released version will be installed from the FastML Helm repository.
+- `--path`: optional path to the local chart directory (default if not set: `./helm/supersonic`).
+
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
 
 The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").

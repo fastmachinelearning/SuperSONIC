@@ -36,6 +36,15 @@ Installation
 
          helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
 
+      The new ``helm install-supersonic`` command accepts the same flags that
+      can be passed to ``helm install`` command, and two additional flags:
+
+      - ``--local``: if set, the chart will be installed from the local directory
+        specified by ``--path`` flag; if not set, the latest released version will
+        be installed from the FastML Helm repository.
+      - ``--path``: optional path to the local chart directory
+        (default if not set: ``./helm/supersonic``).
+
       Use a unique meaningful lowercase value as <release-name>, for example
       ``supersonic-cms-run3``.
       This value will be used as a prefix for all resources created by the chart,
