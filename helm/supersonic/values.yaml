@@ -490,3 +490,20 @@ opentelemetry-collector:
           receivers: [spanmetrics]
           processors: [batch]
           exporters: [prometheusremotewrite]
+
+modelLoader:
+  # -- Enable model loader that exposes Prometheus metrics for Triton model status
+  enabled: false
+  # -- Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  logLevel: "INFO"
+  # -- Path on the host where model_loader.py and requirements.txt are located
+  filesPath:
+    model_loader_py: "files/model_loader/model_loader.py"
+    requirements_txt: "files/model_loader/requirements.txt"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

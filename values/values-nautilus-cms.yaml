@@ -16,6 +16,7 @@ triton:
       --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60 \
+      --model-control-mode=explicit \
       --backend-config=onnxruntime,enable-global-threadpool=1
 # --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
 
@@ -102,5 +103,8 @@ tracing_sampling_rate: 0.001
 opentelemetry-collector:
   enabled: true
 tempo:
+  enabled: true
+
+modelLoader:
   enabled: true
 

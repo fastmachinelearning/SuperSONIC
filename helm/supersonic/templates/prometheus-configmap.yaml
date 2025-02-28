@@ -101,4 +101,27 @@ data:
             target_label: release
           - source_labels: [__meta_kubernetes_namespace]
             target_label: namespace
+
+      - job_name: "model-loader"
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - "{{ .Release.Namespace }}"
+        metrics_path: /metrics
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_component]
+            regex: "model-loader"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "8080"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            target_label: release
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            target_label: app
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
 {{- end }}

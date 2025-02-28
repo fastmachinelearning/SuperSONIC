@@ -1,0 +1,127 @@
+{{- if .Values.modelLoader.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: model-loader
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: model-loader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: model-loader
+subjects:
+- kind: ServiceAccount
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "supersonic.name" . }}-model-loader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: model-loader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: model-loader
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: model-loader
+    spec:
+      serviceAccountName: {{ include "supersonic.name" . }}-model-loader
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: model-loader
+        image: "python:3.9-slim"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        args:
+        - |
+          pip install -r /app/requirements.txt && \
+          python /app/model_loader.py
+        ports:
+        - containerPort: 8080
+          name: metrics
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: LOG_LEVEL
+          value: {{ .Values.modelLoader.logLevel | default "INFO" | quote }}
+        volumeMounts:
+        - name: model-loader-files
+          mountPath: /app
+        resources:
+          {{- toYaml .Values.modelLoader.resources | nindent 12 }}
+      volumes:
+      - name: model-loader-files
+        configMap:
+          name: {{ include "supersonic.name" . }}-model-loader
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: model-loader
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  ports:
+  - port: 8080
+    targetPort: metrics
+    protocol: TCP
+    name: metrics
+  selector:
+    app.kubernetes.io/component: model-loader
+{{- end }} 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.name" . }}-model-loader
+  namespace: {{ .Release.Namespace }}
+data:
+  model_loader.py: |
+    {{- $modelLoader := $.Files.Get .Values.modelLoader.filesPath.model_loader_py | nindent 4 }}
+    {{ $modelLoader | indent 4 }}
+  requirements.txt: |
+    {{- $requirements := $.Files.Get .Values.modelLoader.filesPath.requirements_txt | nindent 4 }}
+    {{ $requirements | indent 4 }}
