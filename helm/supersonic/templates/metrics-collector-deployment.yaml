@@ -12,11 +12,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: metrics-collector
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: metrics-collector
   template:
     metadata:
       labels:
-        app: metrics-collector
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: metrics-collector
     spec:
       containers:
       - name: metrics-collector
