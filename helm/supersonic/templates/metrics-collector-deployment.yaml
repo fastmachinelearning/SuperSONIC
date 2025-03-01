@@ -39,6 +39,8 @@ spec:
             "serve:app"
         ports:
         - containerPort: {{ .Values.metricsCollector.port | default 8003 }}
+        resources:
+            {{- toYaml .Values.metricsCollector.resources | nindent 10 }}
         volumeMounts:
         - name: config-volume
           mountPath: /app

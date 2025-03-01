@@ -517,4 +517,7 @@ metricsCollector:
   # -- Ingress configuration for metrics collector
   ingress:
     enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
 

@@ -1,0 +1,48 @@
+{{- if and .Values.metricsCollector.ingress.enabled .Values.metricsCollector.ingress.hostName -}}
+  {{- $hostName := .Values.metricsCollector.ingress.hostName -}}
+  {{- $namespace := .Release.Namespace -}}
+  {{- $currentName := (include "supersonic.name" .) -}}
+  {{- $existingIngresses := (lookup "networking.k8s.io/v1" "Ingress" $namespace "").items -}}
+  {{- range $ingress := $existingIngresses -}}
+    {{- if not (hasPrefix (printf "%s-" $currentName) $ingress.metadata.name) -}}
+      {{- range $ingress.spec.rules -}}
+        {{- if eq .host $hostName -}}
+          {{- fail (printf "Error: Ingress host %q is already in use by ingress %q in namespace %q" $hostName $ingress.metadata.name $namespace) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end }}
+
+{{ if .Values.metricsCollector.ingress.enabled | default false }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "supersonic.name" . }}-metrics-collector-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: metrics-collector
+  annotations:
+    {{- if .Values.metricsCollector.ingress.annotations }}
+{{ toYaml .Values.metricsCollector.ingress.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.metricsCollector.ingress.ingressClassName }}
+  tls:
+  - hosts:
+      - {{ .Values.metricsCollector.ingress.hostName }}
+  rules:
+  - host: {{ .Values.metricsCollector.ingress.hostName }}
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ include "supersonic.name" . }}-metrics-collector
+            port:
+              number: {{ .Values.metricsCollector.service.port | default 8003 }}
+{{ end }}
