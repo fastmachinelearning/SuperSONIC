@@ -1005,6 +1005,36 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;prometheusremotewrite&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p>metricsCollector.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable metrics collector</p></td>
+</tr>
+<tr class="row-odd"><td><p>metricsCollector.host</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0&quot;</span></code></p></td>
+<td><p>Host and port for metrics collector</p></td>
+</tr>
+<tr class="row-even"><td><p>metricsCollector.port</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8003</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>metricsCollector.resources</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;500m&quot;,&quot;memory&quot;:&quot;512Mi&quot;}}</span></code></p></td>
+<td><p>Resource limits and requests for metrics collector</p></td>
+</tr>
+<tr class="row-even"><td><p>metricsCollector.service</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;port&quot;:8003,&quot;type&quot;:&quot;ClusterIP&quot;}</span></code></p></td>
+<td><p>Add service</p></td>
+</tr>
+<tr class="row-odd"><td><p>metricsCollector.ingress</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
+<td><p>Ingress configuration for metrics collector</p></td>
+</tr>
 </tbody>
 </table>
 </section>
