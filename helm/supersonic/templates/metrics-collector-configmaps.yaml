@@ -1,0 +1,18 @@
+{{- if .Values.metricsCollector.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.name" . }}-metrics-collector-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: metrics-collector
+data:
+  requirements.txt: |
+    flask
+    requests
+    gunicorn
+  serve.py: |-
+{{ (.Files.Get "cfg/serve.py") | indent 4 }}
+{{- end }}

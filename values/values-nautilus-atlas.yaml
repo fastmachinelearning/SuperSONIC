@@ -30,7 +30,7 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-  replicas: 4
+  replicas: 1
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -96,3 +96,22 @@ grafana:
   grafana.ini:
     server:
       root_url: https://grafana-atlas.nrp-nautilus.io
+
+metricsCollector:
+  enabled: true
+
+  ingress:
+    enabled: true
+    hostName: metrics-collector-atlas.nrp-nautilus.io
+    hosts:
+      - metrics-collector-atlas.nrp-nautilus.io
+    tls:
+      - hosts:
+          - metrics-collector-atlas.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/backend-protocol: "http"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+      haproxy-ingress.github.io/ssl-redirect: "true"
+      haproxy-ingress.github.io/secure-backends: "false"
