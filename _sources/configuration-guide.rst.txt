@@ -344,7 +344,43 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        periodSeconds: 30
        stepsize: 1
 
-11.  (optional) Configure advanced monitoring 
+11. (optional) Configure Metrics Collector for running `perf_analyzer`
+=======================================================================
+
+To collect Prometheus metrics when using `perf_analyzer` for testing, a Metrics Collector can be deployed to format Prometheus metrics properly. The Metrics Collector is installed as a subchart with most of the default values pre-configured. To enable the Metrics Collector, set the `metricsCollector.enabled` parameter to `true` in your values file and configure ingress settings if needed as shown below:
+
+.. code-block:: yaml
+
+    metricsCollector:
+        enabled: true
+
+    ingress:
+        enabled: true
+        hostName: metrics-collector-atlas.nrp-nautilus.io
+        hosts:
+        - metrics-collector-atlas.nrp-nautilus.io
+        tls:
+        - hosts:
+            - metrics-collector-atlas.nrp-nautilus.io
+        ingressClassName: haproxy
+        annotations:
+            haproxy-ingress.github.io/cors-enable: "true"
+            haproxy-ingress.github.io/backend-protocol: "http"
+            haproxy-ingress.github.io/proxy-body-size: "512m"
+            haproxy-ingress.github.io/ssl-redirect: "true"
+            haproxy-ingress.github.io/secure-backends: "false"
+
+Running with `perf_analyzer` is then done with:
+
+.. code-block:: bash
+
+    perf_analyzer -m <model_name> -u <envoy_engress> -i grpc \
+        --collect-metrics --metrics-url <metrics_collector_endpoint>/metrics \
+        --verbose-csv -f <out_csv_file_name>.csv
+
+If ingress is not desired, port-forward the metrics collector service and call `--metrics-url localhost:8003/metrics` to access the metrics. 
+
+12.  (optional) Configure advanced monitoring 
 =============================================
 
 Refer to the `advanced monitoring guide <advanced-monitoring>`_.

@@ -61,7 +61,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-for-scaling-and-rate-limiting">8. (optional) Configure metrics for scaling and rate limiting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-deploy-grafana-dashboard">9. (optional) Deploy Grafana dashboard</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-enable-keda-autoscaler">10. (optional) Enable KEDA autoscaler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-advanced-monitoring">11.  (optional) Configure advanced monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-collector-for-running-perf-analyzer">11. (optional) Configure Metrics Collector for running <cite>perf_analyzer</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-advanced-monitoring">12.  (optional) Configure advanced monitoring</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration-reference.html">Configuration Reference</a></li>
@@ -388,8 +389,39 @@ the number of Triton servers can scale.</p>
 </pre></div>
 </div>
 </section>
+<section id="optional-configure-metrics-collector-for-running-perf-analyzer">
+<h2>11. (optional) Configure Metrics Collector for running <cite>perf_analyzer</cite><a class="headerlink" href="#optional-configure-metrics-collector-for-running-perf-analyzer" title="Link to this heading"></a></h2>
+<p>To collect Prometheus metrics when using <cite>perf_analyzer</cite> for testing, a Metrics Collector can be deployed to format Prometheus metrics properly. The Metrics Collector is installed as a subchart with most of the default values pre-configured. To enable the Metrics Collector, set the <cite>metricsCollector.enabled</cite> parameter to <cite>true</cite> in your values file and configure ingress settings if needed as shown below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">metricsCollector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">ingress</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metrics-collector-atlas.nrp-nautilus.io</span>
+<span class="w">    </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metrics-collector-atlas.nrp-nautilus.io</span>
+<span class="w">    </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metrics-collector-atlas.nrp-nautilus.io</span>
+<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">haproxy</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">haproxy-ingress.github.io/cors-enable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">        </span><span class="nt">haproxy-ingress.github.io/backend-protocol</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http&quot;</span>
+<span class="w">        </span><span class="nt">haproxy-ingress.github.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;512m&quot;</span>
+<span class="w">        </span><span class="nt">haproxy-ingress.github.io/ssl-redirect</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">        </span><span class="nt">haproxy-ingress.github.io/secure-backends</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+</pre></div>
+</div>
+<p>Running with <cite>perf_analyzer</cite> is then done with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf_analyzer<span class="w"> </span>-m<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span>-u<span class="w"> </span>&lt;envoy_engress&gt;<span class="w"> </span>-i<span class="w"> </span>grpc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--collect-metrics<span class="w"> </span>--metrics-url<span class="w"> </span>&lt;metrics_collector_endpoint&gt;/metrics<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--verbose-csv<span class="w"> </span>-f<span class="w"> </span>&lt;out_csv_file_name&gt;.csv
+</pre></div>
+</div>
+<p>If ingress is not desired, port-forward the metrics collector service and call <cite>–metrics-url localhost:8003/metrics</cite> to access the metrics.</p>
+</section>
 <section id="optional-configure-advanced-monitoring">
-<h2>11.  (optional) Configure advanced monitoring<a class="headerlink" href="#optional-configure-advanced-monitoring" title="Link to this heading"></a></h2>
+<h2>12.  (optional) Configure advanced monitoring<a class="headerlink" href="#optional-configure-advanced-monitoring" title="Link to this heading"></a></h2>
 <p>Refer to the <a class="reference external" href="advanced-monitoring">advanced monitoring guide</a>.</p>
 </section>
 </section>
