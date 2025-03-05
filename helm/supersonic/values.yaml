@@ -490,3 +490,34 @@ opentelemetry-collector:
           receivers: [spanmetrics]
           processors: [batch]
           exporters: [prometheusremotewrite]
+
+metricsCollector:
+  # -- Enable metrics collector
+  enabled: false
+
+  # -- Host and port for metrics collector
+  host: "0.0.0.0"
+  port: 8003
+
+  # -- Resource limits and requests for metrics collector
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  # -- Add service
+  service:
+    port: 8003
+    type: ClusterIP
+
+
+  # -- Ingress configuration for metrics collector
+  ingress:
+    enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
+

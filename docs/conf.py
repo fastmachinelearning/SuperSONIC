@@ -39,7 +39,8 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx_rtd_theme',
     'sphinx.ext.napoleon',
-    'myst_parser'
+    'myst_parser',
+    'sphinx_design'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -81,6 +82,9 @@ html_theme_options = {
     'navigation_depth': 2,
     'includehidden': True,
     'titles_only': False,
+    # Dark mode settings
+    'style_switcher': True,
+    'dark_mode_theme': 'dark',
 }
 
 html_context = {

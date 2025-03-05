@@ -73,5 +73,10 @@ components depicted at the diagram below, excluding the model repository,
 which must be connected by specifying relevant parameters in configuration file
 (see :doc:`configuration guide <configuration-guide>`).
 
-.. figure:: img/diagram.svg
-   :alt: SONIC Server Infrastructure
+.. raw:: html
+
+   <picture>
+     <source srcset="img/diagram-dark.svg" media="(prefers-color-scheme: dark)">
+     <source srcset="img/diagram.svg" media="(prefers-color-scheme: light)">
+     <img src="img/diagram.svg" alt="SONIC Server Infrastructure">
+   </picture>
