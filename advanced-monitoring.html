@@ -123,18 +123,21 @@ SuperSONIC via the <code class="docutils literal notranslate"><span class="pre">
 <p>If OpenTelemetry Collector and Tempo are enabled, the default Grafana dashboard
 will include an interactive server map, where you can study tracing data in detail
 by clicking on graph nodes.</p>
-<p>You can also browse and display tracing data in Grafana as follows:
-1. Create a new panel
-2. Select “Tempo” as the data source
-3. Select “Search” or “TraceQL” as the query type and switch panel to “Table view”.
-4. You will see clickable traces; selecting a trace opens a detailed view (see first screenshot below).
-5. If you select “Service Graph” as the query type, you can also display the</p>
-<blockquote>
-<div><p>server map as a node graph (see second screenshot below), but customizing it
-requires careful configuration of OpenTelemetry Collector and Tempo.</p>
-</div></blockquote>
+<p>You can also browse and display tracing data in Grafana as follows:</p>
+<ol class="arabic simple">
+<li><p>Create a new panel</p></li>
+<li><p>Select “Tempo” as the data source</p></li>
+<li><p>Select “Search” or “TraceQL” as the query type and switch panel to “Table view”.</p></li>
+<li><p>You will see clickable traces; selecting a trace opens a detailed view (see first screenshot below).</p></li>
+<li><p>If you select “Service Graph” as the query type, you can also display the
+server map as a node graph (see second screenshot below), but customizing it
+requires careful configuration of OpenTelemetry Collector and Tempo.</p></li>
+</ol>
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/fastmachinelearning/SuperSONIC/main/docs/img/grafana_tracing_1.png"><img alt="Grafana Tracing 1" class="align-center" src="https://raw.githubusercontent.com/fastmachinelearning/SuperSONIC/main/docs/img/grafana_tracing_1.png" style="width: 80%;" />
 </a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/fastmachinelearning/SuperSONIC/main/docs/img/grafana_tracing_2.png"><img alt="Grafana Tracing 2" class="align-center" src="https://raw.githubusercontent.com/fastmachinelearning/SuperSONIC/main/docs/img/grafana_tracing_2.png" style="width: 80%;" />
 </a>
 </section>

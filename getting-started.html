@@ -109,18 +109,27 @@
 <li><p><a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">Example values.yaml files</a></p></li>
 </ul>
 </li>
-<li><p>Add Helm repositories for SuperSONIC and its dependencies:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>fastml<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC
-helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>prometheus-community<span class="w"> </span>https://prometheus-community.github.io/helm-charts
-helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>grafana<span class="w"> </span>https://grafana.github.io/helm-charts
-helm<span class="w"> </span>repo<span class="w"> </span>update
+<li><p>Install Helm plugin to handle SuperSONIC installation</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>plugin<span class="w"> </span>install<span class="w"> </span>https://github.com/fastmachinelearning/SuperSONIC/
 </pre></div>
 </div>
+<p>The Helm plugin is needed to ensure internal connectivity of the SuperSONIC
+components. Standard Helm installation without a plugin is also supported,
+but requires a lot more manual configuration.</p>
 </li>
 <li><p>Modify the following command to install the chart at your cluster:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>install<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>fastml/supersonic<span class="w"> </span>--values<span class="w"> </span>&lt;your-values.yaml&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>install-supersonic<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>-f<span class="w"> </span>&lt;your-values.yaml&gt;
 </pre></div>
 </div>
+<p>The new <code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">install-supersonic</span></code> command accepts the same flags that
+can be passed to <code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">install</span></code> command, and two additional flags:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--local</span></code>: if set, the chart will be installed from the local directory
+specified by <code class="docutils literal notranslate"><span class="pre">--path</span></code> flag; if not set, the latest released version will
+be installed from the FastML Helm repository.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--path</span></code>: optional path to the local chart directory
+(default if not set: <code class="docutils literal notranslate"><span class="pre">./helm/supersonic</span></code>).</p></li>
+</ul>
 <p>Use a unique meaningful lowercase value as &lt;release-name&gt;, for example
 <code class="docutils literal notranslate"><span class="pre">supersonic-cms-run3</span></code>.
 This value will be used as a prefix for all resources created by the chart,
