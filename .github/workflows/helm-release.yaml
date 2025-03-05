@@ -54,6 +54,9 @@ jobs:
             # Switch to gh-pages branch
             git checkout gh-pages
 
+            # Pull the latest changes from the remote gh-pages branch
+            git pull origin gh-pages
+
             # Copy artifacthub-repo.yaml from the current branch
             git checkout "${{ github.ref }}" -- helm/supersonic/artifacthub-repo.yaml
         
