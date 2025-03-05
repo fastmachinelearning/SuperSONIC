@@ -51,6 +51,7 @@ will include an interactive server map, where you can study tracing data in deta
 by clicking on graph nodes.
 
 You can also browse and display tracing data in Grafana as follows:
+
 1. Create a new panel
 2. Select "Tempo" as the data source
 3. Select "Search" or "TraceQL" as the query type and switch panel to "Table view".
@@ -63,6 +64,8 @@ You can also browse and display tracing data in Grafana as follows:
     :align: center
     :width: 80%
     :alt: Grafana Tracing 1
+
+|
 
 .. image:: https://raw.githubusercontent.com/fastmachinelearning/SuperSONIC/main/docs/img/grafana_tracing_2.png
     :align: center
