@@ -37,7 +37,7 @@ triton:
     mountPath: /models
   readinessProbe:
     reset: False
-    initialDelaySeconds: 250
+    initialDelaySeconds: 130
     periodSeconds: 30
     failureThreshold: 10
     command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/models/tglauch_classifier/versions/3/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
@@ -45,7 +45,7 @@ triton:
     successThreshold: 1
   startupProbe:
     reset: False
-    initialDelaySeconds: 240
+    initialDelaySeconds: 120
     periodSeconds: 10
     failureThreshold: 10
 envoy:
@@ -74,9 +74,9 @@ envoy:
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
 autoscaler:
-  enabled: false
+  enabled: true
   minReplicaCount: 0
-  maxReplicaCount: 1
+  maxReplicaCount: 100
 
 prometheus:
   external:
