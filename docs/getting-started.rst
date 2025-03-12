@@ -36,21 +36,31 @@ Installation
 
          helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
 
-      The new ``helm install-supersonic`` command accepts the same flags that
-      can be passed to ``helm install`` command, and two additional flags:
+      Installer plugin usage:
 
-      - ``--local``: if set, the chart will be installed from the local directory
-        specified by ``--path`` flag; if not set, the latest released version will
-        be installed from the FastML Helm repository.
-      - ``--path``: optional path to the local chart directory
-        (default if not set: ``./helm/supersonic``).
+      .. code:: shell
+
+         Usage:
+           helm install-supersonic [RELEASE_NAME] [flags]
+
+         Flags:
+         -h, --help              Show this help message
+         -f, --values            Specify values file for custom configuration
+         -n, --namespace         Specify Kubernetes namespace for deployment
+         --version               Specify chart version (default: latest version)
+                                 Note: Ignored if --local flag is set
+         --local                 Install from local chart path instead of remote repository
+         --path                  Local chart path (default: ./helm/supersonic)
+                                 Only used when --local flag is set
+         Additional flags will be passed directly to the 'helm install' command
+
 
       Use a unique meaningful lowercase value as <release-name>, for example
       ``supersonic-cms-run3``.
       This value will be used as a prefix for all resources created by the chart,
       unless ``nameOverride`` is specified in the values file.
 
-   4. Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
+   1. Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
       and other useful information.
    
    .. figure:: img/grafana.png

@@ -104,7 +104,7 @@ envoy:
   replicas: 1
 
   # -- Envoy Proxy Docker image
-  image: "envoyproxy/envoy:v1.30-latest"
+  image: "envoyproxy/envoy:v1.30.9"
 
   # -- Arguments for Envoy
   args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
@@ -216,6 +216,7 @@ prometheus:
 
   # -- Enable or disable custom Prometheus deployment
   enabled: false
+
   server:
     extraFlags: [web.enable-remote-write-receiver]
     useExistingClusterRoleName: supersonic-prometheus-role # If installer plugin is used, this value is set by the plugin
@@ -241,11 +242,14 @@ prometheus:
     # -- Ingress configuration for Prometheus
     ingress:
       enabled: false
+      # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
+      # can be ommitted, as they will be set by the installer plugin
+      hostName: ""
       hosts: []
-      ingressClassName: ""
-      annotations: {}
       tls:
         - hosts: []
+      ingressClassName: ""
+      annotations: {}
 
   serviceAccounts:
     server:
@@ -346,17 +350,15 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 3000
-
   # -- Ingress configuration for Grafana
   ingress:
     enabled: false
     path: /
     pathType: ImplementationSpecific
     ingressClassName: ""
+    # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
+    # can be ommitted, as they will be set by the installer plugin
+    hostName: ""
     hosts: [] # If installer plugin is used, this value is set by the plugin
     tls:
       - hosts: [] # If installer plugin is used, this value is set by the plugin
@@ -401,8 +403,6 @@ opentelemetry-collector:
     repository: "otel/opentelemetry-collector-contrib"
     tag: "0.120.0"
   mode: deployment
-  # command:
-  #   name: "otelcol"
   resources:
     requests:
       memory: "1G"
@@ -454,7 +454,6 @@ opentelemetry-collector:
           statements:
             - set(kind, 2)
             - set(kind.string, "Server")
-
     connectors:
       spanmetrics:
         histogram:
@@ -512,7 +511,6 @@ metricsCollector:
   service:
     port: 8003
     type: ClusterIP
-
 
   # -- Ingress configuration for metrics collector
   ingress:

@@ -69,24 +69,20 @@ prometheus:
 
 grafana:
   enabled: true
-  host: https://grafana-atlas.nrp-nautilus.io
   ingress:
     enabled: true
+    hostName: grafana-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
       haproxy-ingress.github.io/proxy-body-size: "512m"
       haproxy-ingress.github.io/timeout-http-request: "5m"
+
 metricsCollector:
   enabled: true
   ingress:
     enabled: true
     hostName: metrics-collector-atlas.nrp-nautilus.io
-    hosts:
-      - metrics-collector-atlas.nrp-nautilus.io
-    tls:
-      - hosts:
-          - metrics-collector-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"

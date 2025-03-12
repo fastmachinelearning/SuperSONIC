@@ -640,14 +640,11 @@
                 "enabled": {
                   "type": "boolean"
                 },
-                "hosts": {
-                  "type": "array"
-                },
-                "ingressClassName": {
+                "hostName": {
                   "type": "string"
                 },
-                "annotations": {
-                  "type": "object"
+                "hosts": {
+                  "type": "array"
                 },
                 "tls": {
                   "type": "array",
@@ -662,11 +659,18 @@
                       "hosts"
                     ]
                   }
+                },
+                "ingressClassName": {
+                  "type": "string"
+                },
+                "annotations": {
+                  "type": "object"
                 }
               },
               "required": [
                 "annotations",
                 "enabled",
+                "hostName",
                 "hosts",
                 "ingressClassName",
                 "tls"
@@ -1120,25 +1124,6 @@
             "requests"
           ]
         },
-        "service": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string"
-            },
-            "port": {
-              "type": "integer"
-            },
-            "targetPort": {
-              "type": "integer"
-            }
-          },
-          "required": [
-            "port",
-            "targetPort",
-            "type"
-          ]
-        },
         "ingress": {
           "type": "object",
           "properties": {
@@ -1152,6 +1137,9 @@
               "type": "string"
             },
             "ingressClassName": {
+              "type": "string"
+            },
+            "hostName": {
               "type": "string"
             },
             "hosts": {
@@ -1178,6 +1166,7 @@
           "required": [
             "annotations",
             "enabled",
+            "hostName",
             "hosts",
             "ingressClassName",
             "path",
@@ -1198,7 +1187,6 @@
         "persistence",
         "rbac",
         "resources",
-        "service",
         "serviceAccount"
       ]
     },

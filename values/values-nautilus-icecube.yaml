@@ -87,9 +87,9 @@ prometheus:
 
 grafana:
   enabled: true
-  host: https://grafana-icecube.nrp-nautilus.io
   ingress:
     enabled: true
+    hostName: grafana-icecube.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"

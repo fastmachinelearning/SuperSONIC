@@ -40,9 +40,22 @@ helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
 helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
 ```
 
-The new `helm install-supersonic` command accepts the same flags that can be passed to `helm install` command, and two additional flags:
-- `--local`: if set, the chart will be installed from the local directory specified by `--path` flag; if not set, the latest released version will be installed from the FastML Helm repository.
-- `--path`: optional path to the local chart directory (default if not set: `./helm/supersonic`).
+Installer plugin usage:
+```
+Usage:
+  helm install-supersonic [RELEASE_NAME] [flags]
+
+Flags:
+  -h, --help              Show this help message
+  -f, --values            Specify values file for custom configuration
+  -n, --namespace         Specify Kubernetes namespace for deployment
+  --version               Specify chart version (default: latest version)
+                          Note: Ignored if --local flag is set
+  --local                 Install from local chart path instead of remote repository
+  --path                  Local chart path (default: ./helm/supersonic)
+                          Only used when --local flag is set
+Additional flags will be passed directly to the 'helm install' command
+```
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
 
@@ -69,3 +82,4 @@ The full list of configuration parameters is available in the [Configuration ref
 | **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
 | **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
 | **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
+| **UChicago**    |  -  |  ✅ |   -   |
