@@ -197,7 +197,7 @@
 </tr>
 <tr class="row-even"><td><p>envoy.image</p></td>
 <td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.30-latest&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.30.9&quot;</span></code></p></td>
 <td><p>Envoy Proxy Docker image</p></td>
 </tr>
 <tr class="row-odd"><td><p>envoy.args</p></td>
@@ -457,580 +457,575 @@
 </tr>
 <tr class="row-even"><td><p>prometheus.server.ingress</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]}</span></code></p></td>
 <td><p>Ingress configuration for Prometheus</p></td>
 </tr>
-<tr class="row-odd"><td><p>prometheus.serviceAccounts.server.create</p></td>
+<tr class="row-odd"><td><p>prometheus.server.ingress.hostName</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be ommitted, as they will be set by the installer plugin</p></td>
+</tr>
+<tr class="row-even"><td><p>prometheus.serviceAccounts.server.create</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>prometheus.serviceAccounts.server.name</p></td>
+<tr class="row-odd"><td><p>prometheus.serviceAccounts.server.name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;supersonic-prometheus-sa&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>prometheus.rbac.create</p></td>
+<tr class="row-even"><td><p>prometheus.rbac.create</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>prometheus.alertmanager.enabled</p></td>
+<tr class="row-odd"><td><p>prometheus.alertmanager.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>prometheus.pushgateway.enabled</p></td>
+<tr class="row-even"><td><p>prometheus.pushgateway.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>prometheus.kube-state-metrics.enabled</p></td>
+<tr class="row-odd"><td><p>prometheus.kube-state-metrics.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>prometheus.prometheus-node-exporter.enabled</p></td>
+<tr class="row-even"><td><p>prometheus.prometheus-node-exporter.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>prometheus.prometheus-pushgateway.enabled</p></td>
+<tr class="row-odd"><td><p>prometheus.prometheus-pushgateway.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>prometheus.configmapReload.prometheus.enabled</p></td>
+<tr class="row-even"><td><p>prometheus.configmapReload.prometheus.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.enabled</p></td>
+<tr class="row-odd"><td><p>grafana.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable Grafana</p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.adminUser</p></td>
+<tr class="row-even"><td><p>grafana.adminUser</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.adminPassword</p></td>
+<tr class="row-odd"><td><p>grafana.adminPassword</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.persistence.enabled</p></td>
+<tr class="row-even"><td><p>grafana.persistence.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.rbac.create</p></td>
+<tr class="row-odd"><td><p>grafana.rbac.create</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.serviceAccount.create</p></td>
+<tr class="row-even"><td><p>grafana.serviceAccount.create</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.datasources</p></td>
+<tr class="row-odd"><td><p>grafana.datasources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;datasources.yaml&quot;:{&quot;apiVersion&quot;:1,&quot;datasources&quot;:[{&quot;access&quot;:&quot;proxy&quot;,&quot;isDefault&quot;:true,&quot;jsonData&quot;:{&quot;timeInterval&quot;:&quot;5s&quot;,&quot;tlsSkipVerify&quot;:true},&quot;name&quot;:&quot;prometheus&quot;,&quot;type&quot;:&quot;prometheus&quot;,&quot;url&quot;:&quot;http://supersonic-prometheus-server:9090&quot;},{&quot;access&quot;:&quot;proxy&quot;,&quot;basicAuth&quot;:false,&quot;isDefault&quot;:false,&quot;jsonData&quot;:{&quot;nodeGraph&quot;:{&quot;enabled&quot;:true},&quot;serviceMap&quot;:{&quot;datasourceUid&quot;:&quot;prometheus&quot;},&quot;timeInterval&quot;:&quot;5s&quot;,&quot;tlsSkipVerify&quot;:true},&quot;name&quot;:&quot;tempo&quot;,&quot;type&quot;:&quot;tempo&quot;,&quot;url&quot;:&quot;http://supersonic-tempo:3100&quot;}]}}</span></code></p></td>
 <td><p>Grafana datasources configuration</p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.apiVersion</p></td>
+<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.apiVersion</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].name</p></td>
+<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].orgId</p></td>
+<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].orgId</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].folder</p></td>
+<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].folder</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].type</p></td>
+<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].type</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;file&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].disableDeletion</p></td>
+<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].disableDeletion</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].editable</p></td>
+<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].editable</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].options.path</p></td>
+<tr class="row-odd"><td><p>grafana.dashboardProviders.”dashboardproviders.yaml”.providers[0].options.path</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;/var/lib/grafana/dashboards/default&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.dashboardsConfigMaps.default</p></td>
+<tr class="row-even"><td><p>grafana.dashboardsConfigMaps.default</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;supersonic-grafana-default-dashboard&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.”grafana.ini”.auth.disable_login_form</p></td>
+<tr class="row-odd"><td><p>grafana.”grafana.ini”.auth.disable_login_form</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.”grafana.ini”.”auth.anonymous”.enabled</p></td>
+<tr class="row-even"><td><p>grafana.”grafana.ini”.”auth.anonymous”.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.”grafana.ini”.”auth.anonymous”.org_role</p></td>
+<tr class="row-odd"><td><p>grafana.”grafana.ini”.”auth.anonymous”.org_role</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;Admin&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.”grafana.ini”.dashboards.default_home_dashboard_path</p></td>
+<tr class="row-even"><td><p>grafana.”grafana.ini”.dashboards.default_home_dashboard_path</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;/var/lib/grafana/dashboards/default/default.json&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.”grafana.ini”.server.root_url</p></td>
+<tr class="row-odd"><td><p>grafana.”grafana.ini”.server.root_url</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.resources.limits.cpu</p></td>
+<tr class="row-even"><td><p>grafana.resources.limits.cpu</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.resources.limits.memory</p></td>
+<tr class="row-odd"><td><p>grafana.resources.limits.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1Gi&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.resources.requests.cpu</p></td>
+<tr class="row-even"><td><p>grafana.resources.requests.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;100m&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>grafana.resources.requests.memory</p></td>
+<tr class="row-odd"><td><p>grafana.resources.requests.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;128Mi&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>grafana.service.type</p></td>
-<td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ClusterIP&quot;</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>grafana.service.port</p></td>
-<td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">80</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p>grafana.service.targetPort</p></td>
-<td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">3000</span></code></p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p>grafana.ingress</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;pathType&quot;:&quot;ImplementationSpecific&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;hosts&quot;:[],&quot;ingressClassName&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;pathType&quot;:&quot;ImplementationSpecific&quot;,&quot;tls&quot;:[{&quot;hosts&quot;:[]}]}</span></code></p></td>
 <td><p>Ingress configuration for Grafana</p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.enabled</p></td>
+<tr class="row-odd"><td><p>grafana.ingress.hostName</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be ommitted, as they will be set by the installer plugin</p></td>
+</tr>
+<tr class="row-even"><td><p>tempo.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.metricsGenerator.enabled</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.metricsGenerator.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.metricsGenerator.remoteWriteUrl</p></td>
+<tr class="row-even"><td><p>tempo.tempo.metricsGenerator.remoteWriteUrl</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http://supersonic-prometheus-server:9090/api/v1/write&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.resources.requests.cpu</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.resources.requests.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.resources.requests.memory</p></td>
+<tr class="row-even"><td><p>tempo.tempo.resources.requests.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;2G&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.resources.limits.cpu</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.resources.limits.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;2&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.resources.limits.memory</p></td>
+<tr class="row-even"><td><p>tempo.tempo.resources.limits.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;4G&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.overrides.defaults.metrics_generator_processors[0]</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.overrides.defaults.metrics_generator_processors[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;service-graphs&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.overrides.defaults.metrics_generator_processors[1]</p></td>
+<tr class="row-even"><td><p>tempo.tempo.overrides.defaults.metrics_generator_processors[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;span-metrics&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.receivers.otlp.protocols.grpc.endpoint</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.receivers.otlp.protocols.grpc.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0:4317&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.receivers.otlp.protocols.http.endpoint</p></td>
+<tr class="row-even"><td><p>tempo.tempo.receivers.otlp.protocols.http.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0:4318&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tempo.tempo.livenessProbe.initialDelaySeconds</p></td>
+<tr class="row-odd"><td><p>tempo.tempo.livenessProbe.initialDelaySeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>tempo.tempo.readinessProbe.initialDelaySeconds</p></td>
+<tr class="row-even"><td><p>tempo.tempo.readinessProbe.initialDelaySeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>tracing_sampling_rate</p></td>
+<tr class="row-odd"><td><p>tracing_sampling_rate</p></td>
 <td><p>float</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.enabled</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.image.repository</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.image.repository</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;otel/opentelemetry-collector-contrib&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.image.tag</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.image.tag</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.120.0&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.mode</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.mode</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;deployment&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.resources.requests.memory</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.resources.requests.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1G&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.resources.requests.cpu</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.resources.requests.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.resources.limits.memory</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.resources.limits.memory</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;2G&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.resources.limits.cpu</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.resources.limits.cpu</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.ports.metrics.enabled</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.ports.metrics.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.receivers.otlp.protocols.grpc.endpoint</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.receivers.otlp.protocols.grpc.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0:4317&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.receivers.otlp.protocols.http.endpoint</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.receivers.otlp.protocols.http.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0:4318&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.otlp.endpoint</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.otlp.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http://supersonic-tempo:4317&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.otlp.tls.insecure</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.otlp.tls.insecure</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.otlphttp.endpoint</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.otlphttp.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http://supersonic-tempo:4318&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.otlphttp.tls.insecure</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.otlphttp.tls.insecure</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.prometheusremotewrite.endpoint</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.prometheusremotewrite.endpoint</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http://supersonic-prometheus-server:9090/api/v1/write&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.exporters.prometheusremotewrite.target_info.enabled</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.exporters.prometheusremotewrite.target_info.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].context</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].context</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;resource&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].conditions[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].conditions[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;attributes[\&quot;pod_name\&quot;]</span> <span class="pre">!=</span> <span class="pre">nil&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].statements[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[0].statements[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;replace_match(attributes[\&quot;service.name\&quot;],</span> <span class="pre">\&quot;triton-inference-server\&quot;,</span> <span class="pre">attributes[\&quot;pod_name\&quot;])&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].context</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].context</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;span&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].conditions[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].conditions[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;name</span> <span class="pre">==</span> <span class="pre">\&quot;ingress\&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].statements[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].statements[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;set(kind,</span> <span class="pre">3)&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].statements[1]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[1].statements[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;set(kind.string,</span> <span class="pre">\&quot;Client\&quot;)&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].context</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].context</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;span&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].conditions[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].conditions[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;name</span> <span class="pre">!=</span> <span class="pre">\&quot;ingress\&quot;&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].statements[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].statements[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;set(kind,</span> <span class="pre">2)&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].statements[1]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.processors.transform.trace_statements[2].statements[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;set(kind.string,</span> <span class="pre">\&quot;Server\&quot;)&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;100us&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[1]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;1ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[2]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[2]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;2ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[3]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[3]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;6ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[4]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[4]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;10ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[5]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[5]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;100ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[6]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.histogram.explicit.buckets[6]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;250ms&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].name</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http.method&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].default</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[0].default</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;GET&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[1].name</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions[1].name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;http.status_code&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.exemplars.enabled</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.exemplars.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.exclude_dimensions[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.exclude_dimensions[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;status.code&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions_cache_size</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.dimensions_cache_size</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.aggregation_temporality</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.aggregation_temporality</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;AGGREGATION_TEMPORALITY_CUMULATIVE&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.metrics_flush_interval</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.metrics_flush_interval</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;15s&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.metrics_expiration</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.metrics_expiration</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;5m&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.enabled</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[0].name</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[0].name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;exception.type&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[1].name</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.events.dimensions[1].name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;exception.message&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;service.name&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[1]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;telemetry.sdk.language&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[2]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.connectors.spanmetrics.resource_metrics_key_attributes[2]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;telemetry.sdk.name&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.traces.receivers[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.traces.receivers[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;otlp&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.traces.processors[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.traces.processors[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;transform&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.traces.exporters[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.traces.exporters[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;otlp&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.traces.exporters[1]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.traces.exporters[1]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;spanmetrics&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.metrics.receivers[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.metrics.receivers[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;spanmetrics&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.metrics.processors[0]</p></td>
+<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.metrics.processors[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;batch&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>opentelemetry-collector.config.service.pipelines.metrics.exporters[0]</p></td>
+<tr class="row-even"><td><p>opentelemetry-collector.config.service.pipelines.metrics.exporters[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;prometheusremotewrite&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>metricsCollector.enabled</p></td>
+<tr class="row-odd"><td><p>metricsCollector.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable metrics collector</p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.host</p></td>
+<tr class="row-even"><td><p>metricsCollector.host</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0&quot;</span></code></p></td>
 <td><p>Host and port for metrics collector</p></td>
 </tr>
-<tr class="row-even"><td><p>metricsCollector.port</p></td>
+<tr class="row-odd"><td><p>metricsCollector.port</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">8003</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.resources</p></td>
+<tr class="row-even"><td><p>metricsCollector.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;500m&quot;,&quot;memory&quot;:&quot;512Mi&quot;}}</span></code></p></td>
 <td><p>Resource limits and requests for metrics collector</p></td>
 </tr>
-<tr class="row-even"><td><p>metricsCollector.service</p></td>
+<tr class="row-odd"><td><p>metricsCollector.service</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;port&quot;:8003,&quot;type&quot;:&quot;ClusterIP&quot;}</span></code></p></td>
 <td><p>Add service</p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.ingress</p></td>
+<tr class="row-even"><td><p>metricsCollector.ingress</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
 <td><p>Ingress configuration for metrics collector</p></td>
