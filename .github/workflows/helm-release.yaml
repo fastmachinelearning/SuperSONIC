@@ -68,4 +68,4 @@ jobs:
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
         
             # Push to gh-pages
-            git push origin gh-pages
+            git push --force-with-lease origin gh-pages
