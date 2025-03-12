@@ -75,7 +75,7 @@ metricsCollector:
     overrides = yaml.safe_load(overrides_yaml)
 
     # Clean up empty values
-    if not values.get("prometheus", {}).get("ingress", {}).get("enabled", False):
+    if not values.get("prometheus", {}).get("server", {}).get("ingress", {}).get("enabled", False):
         del overrides["prometheus"]["server"]["ingress"]
     if not values.get("grafana", {}).get("ingress", {}).get("enabled", False):
         del overrides["grafana"]["ingress"]
