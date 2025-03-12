@@ -5,7 +5,7 @@ def generate_overrides(release_name: str, values: Dict) -> Dict:
     """Generate overrides to ensure internal consistency of SuperSONIC components"""
 
     # This may be changed in the future
-    prometheus_host = values.get("prometheus", {}).get("ingress", {}).get("hostName", "")
+    prometheus_host = values.get("prometheus", {}).get("server", {}).get("ingress", {}).get("hostName", "")
     grafana_host = values.get("grafana", {}).get("ingress", {}).get("hostName", "")
     metrics_collector_host = values.get("metricsCollector", {}).get("ingress", {}).get("hostName", "")
     
