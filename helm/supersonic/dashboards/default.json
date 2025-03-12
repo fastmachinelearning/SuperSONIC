@@ -1131,56 +1131,6 @@
         ],
         "title": "Inferences per second by model (all servers)",
         "type": "timeseries"
-      },
-      {
-        "collapsed": false,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 35
-        },
-        "id": 18,
-        "panels": [],
-        "title": "Service Map",
-        "type": "row"
-      },
-      {
-        "datasource": {
-          "type": "tempo",
-          "uid": "tempo"
-        },
-        "fieldConfig": {
-          "defaults": {},
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 10,
-          "w": 12,
-          "x": 0,
-          "y": 35
-        },
-        "id": 21,
-        "options": {
-          "edges": {},
-          "nodes": {},
-          "zoomMode": "cooperative"
-        },
-        "pluginVersion": "11.5.1",
-        "targets": [
-          {
-            "datasource": {
-              "type": "tempo",
-              "uid": "tempo"
-            },
-            "limit": 20,
-            "queryType": "serviceMap",
-            "refId": "A",
-            "tableType": "traces"
-          }
-        ],
-        "title": "Service Map",
-        "type": "nodeGraph"
       }
     ],
     "refresh": "5s",

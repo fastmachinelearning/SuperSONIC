@@ -104,7 +104,7 @@ envoy:
   replicas: 1
 
   # -- Envoy Proxy Docker image
-  image: "envoyproxy/envoy:v1.30-latest"
+  image: "envoyproxy/envoy:v1.30.9"
 
   # -- Arguments for Envoy
   args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
@@ -349,7 +349,7 @@ grafana:
     requests:
       cpu: 100m
       memory: 128Mi
-_
+
   # -- Ingress configuration for Grafana
   ingress:
     enabled: false
