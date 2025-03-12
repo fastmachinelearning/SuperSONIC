@@ -1124,25 +1124,6 @@
             "requests"
           ]
         },
-        "service": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string"
-            },
-            "port": {
-              "type": "integer"
-            },
-            "targetPort": {
-              "type": "integer"
-            }
-          },
-          "required": [
-            "port",
-            "targetPort",
-            "type"
-          ]
-        },
         "ingress": {
           "type": "object",
           "properties": {
@@ -1206,7 +1187,6 @@
         "persistence",
         "rbac",
         "resources",
-        "service",
         "serviceAccount"
       ]
     },
