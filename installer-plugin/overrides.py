@@ -4,10 +4,11 @@ from typing import Dict
 def generate_overrides(release_name: str, values: Dict) -> Dict:
     """Generate overrides to ensure internal consistency of SuperSONIC components"""
 
-    # This will be changed in the future
-    prometheus_host = values.get("prometheus", {}).get("host", "").split("//")[-1]
-    grafana_host = values.get("grafana", {}).get("host", "").split("//")[-1]
-
+    # This may be changed in the future
+    prometheus_host = values.get("prometheus", {}).get("ingress", {}).get("hostName", "")
+    grafana_host = values.get("grafana", {}).get("ingress", {}).get("hostName", "")
+    metrics_collector_host = values.get("metricsCollector", {}).get("ingress", {}).get("hostName", "")
+    
     if values.get("prometheus", {}).get("external", {}).get("enabled", False):
         prometheus_server = values.get("prometheus", {}).get("external", {}).get("url", "")
         prometheus_server = "https://" + prometheus_server.split("//")[-1]
@@ -63,14 +64,20 @@ grafana:
   grafana.ini:
     server:
       root_url: https://{grafana_host}
+
+metricsCollector:
+  ingress:
+    hosts: [{metrics_collector_host}]
+    tls:
+      - hosts: [{metrics_collector_host}]
 """
     # Parse YAML string into dictionary
     overrides = yaml.safe_load(overrides_yaml)
 
     # Clean up empty values
-    if not prometheus_host:
+    if not values.get("prometheus", {}).get("ingress", {}).get("enabled", False):
         del overrides["prometheus"]["server"]["ingress"]
-    if not grafana_host:
+    if not values.get("grafana", {}).get("ingress", {}).get("enabled", False):
         del overrides["grafana"]["ingress"]
         del overrides["grafana"]["grafana.ini"]
 

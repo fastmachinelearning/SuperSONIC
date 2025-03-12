@@ -1,6 +1,7 @@
 serverLoadThreshold: 100
 
 triton:
+  replicas: 5
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   # image: fastml/triton-torchgeo:22.07-py3-geometric # run3
   image: nvcr.io/nvidia/tritonserver:24.11-py3
@@ -60,7 +61,7 @@ envoy:
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
 autoscaler:
-  enabled: true
+  enabled: false
   minReplicaCount: 1
   maxReplicaCount: 100
   scaleUp:
@@ -77,10 +78,10 @@ nodeSelector:
 
 prometheus:
   enabled: true
-  host: "https://prometheus-cms.nrp-nautilus.io"
   server:
     ingress:
       enabled: true
+      hostName: prometheus-cms.nrp-nautilus.io
       ingressClassName: haproxy
       annotations:
         haproxy-ingress.github.io/cors-enable: "true"
@@ -89,9 +90,9 @@ prometheus:
 
 grafana:
   enabled: true
-  host: "https://grafana-cms.nrp-nautilus.io"
   ingress:
     enabled: true
+    hostName: grafana-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
