@@ -216,6 +216,7 @@ prometheus:
 
   # -- Enable or disable custom Prometheus deployment
   enabled: false
+
   server:
     extraFlags: [web.enable-remote-write-receiver]
     useExistingClusterRoleName: supersonic-prometheus-role # If installer plugin is used, this value is set by the plugin
@@ -348,12 +349,7 @@ grafana:
     requests:
       cpu: 100m
       memory: 128Mi
-
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 3000
-
+_
   # -- Ingress configuration for Grafana
   ingress:
     enabled: false
