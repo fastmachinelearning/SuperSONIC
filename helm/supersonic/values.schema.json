@@ -640,14 +640,11 @@
                 "enabled": {
                   "type": "boolean"
                 },
-                "hosts": {
-                  "type": "array"
-                },
-                "ingressClassName": {
+                "hostName": {
                   "type": "string"
                 },
-                "annotations": {
-                  "type": "object"
+                "hosts": {
+                  "type": "array"
                 },
                 "tls": {
                   "type": "array",
@@ -662,11 +659,18 @@
                       "hosts"
                     ]
                   }
+                },
+                "ingressClassName": {
+                  "type": "string"
+                },
+                "annotations": {
+                  "type": "object"
                 }
               },
               "required": [
                 "annotations",
                 "enabled",
+                "hostName",
                 "hosts",
                 "ingressClassName",
                 "tls"
@@ -1154,6 +1158,9 @@
             "ingressClassName": {
               "type": "string"
             },
+            "hostName": {
+              "type": "string"
+            },
             "hosts": {
               "type": "array"
             },
@@ -1178,6 +1185,7 @@
           "required": [
             "annotations",
             "enabled",
+            "hostName",
             "hosts",
             "ingressClassName",
             "path",
