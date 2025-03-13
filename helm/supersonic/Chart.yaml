@@ -2,7 +2,7 @@ apiVersion: v2
 name: supersonic
 description: Server infrastructure for inference-as-a-service in large scientific experiments.
 icon: https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/SuperSONIC_small_512.png?raw=true
-version: 0.2.1
+version: 0.2.1 
 type: application
 home: https://fastmachinelearning.org/SuperSONIC/
 annotations:
