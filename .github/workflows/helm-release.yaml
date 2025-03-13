@@ -68,4 +68,24 @@ jobs:
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
         
             # Push to gh-pages
-            git push --force-with-lease origin gh-pages
+
+            echo "Attempting to push to remote branch gh-pages..."
+            if git push origin gh-pages; then
+                echo "Push succeeded."
+                exit 0
+            else
+                echo "Initial push failed. Fetching latest changes from origin/gh-pages..."
+                git fetch origin gh-pages || { echo "Fetch failed. Exiting."; exit 1; }
+                
+                echo "Rebasing your work onto origin/gh-pages..."
+                git rebase origin/gh-pages || { echo "Rebase failed. Exiting."; exit 1; }
+                
+                echo "Attempting to push again..."
+                if git push origin gh-pages; then
+                    echo "Push succeeded after rebasing."
+                    exit 0
+                else
+                    echo "Push still failed after rebasing. Exiting."
+                    exit 1
+                fi
+            fi
