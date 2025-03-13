@@ -59,4 +59,46 @@ data:
             target_label: app
           - source_labels: [__meta_kubernetes_namespace]
             target_label: namespace
+
+      - job_name: "opentelemetry-collector"
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - "{{ .Release.Namespace }}"
+        metrics_path: /metrics
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: "opentelemetry-collector"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "8888"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            target_label: release
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+
+      - job_name: "tempo"
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - "{{ .Release.Namespace }}"
+        metrics_path: /metrics
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: "tempo"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "3100"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            target_label: release
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
 {{- end }}

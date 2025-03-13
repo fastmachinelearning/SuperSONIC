@@ -99,25 +99,9 @@ prometheus:
 
 grafana:
   enabled: true
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: prometheus
-          type: prometheus
-          access: proxy
-          isDefault: true
-          url: https://prometheus.nrp-nautilus.io
-          jsonData:
-            timeInterval: "5s"
-            tlsSkipVerify: true
   ingress:
     enabled: true
-    hosts:
-      - grafana-icecube.nrp-nautilus.io
-    tls:
-      - hosts:
-          - grafana-icecube.nrp-nautilus.io
+    hostName: grafana-icecube.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"

@@ -36,6 +36,7 @@ envoy:
   ingress:
     enabled: true
     hostName: sonic-cms.geddes.rcac.purdue.edu
+    ingressClassName: public
 
 autoscaler:
   enabled: true
@@ -58,23 +59,12 @@ prometheus:
   server:
     ingress:
       enabled: true
-      hosts:
-        - prometheus-cms.geddes.rcac.purdue.edu
-      tls:
-        - hosts:
-            - prometheus-cms.geddes.rcac.purdue.edu
+      hostName: prometheus-cms.geddes.rcac.purdue.edu
       ingressClassName: public
 
 grafana:
   enabled: true
   ingress:
     enabled: true
-    hosts:
-      - grafana-cms.geddes.rcac.purdue.edu
-    tls:
-      - hosts:
-          - grafana-cms.geddes.rcac.purdue.edu
+    hostName: grafana-cms.geddes.rcac.purdue.edu
     ingressClassName: public
-  grafana.ini:
-    server:
-      root_url: https://grafana-cms.geddes.rcac.purdue.edu

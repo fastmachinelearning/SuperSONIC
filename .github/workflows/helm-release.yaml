@@ -32,6 +32,7 @@ jobs:
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm repo update
 
       - name: Run chart-releaser
@@ -53,6 +54,9 @@ jobs:
             # Switch to gh-pages branch
             git checkout gh-pages
 
+            # Pull the latest changes from the remote gh-pages branch
+            git pull origin gh-pages
+
             # Copy artifacthub-repo.yaml from the current branch
             git checkout "${{ github.ref }}" -- helm/supersonic/artifacthub-repo.yaml
         
@@ -64,4 +68,4 @@ jobs:
             git commit -m "Update artifacthub-repo.yaml from ${{ github.ref }}" --allow-empty
         
             # Push to gh-pages
-            git push origin gh-pages
+            git push --force-with-lease origin gh-pages

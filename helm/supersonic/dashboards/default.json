@@ -112,7 +112,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+            "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -229,6 +229,7 @@
             "color": {
               "mode": "palette-classic"
             },
+            "unit": "ms",
             "custom": {
               "axisBorderShow": false,
               "axisCenteredZero": false,
@@ -477,7 +478,7 @@
             },
             "disableTextWrap": false,
             "editorMode": "code",
-            "expr": "sum by(release)(envoy_cluster_membership_total{envoy_cluster_name=\"triton_grpc_service\", release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+            "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
             "fullMetaSearch": false,
             "includeNullMetadata": true,
             "instant": false,
@@ -816,7 +817,7 @@
               "uid": "prometheus"
             },
             "editorMode": "code",
-            "expr": "nv_gpu_memory_used_bytes{namespace=~\"${namespace}\"}",
+            "expr": "nv_gpu_memory_used_bytes{namespace=~\"${namespace}\"}/nv_gpu_memory_total_bytes{namespace=~\"${namespace}\"}",
             "hide": false,
             "instant": false,
             "legendFormat": "{{pod}}",

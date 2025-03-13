@@ -104,7 +104,7 @@ envoy:
   replicas: 1
 
   # -- Envoy Proxy Docker image
-  image: "envoyproxy/envoy:v1.30-latest"
+  image: "envoyproxy/envoy:v1.30.9"
 
   # -- Arguments for Envoy
   args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
@@ -113,10 +113,10 @@ envoy:
   # Note: an Envoy Proxy with too many connections might run out of CPU
   resources:
     requests:
-      cpu: 1
+      cpu: 1.0
       memory: "2G"
     limits:
-      cpu: 2
+      cpu: 8.0
       memory: "4G"
   service:
     # -- This is the client-facing endpoint. In order to be able to connect to it,
@@ -218,7 +218,8 @@ prometheus:
   enabled: false
 
   server:
-    useExistingClusterRoleName: supersonic-prometheus-role
+    extraFlags: [web.enable-remote-write-receiver]
+    useExistingClusterRoleName: supersonic-prometheus-role # If installer plugin is used, this value is set by the plugin
     releaseNamespace: true
     persistentVolume:
       enabled: false
@@ -241,16 +242,19 @@ prometheus:
     # -- Ingress configuration for Prometheus
     ingress:
       enabled: false
+      # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
+      # can be ommitted, as they will be set by the installer plugin
+      hostName: ""
       hosts: []
-      ingressClassName: ""
-      annotations: {}
       tls:
         - hosts: []
+      ingressClassName: ""
+      annotations: {}
 
   serviceAccounts:
     server:
       create: false
-      name: supersonic-prometheus-sa
+      name: supersonic-prometheus-sa # If installer plugin is used, this value is set by the plugin
 
   rbac:
     create: false
@@ -287,6 +291,7 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+      # If installer plugin is used, this section is set by the plugin
         - name: prometheus
           type: prometheus
           access: proxy
@@ -295,6 +300,20 @@ grafana:
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
+        - name: tempo
+          type: tempo
+          url: http://supersonic-tempo:3100
+          access: proxy
+          isDefault: false
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+            serviceMap:
+              datasourceUid: 'prometheus'
+            nodeGraph:
+              enabled: true
+
 
   dashboardProviders:
     dashboardproviders.yaml:
@@ -310,7 +329,7 @@ grafana:
             path: /var/lib/grafana/dashboards/default
 
   dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
+    default: supersonic-grafana-default-dashboard # If installer plugin is used, this value is set by the plugin
 
   grafana.ini:
     auth:
@@ -320,6 +339,8 @@ grafana:
       org_role: Admin
     dashboards:
       default_home_dashboard_path: /var/lib/grafana/dashboards/default/default.json
+    server:
+      root_url: "" # If installer plugin is used, this value is set by the plugin
 
   resources:
     limits:
@@ -329,17 +350,172 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 3000
-
   # -- Ingress configuration for Grafana
   ingress:
     enabled: false
     path: /
     pathType: ImplementationSpecific
     ingressClassName: ""
-    hosts: []
-    tls: []
+    # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
+    # can be ommitted, as they will be set by the installer plugin
+    hostName: ""
+    hosts: [] # If installer plugin is used, this value is set by the plugin
+    tls:
+      - hosts: [] # If installer plugin is used, this value is set by the plugin
     annotations: {}
+
+# Tempo configuration
+tempo:
+  enabled: false
+  tempo:
+    metricsGenerator:
+      enabled: true
+      remoteWriteUrl: http://supersonic-prometheus-server:9090/api/v1/write
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2G"
+      limits:
+        cpu: "2"
+        memory: "4G"
+    overrides:
+      defaults:
+        metrics_generator_processors:
+          - 'service-graphs'
+          - 'span-metrics'
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+    livenessProbe:
+      initialDelaySeconds: 0
+    readinessProbe:
+      initialDelaySeconds: 0
+
+tracing_sampling_rate: 0.01
+
+opentelemetry-collector:
+  enabled: false
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
+    tag: "0.120.0"
+  mode: deployment
+  resources:
+    requests:
+      memory: "1G"
+      cpu: "1"
+    limits:
+      memory: "2G"
+      cpu: "1"
+  ports:
+    metrics:
+      enabled: true
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+    exporters:
+      otlp:
+        endpoint: http://supersonic-tempo:4317
+        tls:
+          insecure: true
+      otlphttp:
+        endpoint: http://supersonic-tempo:4318
+        tls:
+          insecure: true
+      prometheusremotewrite:
+        endpoint: http://supersonic-prometheus-server:9090/api/v1/write
+        target_info:
+          enabled: true
+    processors:
+      transform:
+        trace_statements:
+        - context: resource
+          conditions:
+            - 'attributes["pod_name"] != nil'
+          statements:
+            - replace_match(attributes["service.name"], "triton-inference-server", attributes["pod_name"])
+        - context: span
+          conditions:
+            - 'name == "ingress"'
+          statements:
+            - set(kind, 3)
+            - set(kind.string, "Client")
+        - context: span
+          conditions:
+            - name != "ingress"
+          statements:
+            - set(kind, 2)
+            - set(kind.string, "Server")
+    connectors:
+      spanmetrics:
+        histogram:
+          explicit:
+            buckets: [100us, 1ms, 2ms, 6ms, 10ms, 100ms, 250ms]
+        dimensions:
+          - name: http.method
+            default: GET
+          - name: http.status_code
+        exemplars:
+          enabled: true
+        exclude_dimensions: ['status.code']
+        dimensions_cache_size: 1000
+        aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"    
+        metrics_flush_interval: 15s
+        metrics_expiration: 5m
+        events:
+          enabled: true
+          dimensions:
+            - name: exception.type
+            - name: exception.message
+        resource_metrics_key_attributes:
+          - service.name
+          - telemetry.sdk.language
+          - telemetry.sdk.name
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [transform]
+          exporters: [otlp, spanmetrics]
+        metrics:
+          receivers: [spanmetrics]
+          processors: [batch]
+          exporters: [prometheusremotewrite]
+
+metricsCollector:
+  # -- Enable metrics collector
+  enabled: false
+
+  # -- Host and port for metrics collector
+  host: "0.0.0.0"
+  port: 8003
+
+  # -- Resource limits and requests for metrics collector
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  # -- Add service
+  service:
+    port: 8003
+    type: ClusterIP
+
+  # -- Ingress configuration for metrics collector
+  ingress:
+    enabled: false
+    hostName: ""
+    ingressClassName: ""
+    annotations: {}
+

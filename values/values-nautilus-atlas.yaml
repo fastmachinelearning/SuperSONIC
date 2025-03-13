@@ -30,7 +30,7 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-  replicas: 4
+  replicas: 1
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
@@ -69,30 +69,25 @@ prometheus:
 
 grafana:
   enabled: true
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: prometheus
-          type: prometheus
-          access: proxy
-          isDefault: true
-          url: https://prometheus.nrp-nautilus.io
-          jsonData:
-            timeInterval: "5s"
-            tlsSkipVerify: true
   ingress:
     enabled: true
-    hosts:
-      - grafana-atlas.nrp-nautilus.io
-    tls:
-      - hosts:
-          - grafana-atlas.nrp-nautilus.io
+    hostName: grafana-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
-      haproxy-ingress.github.io/backend-protocol: "h2"
       haproxy-ingress.github.io/proxy-body-size: "512m"
-  grafana.ini:
-    server:
-      root_url: https://grafana-atlas.nrp-nautilus.io
+      haproxy-ingress.github.io/timeout-http-request: "5m"
+
+metricsCollector:
+  enabled: true
+  ingress:
+    enabled: true
+    hostName: metrics-collector-atlas.nrp-nautilus.io
+    ingressClassName: haproxy
+    annotations:
+      haproxy-ingress.github.io/cors-enable: "true"
+      haproxy-ingress.github.io/backend-protocol: "http"
+      haproxy-ingress.github.io/proxy-body-size: "512m"
+      haproxy-ingress.github.io/ssl-redirect: "true"
+      haproxy-ingress.github.io/secure-backends: "false"
+

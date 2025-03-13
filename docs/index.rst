@@ -1,4 +1,3 @@
-
 .. toctree::
     :maxdepth: 3
     :hidden:
@@ -7,6 +6,7 @@
     getting-started
     configuration-guide
     configuration-reference
+    advanced-monitoring
 
 SuperSONIC
 ========================================
@@ -137,3 +137,4 @@ We welcome developer help to add more computing centers to this list.
 
 - Purdue University: `Geddes cluster <https://www.rcac.purdue.edu/compute/geddes>`_, `Anvil cluster <https://www.rcac.purdue.edu/compute/anvil>`_.
 - National Research Platform (NRP): `Nautilus cluster <https://docs.nationalresearchplatform.org/>`_.
+- University of Chicago (ATLAS Analysis Facility).
