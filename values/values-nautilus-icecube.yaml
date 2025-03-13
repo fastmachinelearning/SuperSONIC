@@ -1,3 +1,12 @@
+# In the future we might want to change the deployment to allow for 
+# getting the A40s, A100s and other "high performance" GPUs in NRP
+# we will need create multiple deployments for that to accomondate the 
+# NRP setup
+# here is an example https://medium.com/@pasternaktal/creating-multiple-deployments-with-different-configurations-using-helm-4992f9f735fd
+# multiple deployments can talk to a single service through the tags
+# how do we get this to interact with keda properly having multiple 
+# deployments is an open question
+
 serverLoadThreshold: 100
 
 triton: 
@@ -18,7 +27,7 @@ triton:
           - key: nvidia.com/gpu.product
             operator: In
             values:
-            # - NVIDIA-A10
+            - NVIDIA-A10
             # - NVIDIA-A40
             # - NVIDIA-A100-SXM4-80GB
             - NVIDIA-L40
@@ -48,8 +57,10 @@ triton:
     initialDelaySeconds: 120
     periodSeconds: 10
     failureThreshold: 10
+
 envoy:
   enabled: true
+  replicas: 4
   auth:
     enabled: true
     jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
@@ -75,10 +86,11 @@ envoy:
 
 autoscaler:
   enabled: true
-  minReplicaCount: 0
+  minReplicaCount: 30
   maxReplicaCount: 100
 
 prometheus:
+  enabled: true
   external:
     enabled: true
     url: "prometheus.nrp-nautilus.io"
@@ -99,10 +111,6 @@ grafana:
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
-
-  dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
-
   ingress:
     enabled: true
     hosts:
@@ -113,7 +121,6 @@ grafana:
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
-      haproxy-ingress.github.io/backend-protocol: "h2"
       haproxy-ingress.github.io/proxy-body-size: "512m"
   grafana.ini:
     server:
