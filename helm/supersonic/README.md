@@ -82,4 +82,4 @@ The full list of configuration parameters is available in the [Configuration ref
 | **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
 | **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
 | **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
-| **[UChicago](https://af.uchicago.edu/)**    |  -  |  ✅ |   -   |
+| **UChicago**    |  -  |  ✅ |   -   |
