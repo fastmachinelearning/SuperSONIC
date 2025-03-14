@@ -137,4 +137,4 @@ We welcome developer help to add more computing centers to this list.
 
 - Purdue University: `Geddes cluster <https://www.rcac.purdue.edu/compute/geddes>`_, `Anvil cluster <https://www.rcac.purdue.edu/compute/anvil>`_.
 - National Research Platform (NRP): `Nautilus cluster <https://docs.nationalresearchplatform.org/>`_.
-- University of Chicago (ATLAS Analysis Facility) `ATLAS Tier 3 cluster <https://af.uchicago.edu/>`.
+- University of Chicago (ATLAS Analysis Facility): `ATLAS Tier3 cluster <https://af.uchicago.edu/>`_.
