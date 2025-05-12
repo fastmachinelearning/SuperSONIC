@@ -20,7 +20,7 @@ SuperSONIC GitHub repository: `fastmachinelearning/SuperSONIC <https://github.co
 
 -----
 
-Why "inference-as-a-service"?
+Why Inference-as-a-Service?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. container:: twocol
@@ -28,9 +28,9 @@ Why "inference-as-a-service"?
     .. container:: leftside
 
         The computing demands of modern scientific experiments are growing at a faster rate than the performance improvements
-        of traditional processors (CPUs). This trend is driven by increasing data collection rates, tightening latency requirements,
+        of traditional general-purpose processors (CPUs). This trend is driven by increasing data collection rates, tightening latency requirements,
         and rising complexity of algorithms, particularly those based on machine learning.
-        Such a computing landscape strongly motivates the adoption of specialized coprocessors, such as FPGAs, GPUs, and TPUs.
+        Such a computing landscape strongly motivates the adoption of specialized coprocessors, such as FPGAs, GPUs, and TPUs. However, this introduces new resource allocation and scaling issues.
 
     .. container:: rightside
 
@@ -41,8 +41,8 @@ Why "inference-as-a-service"?
             `Image source: A3D3 <https://a3d3.ai/about/>`_
 
 
-In "inference-as-a-service" model, the data processing workflows ("clients") off-load computationally intensive steps,
-such as neural network inference, to a remote "server" equipped with coprocessors. This design allows to optimize both
+In the inference-as-a-service model, the data processing workflows ("clients") off-load computationally intensive steps,
+such as neural network inference, to a remote "server" equipped with coprocessors. This design allows for optimization of both
 data processing throughput and coprocessor utilization by dynamically balancing the ratio of CPUs to coprocessors.
 Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are grouped under the name
 **SONIC (Services for Optimized Network Inference on Coprocessors)**.
@@ -54,16 +54,16 @@ Numerous R&D efforts implementing this paradigm in HEP and MMA experiments are g
 
 -----
 
-SuperSONIC: a case for shared server infrastructure
+SuperSONIC: A Case for Shared Server Infrastructure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A key feature of the SONIC approach is the decoupling of clients from servers and the standardization
+Two of the key features of the SONIC approach are the decoupling of clients from servers and the standardization
 of communication between them.
 While client-side implementations may vary across applications, the server-side infrastructure can remain
 largely the same, since the server functionality requirements (load balancing, autoscaling, etc.) are not
 experiment-specific. 
 
-The purpose of SuperSONIC project is to develop server infrastructure that could be reused by scientific
+The purpose of the SuperSONIC project is to develop server infrastructure that could be reused by multiple scientific
 experiments with only small differences in configuration.
 
 -----
@@ -81,7 +81,7 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
             <td style="width:65%; vertical-align: center; padding-right: 1em;">
                 <p><a href="https://home.cern/science/experiments/cms">CMS Experiment</a> at the Large Hadron Collider (CERN).</p>
                 <p>
-                    CMS is testing inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
+                    CMS is testing the inference-as-a-service approach in Run 3 offline processing workflows, off-loading inferences to GPUs for
                     machine learning models such as <strong>ParticleNet</strong>, <strong>DeepMET</strong>, <strong>DeepTau</strong>, <strong>ParT</strong>.
                     In addition, non-ML tracking algorithms such as <strong>LST</strong> and <strong>Patatrack</strong> are being adapted for deployment
                     as-a-service.
@@ -120,7 +120,7 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
             <td style="width:65%; vertical-align: center; padding-right: 1em;">
                 <p><a href="https://icecube.wisc.edu/">IceCube Neutrino Observatory</a> at the South Pole.</p>
                 <p>
-                    IceCube uses SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
+                    IceCube uses the SONIC approach to accelerate event classifier algorithms based on convolutional neural networks (CNNs).
                 </p>
             </td>
             <td style="width:35%; vertical-align: center;">
@@ -129,7 +129,7 @@ We are open for collaboration and encourage other experiments to try SuperSONIC 
         </tr>
     </table>
 
-Deployment sites
+Deployment Sites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SuperSONIC has been successfully tested at the computing clusters listed below.

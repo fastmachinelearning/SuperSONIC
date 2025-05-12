@@ -6,7 +6,7 @@ The full list of parameters can be found in the `Configuration Reference <config
 
 You can find example values files in the `SuperSONIC GitHub repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_.
 
-1. Select a Triton Inference Server version
+1. Select a Triton Inference Server Version
 =============================================
 
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
@@ -90,7 +90,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
     <br><br>
 
 
-3. Select resources for Triton pods
+3. Select Resources for Triton Pods
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file:
@@ -125,7 +125,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
                  - NVIDIA-L4
 
 
-4. Configure  Envoy Proxy
+4. Configure Envoy Proxy
 ================================================
 
 By default, Envoy proxy is enabled and configured to provide per-request
@@ -164,7 +164,7 @@ There are two options:
    In this case, the client connections should be established to  ``<load_balancer_url>:8001`` and NOT use SSL.
 
 
-5. (optional) Configure rate limiting in Envoy Proxy
+5. (Optional) Configure Rate Limiting in Envoy Proxy
 ======================================================
    
 There are two types of rate limiting available in Envoy Proxy: *listener-level*, and *prometheus-based*.
@@ -202,7 +202,7 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 
   The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
 
-6. (optional) Configure authentication in Envoy Proxy
+6. (Optional) Configure Authentication in Envoy Proxy
 ======================================================
 
 At the moment, the only supported authentication method is JWT. Example configuration for IceCube:
@@ -219,7 +219,7 @@ At the moment, the only supported authentication method is JWT. Example configur
        port: 443
 
 
-7. Deploy a Prometheus server or connect to an existing one
+7. Deploy a Prometheus Server or Connect to an Existing One
 ============================================================
 
 Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
@@ -272,7 +272,7 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
           port: <prometheus_port>
 
 
-8. (optional) Configure metrics for scaling and rate limiting
+8. (Optional) Configure Metrics for Scaling and Rate Limiting
 ===============================================================
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
@@ -290,7 +290,7 @@ The Prometheus query for the graph is automatically inferred from the value of `
 The graph also displays the threshold value defined in ``serverLoadThreshold`` parameter.
 
 
-9. (optional) Deploy Grafana dashboard
+9. (Optional) Deploy Grafana Dashboard
 ==========================================
 
 Grafana is used to visualize metrics collected by Prometheus.
@@ -318,9 +318,9 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,
 .. figure:: img/grafana.png
   :align: center
   :height: 200
-  :alt: Supersonic Grafana dashboard
+  :alt: SuperSONIC Grafana Dashboard
 
-10. (optional) Enable KEDA autoscaler
+10. (Optional) Enable KEDA Autoscaler
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
@@ -353,7 +353,7 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        periodSeconds: 30
        stepsize: 1
 
-11. (optional) Configure Metrics Collector for running ``perf_analyzer``
+11. (Optional) Configure Metrics Collector for Running ``perf_analyzer``
 =========================================================================
 
 To collect Prometheus metrics when using ``perf_analyzer`` for testing,
@@ -384,7 +384,7 @@ Running with ``perf_analyzer`` is then done with:
 If ingress is not desired, port-forward the metrics collector service and call
 ``--metrics-url localhost:8003/metrics`` to access the metrics. 
 
-12. (optional) Configure advanced monitoring 
+12. (Optional) Configure Advanced Monitoring 
 =============================================
 
 Refer to the `advanced monitoring guide <advanced-monitoring>`_.
