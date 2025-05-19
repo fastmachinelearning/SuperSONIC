@@ -60,7 +60,7 @@ Installation
       This value will be used as a prefix for all resources created by the chart,
       unless ``nameOverride`` is specified in the values file.
 
-   1. Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
+      Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
       and other useful information.
    
    .. figure:: img/grafana.png

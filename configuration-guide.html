@@ -51,18 +51,18 @@
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#select-a-triton-inference-server-version">1. Select a Triton Inference Server version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-a-triton-inference-server-version">1. Select a Triton Inference Server Version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-triton-model-repository">2. Configure Triton model repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">3. Select resources for Triton pods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configure-envoy-proxy">4. Configure  Envoy Proxy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-rate-limiting-in-envoy-proxy">5. (optional) Configure rate limiting in Envoy Proxy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-authentication-in-envoy-proxy">6. (optional) Configure authentication in Envoy Proxy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one">7. Deploy a Prometheus server or connect to an existing one</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-for-scaling-and-rate-limiting">8. (optional) Configure metrics for scaling and rate limiting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-deploy-grafana-dashboard">9. (optional) Deploy Grafana dashboard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-enable-keda-autoscaler">10. (optional) Enable KEDA autoscaler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-collector-for-running-perf-analyzer">11. (optional) Configure Metrics Collector for running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-configure-advanced-monitoring">12. (optional) Configure advanced monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">3. Select Resources for Triton Pods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure-envoy-proxy">4. Configure Envoy Proxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-rate-limiting-in-envoy-proxy">5. (Optional) Configure Rate Limiting in Envoy Proxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-authentication-in-envoy-proxy">6. (Optional) Configure Authentication in Envoy Proxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one">7. Deploy a Prometheus Server or Connect to an Existing One</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-for-scaling-and-rate-limiting">8. (Optional) Configure Metrics for Scaling and Rate Limiting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-deploy-grafana-dashboard">9. (Optional) Deploy Grafana Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-enable-keda-autoscaler">10. (Optional) Enable KEDA Autoscaler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-collector-for-running-perf-analyzer">11. (Optional) Configure Metrics Collector for Running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-configure-advanced-monitoring">12. (Optional) Configure Advanced Monitoring</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration-reference.html">Configuration Reference</a></li>
@@ -99,7 +99,7 @@
 The full list of parameters can be found in the <a class="reference external" href="configuration-reference">Configuration Reference</a>.</p>
 <p>You can find example values files in the <a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">SuperSONIC GitHub repository</a>.</p>
 <section id="select-a-triton-inference-server-version">
-<h2>1. Select a Triton Inference Server version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h2>
+<h2>1. Select a Triton Inference Server Version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
 <li><p>You can also use custom-built Triton images.</p></li>
@@ -169,7 +169,7 @@ The following options for model repository mounting are provided via <code class
 </div>
 </details><br><br></section>
 <section id="select-resources-for-triton-pods">
-<h2>3. Select resources for Triton pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
+<h2>3. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file:</p></li>
 </ul>
@@ -203,7 +203,7 @@ The following options for model repository mounting are provided via <code class
 </div>
 </section>
 <section id="configure-envoy-proxy">
-<h2>4. Configure  Envoy Proxy<a class="headerlink" href="#configure-envoy-proxy" title="Link to this heading"></a></h2>
+<h2>4. Configure Envoy Proxy<a class="headerlink" href="#configure-envoy-proxy" title="Link to this heading"></a></h2>
 <p>By default, Envoy proxy is enabled and configured to provide per-request
 load balancing between Triton inference servers.</p>
 <p>Once the SuperSONIC chart is installed, you need an address by which clients
@@ -236,7 +236,7 @@ Please contact cluster administrators for more information.</p>
 </ul>
 </section>
 <section id="optional-configure-rate-limiting-in-envoy-proxy">
-<h2>5. (optional) Configure rate limiting in Envoy Proxy<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h2>
+<h2>5. (Optional) Configure Rate Limiting in Envoy Proxy<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h2>
 <p>There are two types of rate limiting available in Envoy Proxy: <em>listener-level</em>, and <em>prometheus-based</em>.</p>
 <ul>
 <li><p><strong>Listener-level rate limiting</strong> allows to explicitly limit the number of client connections established to the Envoy proxy endpoint.
@@ -269,7 +269,7 @@ any other requests in order not to slow down the inferences.</p>
 </ul>
 </section>
 <section id="optional-configure-authentication-in-envoy-proxy">
-<h2>6. (optional) Configure authentication in Envoy Proxy<a class="headerlink" href="#optional-configure-authentication-in-envoy-proxy" title="Link to this heading"></a></h2>
+<h2>6. (Optional) Configure Authentication in Envoy Proxy<a class="headerlink" href="#optional-configure-authentication-in-envoy-proxy" title="Link to this heading"></a></h2>
 <p>At the moment, the only supported authentication method is JWT. Example configuration for IceCube:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">auth</span><span class="p">:</span>
@@ -283,7 +283,7 @@ any other requests in order not to slow down the inferences.</p>
 </div>
 </section>
 <section id="deploy-a-prometheus-server-or-connect-to-an-existing-one">
-<h2>7. Deploy a Prometheus server or connect to an existing one<a class="headerlink" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one" title="Link to this heading"></a></h2>
+<h2>7. Deploy a Prometheus Server or Connect to an Existing One<a class="headerlink" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one" title="Link to this heading"></a></h2>
 <p>Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.</p>
 <ul>
 <li><p><strong>Option 1</strong> (recommended): Deploy a new Prometheus server.</p>
@@ -330,7 +330,7 @@ all  parameters in the <code class="docutils literal notranslate"><span class="p
 </ul>
 </section>
 <section id="optional-configure-metrics-for-scaling-and-rate-limiting">
-<h2>8. (optional) Configure metrics for scaling and rate limiting<a class="headerlink" href="#optional-configure-metrics-for-scaling-and-rate-limiting" title="Link to this heading"></a></h2>
+<h2>8. (Optional) Configure Metrics for Scaling and Rate Limiting<a class="headerlink" href="#optional-configure-metrics-for-scaling-and-rate-limiting" title="Link to this heading"></a></h2>
 <p>Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
 They are defined in the <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameters at the root level of the values file.
 The default metric is the inference queue time at the Triton servers, as defined in
@@ -345,7 +345,7 @@ The Prometheus query for the graph is automatically inferred from the value of <
 The graph also displays the threshold value defined in <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameter.</p>
 </section>
 <section id="optional-deploy-grafana-dashboard">
-<h2>9. (optional) Deploy Grafana dashboard<a class="headerlink" href="#optional-deploy-grafana-dashboard" title="Link to this heading"></a></h2>
+<h2>9. (Optional) Deploy Grafana Dashboard<a class="headerlink" href="#optional-deploy-grafana-dashboard" title="Link to this heading"></a></h2>
 <p>Grafana is used to visualize metrics collected by Prometheus.
 We provide a pre-configured Grafana dashboard which includes many useful metrics,
 including latency breakdown, GPU utilization, and more.</p>
@@ -365,12 +365,12 @@ under the <code class="docutils literal notranslate"><span class="pre">grafana</
 <p>The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,</p>
 <figure class="align-center">
-<a class="reference internal image-reference" href="_images/grafana.png"><img alt="Supersonic Grafana dashboard" src="_images/grafana.png" style="height: 200px;" />
+<a class="reference internal image-reference" href="_images/grafana.png"><img alt="SuperSONIC Grafana Dashboard" src="_images/grafana.png" style="height: 200px;" />
 </a>
 </figure>
 </section>
 <section id="optional-enable-keda-autoscaler">
-<h2>10. (optional) Enable KEDA autoscaler<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h2>
+<h2>10. (Optional) Enable KEDA Autoscaler<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h2>
 <p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
 can be enabled via the <code class="docutils literal notranslate"><span class="pre">autoscaler.enabled</span></code> parameter in the values file.</p>
 <div class="admonition warning">
@@ -399,7 +399,7 @@ the number of Triton servers can scale.</p>
 </div>
 </section>
 <section id="optional-configure-metrics-collector-for-running-perf-analyzer">
-<h2>11. (optional) Configure Metrics Collector for running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code><a class="headerlink" href="#optional-configure-metrics-collector-for-running-perf-analyzer" title="Link to this heading"></a></h2>
+<h2>11. (Optional) Configure Metrics Collector for Running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code><a class="headerlink" href="#optional-configure-metrics-collector-for-running-perf-analyzer" title="Link to this heading"></a></h2>
 <p>To collect Prometheus metrics when using <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code> for testing,
 a Metrics Collector can be deployed to format Prometheus metrics properly.
 The Metrics Collector is installed as a subchart with most of the default
@@ -425,7 +425,7 @@ and configure ingress settings if needed as shown below:</p>
 <code class="docutils literal notranslate"><span class="pre">--metrics-url</span> <span class="pre">localhost:8003/metrics</span></code> to access the metrics.</p>
 </section>
 <section id="optional-configure-advanced-monitoring">
-<h2>12. (optional) Configure advanced monitoring<a class="headerlink" href="#optional-configure-advanced-monitoring" title="Link to this heading"></a></h2>
+<h2>12. (Optional) Configure Advanced Monitoring<a class="headerlink" href="#optional-configure-advanced-monitoring" title="Link to this heading"></a></h2>
 <p>Refer to the <a class="reference external" href="advanced-monitoring">advanced monitoring guide</a>.</p>
 </section>
 </section>
