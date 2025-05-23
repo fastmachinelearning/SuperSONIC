@@ -57,9 +57,14 @@ static_resources:
                       routes:
                         - match:
                             prefix: "/"
+                          typed_per_filter_config:
+                            envoy.filters.http.dynamic_forward_proxy:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig
+                              host_rewrite_header: "x-model-host"
                           route:
-                            cluster: triton_grpc_service
+                            cluster: dynamic_forward_proxy_cluster
                             timeout: {{ .envoy.grpc_route_timeout }}
+
                 http_filters:
                   {{- with .envoy.rate_limiter.prometheus_based }}
                   {{- if .enabled }}
@@ -94,6 +99,14 @@ static_resources:
                           provider_name: provider_icecube
                   {{- end }}
                   {{- end }}
+                  - name: envoy.filters.http.dynamic_forward_proxy
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig
+                      dns_cache_config:
+                        name: dynamic_cache
+                        dns_lookup_family: ALL
+                        dns_cache_circuit_breaker:
+                          max_pending_requests: 1024
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
@@ -176,6 +189,20 @@ static_resources:
                     socket_address:
                       address: {{ .tritonName }}
                       port_value: {{ .tritonGrpcPort }}
+    - name: dynamic_forward_proxy_cluster
+      connect_timeout: 2s
+      lb_policy: CLUSTER_PROVIDED
+      http2_protocol_options:
+        max_concurrent_streams: 1000
+      cluster_type:
+        name: envoy.clusters.dynamic_forward_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+          dns_cache_config:
+            name: dynamic_cache
+            dns_lookup_family: ALL
+            dns_cache_circuit_breaker:
+              max_pending_requests: 1024
 {{- end }}
 {{- end }}
 

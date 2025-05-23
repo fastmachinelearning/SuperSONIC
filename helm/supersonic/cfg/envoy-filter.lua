@@ -2,10 +2,6 @@ function envoy_on_request(request_handle)
     local path = request_handle:headers():get(":path")
     local contentType = request_handle:headers():get("content-type")
 
-    -- Any other request except model index
-    request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
-
-    -- Model index requested?
     if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then
         request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", false)
 
@@ -55,15 +51,62 @@ function envoy_on_request(request_handle)
             end
         else
             request_handle:logErr("Failed to parse metric value from Prometheus response.")
+            ---- Temporary ---- 
+            request_handle:logErr("Accepting request regardless of metric value.")
+            request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
+        end
+    end
+
+    ---- Extract model_name from ModelInferRequest ----
+    if contentType == "application/grpc" then
+        if path == "/inference.GRPCInferenceService/ModelInfer" then
+            -- grab entire request body (you may need to configure the filter to buffer bodies)
+            local body = request_handle:body():getBytes(0, request_handle:body():length())
+            if body and #body > 5 then
+                -- strip the 5-byte gRPC header (1-byte flag + 4-byte msg-len)
+                local msg = body:sub(6)
+
+                -- protobuf wire format for field 1, wire type 2: tag = 0x0A
+                if msg:byte(1) == 0x0A then
+                    -- next byte is a varint length (assumes <128 bytes)
+                    local name_len = msg:byte(2)
+                    -- extract UTF-8 model name
+                    local model_name = msg:sub(3, 2 + name_len)
+
+                    -- log and propagate via dynamic metadata
+                    request_handle:logInfo("ModelInfer model_name = " .. model_name)
+                    if model_name then
+                        local hostHeader = model_name .. ".cms.svc.cluster.local:8001"
+                        request_handle:logInfo("x-model-host = " .. hostHeader)
+                        request_handle:headers():add("x-model-host", hostHeader)
+                    end
+                    for k, v in pairs(request_handle:headers()) do
+                        request_handle:logInfo("Header " .. k .. ": " .. v)
+                    end
+                else
+                    request_handle:logErr("Unexpected protobuf tag: " .. string.format("0x%02X", msg:byte(1)))
+                end
+            end
+        else
+            --- for non-inference calls, for now just forward to default service
+            request_handle:headers():add("x-model-host", "supersonic-test-triton.cms.svc.cluster.local:8001")
         end
     end
 end
 
 function envoy_on_response(response_handle)
-    -- Send error back if request was not accepted
+    local md = response_handle:streamInfo():dynamicMetadata():get("envoy.lua")
+
+    if not md or md.accept_request == nil then
+      return
+    end
+
     if not response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["accept_request"] then
         response_handle:logInfo("Sending error as a response.")
-        response_handle:body():setBytes("")
+        local body = response_handle:body()
+        if body then
+          body:setBytes("")
+        end
         response_handle:headers():replace("grpc-status", "1")
     end
 end
