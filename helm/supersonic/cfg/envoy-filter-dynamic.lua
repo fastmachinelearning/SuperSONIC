@@ -77,8 +77,8 @@ function envoy_on_request(request_handle)
                     request_handle:logInfo("ModelInfer model_name = " .. model_name)
                     if model_name then
                         local hostHeader = model_name .. ".cms.svc.cluster.local:8001"
-                        request_handle:logInfo("x-model-host = " .. hostHeader)
-                        request_handle:headers():add("x-model-host", hostHeader)
+                        request_handle:logInfo("route-to = " .. hostHeader)
+                        request_handle:headers():add("route-to", hostHeader)
                     end
                     for k, v in pairs(request_handle:headers()) do
                         request_handle:logInfo("Header " .. k .. ": " .. v)
@@ -89,7 +89,7 @@ function envoy_on_request(request_handle)
             end
         else
             --- for non-inference calls, for now just forward to default service
-            request_handle:headers():add("x-model-host", "supersonic-test-triton.cms.svc.cluster.local:8001")
+            request_handle:headers():add("route-to", "supersonic-test-triton.cms.svc.cluster.local:8001")
         end
     end
 end

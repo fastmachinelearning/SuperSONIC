@@ -61,7 +61,7 @@ static_resources:
                           typed_per_filter_config:
                             envoy.filters.http.dynamic_forward_proxy:
                               "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig
-                              host_rewrite_header: "x-model-host"
+                              host_rewrite_header: "route-to"
                           route:
                             cluster: dynamic_forward_proxy_cluster
                             timeout: {{ .envoy.grpc_route_timeout }}
