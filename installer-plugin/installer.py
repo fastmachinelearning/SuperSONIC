@@ -106,8 +106,7 @@ def main() -> None:
             repo_commands.append(["helm", "repo", "add", "grafana", "https://grafana.github.io/helm-charts"])
         if merged_values.get("opentelemetry-collector", {}).get("enabled", False):
             repo_commands.append(["helm", "repo", "add", "opentelemetry", "https://open-telemetry.github.io/opentelemetry-helm-charts"])
-        if args.local:
-            repo_commands.append(["helm", "dependency", "build", chart_source])
+        repo_commands.append(["helm", "dependency", "build", chart_source])
 
         for cmd in repo_commands:
             logger.info(f"\nExecuting: {' '.join(cmd)}")
