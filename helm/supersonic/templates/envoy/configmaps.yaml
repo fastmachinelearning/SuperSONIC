@@ -282,6 +282,8 @@ data:
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" (include "supersonic.prometheusScheme" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_HOST" (include "supersonic.prometheusHost" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
+    {{- $luaConfig = $luaConfig | replace "RELEASE" .Release.Name }}
+    {{- $luaConfig = $luaConfig | replace "NAMESPACE" .Release.Namespace }}
     {{ $luaConfig | indent 4 }}
 
 ---
