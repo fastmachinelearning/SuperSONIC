@@ -22,10 +22,10 @@ function envoy_on_request(request_handle)
                     local model_name = msg:sub(3, 2 + name_len)
 
                     -- log and propagate via dynamic metadata
-                    request_handle:logInfo("ModelInfer model_name = " .. model_name)
+                    request_handle:logWarn("ModelInfer model_name = " .. model_name)
                     if model_name then
                         local hostHeader = model_name .. ".NAMESPACE.svc.cluster.local:8001"
-                        request_handle:logInfo("route-to = " .. hostHeader)
+                        request_handle:logWarn("route-to = " .. hostHeader)
                         -- add header
                         request_handle:headers():add("route-to", hostHeader)
                     end
