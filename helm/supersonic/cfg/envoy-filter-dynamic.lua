@@ -13,21 +13,34 @@ function envoy_on_request(request_handle)
 
                 -- protobuf wire format for field 1, wire type 2: tag = 0x0A
                 -- field 1 is the model name - we know it from here:
-                -- https://github.com/kserve/open-inference-protocol/blob/main/specification/protocol/inference_grpc.md#inference
                 -- wire type 2 means that the field is length-delimited
                 if msg:byte(1) == 0x0A then
                     -- next byte is a varint length (assumes <128 bytes)
                     local name_len = msg:byte(2)
                     -- extract UTF-8 model name
                     local model_name = msg:sub(3, 2 + name_len)
+                    local offset = 3 + name_len
+
+                    -- Extract model version (field 2, wire type 2, tag 0x12)
+                    local model_version = ""
+                    if msg:byte(offset) == 0x12 then
+                        local ver_len = msg:byte(offset + 1)
+                        model_version = msg:sub(offset + 2, offset + 1 + ver_len)
+                        -- request_handle:logInfo("ModelInfer model_version = " .. model_version)
+                        offset = offset + 2 + ver_len
+                    else
+                        request_handle:logWarn(string.format("No model_version field (expected tag 0x12 at offset %d, got 0x%02X)", 
+                            offset, msg:byte(offset)))
+                    end
 
                     -- log and propagate via dynamic metadata
-                    request_handle:logInfo("ModelInfer model_name = " .. model_name)
+                    -- request_handle:logInfo("ModelInfer model_name = " .. model_name)
                     if model_name then
-                        local hostHeader = model_name .. ".NAMESPACE.svc.cluster.local:8001"
-                        request_handle:logInfo("route-to = " .. hostHeader)
+                        local svc_name = "RELEASE-" .. model_name .. "-v" .. model_version
+                        local header_value = svc_name .. ".NAMESPACE.svc.cluster.local:8001"
+                        -- request_handle:logInfo("route-to = " .. header_value)
                         -- add header
-                        request_handle:headers():add("route-to", hostHeader)
+                        request_handle:headers():add("route-to", header_value)
                     end
                     -- for k, v in pairs(request_handle:headers()) do
                     --     request_handle:logInfo("Header " .. k .. ": " .. v)
