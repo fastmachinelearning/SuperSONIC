@@ -12,6 +12,9 @@ function envoy_on_request(request_handle)
                 local msg = body:sub(6)
 
                 -- protobuf wire format for field 1, wire type 2: tag = 0x0A
+                -- field 1 is the model name - we know it from here:
+                -- https://github.com/kserve/open-inference-protocol/blob/main/specification/protocol/inference_grpc.md#inference
+                -- wire type 2 means that the field is length-delimited
                 if msg:byte(1) == 0x0A then
                     -- next byte is a varint length (assumes <128 bytes)
                     local name_len = msg:byte(2)
@@ -23,11 +26,12 @@ function envoy_on_request(request_handle)
                     if model_name then
                         local hostHeader = model_name .. ".NAMESPACE.svc.cluster.local:8001"
                         request_handle:logInfo("route-to = " .. hostHeader)
+                        -- add header
                         request_handle:headers():add("route-to", hostHeader)
                     end
-                    for k, v in pairs(request_handle:headers()) do
-                        request_handle:logInfo("Header " .. k .. ": " .. v)
-                    end
+                    -- for k, v in pairs(request_handle:headers()) do
+                    --     request_handle:logInfo("Header " .. k .. ": " .. v)
+                    -- end
                 else
                     request_handle:logErr("Unexpected protobuf tag: " .. string.format("0x%02X", msg:byte(1)))
                 end
