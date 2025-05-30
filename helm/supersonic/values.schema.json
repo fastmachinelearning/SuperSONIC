@@ -370,14 +370,10 @@
               "properties": {
                 "enabled": {
                   "type": "boolean"
-                },
-                "luaConfig": {
-                  "type": "string"
                 }
               },
               "required": [
-                "enabled",
-                "luaConfig"
+                "enabled"
               ]
             }
           },
@@ -388,6 +384,21 @@
         },
         "loadBalancerPolicy": {
           "type": "string"
+        },
+        "lua_filter": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "lua_config": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "lua_config"
+          ]
         },
         "dynamic_routing": {
           "type": "object",
@@ -441,6 +452,7 @@
         "image",
         "ingress",
         "loadBalancerPolicy",
+        "lua_filter",
         "rate_limiter",
         "replicas",
         "resources",
