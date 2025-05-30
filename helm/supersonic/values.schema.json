@@ -389,6 +389,17 @@
         "loadBalancerPolicy": {
           "type": "string"
         },
+        "dynamic_routing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
         "auth": {
           "type": "object",
           "properties": {
@@ -424,6 +435,7 @@
       "required": [
         "args",
         "auth",
+        "dynamic_routing",
         "enabled",
         "grpc_route_timeout",
         "image",
