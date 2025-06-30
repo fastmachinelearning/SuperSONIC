@@ -6,11 +6,11 @@ Get default scaling metric
   {{- printf "%s" .Values.serverLoadMetric -}}
 {{- else }}
 sum by (release) (
-    rate(nv_inference_queue_duration_us{release=~"{{ include "supersonic.name" . }}"}[15s])
+    rate(nv_inference_queue_duration_us{release=~"{{ include "supersonic.name" . }}"}[30s])
 )
   /
 sum by (release) (
-    (rate(nv_inference_exec_count{release=~"{{ include "supersonic.name" . }}"}[15s]) * 1000) + 0.001
+    (rate(nv_inference_exec_count{release=~"{{ include "supersonic.name" . }}"}[30s]) * 1000) + 0.001
 )
 {{- end }}
 {{- end }}
