@@ -18,6 +18,12 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
+  nodeSelector: {'cms-af-prod': 'true'}
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
   service:
     labels:
       scrape_metrics: "true"
@@ -30,6 +36,12 @@ triton:
 
 envoy:
   enabled: true
+  nodeSelector: {'cms-af-prod': 'true'}
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
   loadBalancerPolicy: "ROUND_ROBIN"
   service:
     type: LoadBalancer
@@ -45,14 +57,6 @@ autoscaler:
 
 ingress:
   enabled: false
-
-nodeSelector: {'cms-af-prod': 'true'}
-
-tolerations:
-  - key: hub.jupyter.org/dedicated
-    operator: Equal
-    value: cms-af
-    effect: NoSchedule
 
 prometheus:
   enabled: true
