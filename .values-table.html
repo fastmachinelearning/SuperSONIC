@@ -128,80 +128,110 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;},&quot;requests&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;}}</span></code></p></td>
 <td><p>Resource limits and requests for each Triton instance. You can add necessary GPU request here.</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.affinity</p></td>
+<tr class="row-even"><td><p>triton.annotations</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>Annotations for Triton pods</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton.nodeSelector</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>Node selector for Triton pods</p></td>
+</tr>
+<tr class="row-even"><td><p>triton.tolerations</p></td>
+<td><p>list</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>Tolerations for Triton pods</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton.affinity</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Affinity rules for Triton pods - another way to request GPUs</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.modelRepository</p></td>
+<tr class="row-even"><td><p>triton.modelRepository</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;mountPath&quot;:&quot;&quot;}</span></code></p></td>
 <td><p>Model repository configuration</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.modelRepository.mountPath</p></td>
+<tr class="row-odd"><td><p>triton.modelRepository.mountPath</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p>Model repository mount path</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.service.labels</p></td>
+<tr class="row-even"><td><p>triton.service.labels</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>triton.service.annotations</p></td>
+<tr class="row-odd"><td><p>triton.service.annotations</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.service.ports</p></td>
+<tr class="row-even"><td><p>triton.service.ports</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[{&quot;name&quot;:&quot;http&quot;,&quot;port&quot;:8000,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8000},{&quot;name&quot;:&quot;grpc&quot;,&quot;port&quot;:8001,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8001},{&quot;name&quot;:&quot;metrics&quot;,&quot;port&quot;:8002,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8002}]</span></code></p></td>
 <td><p>Ports for communication with Triton servers</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.readinessProbe</p></td>
+<tr class="row-odd"><td><p>triton.readinessProbe</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;command&quot;:[&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;curl</span> <span class="pre">-sf</span> <span class="pre">http://localhost:8000/v2/health/ready</span> <span class="pre">&gt;</span> <span class="pre">/dev/null</span> <span class="pre">&amp;&amp;</span> <span class="pre">[</span> <span class="pre">!</span> <span class="pre">-f</span> <span class="pre">/tmp/shutdown</span> <span class="pre">]&quot;],&quot;failureThreshold&quot;:10,&quot;initialDelaySeconds&quot;:10,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false,&quot;successThreshold&quot;:1,&quot;timeoutSeconds&quot;:5}</span></code></p></td>
 <td><p>Custom readiness probe configuration</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.readinessProbe.reset</p></td>
+<tr class="row-even"><td><p>triton.readinessProbe.reset</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.startupProbe</p></td>
+<tr class="row-odd"><td><p>triton.startupProbe</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;failureThreshold&quot;:12,&quot;httpGet&quot;:{&quot;path&quot;:&quot;/v2/health/ready&quot;,&quot;port&quot;:&quot;http&quot;},&quot;initialDelaySeconds&quot;:0,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false}</span></code></p></td>
 <td><p>Custom startup probe configuration</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.startupProbe.reset</p></td>
+<tr class="row-even"><td><p>triton.startupProbe.reset</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.enabled</p></td>
+<tr class="row-odd"><td><p>envoy.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p>Enable Envoy Proxy</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.replicas</p></td>
+<tr class="row-even"><td><p>envoy.replicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p>Number of Envoy Proxy pods in Deployment</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.image</p></td>
+<tr class="row-odd"><td><p>envoy.image</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.30.9&quot;</span></code></p></td>
 <td><p>Envoy Proxy Docker image</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.args</p></td>
+<tr class="row-even"><td><p>envoy.args</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[&quot;--config-path&quot;,&quot;/etc/envoy/envoy.yaml&quot;,&quot;--log-level&quot;,&quot;info&quot;,&quot;--log-path&quot;,&quot;/dev/stdout&quot;]</span></code></p></td>
 <td><p>Arguments for Envoy</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.resources</p></td>
+<tr class="row-odd"><td><p>envoy.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:8,&quot;memory&quot;:&quot;4G&quot;},&quot;requests&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;}}</span></code></p></td>
 <td><p>Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU</p></td>
+</tr>
+<tr class="row-even"><td><p>envoy.annotations</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>Annotations for Envoy pods</p></td>
+</tr>
+<tr class="row-odd"><td><p>envoy.nodeSelector</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>Node selector for Envoy pods</p></td>
+</tr>
+<tr class="row-even"><td><p>envoy.tolerations</p></td>
+<td><p>list</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>Tolerations for Envoy pods</p></td>
 </tr>
 <tr class="row-odd"><td><p>envoy.service.type</p></td>
 <td><p>string</p></td>
@@ -347,16 +377,6 @@
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
-</tr>
-<tr class="row-even"><td><p>nodeSelector</p></td>
-<td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
-<td><p>Node selector for all pods (Triton and Envoy)</p></td>
-</tr>
-<tr class="row-odd"><td><p>tolerations</p></td>
-<td><p>list</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
-<td><p>Tolerations for all pods (Triton and Envoy)</p></td>
 </tr>
 <tr class="row-even"><td><p>prometheus.external.enabled</p></td>
 <td><p>bool</p></td>
