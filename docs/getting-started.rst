@@ -23,7 +23,7 @@ Installation
 
       .. code:: shell
 
-         helm repo add fastml https://github.com/fastmachinelearning/SuperSONIC/
+         helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
          helm repo update
 
    3. Modify the following command to install the chart at your cluster:
