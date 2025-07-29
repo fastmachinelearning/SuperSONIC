@@ -43,11 +43,20 @@ jobs:
           kubectl create namespace keda
           helm install keda kedacore/keda --namespace keda  
 
-      - name: Install SuperSONIC from remote repo via plugin
+      - name: Test installation of SuperSONIC from remote repo via plugin
         run: |
           helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
           helm repo update
           helm install supersonic fastml/supersonic -n test-ns -f values/values-cms-ci.yaml
+          helm uninstall supersonic -n test-ns
+
+      - name: Test installation of SuperSONIC from GitHub
+        run: |
+          git clone https://github.com/fastmachinelearning/SuperSONIC.git
+          cd SuperSONIC
+          helm dependency build helm/supersonic
+          helm install supersonic helm/supersonic -n test-ns -f values/values-cms-ci.yaml
+          helm uninstall supersonic -n test-ns
 
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster 
