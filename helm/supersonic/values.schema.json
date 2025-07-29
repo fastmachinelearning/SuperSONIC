@@ -459,8 +459,8 @@
         "replicas",
         "resources",
         "service",
-        "tracing_sampling_rate",
-        "tolerations"
+        "tolerations",
+        "tracing_sampling_rate"
       ]
     },
     "autoscaler": {
