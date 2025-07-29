@@ -84,8 +84,8 @@ jobs:
 
       - name: Autoscaler ready
         run: |
-          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
-          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
+          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
 
       - name: Triton server ready
         run: |
