@@ -37,7 +37,7 @@ Scaling threshold: {{ include "supersonic.defaultThreshold" . }}
 |
 | Prometheus UI:           {{ include "supersonic.prometheusDisplayUrl" . }}
 {{- end }}
-{{- if or .Values.grafana.enabled (include "supersonic.grafanaExists" .) }}
+{{- if .Values.grafana.enabled }}
 |
 | Grafana dashboard:       {{ include "supersonic.grafanaDisplayUrl" . }}
 {{- end }}
