@@ -19,41 +19,18 @@ Installation
       - `Configuration reference <configuration-reference>`_
       - `Example values.yaml files <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_
 
-   2. Install Helm plugin to handle SuperSONIC installation
+   2. Install Helm repository
 
       .. code:: shell
 
-         helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
-
-
-      The Helm plugin is needed to ensure internal connectivity of the SuperSONIC
-      components. Standard Helm installation without a plugin is also supported,
-      but requires a lot more manual configuration.
+         helm repo add fastml https://github.com/fastmachinelearning/SuperSONIC/
+         helm repo update
 
    3. Modify the following command to install the chart at your cluster:
 
       .. code:: shell
 
-         helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
-
-      Installer plugin usage:
-
-      .. code:: shell
-
-         Usage:
-           helm install-supersonic [RELEASE_NAME] [flags]
-
-         Flags:
-         -h, --help              Show this help message
-         -f, --values            Specify values file for custom configuration
-         -n, --namespace         Specify Kubernetes namespace for deployment
-         --version               Specify chart version (default: latest version)
-                                 Note: Ignored if --local flag is set
-         --local                 Install from local chart path instead of remote repository
-         --path                  Local chart path (default: ./helm/supersonic)
-                                 Only used when --local flag is set
-         Additional flags will be passed directly to the 'helm install' command
-
+         helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 
       Use a unique meaningful lowercase value as <release-name>, for example
       ``supersonic-cms-run3``.

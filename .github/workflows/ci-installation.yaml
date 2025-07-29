@@ -1,4 +1,4 @@
-name: ci [installer plugin]
+name: ci [installation]
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - "main"
 
 jobs:
-  test-installer-plugin:
+  test-installation:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -25,9 +25,9 @@ jobs:
         with:
           version: v3.12.0
 
-      - name: Create CMS namespace
+      - name: Create test namespace
         run: |
-          kubectl create namespace cms
+          kubectl create namespace test-ns
 
       - name: Install Prometheus Operator CRDs
         run: |
@@ -36,7 +36,7 @@ jobs:
           kubectl create namespace monitoring
           helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
 
-      - name: Install KEDA Autoscaler
+      - name: Install KEDA Autoscaler CRDs
         run: |
           helm repo add kedacore https://kedacore.github.io/charts
           helm repo update
@@ -45,8 +45,9 @@ jobs:
 
       - name: Install SuperSONIC from remote repo via plugin
         run: |
-          helm plugin install .
-          helm install-supersonic supersonic --local --values values/values-cms-ci.yaml -n cms
+          helm repo add fastml https://github.com/fastmachinelearning/SuperSONIC/
+          helm repo update
+          helm install supersonic fastml/supersonic -n test-ns -f values/values-cms-ci.yaml
 
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster 
