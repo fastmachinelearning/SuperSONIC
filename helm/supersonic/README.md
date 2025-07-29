@@ -45,6 +45,7 @@ The full list of configuration parameters is available in the [Configuration ref
 
 <details>
 <summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
+
 ```
 git clone https://github.com/fastmachinelearning/SuperSONIC.git
 cd SuperSONIC
@@ -52,6 +53,7 @@ git checkout <branch-or-commit>
 helm dependency build helm/supersonic
 helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 ```
+
 </details>
 
 ## Server diagram
