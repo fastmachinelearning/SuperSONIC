@@ -44,7 +44,14 @@ To construct the `values.yaml` file for your application, follow [Configuration 
 The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
 
 <details>
-<summary><strong>Install from GitHub branch/tag/commit</strong></summary>
+<summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
+```
+git clone https://github.com/fastmachinelearning/SuperSONIC.git
+cd SuperSONIC
+git checkout <branch-or-commit>
+helm dependency build helm/supersonic
+helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
+```
 </details>
 
 ## Server diagram
