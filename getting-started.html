@@ -109,32 +109,14 @@
 <li><p><a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">Example values.yaml files</a></p></li>
 </ul>
 </li>
-<li><p>Install Helm plugin to handle SuperSONIC installation</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>plugin<span class="w"> </span>install<span class="w"> </span>https://github.com/fastmachinelearning/SuperSONIC/
+<li><p>Install Helm repository</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>fastml<span class="w"> </span>https://fastmachinelearning.org/SuperSONIC/
+helm<span class="w"> </span>repo<span class="w"> </span>update
 </pre></div>
 </div>
-<p>The Helm plugin is needed to ensure internal connectivity of the SuperSONIC
-components. Standard Helm installation without a plugin is also supported,
-but requires a lot more manual configuration.</p>
 </li>
 <li><p>Modify the following command to install the chart at your cluster:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>install-supersonic<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>-f<span class="w"> </span>&lt;your-values.yaml&gt;
-</pre></div>
-</div>
-<p>Installer plugin usage:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Usage:
-<span class="w">  </span>helm<span class="w"> </span>install-supersonic<span class="w"> </span><span class="o">[</span>RELEASE_NAME<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
-
-Flags:
--h,<span class="w"> </span>--help<span class="w">              </span>Show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message
--f,<span class="w"> </span>--values<span class="w">            </span>Specify<span class="w"> </span>values<span class="w"> </span>file<span class="w"> </span><span class="k">for</span><span class="w"> </span>custom<span class="w"> </span>configuration
--n,<span class="w"> </span>--namespace<span class="w">         </span>Specify<span class="w"> </span>Kubernetes<span class="w"> </span>namespace<span class="w"> </span><span class="k">for</span><span class="w"> </span>deployment
---version<span class="w">               </span>Specify<span class="w"> </span>chart<span class="w"> </span>version<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>latest<span class="w"> </span>version<span class="o">)</span>
-<span class="w">                        </span>Note:<span class="w"> </span>Ignored<span class="w"> </span><span class="k">if</span><span class="w"> </span>--local<span class="w"> </span>flag<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span>
---local<span class="w">                 </span>Install<span class="w"> </span>from<span class="w"> </span><span class="nb">local</span><span class="w"> </span>chart<span class="w"> </span>path<span class="w"> </span>instead<span class="w"> </span>of<span class="w"> </span>remote<span class="w"> </span>repository
---path<span class="w">                  </span>Local<span class="w"> </span>chart<span class="w"> </span>path<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>./helm/supersonic<span class="o">)</span>
-<span class="w">                        </span>Only<span class="w"> </span>used<span class="w"> </span>when<span class="w"> </span>--local<span class="w"> </span>flag<span class="w"> </span>is<span class="w"> </span><span class="nb">set</span>
-Additional<span class="w"> </span>flags<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>passed<span class="w"> </span>directly<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span><span class="s1">&#39;helm install&#39;</span><span class="w"> </span><span class="nb">command</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>install<span class="w"> </span>&lt;release-name&gt;<span class="w"> </span>fastml/supersonic<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>-f<span class="w"> </span>&lt;your-values.yaml&gt;
 </pre></div>
 </div>
 <p>Use a unique meaningful lowercase value as &lt;release-name&gt;, for example
