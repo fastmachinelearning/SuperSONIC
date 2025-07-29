@@ -2,7 +2,6 @@
 {{- /* Run validation checks */ -}}
 {{- include "supersonic.validateGrafanaAddressConsistency" . -}}
 {{- include "supersonic.validateGrafanaValues" . -}}
-{{- include "supersonic.validatePrometheus" . -}}
 {{- include "supersonic.validatePrometheusAddressConsistency" . -}}
 {{- include "supersonic.validatePrometheusValues" . -}}
 
