@@ -71,6 +71,15 @@
             "requests"
           ]
         },
+        "annotations": {
+          "type": "object"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array"
+        },
         "affinity": {
           "type": "object"
         },
@@ -211,15 +220,18 @@
       },
       "required": [
         "affinity",
+        "annotations",
         "args",
         "command",
         "image",
         "modelRepository",
+        "nodeSelector",
         "readinessProbe",
         "replicas",
         "resources",
         "service",
-        "startupProbe"
+        "startupProbe",
+        "tolerations"
       ]
     },
     "envoy": {
@@ -278,6 +290,15 @@
             "limits",
             "requests"
           ]
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array"
         },
         "service": {
           "type": "object",
@@ -425,6 +446,7 @@
         }
       },
       "required": [
+        "annotations",
         "args",
         "auth",
         "enabled",
@@ -432,10 +454,12 @@
         "image",
         "ingress",
         "loadBalancerPolicy",
+        "nodeSelector",
         "rate_limiter",
         "replicas",
         "resources",
         "service",
+        "tolerations",
         "tracing_sampling_rate"
       ]
     },
@@ -501,12 +525,6 @@
         "scaleUp",
         "zeroIdleReplicas"
       ]
-    },
-    "nodeSelector": {
-      "type": "object"
-    },
-    "tolerations": {
-      "type": "array"
     },
     "prometheus": {
       "type": "object",
@@ -1942,13 +1960,11 @@
     "grafana",
     "metricsCollector",
     "nameOverride",
-    "nodeSelector",
     "opentelemetry-collector",
     "prometheus",
     "serverLoadMetric",
     "serverLoadThreshold",
     "tempo",
-    "tolerations",
     "triton"
   ]
 }

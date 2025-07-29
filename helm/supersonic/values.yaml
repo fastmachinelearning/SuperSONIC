@@ -42,7 +42,16 @@ triton:
     requests:
       cpu: 1
       memory: "2G"
-  
+
+  # -- Annotations for Triton pods
+  annotations: {}
+
+  # -- Node selector for Triton pods
+  nodeSelector: {}
+
+  # -- Tolerations for Triton pods
+  tolerations: []
+
   # -- Affinity rules for Triton pods - another way to request GPUs
   affinity: {}
 
@@ -125,6 +134,16 @@ envoy:
     limits:
       cpu: 8.0
       memory: "4G"
+
+  # -- Annotations for Envoy pods
+  annotations: {}
+
+  # -- Node selector for Envoy pods
+  nodeSelector: {}
+
+  # -- Tolerations for Envoy pods
+  tolerations: []
+
   service:
     # -- This is the client-facing endpoint. In order to be able to connect to it,
     # either enable ingress, or use type: LoadBalancer.
@@ -205,12 +224,6 @@ autoscaler:
     stabilizationWindowSeconds: 600
     periodSeconds: 120
     stepsize: 1
-
-# -- Node selector for all pods (Triton and Envoy)
-nodeSelector: {}
-
-# -- Tolerations for all pods (Triton and Envoy)
-tolerations: []
 
 prometheus:
   external:
