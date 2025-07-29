@@ -32,7 +32,7 @@ The main components of SuperSONIC are:
 ## Installation
 
 ```
-helm repo add fastml https://github.com/fastmachinelearning/SuperSONIC/
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
 helm repo update
 helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 ```
