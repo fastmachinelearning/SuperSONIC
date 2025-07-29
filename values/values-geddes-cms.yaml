@@ -121,6 +121,17 @@ grafana:
 
 opentelemetry-collector:
   enabled: true
-
+  config:
+    exporters:
+      otlp:
+        endpoint: http://sonic-server-tempo:4317
+      otlphttp: 
+        endpoint: http://sonic-server-tempo:4318
+      prometheusremotewrite:
+        endpoint: http://sonic-server-prometheus-server:9090/api/v1/write
 tempo:
   enabled: true
+  tempo:
+    metricsGenerator:
+      enabled: true
+      remoteWriteUrl: http://sonic-server-prometheus-server:9090/api/v1/write
