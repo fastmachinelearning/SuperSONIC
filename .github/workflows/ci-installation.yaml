@@ -47,7 +47,7 @@ jobs:
         run: |
           helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
           helm repo update
-          helm install supersonic fastml/supersonic -n test-ns -f values/values-cms-ci.yaml
+          helm install supersonic fastml/supersonic -n test-ns -f values/values-minimal.yaml
           helm uninstall supersonic -n test-ns
 
       - name: Test installation of SuperSONIC from GitHub
@@ -62,7 +62,7 @@ jobs:
           git clone https://github.com/fastmachinelearning/SuperSONIC.git
           cd SuperSONIC
           helm dependency build helm/supersonic
-          helm install supersonic helm/supersonic -n test-ns -f values/values-cms-ci.yaml
+          helm install supersonic helm/supersonic -n test-ns -f values/values-minimal.yaml
           helm uninstall supersonic -n test-ns
 
       - name: Cleanup
