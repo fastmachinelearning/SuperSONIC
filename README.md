@@ -31,36 +31,27 @@ The main components of SuperSONIC are:
 
 ## Installation
 
-The installation is done via a custom Helm plugin which takes care of
-internal connectivity of the chart components. Standard Helm installation
-is also supported, but requires a lot more manual configuration.
+### Install from Helm repository
 
 ```
-helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
-helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
-```
-
-Installer plugin usage:
-```
-Usage:
-  helm install-supersonic [RELEASE_NAME] [flags]
-
-Flags:
-  -h, --help              Show this help message
-  -f, --values            Specify values file for custom configuration
-  -n, --namespace         Specify Kubernetes namespace for deployment
-  --version               Specify chart version (default: latest version)
-                          Note: Ignored if --local flag is set
-  --local                 Install from local chart path instead of remote repository
-  --path                  Local chart path (default: ./helm/supersonic)
-                          Only used when --local flag is set
-Additional flags will be passed directly to the 'helm install' command
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+helm repo update
+helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 ```
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
 
 The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
 
+### Install from GitHub 
+
+```
+git clone https://github.com/fastmachinelearning/SuperSONIC.git
+cd SuperSONIC
+git checkout <branch-or-commit>
+helm dependency build helm/supersonic
+helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
+```
 
 ## Server diagram
 
@@ -82,4 +73,4 @@ The full list of configuration parameters is available in the [Configuration ref
 | **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
 | **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
 | **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
-| **UChicago**    |  -  |  ✅ |   -   |
+| **[UChicago](https://af.uchicago.edu/)**    |  -  |  ✅ |   -   |
