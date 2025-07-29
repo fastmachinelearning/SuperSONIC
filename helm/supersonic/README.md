@@ -31,6 +31,8 @@ The main components of SuperSONIC are:
 
 ## Installation
 
+### Install from Helm repository
+
 ```
 helm repo add fastml https://fastmachinelearning.org/SuperSONIC
 helm repo update
@@ -46,6 +48,7 @@ The full list of configuration parameters is available in the [Configuration ref
 ```
 git clone https://github.com/fastmachinelearning/SuperSONIC.git
 cd SuperSONIC
+git checkout <branch-or-commit>
 helm dependency build helm/supersonic
 helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 ```
