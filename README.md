@@ -62,25 +62,11 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 
 ## Publications
 
-```bibtex
-@inproceedings{10.1145/3708035.3736049,
-author = {Kondratyev, Dmitry and Riedel, Benedikt and Chou, Yuan-Tang and Cochran-Branson, Miles and Paladino, Noah and Schultz, David and Liu, Mia and Duarte, Javier and Harris, Philip and Hsu, Shih-Chieh},
-title = {SuperSONIC: Cloud-Native Infrastructure for ML Inferencing},
-year = {2025},
-isbn = {9798400713989},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3708035.3736049},
-doi = {10.1145/3708035.3736049},
-booktitle = {Practice and Experience in Advanced Research Computing 2025: The Power of Collaboration},
-articleno = {29},
-numpages = {5},
-keywords = {heterogeneous computing, machine learning, inference as a service},
-location = {
-},
-series = {PEARC '25}
-}
-```
+> Dmitry Kondratyev, Benedikt Riedel, Yuan-Tang Chou, Miles Cochran-Branson, Noah Paladino, David Schultz, Mia Liu, Javier Duarte, Philip Harris, and Shih-Chieh Hsu  
+> **SuperSONIC: Cloud-Native Infrastructure for ML Inferencing**  
+> *In Practice and Experience in Advanced Research Computing 2025: The Power of Collaboration (PEARC '25)*  
+> Association for Computing Machinery, New York, NY, USA. Article 29, 1–5. 2025.  
+> [https://doi.org/10.1145/3708035.3736049](https://doi.org/10.1145/3708035.3736049)
 
 ## Status of deployment
 
