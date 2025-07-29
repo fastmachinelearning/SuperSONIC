@@ -60,11 +60,13 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
   <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram-dark.svg#gh-dark-mode-only" alt="diagram-dark" width="700"/>
 </p>
 
-## Grafana dashboard
+## Publications
 
-<p align="center">
-  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/grafana.png" alt="grafana" width="700"/>
-</p>
+> Dmitry Kondratyev, Benedikt Riedel, Yuan-Tang Chou, Miles Cochran-Branson, Noah Paladino, David Schultz, Mia Liu, Javier Duarte, Philip Harris, and Shih-Chieh Hsu  
+> **SuperSONIC: Cloud-Native Infrastructure for ML Inferencing**  
+> *In Practice and Experience in Advanced Research Computing 2025: The Power of Collaboration (PEARC '25)*  
+> Association for Computing Machinery, New York, NY, USA. Article 29, 1–5. 2025.  
+> [https://doi.org/10.1145/3708035.3736049](https://doi.org/10.1145/3708035.3736049)
 
 ## Status of deployment
 
