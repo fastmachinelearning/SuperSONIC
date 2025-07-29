@@ -1,4 +1,5 @@
-serverLoadThreshold: 100
+serverLoadThreshold: 20
+serverLoadMetric: 'sum by (release) (rate(nv_inference_queue_duration_us{release=~"sonic-server"}[30s]) / (rate(nv_inference_exec_count{release=~"sonic-server"}[30s]) * 1000 + 0.001))'
 
 triton: 
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
@@ -15,6 +16,12 @@ triton:
       --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60
+    # --trace-config mode=opentelemetry
+    # --trace-config=opentelemetry,resource=pod_name=$(hostname)
+    # --trace-config opentelemetry,url=supersonic-opentelemetry-collector:4318/v1/traces
+    # --trace-config rate=0.0001
+    # --trace-config level=TIMESTAMPS
+    # --trace-config count=-1
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
@@ -57,14 +64,63 @@ tolerations:
 prometheus:
   enabled: true
   server:
+    useExistingClusterRoleName: supersonic-prometheus-role
     ingress:
       enabled: true
-      hostName: prometheus-cms.geddes.rcac.purdue.edu
+      hosts:
+        - prometheus-cms.geddes.rcac.purdue.edu
+      tls:
+        - hosts:
+            - prometheus-cms.geddes.rcac.purdue.edu
       ingressClassName: public
+  serviceAccounts:
+    server:
+      name: supersonic-prometheus-sa
 
 grafana:
   enabled: true
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: http://supersonic-prometheus-server:9090
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+        - name: tempo
+          type: tempo
+          url: http://supersonic-tempo:3100
+          access: proxy
+          isDefault: false
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+            serviceMap:
+              datasourceUid: 'prometheus'
+            nodeGraph:
+              enabled: true
   ingress:
-    enabled: true
-    hostName: grafana-cms.geddes.rcac.purdue.edu
+    hosts:
+      - grafana-cms.geddes.rcac.purdue.edu
+    tls:
+      - hosts:
+          - grafana-cms.geddes.rcac.purdue.edu
     ingressClassName: public
+  grafana.ini:
+    server:
+      root_url: https://grafana-cms.geddes.rcac.purdue.edu
+  serviceAccounts:
+    grafana:
+      name: supersonic-grafana-sa
+
+opentelemetry-collector:
+  enabled: true
+
+tempo:
+  enabled: true
