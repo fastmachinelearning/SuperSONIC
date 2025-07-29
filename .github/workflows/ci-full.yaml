@@ -1,4 +1,4 @@
-name: ci [CMS]
+name: ci [full]
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
-            --values values/values-cms-ci.yaml -n cms
+            --values values/values-minimal-full.yaml -n cms
 
       - name: CVMFS Mount ready
         run: |
