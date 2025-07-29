@@ -59,8 +59,6 @@ jobs:
           helm repo update
 
           # Install SuperSONIC
-          git clone https://github.com/fastmachinelearning/SuperSONIC.git
-          cd SuperSONIC
           helm dependency build helm/supersonic
           helm install supersonic helm/supersonic -n test-ns -f values/values-minimal.yaml
           helm uninstall supersonic -n test-ns
