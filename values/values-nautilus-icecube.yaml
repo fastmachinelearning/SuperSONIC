@@ -87,11 +87,31 @@ prometheus:
 
 grafana:
   enabled: true
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: prometheus.nrp-nautilus.io
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
   ingress:
     enabled: true
-    hostName: grafana-icecube.nrp-nautilus.io
+    hosts:
+      - grafana-icecube.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-icecube.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
       haproxy-ingress.github.io/backend-protocol: "h2"
       haproxy-ingress.github.io/proxy-body-size: "512m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-icecube.nrp-nautilus.io

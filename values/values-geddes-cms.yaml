@@ -106,6 +106,7 @@ grafana:
             nodeGraph:
               enabled: true
   ingress:
+    enabled: true
     hosts:
       - grafana-cms.geddes.rcac.purdue.edu
     tls:
@@ -115,9 +116,6 @@ grafana:
   grafana.ini:
     server:
       root_url: https://grafana-cms.geddes.rcac.purdue.edu
-  serviceAccounts:
-    grafana:
-      name: sonic-server-grafana-sa
 
 opentelemetry-collector:
   enabled: true
