@@ -18,7 +18,7 @@ triton:
       --exit-timeout-secs=60
     # --trace-config mode=opentelemetry
     # --trace-config=opentelemetry,resource=pod_name=$(hostname)
-    # --trace-config opentelemetry,url=supersonic-opentelemetry-collector:4318/v1/traces
+    # --trace-config opentelemetry,url=sonic-server-opentelemetry-collector:4318/v1/traces
     # --trace-config rate=0.0001
     # --trace-config level=TIMESTAMPS
     # --trace-config count=-1
@@ -64,7 +64,7 @@ tolerations:
 prometheus:
   enabled: true
   server:
-    useExistingClusterRoleName: supersonic-prometheus-role
+    useExistingClusterRoleName: sonic-server-prometheus-role
     ingress:
       enabled: true
       hosts:
@@ -75,12 +75,12 @@ prometheus:
       ingressClassName: public
   serviceAccounts:
     server:
-      name: supersonic-prometheus-sa
+      name: sonic-server-prometheus-sa
 
 grafana:
   enabled: true
   dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
+    default: sonic-server-grafana-default-dashboard
   datasources:
     datasources.yaml:
       datasources:
@@ -88,13 +88,13 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: http://supersonic-prometheus-server:9090
+          url: http://sonic-server-prometheus-server:9090
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
         - name: tempo
           type: tempo
-          url: http://supersonic-tempo:3100
+          url: http://sonic-server-tempo:3100
           access: proxy
           isDefault: false
           basicAuth: false
@@ -117,7 +117,7 @@ grafana:
       root_url: https://grafana-cms.geddes.rcac.purdue.edu
   serviceAccounts:
     grafana:
-      name: supersonic-grafana-sa
+      name: sonic-server-grafana-sa
 
 opentelemetry-collector:
   enabled: true
