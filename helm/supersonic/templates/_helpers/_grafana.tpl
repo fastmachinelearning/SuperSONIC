@@ -54,26 +54,6 @@ Get full Grafana URL
 {{- end -}}
 
 {{/*
-Check if Grafana exists in the namespace
-*/}}
-{{- define "supersonic.grafanaExists" -}}
-{{- include "supersonic.common.serviceExists" (dict "serviceName" "grafana" "root" .) -}}
-{{- end -}}
-
-{{/*
-Validate that there is no existing Grafana instance when enabling a new one
-*/}}
-{{- define "supersonic.validateGrafana" -}}
-{{- if .Values.grafana.enabled -}}
-  {{- if include "supersonic.grafanaExists" . -}}
-    {{- $details := fromJson (include "supersonic.common.getExistingServiceDetails" (dict "serviceType" "grafana" "root" .)) -}}
-    {{- $url := include "supersonic.common.getServiceDisplayUrl" (dict "scheme" $details.scheme "host" $details.host) -}}
-    {{- fail (printf "Error: Found existing Grafana instance in the namespace:\n- Namespace: %s\n- URL: %s\n\nTo proceed, either:\n1. Set grafana.enabled=false in values.yaml to use the existing Grafana instance, OR\n2. Uninstall the existing Grafana instance" .Release.Namespace $url) -}}
-  {{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Validate Grafana address consistency
 */}}
 {{- define "supersonic.validateGrafanaAddressConsistency" -}}

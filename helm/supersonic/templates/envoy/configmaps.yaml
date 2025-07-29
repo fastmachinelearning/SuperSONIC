@@ -36,7 +36,7 @@ static_resources:
                 {{- if (index .root.Values "opentelemetry-collector" "enabled") }}
                 tracing:
                   random_sampling:
-                    value: {{ mulf .root.Values.tracing_sampling_rate 100 }}
+                    value: {{ mulf .envoy.tracing_sampling_rate 100 }}
                   provider:
                     name: envoy.tracers.opentelemetry
                     typed_config:

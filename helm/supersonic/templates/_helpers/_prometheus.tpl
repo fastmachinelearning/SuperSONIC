@@ -63,13 +63,6 @@ Check if Prometheus exists in the namespace
 {{- end -}}
 
 {{/*
-Validate that there is no existing Prometheus instance when enabling a new one
-*/}}
-{{- define "supersonic.validatePrometheus" -}}
-{{- include "supersonic.common.validateNoExistingService" (dict "serviceType" "prometheus" "values" .Values "root" .) -}}
-{{- end -}}
-
-{{/*
 Validate RBAC permissions for Prometheus
 */}}
 {{- define "supersonic.validateRBACPermissions" -}}

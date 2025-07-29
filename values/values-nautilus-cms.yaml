@@ -46,7 +46,11 @@ envoy:
   loadBalancerPolicy: "LEAST_REQUEST"
   ingress:
     enabled: true
-    hostName: sonic-cms.nrp-nautilus.io
+    hosts:
+      - sonic-cms.nrp-nautilus.io
+    tls:
+      - hosts:
+          - sonic-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
@@ -59,6 +63,7 @@ envoy:
       haproxy-ingress.github.io/timeout-queue: "1m"
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
+  tracing_sampling_rate: 0.001
 
 autoscaler:
   enabled: false
@@ -81,7 +86,11 @@ prometheus:
   server:
     ingress:
       enabled: true
-      hostName: prometheus-cms.nrp-nautilus.io
+      hosts:
+        - prometheus-cms.nrp-nautilus.io
+      tls:
+        - hosts:
+            - prometheus-cms.nrp-nautilus.io
       ingressClassName: haproxy
       annotations:
         haproxy-ingress.github.io/cors-enable: "true"
@@ -90,18 +99,37 @@ prometheus:
 
 grafana:
   enabled: true
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: http://supersonic-prometheus-server:9090
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
   ingress:
     enabled: true
-    hostName: grafana-cms.nrp-nautilus.io
+    hosts:
+      - grafana-cms.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
       haproxy-ingress.github.io/proxy-body-size: "512m"
       haproxy-ingress.github.io/timeout-http-request: "5m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-cms.nrp-nautilus.io
 
-tracing_sampling_rate: 0.001
 opentelemetry-collector:
-  enabled: true
+  enabled: false
 tempo:
-  enabled: true
+  enabled: false
 

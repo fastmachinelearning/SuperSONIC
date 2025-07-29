@@ -419,6 +419,9 @@
             "port",
             "url"
           ]
+        },
+        "tracing_sampling_rate": {
+          "type": "number"
         }
       },
       "required": [
@@ -432,7 +435,8 @@
         "rate_limiter",
         "replicas",
         "resources",
-        "service"
+        "service",
+        "tracing_sampling_rate"
       ]
     },
     "autoscaler": {
@@ -1360,9 +1364,6 @@
         "tempo"
       ]
     },
-    "tracing_sampling_rate": {
-      "type": "number"
-    },
     "opentelemetry-collector": {
       "type": "object",
       "properties": {
@@ -1948,7 +1949,6 @@
     "serverLoadThreshold",
     "tempo",
     "tolerations",
-    "tracing_sampling_rate",
     "triton"
   ]
 }

@@ -43,8 +43,7 @@ Displaying Tracing Data in Grafana
 
 If Grafana is enabled in your ``values.yaml``, you can display the tracing data
 in the Grafana dashboard. In order to achieve this, Grafana needs to have a
-Tempo datasource configured. This is done automatically when you install
-SuperSONIC via the ``install-supersonic`` plugin.
+Tempo datasource configured. 
 
 If OpenTelemetry Collector and Tempo are enabled, the default Grafana dashboard
 will include an interactive server map, where you can study tracing data in detail
