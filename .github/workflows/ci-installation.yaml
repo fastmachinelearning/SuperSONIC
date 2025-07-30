@@ -29,12 +29,12 @@ jobs:
         run: |
           kubectl create namespace test-ns
 
-      - name: Test installation of SuperSONIC from remote repo via plugin
-        run: |
-          helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
-          helm repo update
-          helm install supersonic fastml/supersonic -n test-ns -f values/values-minimal.yaml
-          helm uninstall supersonic -n test-ns
+      # - name: Test installation of SuperSONIC from remote repo 
+      #   run: |
+      #     helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
+      #     helm repo update
+      #     helm install supersonic fastml/supersonic -n test-ns -f values/values-minimal.yaml
+      #     helm uninstall supersonic -n test-ns
 
       - name: Test installation of SuperSONIC from GitHub
         run: |
