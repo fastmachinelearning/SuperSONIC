@@ -16,7 +16,7 @@ The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") projec
 applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
-Currently, SuperSONIC offers the following functionality:
+Currently, SuperSONIC supports the following functionality:
 - GPU inference-as-a-service via [Nvidia Triton Inference Server](https://developer.nvidia.com/triton-inference-server)
 - Load balancing across many GPUs via [Envoy Proxy](envoyproxy.io)
 - Load-based autoscaling via [KEDA](keda.sh)
@@ -32,7 +32,8 @@ Currently, SuperSONIC offers the following functionality:
 - a Prometheus instance installed on the cluster, or Prometheus CRDs to deploy your own instance
 - KEDA CRDs installed on the cluster (only if using autoscaling)
 
-### Install a released version from the Helm repository
+<details>
+<summary><strong>Install the latest released version from the Helm repository</strong></summary>
 
 ```
 helm repo add fastml https://fastmachinelearning.org/SuperSONIC
@@ -40,9 +41,7 @@ helm repo update
 helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 ```
 
-To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
-
-The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
+</details>
 
 <details>
 <summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
@@ -56,6 +55,10 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 ```
 
 </details>
+
+To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
+
+The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
 
 ## Server diagram
 
