@@ -29,6 +29,7 @@ jobs:
         run: |
           kubectl create namespace test-ns
 
+      # WARNING:This test is disabled until a compatible SuperSONIC version is released
       # - name: Test installation of SuperSONIC from remote repo 
       #   run: |
       #     helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
