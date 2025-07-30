@@ -73,7 +73,7 @@ envoy:
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
-autoscaler:
+keda:
   enabled: false
   minReplicaCount: 0
   maxReplicaCount: 1

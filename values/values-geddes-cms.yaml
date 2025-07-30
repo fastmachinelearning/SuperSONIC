@@ -57,7 +57,7 @@ envoy:
     hostName: sonic-cms.geddes.rcac.purdue.edu
     ingressClassName: public
 
-autoscaler:
+keda:
   enabled: true
   minReplicaCount: 1
   maxReplicaCount: 7

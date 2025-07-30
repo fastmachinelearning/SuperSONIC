@@ -37,7 +37,7 @@ envoy:
     enabled: true
     hostName: sonic-cms.anvilcloud.rcac.purdue.edu
 
-autoscaler:
+keda:
   enabled: false
   minReplicaCount: 1
   maxReplicaCount: 5
