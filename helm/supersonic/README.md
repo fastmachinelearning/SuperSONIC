@@ -16,8 +16,7 @@ The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") projec
 applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
-SuperSONIC enables scientific workflows to off-load ML inference and other computationally
-demanding algorithms to GPUs. Currently, SuperSONIC offers the following functionality:
+Currently, SuperSONIC offers the following functionality:
 - GPU inference-as-a-service via [Nvidia Triton Inference Server](https://developer.nvidia.com/triton-inference-server)
 - Load balancing across many GPUs via [Envoy Proxy](envoyproxy.io)
 - Load-based autoscaling via [KEDA](keda.sh)
