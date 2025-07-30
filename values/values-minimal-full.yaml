@@ -34,7 +34,7 @@ envoy:
       tokens_per_fill: 1
       fill_interval: 12s
 
-autoscaler:
+keda:
   enabled: true
   minReplicaCount: 1
   maxReplicaCount: 2

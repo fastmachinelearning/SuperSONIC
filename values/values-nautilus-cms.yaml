@@ -69,7 +69,7 @@ envoy:
       haproxy-ingress.github.io/health-check-rise-count: "1"
   tracing_sampling_rate: 0.001
 
-autoscaler:
+keda:
   enabled: false
   minReplicaCount: 1
   maxReplicaCount: 100

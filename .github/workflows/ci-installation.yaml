@@ -29,26 +29,13 @@ jobs:
         run: |
           kubectl create namespace test-ns
 
-      - name: Install Prometheus Operator CRDs
-        run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo update
-          kubectl create namespace monitoring
-          helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
-
-      - name: Install KEDA Autoscaler CRDs
-        run: |
-          helm repo add kedacore https://kedacore.github.io/charts
-          helm repo update
-          kubectl create namespace keda
-          helm install keda kedacore/keda --namespace keda  
-
-      - name: Test installation of SuperSONIC from remote repo via plugin
-        run: |
-          helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
-          helm repo update
-          helm install supersonic fastml/supersonic -n test-ns -f values/values-minimal.yaml
-          helm uninstall supersonic -n test-ns
+      # WARNING:This test is disabled until a compatible SuperSONIC version is released
+      # - name: Test installation of SuperSONIC from remote repo 
+      #   run: |
+      #     helm repo add fastml https://fastmachinelearning.org/SuperSONIC/
+      #     helm repo update
+      #     helm install supersonic fastml/supersonic -n test-ns -f values/values-minimal.yaml
+      #     helm uninstall supersonic -n test-ns
 
       - name: Test installation of SuperSONIC from GitHub
         run: |

@@ -463,7 +463,7 @@
         "tracing_sampling_rate"
       ]
     },
-    "autoscaler": {
+    "keda": {
       "type": "object",
       "properties": {
         "enabled": {
@@ -1955,9 +1955,9 @@
     }
   },
   "required": [
-    "autoscaler",
     "envoy",
     "grafana",
+    "keda",
     "metricsCollector",
     "nameOverride",
     "opentelemetry-collector",
