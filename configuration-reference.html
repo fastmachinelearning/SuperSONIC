@@ -335,52 +335,52 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.enabled</p></td>
+<tr class="row-even"><td><p>keda.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code>, new Triton servers will spawn if the metric exceedds the threshold set by <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.minReplicaCount</p></td>
+<tr class="row-odd"><td><p>keda.minReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p>Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start</p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.maxReplicaCount</p></td>
+<tr class="row-even"><td><p>keda.maxReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.zeroIdleReplicas</p></td>
+<tr class="row-odd"><td><p>keda.zeroIdleReplicas</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen.</p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleUp.stabilizationWindowSeconds</p></td>
+<tr class="row-even"><td><p>keda.scaleUp.stabilizationWindowSeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleUp.periodSeconds</p></td>
+<tr class="row-odd"><td><p>keda.scaleUp.periodSeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleUp.stepsize</p></td>
+<tr class="row-even"><td><p>keda.scaleUp.stepsize</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleDown.stabilizationWindowSeconds</p></td>
+<tr class="row-odd"><td><p>keda.scaleDown.stabilizationWindowSeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">600</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>autoscaler.scaleDown.periodSeconds</p></td>
+<tr class="row-even"><td><p>keda.scaleDown.periodSeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>autoscaler.scaleDown.stepsize</p></td>
+<tr class="row-odd"><td><p>keda.scaleDown.stepsize</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p></p></td>

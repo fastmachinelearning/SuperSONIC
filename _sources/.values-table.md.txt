@@ -50,16 +50,16 @@
 | envoy.auth.url | string | `""` |  |
 | envoy.auth.port | int | `443` |  |
 | envoy.tracing_sampling_rate | float | `0.01` |  |
-| autoscaler.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``, new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``. |
-| autoscaler.minReplicaCount | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
-| autoscaler.maxReplicaCount | int | `2` |  |
-| autoscaler.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
-| autoscaler.scaleUp.stabilizationWindowSeconds | int | `60` |  |
-| autoscaler.scaleUp.periodSeconds | int | `60` |  |
-| autoscaler.scaleUp.stepsize | int | `1` |  |
-| autoscaler.scaleDown.stabilizationWindowSeconds | int | `600` |  |
-| autoscaler.scaleDown.periodSeconds | int | `120` |  |
-| autoscaler.scaleDown.stepsize | int | `1` |  |
+| keda.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``, new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``. |
+| keda.minReplicaCount | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
+| keda.maxReplicaCount | int | `2` |  |
+| keda.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
+| keda.scaleUp.stabilizationWindowSeconds | int | `60` |  |
+| keda.scaleUp.periodSeconds | int | `60` |  |
+| keda.scaleUp.stepsize | int | `1` |  |
+| keda.scaleDown.stabilizationWindowSeconds | int | `600` |  |
+| keda.scaleDown.periodSeconds | int | `120` |  |
+| keda.scaleDown.stepsize | int | `1` |  |
 | prometheus.external.enabled | bool | `false` | Enable external Prometheus instance. If true, Prometheus parameters outside of prometheus.external will be ignored. |
 | prometheus.external.url | string | `""` | External Prometheus server url |
 | prometheus.external.port | int | `443` | External Prometheus server port number |

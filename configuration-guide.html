@@ -372,16 +372,16 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,</p>
 <section id="optional-enable-keda-autoscaler">
 <h2>10. (Optional) Enable KEDA Autoscaler<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h2>
 <p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
-can be enabled via the <code class="docutils literal notranslate"><span class="pre">autoscaler.enabled</span></code> parameter in the values file.</p>
+can be enabled via the <code class="docutils literal notranslate"><span class="pre">keda.enabled</span></code> parameter in the values file.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
 Please contact cluster administrators if this step of installation fails.</p>
 </div>
-<p>The parameters <code class="docutils literal notranslate"><span class="pre">autoscaler.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">autoscaler.maxReplicaCount</span></code> define the range in which
+<p>The parameters <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> define the range in which
 the number of Triton servers can scale.</p>
 <p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">autoscaler</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">keda</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="nt">minReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>

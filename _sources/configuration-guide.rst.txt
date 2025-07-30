@@ -324,21 +324,21 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
-can be enabled via the ``autoscaler.enabled`` parameter in the values file.
+can be enabled via the ``keda.enabled`` parameter in the values file.
 
 .. warning::
 
    Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
    Please contact cluster administrators if this step of installation fails.
 
-The parameters ``autoscaler.minReplicaCount`` and ``autoscaler.maxReplicaCount`` define the range in which
+The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
 the number of Triton servers can scale.
 
 Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:
 
 .. code-block:: yaml
 
-   autoscaler:
+   keda:
      enabled: true
 
      minReplicaCount: 1
