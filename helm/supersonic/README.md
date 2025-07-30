@@ -16,22 +16,24 @@ The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") projec
 applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
-The main components of SuperSONIC are:
-- [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
-- Dynamic muti-purpose [Envoy Proxy](envoyproxy.io):
-  - Load balancing
-  - Rate limiting
-  - GPU saturation prevention
-  - Token-based authentication
-- (optional) Load-based autoscaling via [KEDA](keda.sh)
-- (optional) [Prometheus](https://prometheus.io) instance (deploy custom or connect to existing)
-- (optional) Pre-configured [Grafana](https://grafana.com) dashboard
-- (optional) [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) and [Grafana Tempo](https://grafana.com/docs/tempo/latest/) for advanced monitoring.
+SuperSONIC enables scientific workflows to off-load ML inference and other computationally
+demanding algorithms to GPUs. Currently, SuperSONIC offers the following functionality:
+- GPU inference-as-a-service via [Nvidia Triton Inference Server](https://developer.nvidia.com/triton-inference-server)
+- Load balancing across many GPUs via [Envoy Proxy](envoyproxy.io)
+- Load-based autoscaling via [KEDA](keda.sh)
+- Monitoring via [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), and [OpenTelemetry](https://opentelemetry.io/docs/collector/)
+- Rate limiting
+- Token-based authentication
 
 
 ## Installation
 
-### Install from Helm repository
+**Pre-requisites:**
+- a Kubernetes cluster with access to GPUs
+- a Prometheus instance installed on the cluster, or Prometheus CRDs to deploy your own instance
+- KEDA CRDs installed on the cluster (only if using autoscaling)
+
+### Install a released version from the Helm repository
 
 ```
 helm repo add fastml https://fastmachinelearning.org/SuperSONIC
