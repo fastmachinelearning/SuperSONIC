@@ -7,6 +7,40 @@ entries:
         - name: GitHub
           url: https://github.com/fastmachinelearning/SuperSONIC/
     apiVersion: v2
+    created: "2025-08-01T18:34:25.083652319Z"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 8.9.0
+    - condition: prometheus.enabled
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 27.3.0
+    - condition: tempo.enabled
+      name: tempo
+      repository: https://grafana.github.io/helm-charts
+      version: 1.18.2
+    - condition: opentelemetry-collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.115.0
+    description: Server infrastructure for inference-as-a-service in large scientific
+      experiments.
+    digest: a83cc7a3096dd4647179b9954ff2066e81dfed49c75c38f7210b1becda0931ec
+    home: https://fastmachinelearning.org/SuperSONIC/
+    icon: https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/SuperSONIC_small_512.png?raw=true
+    name: supersonic
+    type: application
+    urls:
+    - https://github.com/fastmachinelearning/SuperSONIC/releases/download/supersonic-0.3.0/supersonic-0.3.0.tgz
+    version: 0.3.0
+  - annotations:
+      artifacthub.io/category: ai-machine-learning
+      artifacthub.io/links: |
+        - name: GitHub
+          url: https://github.com/fastmachinelearning/SuperSONIC/
+    apiVersion: v2
     created: "2025-03-12T17:46:30.846253282Z"
     dependencies:
     - condition: grafana.enabled
@@ -112,4 +146,4 @@ entries:
     urls:
     - https://github.com/fastmachinelearning/SuperSONIC/releases/download/supersonic-0.1.0/supersonic-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-12T17:46:30.84627341Z"
+generated: "2025-08-01T18:34:25.083670294Z"
