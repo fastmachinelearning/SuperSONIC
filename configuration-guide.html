@@ -53,7 +53,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#select-a-triton-inference-server-version">1. Select a Triton Inference Server Version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-triton-model-repository">2. Configure Triton model repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">3. Select Resources for Triton Pods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">1. Select Resources for Triton Pods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-envoy-proxy">4. Configure Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-rate-limiting-in-envoy-proxy">5. (Optional) Configure Rate Limiting in Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-authentication-in-envoy-proxy">6. (Optional) Configure Authentication in Envoy Proxy</a></li>
@@ -122,7 +122,6 @@ one or multiple model repositories via the <code class="docutils literal notrans
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">   </span><span class="no">/opt/tritonserver/bin/tritonserver \</span>
 <span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \</span>
-<span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \</span>
 <span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \</span>
 <span class="w">   </span><span class="no">--model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \</span>
 <span class="w">   </span><span class="no">--allow-gpu-metrics=true \</span>
@@ -169,7 +168,7 @@ The following options for model repository mounting are provided via <code class
 </div>
 </details><br><br></section>
 <section id="select-resources-for-triton-pods">
-<h2>3. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
+<h2>1. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file:</p></li>
 </ul>

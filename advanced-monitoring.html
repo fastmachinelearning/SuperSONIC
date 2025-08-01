@@ -135,7 +135,6 @@ shows how tracing is configured for CMS SuperSONIC instance:</p>
 --model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/<span class="w"> </span><span class="se">\</span>
 --model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/<span class="w"> </span><span class="se">\</span>
 --model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/<span class="w"> </span><span class="se">\</span>
---model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/<span class="w"> </span><span class="se">\</span>
 --trace-config<span class="w"> </span><span class="nv">mode</span><span class="o">=</span>opentelemetry<span class="w"> </span><span class="se">\</span>
 --trace-config<span class="o">=</span>opentelemetry,resource<span class="o">=</span><span class="nv">pod_name</span><span class="o">=</span><span class="k">$(</span>hostname<span class="k">)</span><span class="w"> </span><span class="se">\</span>
 --trace-config<span class="w"> </span>opentelemetry,url<span class="o">=</span>supersonic-opentelemetry-collector:4318/v1/traces<span class="w"> </span><span class="se">\</span>
