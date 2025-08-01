@@ -14,27 +14,5 @@ data:
     {{- $dashboardPath = "dashboards/with-server-map.json" }}
     {{- end }}
     {{- $dashboard := $.Files.Get $dashboardPath | fromJson }}
-    {{- $grafana_variables := $.Files.Get "dashboards/variables.json" | fromJson }}
-    {{- $header := $.Files.Get "dashboards/header.html" | replace "\n" "" | replace "\"" "\\\"" }}
-    {{- $metric := include "supersonic.defaultMetric" . | replace "\n" "" | trim | replace "\"" "\\\"" }}
-    {{- $threshold := .Values.prometheus.serverLoadThreshold | toString }}
-    {{- $prometheus_url := include "supersonic.prometheusUrl" . }}
-
-    {{- /* Remove any existing templating section from dashboard */ -}}
-    {{- $_ := unset $dashboard "templating" }}
-    
-    {{- /* Merge with variables from variables.json */ -}}
-    {{- $dashboard := merge $dashboard $grafana_variables }}
-    {{- $dashboard := $dashboard | toJson }}
-    
-    {{- /* Replace template variables with actual values */ -}}
-    {{- $dashboard := $dashboard | replace "%RELEASE_NAME%" .Release.Name }}
-    {{- $dashboard := $dashboard | replace "%CHART_NAME%" .Chart.Name }}
-    {{- $dashboard := $dashboard | replace "%CHART_VERSION%" .Chart.Version }}
-    {{- $dashboard := $dashboard | replace "%NAMESPACE%" .Release.Namespace }}
-    {{- $dashboard := $dashboard | replace "%SERVER_LOAD_METRIC%" $metric }}
-    {{- $dashboard := $dashboard | replace "%SERVER_LOAD_THRESHOLD%" $threshold }}
-    {{- $dashboard := $dashboard | replace "%PROMETHEUS_URL_FULL%" $prometheus_url }}
-    {{- $dashboard := $dashboard | replace "%HEADER%" $header }}
-    {{ $dashboard | nindent 4 }}
+    {{ $dashboard | toJson | nindent 4 }}
 {{- end }} 
