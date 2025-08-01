@@ -60,7 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#deploy-a-prometheus-server-or-connect-to-an-existing-one">7. Deploy a Prometheus Server or Connect to an Existing One</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-for-scaling-and-rate-limiting">8. (Optional) Configure Metrics for Scaling and Rate Limiting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-deploy-grafana-dashboard">9. (Optional) Deploy Grafana Dashboard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-enable-keda-autoscaler">10. (Optional) Enable KEDA Autoscaler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enable-keda-autoscaler">10. Enable KEDA Autoscaler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-metrics-collector-for-running-perf-analyzer">11. (Optional) Configure Metrics Collector for Running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-advanced-monitoring">12. (Optional) Configure Advanced Monitoring</a></li>
 </ul>
@@ -185,22 +185,10 @@ The following options for model repository mounting are provided via <code class
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>In addition, you can use <code class="docutils literal notranslate"><span class="pre">triton.affinity</span></code> to steer Triton pods to nodes with specific GPU models:</p></li>
+<li><p>In addition, you can use <code class="docutils literal notranslate"><span class="pre">triton.nodeSelector</span></code>, <code class="docutils literal notranslate"><span class="pre">triton.tolerations</span></code>,
+<code class="docutils literal notranslate"><span class="pre">triton.annotations</span></code>, and <code class="docutils literal notranslate"><span class="pre">triton.affinity</span></code> to steer Triton pods to specific nodes.
+This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">affinity</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">nodeAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">requiredDuringSchedulingIgnoredDuringExecution</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">nodeSelectorTerms</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">matchExpressions</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia.com/gpu.product</span>
-<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
-<span class="w">            </span><span class="nt">values</span><span class="p">:</span>
-<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-A10</span>
-<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-A40</span>
-<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-L40</span>
-<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NVIDIA-L4</span>
-</pre></div>
-</div>
 </section>
 <section id="configure-envoy-proxy">
 <h2>4. Configure Envoy Proxy<a class="headerlink" href="#configure-envoy-proxy" title="Link to this heading"></a></h2>
@@ -299,9 +287,12 @@ under the <code class="docutils literal notranslate"><span class="pre">prometheu
 <span class="w">  </span><span class="nt">server</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
 <span class="w">      </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
-<span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">         </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
+<span class="w">      </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
 </pre></div>
 </div>
 <p>The parameters you will most likely need to configure in your values file are related to
@@ -349,17 +340,24 @@ The graph also displays the threshold value defined in <code class="docutils lit
 <p>Grafana is used to visualize metrics collected by Prometheus.
 We provide a pre-configured Grafana dashboard which includes many useful metrics,
 including latency breakdown, GPU utilization, and more.</p>
-<p>Grafana is installed as a subchart with most of the default values pre-configured.
-You can further customize the Grafana installation by passing parameters from
+<p>If you have a Grafana instance already installed, you can deploy SuperSONIC dashboars
+by copying one of the JSON files from the
+<a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/helm/supersonic/dashboards">SuperSONIC repository</a>.</p>
+<p>If you don’t have a Grafana instance already installed, you can deploy one as a subchart of SuperSONIC,
+in which case the dashboard will be automatically deployed.</p>
+<p>You can further customize the Grafana installation by passing parameters from
 official Grafana <a class="reference external" href="https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml">values.yaml</a> file
 under the <code class="docutils literal notranslate"><span class="pre">grafana</span></code> section of the SuperSONIC values file:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">grafana</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;grafana_url&gt;&quot;</span>
 <span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
-<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;grafana_url&gt;&quot;</span>
+<span class="w">    </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;grafana_url&gt;&quot;</span>
 </pre></div>
 </div>
 <p>The values you will most likely need to configure in your values file are related to
@@ -369,8 +367,8 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,</p>
 </a>
 </figure>
 </section>
-<section id="optional-enable-keda-autoscaler">
-<h2>10. (Optional) Enable KEDA Autoscaler<a class="headerlink" href="#optional-enable-keda-autoscaler" title="Link to this heading"></a></h2>
+<section id="enable-keda-autoscaler">
+<h2>10. Enable KEDA Autoscaler<a class="headerlink" href="#enable-keda-autoscaler" title="Link to this heading"></a></h2>
 <p>Autoscaling is implemented via <a class="reference external" href="https://keda.sh/">KEDA (Kubernetes Event-Driven Autoscaler)</a> and
 can be enabled via the <code class="docutils literal notranslate"><span class="pre">keda.enabled</span></code> parameter in the values file.</p>
 <div class="admonition warning">

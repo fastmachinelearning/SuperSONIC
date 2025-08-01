@@ -98,17 +98,63 @@ as well as the latency at each step.</p>
 <h2>Enabling OpenTelemetry and Tempo<a class="headerlink" href="#enabling-opentelemetry-and-tempo" title="Link to this heading"></a></h2>
 <p>To enable OpenTelemetry Collector and Tempo, set the following parameters
 in your <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tracing_sampling_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.01</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tracing_sampling_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.01</span>
 
 <span class="nt">opentelemetry-collector</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">exporters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-tempo:4317</span>
+<span class="w">      </span><span class="nt">otlphttp</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-tempo:4318</span>
+<span class="w">      </span><span class="nt">prometheusremotewrite</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-prometheus-server:9090/api/v1/write</span>
 
 <span class="nt">tempo</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tempo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metricsGenerator</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">remoteWriteUrl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-prometheus-server:9090/api/v1/write</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the example above, endpoints and remote write URLs are configured to point to
+the Prometheus server and Grafana Tempo services, which will most likely
+have names like <code class="docutils literal notranslate"><span class="pre">&lt;release-name&gt;-prometheus-server</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;release-name&gt;-tempo</span></code>.</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">tracing_sampling_rate</span></code> parameter controls how frequently requests are
 traced. A value of <code class="docutils literal notranslate"><span class="pre">0.01</span></code> means that one in 100 requests will be traced.</p>
+<p>Additionally, you will need to enable tracing in Triton Inference Server, which is
+done by passing additional flags to <code class="docutils literal notranslate"><span class="pre">tritonserver</span></code> command. The following example
+shows how tracing is configured for CMS SuperSONIC instance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/opt/tritonserver/bin/tritonserver<span class="w"> </span><span class="se">\</span>
+--model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/<span class="w"> </span><span class="se">\</span>
+--model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/<span class="w"> </span><span class="se">\</span>
+--model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/<span class="w"> </span><span class="se">\</span>
+--model-repository<span class="o">=</span>/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/<span class="w"> </span><span class="se">\</span>
+--trace-config<span class="w"> </span><span class="nv">mode</span><span class="o">=</span>opentelemetry<span class="w"> </span><span class="se">\</span>
+--trace-config<span class="o">=</span>opentelemetry,resource<span class="o">=</span><span class="nv">pod_name</span><span class="o">=</span><span class="k">$(</span>hostname<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+--trace-config<span class="w"> </span>opentelemetry,url<span class="o">=</span>supersonic-opentelemetry-collector:4318/v1/traces<span class="w"> </span><span class="se">\</span>
+--trace-config<span class="w"> </span><span class="nv">rate</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+--trace-config<span class="w"> </span><span class="nv">level</span><span class="o">=</span>TIMESTAMPS<span class="w"> </span><span class="se">\</span>
+--trace-config<span class="w"> </span><span class="nv">count</span><span class="o">=</span>-1<span class="w"> </span><span class="se">\</span>
+--allow-gpu-metrics<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+--log-verbose<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+--strict-model-config<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+--exit-timeout-secs<span class="o">=</span><span class="m">60</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the example above, the url should point to the OpenTelemetry Collector service,
+which will most likely have a name <code class="docutils literal notranslate"><span class="pre">&lt;release-name&gt;-opentelemetry-collector</span></code>.</p>
+</div>
+<p>For tracing in Triton, the rate is the inverse of the <code class="docutils literal notranslate"><span class="pre">tracing_sampling_rate</span></code>
+parameter in the Envoy Proxy configuration: rate=100 means 1% of requests will be traced.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Triton Inference Server supports OpenTelemetry tracing only in versions 24.x or later.</p>
@@ -118,7 +164,35 @@ traced. A value of <code class="docutils literal notranslate"><span class="pre">
 <h2>Displaying Tracing Data in Grafana<a class="headerlink" href="#displaying-tracing-data-in-grafana" title="Link to this heading"></a></h2>
 <p>If Grafana is enabled in your <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>, you can display the tracing data
 in the Grafana dashboard. In order to achieve this, Grafana needs to have a
-Tempo datasource configured.</p>
+Tempo datasource configured:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">grafana</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">datasources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">datasources.yaml</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">datasources</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span>
+<span class="w">          </span><span class="nt">access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proxy</span>
+<span class="w">          </span><span class="nt">isDefault</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-prometheus-server:9090</span>
+<span class="w">          </span><span class="nt">jsonData</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">timeInterval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5s&quot;</span>
+<span class="w">            </span><span class="nt">tlsSkipVerify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tempo</span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tempo</span>
+<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://supersonic-tempo:3100</span>
+<span class="w">          </span><span class="nt">access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proxy</span>
+<span class="w">          </span><span class="nt">isDefault</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">basicAuth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">jsonData</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">timeInterval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5s&quot;</span>
+<span class="w">            </span><span class="nt">tlsSkipVerify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">serviceMap</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">datasourceUid</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;prometheus&quot;</span>
+<span class="w">            </span><span class="nt">nodeGraph</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
 <p>If OpenTelemetry Collector and Tempo are enabled, the default Grafana dashboard
 will include an interactive server map, where you can study tracing data in detail
 by clicking on graph nodes.</p>
