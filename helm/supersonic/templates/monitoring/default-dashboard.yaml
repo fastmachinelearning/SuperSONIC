@@ -14,5 +14,5 @@ data:
     {{- $dashboardPath = "dashboards/with-server-map.json" }}
     {{- end }}
     {{- $dashboard := $.Files.Get $dashboardPath | fromJson }}
-    {{ $dashboard | nindent 4 }}
+    {{ $dashboard | toJson | nindent 4 }}
 {{- end }} 
