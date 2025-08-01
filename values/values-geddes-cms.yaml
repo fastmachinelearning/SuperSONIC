@@ -12,6 +12,7 @@ triton:
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
+      --model-control-mode=explicit \
       --allow-gpu-metrics=true \
       --log-verbose=0 \
       --strict-model-config=false \
@@ -56,6 +57,14 @@ envoy:
     enabled: true
     hostName: sonic-cms.geddes.rcac.purdue.edu
     ingressClassName: public
+  rate_limiter:
+    prometheus_based:
+      enabled: false
+  dynamic_routing:
+    enabled: true
+  lua_filter:
+    enabled: true
+    lua_config: "cfg/envoy-filter-dynamic.lua"
 
 keda:
   enabled: true

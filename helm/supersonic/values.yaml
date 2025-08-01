@@ -182,11 +182,18 @@ envoy:
     prometheus_based:
       # -- Enable rate limiter
       enabled: false
-      luaConfig: "cfg/envoy-filter.lua" 
 
   # -- Envoy load balancer policy.
   # Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV
   loadBalancerPolicy: "LEAST_REQUEST"
+
+  lua_filter:
+    enabled: false
+    lua_config: "cfg/envoy-filter.lua"
+
+  # -- Enable dynamic routing in Envoy proxy.
+  dynamic_routing:
+    enabled: false
 
   auth:
     # -- Enable authentication in Envoy proxy

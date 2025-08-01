@@ -391,14 +391,10 @@
               "properties": {
                 "enabled": {
                   "type": "boolean"
-                },
-                "luaConfig": {
-                  "type": "string"
                 }
               },
               "required": [
-                "enabled",
-                "luaConfig"
+                "enabled"
               ]
             }
           },
@@ -409,6 +405,32 @@
         },
         "loadBalancerPolicy": {
           "type": "string"
+        },
+        "lua_filter": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "lua_config": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "lua_config"
+          ]
+        },
+        "dynamic_routing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ]
         },
         "auth": {
           "type": "object",
@@ -449,11 +471,13 @@
         "annotations",
         "args",
         "auth",
+        "dynamic_routing",
         "enabled",
         "grpc_route_timeout",
         "image",
         "ingress",
         "loadBalancerPolicy",
+        "lua_filter",
         "nodeSelector",
         "rate_limiter",
         "replicas",

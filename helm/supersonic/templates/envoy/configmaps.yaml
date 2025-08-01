@@ -57,11 +57,22 @@ static_resources:
                       routes:
                         - match:
                             prefix: "/"
+                          {{- if .envoy.dynamic_routing.enabled }}
+                          typed_per_filter_config:
+                            envoy.filters.http.dynamic_forward_proxy:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig
+                              host_rewrite_header: "route-to"
+                          route:
+                            cluster: dynamic_forward_proxy_cluster
+                            timeout: {{ .envoy.grpc_route_timeout }}
+                          {{- else }}
                           route:
                             cluster: triton_grpc_service
                             timeout: {{ .envoy.grpc_route_timeout }}
+                          {{- end }}
+
                 http_filters:
-                  {{- with .envoy.rate_limiter.prometheus_based }}
+                  {{- with .envoy.lua_filter }}
                   {{- if .enabled }}
                   - name: envoy.filters.http.lua
                     typed_config:
@@ -93,6 +104,16 @@ static_resources:
                         requires: 
                           provider_name: provider_icecube
                   {{- end }}
+                  {{- end }}
+                  {{- if .envoy.dynamic_routing.enabled }}
+                  - name: envoy.filters.http.dynamic_forward_proxy
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig
+                      dns_cache_config:
+                        name: dynamic_cache
+                        dns_lookup_family: ALL
+                        dns_cache_circuit_breaker:
+                          max_pending_requests: 1024
                   {{- end }}
                   - name: envoy.filters.http.router
                     typed_config:
@@ -176,6 +197,22 @@ static_resources:
                     socket_address:
                       address: {{ .tritonName }}
                       port_value: {{ .tritonGrpcPort }}
+    {{- if .envoy.dynamic_routing.enabled }}
+    - name: dynamic_forward_proxy_cluster
+      connect_timeout: 2s
+      lb_policy: CLUSTER_PROVIDED
+      http2_protocol_options:
+        max_concurrent_streams: 1000
+      cluster_type:
+        name: envoy.clusters.dynamic_forward_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+          dns_cache_config:
+            name: dynamic_cache
+            dns_lookup_family: ALL
+            dns_cache_circuit_breaker:
+              max_pending_requests: 1024
+    {{- end }}
 {{- end }}
 {{- end }}
 
@@ -226,7 +263,7 @@ data:
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
 ---
 
-{{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+{{- if .Values.envoy.lua_filter.enabled }}
 {{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
@@ -239,12 +276,14 @@ metadata:
 data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}
-    {{- $luaConfig := $.Files.Get .Values.envoy.rate_limiter.prometheus_based.luaConfig | nindent 4 }}
+    {{- $luaConfig := $.Files.Get .Values.envoy.lua_filter.lua_config | nindent 4 }}
     {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.defaultMetric" . | quote) }}
     {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.serverLoadThreshold) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" (include "supersonic.prometheusScheme" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_HOST" (include "supersonic.prometheusHost" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
+    {{- $luaConfig = $luaConfig | replace "RELEASE" .Release.Name }}
+    {{- $luaConfig = $luaConfig | replace "NAMESPACE" .Release.Namespace }}
     {{ $luaConfig | indent 4 }}
 
 ---
