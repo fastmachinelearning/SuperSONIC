@@ -107,22 +107,9 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        cpu: 2
        memory: 16G
 
-- In addition, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models:
-
-.. code-block:: yaml
-
-   affinity:
-     nodeAffinity:
-       requiredDuringSchedulingIgnoredDuringExecution:
-         nodeSelectorTerms:
-           - matchExpressions:
-             - key: nvidia.com/gpu.product
-               operator: In
-               values:
-                 - NVIDIA-A10
-                 - NVIDIA-A40
-                 - NVIDIA-L40
-                 - NVIDIA-L4
+- In addition, you can use ``triton.nodeSelector``, ``triton.tolerations``,
+  ``triton.annotations``, and ``triton.affinity`` to steer Triton pods to specific nodes.
+  This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.
 
 
 4. Configure Envoy Proxy
@@ -242,9 +229,12 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
        server:
          ingress:
            enabled: true
-           hostName: "<prometheus_url>"
            ingressClassName: "<ingress_class>"
-           annotations: {}
+           hosts:
+              - "<prometheus_url>"
+           tls:
+             - hosts:
+                 - "<prometheus_url>"
 
   The parameters you will most likely need to configure in your values file are related to
   Ingress for web access to Prometheus UI.
@@ -297,7 +287,13 @@ Grafana is used to visualize metrics collected by Prometheus.
 We provide a pre-configured Grafana dashboard which includes many useful metrics,
 including latency breakdown, GPU utilization, and more.
 
-Grafana is installed as a subchart with most of the default values pre-configured.
+If you have a Grafana instance already installed, you can deploy SuperSONIC dashboars
+by copying one of the JSON files from the
+`SuperSONIC repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/helm/supersonic/dashboards>`_.
+
+If you don't have a Grafana instance already installed, you can deploy one as a subchart of SuperSONIC,
+in which case the dashboard will be automatically deployed.
+
 You can further customize the Grafana installation by passing parameters from
 official Grafana `values.yaml <https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml>`_ file
 under the ``grafana`` section of the SuperSONIC values file:
@@ -308,9 +304,12 @@ under the ``grafana`` section of the SuperSONIC values file:
      enabled: true
      ingress:
        enabled: true
-       hostName: "<grafana_url>"
        ingressClassName: "<ingress_class>"
-       annotations: {}
+       hosts:
+          - "<grafana_url>"
+       tls:
+         - hosts:
+             - "<grafana_url>"
 
 The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,
@@ -320,7 +319,7 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,
   :height: 200
   :alt: SuperSONIC Grafana Dashboard
 
-10. (Optional) Enable KEDA Autoscaler
+10. Enable KEDA Autoscaler
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and

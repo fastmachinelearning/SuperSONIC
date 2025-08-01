@@ -33,17 +33,12 @@ Installation
          helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 
       Use a unique meaningful lowercase value as <release-name>, for example
-      ``supersonic-cms-run3``.
-      This value will be used as a prefix for all resources created by the chart,
-      unless ``nameOverride`` is specified in the values file.
+      ``supersonic-cms``.
+      This value will be used as a prefix for all resources created by the chart.
 
-      Successfully executed ``helm install`` command will print a link to auto-generated Grafana dashboard
+      Successfully executed ``helm install`` command will print a link to a Grafana dashboard
       and other useful information.
-   
-   .. figure:: img/grafana.png
-      :align: center
-      :height: 250
-      :alt: Supersonic Grafana dashboard
+
 
 Uninstall SuperSONIC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
