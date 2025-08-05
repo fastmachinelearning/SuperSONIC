@@ -161,6 +161,7 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 | **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
 | **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
 | **[UChicago](https://af.uchicago.edu/)**    |  -  |  ✅ |   -   |
+| **[UW–Madison](https://www.hep.wisc.edu/cms/comp/)**  | ⏳ | - | - |
 
 ## Publications
 
