@@ -2,11 +2,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: perf-analyzer-job
-  namespace: sonic-server
+  namespace: default
 spec:
   parallelism: 1
   completions: 1
-  backoffLimit: 1000
+  backoffLimit: 0
   template:
     spec:
       restartPolicy: OnFailure
@@ -19,11 +19,11 @@ spec:
           - |
             echo "Running perf_analyzer..."
             perf_analyzer -i grpc \
-                          -m deeptau_2018v2p5 \
-                          -u supersonic.sonic-server.svc.cluster.local:8001 \
+                          -m higgsInteractionNet \
+                          -u supersonic.default.svc.cluster.local:8001 \
                           --async -p 1 -b 100 \
-                          --request-count=10 \
-                          --concurrency-range=8 --input-data "random"
+                          --request-count=1 \
+                          --concurrency-range=1 --input-data "random"
         resources:
           requests:
             cpu: 1
