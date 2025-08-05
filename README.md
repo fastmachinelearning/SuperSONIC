@@ -124,11 +124,6 @@ helm install <release-name> fastml/supersonic -n <namespace> -f values/values-mi
 <summary><strong>3. Deploy a test job to run inferences</strong></summary>
 
 
-```
-helm repo add fastml https://fastmachinelearning.org/SuperSONIC
-helm repo update
-helm install <release-name> fastml/supersonic -n <namespace> -f values/values-minimal.yaml
-```
 </details>
 
 ---
