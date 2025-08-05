@@ -36,8 +36,8 @@ helm install keda kedacore/keda --namespace keda
 echo "Mounting CVMFS..."
 kubectl create namespace cvmfs-csi
 helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi \
-  --values ci/values-cvmfs-csi.yaml
-kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
+  --values cvmfs/values-cvmfs-csi.yaml
+kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
 
 # 7. Deploy the Helm chart for supersonic
 echo "Deploying Helm chart for supersonic..."
