@@ -66,6 +66,8 @@ Currently, SuperSONIC supports the following functionality:
     </details>
   </details>
 
+---
+
 ### Standard deployment
 
 If you are installing SuperSONIC for the first time, proceed to the [Minimal deployment](#minimal-deployment) section below.
@@ -82,10 +84,12 @@ To construct the `values.yaml` file for your application, follow [Configuration 
 
 The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
 
+---
+
 ### Minimal deployment
 
 <details>
-<summary><strong>1. Install `cvmfs-csi` to load models from CVMFS</strong></summary>
+<summary><strong>1. Install cvmfs-csi plugin to load models from CVMFS</strong></summary>
 
 For an example installation, we will use CMS models loaded from [CVMFS](https://cvmfs.readthedocs.io/en/stable/). SuperSONIC allows other types of model repository, including 
 an arbitrary Persistent Volume, an NFS volume, or S3 storage.
@@ -127,7 +131,11 @@ helm install <release-name> fastml/supersonic -n <namespace> -f values/values-mi
 ```
 </details>
 
+---
+
 ### Installing from a GitHub branch/tag/commit
+
+This option may be useful for testing unreleased features.
 <details>
 <summary><strong>Instructions</strong></summary>
 
