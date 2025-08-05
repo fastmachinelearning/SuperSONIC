@@ -49,6 +49,11 @@ static_resources:
                 {{- end }}
                 stat_prefix: ingress_grpc
                 codec_type: AUTO
+                common_http_protocol_options:
+                  idle_timeout: 30s
+                  headers_with_underscores_action: REJECT_REQUEST
+                http2_protocol_options:
+                  max_concurrent_streams: 250
                 route_config:
                   name: local_route_grpc
                   virtual_hosts:
@@ -167,6 +172,14 @@ static_resources:
       type: STRICT_DNS
       lb_policy: {{ .envoy.loadBalancerPolicy }}
       http2_protocol_options: {}
+      # upstream_connection_options:
+      circuit_breakers:
+        thresholds:
+        - priority: "DEFAULT"
+          max_connections: 8192
+          max_pending_requests: 8192
+          max_requests: 8192
+          max_retries: 10
       load_assignment:
         cluster_name: triton_grpc_service
         endpoints:
@@ -176,6 +189,15 @@ static_resources:
                     socket_address:
                       address: {{ .tritonName }}
                       port_value: {{ .tritonGrpcPort }}
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+          common_http_protocol_options:
+            idle_timeout: 30s
+            # max_connection_duration: 120s
+
 {{- end }}
 {{- end }}
 
