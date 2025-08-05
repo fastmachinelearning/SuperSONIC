@@ -29,40 +29,60 @@ Currently, SuperSONIC supports the following functionality:
 
 ### Pre-requisites
 
-- a Kubernetes cluster, ideally with access to GPUs, but CPUs are enough for a minimal deployment.
-
-<details>
-<summary><strong>Custom Resource Definitions (CRDs) - not required for minimal deployment</strong></summary>
-
-
-- [Prometheus](https://prometheus.io) CRDs
-
-  If you are using an established Kubernetes cluster (e.g. at an HPC), there is a high chance that these CRDs are already installed. Otherwise, cluster admin can use the following commands:
   <details>
-  <summary><strong>How to install Prometheus CRDs</strong></summary>
-
-  ```
-  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  helm repo update
-  kubectl create namespace monitoring
-  helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
-  ```
+  <summary><strong>a Kubernetes cluster</strong></summary>
+  ideally with access to GPUs, but CPUs are enough for a minimal deployment.
   </details>
-- [KEDA](https://keda.sh) CRDs (only if using autoscaling)
-  
+
   <details>
-  <summary><strong>How to install Prometheus CRDs</strong></summary>
+  <summary><strong>Custom Resource Definitions (CRDs)</strong></summary>
 
-  ```
-  helm repo add kedacore https://kedacore.github.io/charts
-  helm repo update
-  kubectl create namespace keda
-  helm install keda kedacore/keda --namespace keda
-  ```
+  These CRDs are not required for a minimal deployment.
+
+  - [Prometheus](https://prometheus.io) CRDs
+
+    If you are using an established Kubernetes cluster (e.g. at an HPC), there is a high chance that these CRDs are already installed. Otherwise, cluster admin can use the following commands:
+    <details>
+    <summary><strong>How to install Prometheus CRDs</strong></summary>
+
+    ```
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+    kubectl create namespace monitoring
+    helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
+    ```
+    </details>
+  - [KEDA](https://keda.sh) CRDs (only if using autoscaling)
+    
+    <details>
+    <summary><strong>How to install Prometheus CRDs</strong></summary>
+
+    ```
+    helm repo add kedacore https://kedacore.github.io/charts
+    helm repo update
+    kubectl create namespace keda
+    helm install keda kedacore/keda --namespace keda
+    ```
+    </details>
   </details>
-</details>
 
-### Minimal installation
+### Standard deployment
+
+If you are installing SuperSONIC for the first time, proceed to the [Minimal deployment](#minimal-deployment) section below.
+
+If you already have a functional `values.yaml` and/or installed SuperSONIC previously, use the following installation commands:
+
+```
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+helm repo update
+helm install <release-name> fastml/supersonic -n <namespace> -f <values.yaml>
+```
+
+To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
+
+The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
+
+### Minimal deployment
 
 <details>
 <summary><strong>1. Install `cvmfs-csi` to load models from CVMFS</strong></summary>
@@ -107,11 +127,9 @@ helm install <release-name> fastml/supersonic -n <namespace> -f values/values-mi
 ```
 </details>
 
-### Advanced deployment
-
 ### Installing from a GitHub branch/tag/commit
 <details>
-<summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
+<summary><strong>Instructions</strong></summary>
 
 ```
 git clone https://github.com/fastmachinelearning/SuperSONIC.git
@@ -123,9 +141,6 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
 
 </details>
 
-To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
-
-The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
 
 ## Server diagram
 
