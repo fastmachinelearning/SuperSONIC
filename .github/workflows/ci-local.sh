@@ -36,8 +36,8 @@ helm install keda kedacore/keda --namespace keda
 echo "Mounting CVMFS..."
 kubectl create namespace cvmfs-csi
 helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi \
-  --values ci/values-cvmfs-csi.yaml
-kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
+  --values cvmfs/values-cvmfs-csi.yaml
+kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
 
 # 7. Deploy the Helm chart for supersonic
 echo "Deploying Helm chart for supersonic..."
@@ -82,7 +82,7 @@ kubectl get all -n cms
 
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
-kubectl apply -f ci/perf-analyzer-job.yaml
+kubectl apply -f tests/perf-analyzer-job-ci.yaml
 kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=180s || {
   echo "Perf-analyzer job did not complete in time or failed."
   exit 1
