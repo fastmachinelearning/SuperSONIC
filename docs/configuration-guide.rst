@@ -6,7 +6,7 @@ The full list of parameters can be found in the `Configuration Reference <config
 
 You can find example values files in the `SuperSONIC GitHub repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_.
 
-1. Select a Triton Inference Server version
+1. Select a Triton Inference Server Version
 =============================================
 
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
@@ -33,7 +33,6 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      - |
       /opt/tritonserver/bin/tritonserver \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
       --allow-gpu-metrics=true \
@@ -90,7 +89,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
     <br><br>
 
 
-3. Select resources for Triton pods
+1. Select Resources for Triton Pods
 =============================================
 
 - You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file:
@@ -107,25 +106,12 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        cpu: 2
        memory: 16G
 
-- In addition, you can use ``triton.affinity`` to steer Triton pods to nodes with specific GPU models:
-
-.. code-block:: yaml
-
-   affinity:
-     nodeAffinity:
-       requiredDuringSchedulingIgnoredDuringExecution:
-         nodeSelectorTerms:
-           - matchExpressions:
-             - key: nvidia.com/gpu.product
-               operator: In
-               values:
-                 - NVIDIA-A10
-                 - NVIDIA-A40
-                 - NVIDIA-L40
-                 - NVIDIA-L4
+- In addition, you can use ``triton.nodeSelector``, ``triton.tolerations``,
+  ``triton.annotations``, and ``triton.affinity`` to steer Triton pods to specific nodes.
+  This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.
 
 
-4. Configure  Envoy Proxy
+4. Configure Envoy Proxy
 ================================================
 
 By default, Envoy proxy is enabled and configured to provide per-request
@@ -164,7 +150,7 @@ There are two options:
    In this case, the client connections should be established to  ``<load_balancer_url>:8001`` and NOT use SSL.
 
 
-5. (optional) Configure rate limiting in Envoy Proxy
+5. (Optional) Configure Rate Limiting in Envoy Proxy
 ======================================================
    
 There are two types of rate limiting available in Envoy Proxy: *listener-level*, and *prometheus-based*.
@@ -202,7 +188,7 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 
   The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
 
-6. (optional) Configure authentication in Envoy Proxy
+6. (Optional) Configure Authentication in Envoy Proxy
 ======================================================
 
 At the moment, the only supported authentication method is JWT. Example configuration for IceCube:
@@ -219,7 +205,7 @@ At the moment, the only supported authentication method is JWT. Example configur
        port: 443
 
 
-7. Deploy a Prometheus server or connect to an existing one
+7. Deploy a Prometheus Server or Connect to an Existing One
 ============================================================
 
 Prometheus is needed to scrape metrics for monitoring, as well as for the rate limiter and autoscaler.
@@ -242,9 +228,12 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
        server:
          ingress:
            enabled: true
-           hostName: "<prometheus_url>"
            ingressClassName: "<ingress_class>"
-           annotations: {}
+           hosts:
+              - "<prometheus_url>"
+           tls:
+             - hosts:
+                 - "<prometheus_url>"
 
   The parameters you will most likely need to configure in your values file are related to
   Ingress for web access to Prometheus UI.
@@ -272,7 +261,7 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
           port: <prometheus_port>
 
 
-8. (optional) Configure metrics for scaling and rate limiting
+8. (Optional) Configure Metrics for Scaling and Rate Limiting
 ===============================================================
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
@@ -290,14 +279,20 @@ The Prometheus query for the graph is automatically inferred from the value of `
 The graph also displays the threshold value defined in ``serverLoadThreshold`` parameter.
 
 
-9. (optional) Deploy Grafana dashboard
+9. (Optional) Deploy Grafana Dashboard
 ==========================================
 
 Grafana is used to visualize metrics collected by Prometheus.
 We provide a pre-configured Grafana dashboard which includes many useful metrics,
 including latency breakdown, GPU utilization, and more.
 
-Grafana is installed as a subchart with most of the default values pre-configured.
+If you have a Grafana instance already installed, you can deploy SuperSONIC dashboars
+by copying one of the JSON files from the
+`SuperSONIC repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/helm/supersonic/dashboards>`_.
+
+If you don't have a Grafana instance already installed, you can deploy one as a subchart of SuperSONIC,
+in which case the dashboard will be automatically deployed.
+
 You can further customize the Grafana installation by passing parameters from
 official Grafana `values.yaml <https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml>`_ file
 under the ``grafana`` section of the SuperSONIC values file:
@@ -308,9 +303,12 @@ under the ``grafana`` section of the SuperSONIC values file:
      enabled: true
      ingress:
        enabled: true
-       hostName: "<grafana_url>"
        ingressClassName: "<ingress_class>"
-       annotations: {}
+       hosts:
+          - "<grafana_url>"
+       tls:
+         - hosts:
+             - "<grafana_url>"
 
 The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,
@@ -318,27 +316,27 @@ Grafana Ingress for web access, and datasources to connect to Prometheus,
 .. figure:: img/grafana.png
   :align: center
   :height: 200
-  :alt: Supersonic Grafana dashboard
+  :alt: SuperSONIC Grafana Dashboard
 
-10. (optional) Enable KEDA autoscaler
+10. Enable KEDA Autoscaler
 ==========================================
 
 Autoscaling is implemented via `KEDA (Kubernetes Event-Driven Autoscaler) <https://keda.sh/>`_ and
-can be enabled via the ``autoscaler.enabled`` parameter in the values file.
+can be enabled via the ``keda.enabled`` parameter in the values file.
 
 .. warning::
 
    Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
    Please contact cluster administrators if this step of installation fails.
 
-The parameters ``autoscaler.minReplicaCount`` and ``autoscaler.maxReplicaCount`` define the range in which
+The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
 the number of Triton servers can scale.
 
 Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:
 
 .. code-block:: yaml
 
-   autoscaler:
+   keda:
      enabled: true
 
      minReplicaCount: 1
@@ -353,7 +351,7 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        periodSeconds: 30
        stepsize: 1
 
-11. (optional) Configure Metrics Collector for running ``perf_analyzer``
+11. (Optional) Configure Metrics Collector for Running ``perf_analyzer``
 =========================================================================
 
 To collect Prometheus metrics when using ``perf_analyzer`` for testing,
@@ -384,7 +382,7 @@ Running with ``perf_analyzer`` is then done with:
 If ingress is not desired, port-forward the metrics collector service and call
 ``--metrics-url localhost:8003/metrics`` to access the metrics. 
 
-12. (optional) Configure advanced monitoring 
+12. (Optional) Configure Advanced Monitoring 
 =============================================
 
 Refer to the `advanced monitoring guide <advanced-monitoring>`_.

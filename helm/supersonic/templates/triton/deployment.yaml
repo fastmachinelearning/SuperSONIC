@@ -19,6 +19,10 @@ spec:
         app.kubernetes.io/name: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: triton
+      {{- with .Values.triton.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
       containers:
@@ -88,12 +92,12 @@ spec:
       affinity: {{ toYaml .Values.triton.affinity | nindent 8}}
 {{- end }}
 
-{{- if .Values.nodeSelector }}
+{{- if .Values.triton.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | nindent 8 }}
+{{ toYaml .Values.triton.nodeSelector | nindent 8 }}
 {{- end }}
-{{- if .Values.tolerations }}
+{{- if .Values.triton.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | nindent 8 }}
+{{ toYaml .Values.triton.tolerations | nindent 8 }}
 {{- end }}
       restartPolicy: Always

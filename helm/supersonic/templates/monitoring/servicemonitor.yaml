@@ -1,3 +1,4 @@
+{{- if .Values.prometheus.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -57,3 +58,4 @@ spec:
         targetLabel: app
         regex: "(.*)"
         replacement: "{{ .Chart.Name }}"
+{{- end }}

@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 2,
+  "id": 6,
   "links": [],
   "panels": [
     {
@@ -28,8 +28,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 18,
+        "h": 4,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -40,59 +40,13 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<div style=\"display: flex; align-items: center; background: transparent !important;\">  <img src=\"https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/SuperSONIC_small_light_256.png?raw=true\" alt=\"SONIC Logo\" style=\"width: 100px; margin-right: 15px; display: inline-block;\">  <div style=\"display: inline-block;\">    <h1 style=\"margin: 0; padding: 0;\">SuperSONIC Dashboard</h1>    <p style=\"margin: 5px 0;\">Release name: ${release_name}</p>    <p style=\"margin: 5px 0;\">Version: ${version}</p>    <div style=\"margin: 5px 0;\">      <a href=\"https://fastmachinelearning.org/SuperSONIC\" target=\"_blank\" style=\"margin-right: 15px; text-decoration: none;\">        <i class=\"fa fa-book\"></i> Documentation      </a>      <a href=\"https://github.com/fastmachinelearning/SuperSONIC/issues\" target=\"_blank\" style=\"margin-right: 15px; text-decoration: none;\">        <i class=\"fa fa-github\"></i> GitHub Issues      </a>      <a href=\"${prometheus_url_full}\" target=\"_blank\" style=\"text-decoration: none;\">        <i class=\"fa fa-link\"></i> Prometheus      </a>    </div>  </div></div> ",
+        "content": "<div style=\"display: flex; align-items: center; background: transparent !important;\">\n  <img src=\"https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/SuperSONIC_small_light_256.png?raw=true\" \n       alt=\"SONIC Logo\" style=\"width: 100px; margin-right: 15px; display: inline-block;\">\n  <div style=\"display: inline-block;\">\n    <h1 style=\"margin: 0; padding: 0;\">SuperSONIC Dashboard</h1>\n   <div style=\"margin: 5px 0;\">\n      <a href=\"https://fastmachinelearning.org/SuperSONIC\" target=\"_blank\" \n         style=\"margin-right: 15px; text-decoration: none;\">\n        <i class=\"fa fa-book\"></i> Documentation\n      </a>\n      <a href=\"https://github.com/fastmachinelearning/SuperSONIC/issues\" target=\"_blank\" \n         style=\"margin-right: 15px; text-decoration: none;\">\n        <i class=\"fa fa-github\"></i> GitHub Issues\n      </a>\n   </div>\n  </div>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "title": "",
       "transparent": true,
       "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "tempo",
-        "uid": "tempo"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 32,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      },
-      "id": 21,
-      "options": {
-        "edges": {},
-        "nodes": {},
-        "zoomMode": "cooperative"
-      },
-      "pluginVersion": "11.5.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "tempo",
-            "uid": "tempo"
-          },
-          "filters": [
-            {
-              "id": "f0a7f7ec",
-              "operator": "=",
-              "scope": "span"
-            }
-          ],
-          "limit": 20,
-          "queryType": "serviceMap",
-          "refId": "A",
-          "serviceMapQuery": "{client!=\"user\"}",
-          "tableType": "traces"
-        }
-      ],
-      "title": "Server Map (all pods in time window)",
-      "transparent": true,
-      "type": "nodeGraph"
     },
     {
       "datasource": {
@@ -109,8 +63,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -125,7 +78,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 6
+        "y": 4
       },
       "id": 4,
       "options": {
@@ -135,9 +88,7 @@
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -145,7 +96,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -154,7 +105,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+          "expr": "count by(release)(nv_gpu_utilization{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -172,110 +123,12 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Metric and threshold configured in `prometheus.serverLoadMetric` and `prometheus.serverLoadThreshold` parameters. Default metric: inference queue latency. Default threshold: 100ms.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": "<nil>"
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 7,
-        "x": 4,
-        "y": 6
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.5.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "expr": "${server_load_metric}",
-          "legendFormat": "{{release}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Server Load Metric",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
       "description": "Latency components measured by Triton servers, as well as total latency measured at proxy.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "unit": "ms",
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
@@ -314,15 +167,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "ms"
         },
         "overrides": [
           {
@@ -352,9 +205,9 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 7,
-        "x": 11,
-        "y": 6
+        "w": 8,
+        "x": 4,
+        "y": 4
       },
       "id": 6,
       "options": {
@@ -370,7 +223,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -378,7 +231,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum (rate(nv_inference_compute_infer_duration_us{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) / sum ((rate(nv_inference_exec_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s]) * 1000))",
+          "expr": "sum (rate(nv_inference_compute_infer_duration_us{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) / sum ((rate(nv_inference_exec_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s]) * 1000))",
           "instant": false,
           "legendFormat": "Inference",
           "range": true,
@@ -390,7 +243,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum (rate(nv_inference_queue_duration_us{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) / sum ((rate(nv_inference_exec_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s]) * 1000))",
+          "expr": "sum (rate(nv_inference_queue_duration_us{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) / sum ((rate(nv_inference_exec_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s]) * 1000))",
           "hide": false,
           "instant": false,
           "legendFormat": "Queue",
@@ -403,7 +256,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum (rate(nv_inference_compute_input_duration_us{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) / sum ((rate(nv_inference_exec_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s]) * 1000))",
+          "expr": "sum (rate(nv_inference_compute_input_duration_us{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) / sum ((rate(nv_inference_exec_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s]) * 1000))",
           "hide": false,
           "instant": false,
           "legendFormat": "Input",
@@ -416,7 +269,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum (rate(nv_inference_compute_output_duration_us{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) / sum ((rate(nv_inference_exec_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s]) * 1000))",
+          "expr": "sum (rate(nv_inference_compute_output_duration_us{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) / sum ((rate(nv_inference_exec_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s]) * 1000))",
           "hide": false,
           "instant": false,
           "legendFormat": "Output",
@@ -429,7 +282,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) / sum(rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s]))",
+          "expr": "sum(rate(envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix=\"ingress_grpc\", app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) / sum(rate(envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix=\"ingress_grpc\", app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Total (measured at proxy)",
@@ -439,6 +292,151 @@
       ],
       "title": "Latency Breakdown",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (rate(nv_inference_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) by(release)",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{ release }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Inferences per second (all servers, all models)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 26,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "id": 21,
+      "options": {
+        "edges": {},
+        "layoutAlgorithm": "layered",
+        "nodes": {},
+        "zoomMode": "cooperative"
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "filters": [
+            {
+              "id": "f0a7f7ec",
+              "operator": "=",
+              "scope": "span"
+            }
+          ],
+          "limit": 20,
+          "queryType": "serviceMap",
+          "refId": "A",
+          "serviceMapQuery": "{client!=\"user\"}",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Server Map (all pods in time window)",
+      "transparent": true,
+      "type": "nodeGraph"
     },
     {
       "datasource": {
@@ -488,8 +486,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -504,7 +501,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 10
+        "y": 8
       },
       "id": 3,
       "options": {
@@ -520,7 +517,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -529,7 +526,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "count by(release)(nv_gpu_utilization{release=~\"${release_name}\", namespace=~\"${namespace}\"})",
+          "expr": "count by(release)(nv_gpu_utilization{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -592,8 +589,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -617,117 +613,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 16
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.5.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(nv_gpu_power_usage{namespace=~\"${namespace}\"} / nv_gpu_power_limit{namespace=~\"${namespace}\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "{{pod}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "GPU power usage",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 0.7
-              },
-              {
-                "color": "orange",
-                "value": 0.8
-              },
-              {
-                "color": "red",
-                "value": 0.9
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 6,
-        "y": 16
+        "y": 14
       },
       "id": 14,
       "options": {
@@ -743,7 +629,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -751,7 +637,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "nv_gpu_utilization{namespace=~\"${namespace}\"}",
+          "expr": "nv_gpu_utilization{release=~\"$release\", namespace=~\"$namespace\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "{{pod}}",
@@ -812,8 +698,116 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.7
+              },
+              {
+                "color": "orange",
+                "value": 0.8
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 14
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(nv_gpu_power_usage{release=~\"$release\", namespace=~\"$namespace\"} / nv_gpu_power_limit{release=~\"$release\", namespace=~\"$namespace\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{pod}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "GPU power usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -837,7 +831,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 16
+        "y": 14
       },
       "id": 12,
       "options": {
@@ -853,7 +847,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -861,7 +855,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "nv_gpu_memory_used_bytes{namespace=~\"${namespace}\"}/nv_gpu_memory_total_bytes{namespace=~\"${namespace}\"}",
+          "expr": "nv_gpu_memory_used_bytes{release=~\"$release\", namespace=~\"$namespace\"}/nv_gpu_memory_total_bytes{release=~\"$release\", namespace=~\"$namespace\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "{{pod}}",
@@ -922,8 +916,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -935,7 +928,7 @@
         "h": 8,
         "w": 9,
         "x": 0,
-        "y": 24
+        "y": 22
       },
       "id": 15,
       "options": {
@@ -951,7 +944,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -960,7 +953,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum (rate(nv_inference_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) by(pod)",
+          "expr": "sum (rate(nv_inference_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) by(pod)",
           "instant": false,
           "interval": "",
           "legendFormat": "{{ pod }}",
@@ -1021,8 +1014,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1034,7 +1026,7 @@
         "h": 8,
         "w": 9,
         "x": 9,
-        "y": 24
+        "y": 22
       },
       "id": 16,
       "options": {
@@ -1050,7 +1042,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1059,7 +1051,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum (rate(nv_inference_count{release=~\"${release_name}\", namespace=~\"${namespace}\"}[15s])) by(model)",
+          "expr": "sum (rate(nv_inference_count{app=~\"supersonic\", release=~\"$release\", namespace=~\"$namespace\"}[30s])) by(model)",
           "instant": false,
           "interval": "",
           "legendFormat": "{{ model }}",
@@ -1073,30 +1065,25 @@
   ],
   "preload": false,
   "refresh": "5s",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
       {
+        "allowCustomValue": false,
         "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
+          "text": ["All"],
+          "value": ["$__all"]
         },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values({app=\"supersonic\",namespace=\"sonic-server\"},release)",
+        "definition": "label_values(nv_inference_exec_count,release)",
         "includeAll": true,
-        "label": "Release",
+        "label": "Release name",
         "multi": true,
-        "name": "release_name",
+        "name": "release",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values({app=\"supersonic\",namespace=\"sonic-server\"},release)",
+          "query": "label_values(nv_inference_exec_count,release)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1104,94 +1091,20 @@
         "type": "query"
       },
       {
+        "allowCustomValue": true,
         "current": {
-          "text": "sum by (release) (    rate(nv_inference_queue_duration_us{release=~\"supersonic\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"supersonic\"}[15s]) * 1000) + 0.001)",
-          "value": "sum by (release) (    rate(nv_inference_queue_duration_us{release=~\"supersonic\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"supersonic\"}[15s]) * 1000) + 0.001)"
+          "text": ["All"],
+          "value": ["$__all"]
         },
-        "hide": 2,
-        "label": "Server Load Metric",
-        "name": "server_load_metric",
-        "query": "sum by (release) (    rate(nv_inference_queue_duration_us{release=~\"supersonic\"}[15s]))  /sum by (release) (    (rate(nv_inference_exec_count{release=~\"supersonic\"}[15s]) * 1000) + 0.001)",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "<nil>",
-          "value": "<nil>"
-        },
-        "hide": 2,
-        "label": "Server Load Threshold",
-        "name": "server_load_threshold",
-        "query": "<nil>",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "0.2.0",
-          "value": "0.2.0"
-        },
-        "hide": 2,
-        "label": "Version",
-        "name": "version",
-        "query": "0.2.0",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "supersonic",
-          "value": "supersonic"
-        },
-        "hide": 2,
-        "label": "Version",
-        "name": "version",
-        "query": "supersonic",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "https://prometheus-cms.nrp-nautilus.io:443",
-          "value": "https://prometheus-cms.nrp-nautilus.io:443"
-        },
-        "hide": 2,
-        "label": "Prometheus URL",
-        "name": "prometheus_url_full",
-        "query": "https://prometheus-cms.nrp-nautilus.io:443",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "sonic-server",
-          "value": "sonic-server"
-        },
-        "hide": 2,
-        "label": "Namespace",
-        "name": "namespace",
-        "query": "sonic-server",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(service)",
-        "hide": 2,
+        "definition": "label_values(nv_inference_exec_count,namespace)",
         "includeAll": true,
-        "label": "service",
+        "label": "Namespace",
         "multi": true,
-        "name": "service",
+        "name": "namespace",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(service)",
+          "query": "label_values(nv_inference_exec_count,namespace)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1201,13 +1114,12 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "SuperSONIC Dashboard",
-  "uid": "bee55rttk9m2oa",
-  "version": 4,
-  "weekStart": ""
+  "uid": "abec1090-243e-4a48-951b-29245ad56f50",
+  "version": 20
 }

@@ -1,7 +1,6 @@
 triton:
   replicas: 1
-  # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
-  image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+  image: fastml/triton-torchgeo:22.07-py3-geometric # works for CMSSW run3
   command: ["/bin/sh", "-c"]
   args: 
     - |
@@ -35,7 +34,7 @@ envoy:
       tokens_per_fill: 1
       fill_interval: 12s
 
-autoscaler:
+keda:
   enabled: true
   minReplicaCount: 1
   maxReplicaCount: 2

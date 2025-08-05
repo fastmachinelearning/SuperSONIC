@@ -1,23 +1,35 @@
-serverLoadThreshold: 100
+serverLoadThreshold: 20
+serverLoadMetric: 'sum by (release) (rate(nv_inference_queue_duration_us{release=~"sonic-server"}[30s]) / (rate(nv_inference_exec_count{release=~"sonic-server"}[30s]) * 1000 + 0.001))'
 
-triton: 
-  # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
-  image: fastml/triton-torchgeo:22.07-py3-geometric # run3
+triton:
+  image: nvcr.io/nvidia/tritonserver:24.11-py3
   command: ["/bin/sh", "-c"]
-  args: 
+  args:
     - |
       /opt/tritonserver/bin/tritonserver \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
       --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
+      --trace-config mode=opentelemetry \
+      --trace-config=opentelemetry,resource=pod_name=$(hostname) \
+      --trace-config opentelemetry,url=sonic-server-opentelemetry-collector:4318/v1/traces \
+      --trace-config rate=100 \
+      --trace-config level=TIMESTAMPS \
+      --trace-config count=-1 \
       --allow-gpu-metrics=true \
       --log-verbose=0 \
       --strict-model-config=false \
       --exit-timeout-secs=60
+
   resources:
-    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
-    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 4G}
+    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 4G }
+    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 4G }
+  nodeSelector: { "cms-af-prod": "true" }
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
   service:
     labels:
       scrape_metrics: "true"
@@ -30,6 +42,12 @@ triton:
 
 envoy:
   enabled: true
+  nodeSelector: { "cms-af-prod": "true" }
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
   loadBalancerPolicy: "ROUND_ROBIN"
   service:
     type: LoadBalancer
@@ -37,34 +55,88 @@ envoy:
     enabled: true
     hostName: sonic-cms.geddes.rcac.purdue.edu
     ingressClassName: public
+  rate_limiter:
+    prometheus_based:
+      enabled: true
+  tracing_sampling_rate: 0.01
 
-autoscaler:
+keda:
   enabled: true
   minReplicaCount: 1
-  maxReplicaCount: 7
+  maxReplicaCount: 11
+  scaleUp:
+    stabilizationWindowSeconds: 30
+    periodSeconds: 15
+    stepsize: 1
+  scaleDown:
+    stabilizationWindowSeconds: 45
+    periodSeconds: 45
+    stepsize: 1
 
 ingress:
   enabled: false
 
-nodeSelector: {'cms-af-prod': 'true'}
-
-tolerations:
-  - key: hub.jupyter.org/dedicated
-    operator: Equal
-    value: cms-af
-    effect: NoSchedule
-
 prometheus:
-  enabled: true
-  server:
-    ingress:
-      enabled: true
-      hostName: prometheus-cms.geddes.rcac.purdue.edu
-      ingressClassName: public
+  external:
+    enabled: true
+    url: prometheus-af.geddes.rcac.purdue.edu
+    port: 443
+    scheme: https
 
 grafana:
   enabled: true
+  dashboardsConfigMaps:
+    default: sonic-server-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: https://prometheus-af.geddes.rcac.purdue.edu
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+        - name: tempo
+          type: tempo
+          url: http://sonic-server-tempo:3100
+          access: proxy
+          isDefault: false
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+            serviceMap:
+              datasourceUid: "prometheus"
+            nodeGraph:
+              enabled: true
   ingress:
     enabled: true
-    hostName: grafana-cms.geddes.rcac.purdue.edu
+    hosts:
+      - grafana-cms.geddes.rcac.purdue.edu
+    tls:
+      - hosts:
+          - grafana-cms.geddes.rcac.purdue.edu
     ingressClassName: public
+  grafana.ini:
+    server:
+      root_url: https://grafana-cms.geddes.rcac.purdue.edu
+
+opentelemetry-collector:
+  enabled: true
+  config:
+    exporters:
+      otlp:
+        endpoint: http://sonic-server-tempo:4317
+      otlphttp:
+        endpoint: http://sonic-server-tempo:4318
+      prometheusremotewrite:
+        endpoint: http://prometheus-server:9090/api/v1/write
+
+tempo:
+  enabled: true
+  tempo:
+    metricsGenerator:
+      enabled: true
+      remoteWriteUrl: http://prometheus-server:9090/api/v1/write

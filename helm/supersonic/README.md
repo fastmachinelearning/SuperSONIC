@@ -16,51 +16,49 @@ The [SuperSONIC](http://fastmachinelearning.org/SuperSONIC/ "SuperSONIC") projec
 applications in large high energy physics (HEP) and multi-messenger astrophysics
 (MMA) experiments. The server infrastructure is designed for deployment at [Kubernetes](https://kubernetes.io) clusters equipped with GPUs.
 
-The main components of SuperSONIC are:
-- [Nvidia Triton](https://developer.nvidia.com/triton-inference-server) inference servers
-- Dynamic muti-purpose [Envoy Proxy](envoyproxy.io):
-  - Load balancing
-  - Rate limiting
-  - GPU saturation prevention
-  - Token-based authentication
-- (optional) Load-based autoscaling via [KEDA](keda.sh)
-- (optional) [Prometheus](https://prometheus.io) instance (deploy custom or connect to existing)
-- (optional) Pre-configured [Grafana](https://grafana.com) dashboard
-- (optional) [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) and [Grafana Tempo](https://grafana.com/docs/tempo/latest/) for advanced monitoring.
+Currently, SuperSONIC supports the following functionality:
+- GPU inference-as-a-service via [Nvidia Triton Inference Server](https://developer.nvidia.com/triton-inference-server)
+- Load balancing across many GPUs via [Envoy Proxy](envoyproxy.io)
+- Load-based autoscaling via [KEDA](keda.sh)
+- Monitoring via [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), and [OpenTelemetry](https://opentelemetry.io/docs/collector/)
+- Rate limiting
+- Token-based authentication
 
 
 ## Installation
 
-The installation is done via a custom Helm plugin which takes care of
-internal connectivity of the chart components. Standard Helm installation
-is also supported, but requires a lot more manual configuration.
+**Pre-requisites:**
+- a Kubernetes cluster with access to GPUs
+- a Prometheus instance installed on the cluster, or Prometheus CRDs to deploy your own instance
+- KEDA CRDs installed on the cluster (only if using autoscaling)
+
+<details>
+<summary><strong>Install the latest released version from the Helm repository</strong></summary>
 
 ```
-helm plugin install https://github.com/fastmachinelearning/SuperSONIC/
-helm install-supersonic <release-name> -n <namespace> -f <your-values.yaml>
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+helm repo update
+helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
 ```
 
-Installer plugin usage:
-```
-Usage:
-  helm install-supersonic [RELEASE_NAME] [flags]
+</details>
 
-Flags:
-  -h, --help              Show this help message
-  -f, --values            Specify values file for custom configuration
-  -n, --namespace         Specify Kubernetes namespace for deployment
-  --version               Specify chart version (default: latest version)
-                          Note: Ignored if --local flag is set
-  --local                 Install from local chart path instead of remote repository
-  --path                  Local chart path (default: ./helm/supersonic)
-                          Only used when --local flag is set
-Additional flags will be passed directly to the 'helm install' command
+<details>
+<summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
+
 ```
+git clone https://github.com/fastmachinelearning/SuperSONIC.git
+cd SuperSONIC
+git checkout <branch-or-commit>
+helm dependency build helm/supersonic
+helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
+```
+
+</details>
 
 To construct the `values.yaml` file for your application, follow [Configuration guide](http://fastmachinelearning.org/SuperSONIC/configuration-guide.html "Configuration guide").
 
 The full list of configuration parameters is available in the [Configuration reference](http://fastmachinelearning.org/SuperSONIC/configuration-reference.html "Configuration reference").
-
 
 ## Server diagram
 
@@ -69,11 +67,6 @@ The full list of configuration parameters is available in the [Configuration ref
   <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram-dark.svg#gh-dark-mode-only" alt="diagram-dark" width="700"/>
 </p>
 
-## Grafana dashboard
-
-<p align="center">
-  <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/grafana.png" alt="grafana" width="700"/>
-</p>
 
 ## Status of deployment
 
@@ -82,4 +75,12 @@ The full list of configuration parameters is available in the [Configuration ref
 | **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
 | **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
 | **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
-| **UChicago**    |  -  |  ✅ |   -   |
+| **[UChicago](https://af.uchicago.edu/)**    |  -  |  ✅ |   -   |
+
+## Publications
+
+> Dmitry Kondratyev, Benedikt Riedel, Yuan-Tang Chou, Miles Cochran-Branson, Noah Paladino, David Schultz, Mia Liu, Javier Duarte, Philip Harris, and Shih-Chieh Hsu  
+> **SuperSONIC: Cloud-Native Infrastructure for ML Inferencing**  
+> *In Practice and Experience in Advanced Research Computing 2025: The Power of Collaboration (PEARC '25)*  
+> Association for Computing Machinery, New York, NY, USA. Article 29, 1–5. 2025.  
+> [https://doi.org/10.1145/3708035.3736049](https://doi.org/10.1145/3708035.3736049)

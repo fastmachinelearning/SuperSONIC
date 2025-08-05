@@ -1,4 +1,4 @@
-name: ci [CMS]
+name: ci [full]
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
-            --values values/values-cms-ci.yaml -n cms
+            --values values/values-minimal-full.yaml -n cms
 
       - name: CVMFS Mount ready
         run: |
@@ -84,8 +84,8 @@ jobs:
 
       - name: Autoscaler ready
         run: |
-          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
-          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
+          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
 
       - name: Triton server ready
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Run Perf Analyzer Job
         run: |
           kubectl apply -f ci/perf-analyzer-job.yaml
-          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=180s || \
+          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
           (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")

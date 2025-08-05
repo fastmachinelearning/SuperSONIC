@@ -55,7 +55,7 @@ envoy:
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
-autoscaler:
+keda:
   enabled: False
   minReplicaCount: 0
   maxReplicaCount: 1
@@ -69,20 +69,44 @@ prometheus:
 
 grafana:
   enabled: true
+  dashboardsConfigMaps:
+    default: traccc-sonic-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: prometheus.nrp-nautilus.io
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
   ingress:
     enabled: true
-    hostName: grafana-atlas.nrp-nautilus.io
+    hosts:
+      - grafana-atlas.nrp-nautilus.io
+    tls:
+      - hosts:
+          - grafana-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
       haproxy-ingress.github.io/proxy-body-size: "512m"
       haproxy-ingress.github.io/timeout-http-request: "5m"
+  grafana.ini:
+    server:
+      root_url: https://grafana-atlas.nrp-nautilus.io
 
 metricsCollector:
   enabled: true
   ingress:
     enabled: true
-    hostName: metrics-collector-atlas.nrp-nautilus.io
+    hosts:
+      - metrics-collector-atlas.nrp-nautilus.io
+    tls:
+      - hosts:
+          - metrics-collector-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
