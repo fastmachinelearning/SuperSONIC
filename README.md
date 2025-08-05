@@ -31,7 +31,7 @@ Currently, SuperSONIC supports the following functionality:
 
   <details>
   <summary><strong>Kubernetes cluster</strong></summary>
-  
+
   ideally with access to GPUs, but CPUs are enough for a minimal deployment.
   </details>
 
@@ -43,9 +43,7 @@ Currently, SuperSONIC supports the following functionality:
   </details>
 
   <details>
-  <summary><strong>Custom Resource Definitions (CRDs)</strong></summary>
-
-  These CRDs are not required for a minimal deployment.
+  <summary><strong>Custom Resource Definitions (CRDs) – not needed for minimal deployment</strong></summary>
 
   - [Prometheus](https://prometheus.io) CRDs
 
@@ -166,9 +164,8 @@ which will send a single inference request with random input data to Envoy Proxy
 
 ### Installing from a GitHub branch/tag/commit
 
-This option may be useful for testing unreleased features.
 <details>
-<summary><strong>Instructions</strong></summary>
+<summary><strong>This option may be useful for testing unreleased features.</strong></summary>
 
 ```
 git clone https://github.com/fastmachinelearning/SuperSONIC.git
