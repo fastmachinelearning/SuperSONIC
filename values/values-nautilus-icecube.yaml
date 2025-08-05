@@ -9,6 +9,9 @@
 
 serverLoadThreshold: 100
 
+nodeSelector:
+  topology.kubernetes.io/region: us-west
+
 triton: 
   image: nvcr.io/nvidia/tritonserver:24.10-py3
   affinity:
@@ -19,7 +22,7 @@ triton:
           # - key: topology.kubernetes.io/region
           #   operator: In
           #   values:
-          #   - us-west
+          #   - us-central
           # - key: nvidia.com/gpu.memory
           #   operator: Gt
           #   values:
@@ -30,23 +33,23 @@ triton:
             - NVIDIA-A10
             # - NVIDIA-A40
             # - NVIDIA-A100-SXM4-80GB
-            - NVIDIA-L40
+            # - NVIDIA-L40
             # - NVIDIA-A100-80GB-PCIe
             # - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
             - NVIDIA-L4
             # - NVIDIA-A100-PCIE-40GB
             # - NVIDIA-GH200-480GB
-  args: [tritonserver --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models --log-error=true --exit-on-error=true]
+  args: [tritonserver --model-repository=/models/icecube.opensciencegrid.org/users/briedel/ml/models --log-error=true --exit-on-error=true --buffer-manager-thread-count=128 --pinned-memory-pool-byte-size=12884901888 --cuda-memory-pool-byte-size=0:12884901888 --cuda-virtual-address-size=0:12884901888]
   resources:
-    limits: { nvidia.com/gpu: 1, cpu: 2, memory: 24Gi }
-    requests: { nvidia.com/gpu: 1, cpu: 2, memory: 20Gi }
+    limits: { nvidia.com/gpu: 1, cpu: 8, memory: 24Gi }
+    requests: { nvidia.com/gpu: 1, cpu: 6, memory: 20Gi }
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /models
   readinessProbe:
     reset: False
-    initialDelaySeconds: 130
+    initialDelaySeconds: 300
     periodSeconds: 30
     failureThreshold: 10
     command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/models/tglauch_classifier/versions/3/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
@@ -54,13 +57,13 @@ triton:
     successThreshold: 1
   startupProbe:
     reset: False
-    initialDelaySeconds: 120
+    initialDelaySeconds: 200
     periodSeconds: 10
     failureThreshold: 10
 
 envoy:
   enabled: true
-  replicas: 4
+  replicas: 15
   auth:
     enabled: true
     jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
@@ -86,7 +89,7 @@ envoy:
 
 autoscaler:
   enabled: true
-  minReplicaCount: 30
+  minReplicaCount: 10
   maxReplicaCount: 100
 
 prometheus:
