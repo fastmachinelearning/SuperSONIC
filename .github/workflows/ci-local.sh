@@ -82,7 +82,7 @@ kubectl get all -n cms
 
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
-kubectl apply -f .github/workflows/perf-analyzer-job.yaml
+kubectl apply -f tests/perf-analyzer-job-ci.yaml
 kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=180s || {
   echo "Perf-analyzer job did not complete in time or failed."
   exit 1
