@@ -27,22 +27,89 @@ Currently, SuperSONIC supports the following functionality:
 
 ## Installation
 
-**Pre-requisites:**
-- a Kubernetes cluster with access to GPUs
-- a Prometheus instance installed on the cluster, or Prometheus CRDs to deploy your own instance
-- KEDA CRDs installed on the cluster (only if using autoscaling)
+### Pre-requisites
+
+- a Kubernetes cluster, ideally with access to GPUs, but CPUs are enough for a minimal deployment.
 
 <details>
-<summary><strong>Install the latest released version from the Helm repository</strong></summary>
+<summary><strong>Custom Resource Definitions (CRDs) - not required for minimal deployment</strong></summary>
+
+
+- [Prometheus](https://prometheus.io) CRDs
+
+  If you are using an established Kubernetes cluster (e.g. at an HPC), there is a high chance that these CRDs are already installed. Otherwise, cluster admin can use the following commands:
+  <details>
+  <summary><strong>How to install Prometheus CRDs</strong></summary>
+
+  ```
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm repo update
+  kubectl create namespace monitoring
+  helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
+  ```
+  </details>
+- [KEDA](https://keda.sh) CRDs (only if using autoscaling)
+  
+  <details>
+  <summary><strong>How to install Prometheus CRDs</strong></summary>
+
+  ```
+  helm repo add kedacore https://kedacore.github.io/charts
+  helm repo update
+  kubectl create namespace keda
+  helm install keda kedacore/keda --namespace keda
+  ```
+  </details>
+</details>
+
+### Minimal installation
+
+<details>
+<summary><strong>1. Install `cvmfs-csi` to load models from CVMFS</strong></summary>
+
+For an example installation, we will use CMS models loaded from [CVMFS](https://cvmfs.readthedocs.io/en/stable/). SuperSONIC allows other types of model repository, including 
+an arbitrary Persistent Volume, an NFS volume, or S3 storage.
+
+[cvmfs-csi](https://github.com/cvmfs-contrib/cvmfs-csi) plugin allows to easily mount CVMFS
+into a Kubernetes cluster by creating a new storage class. A Persistent Volume created with this
+storage class will have CVMFS contents visible inside. 
+
+Cluster admin can use the following commands to install `cvmfs-csi`:
+```
+kubectl create namespace cvmfs-csi
+helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values cvmfs/values-cvmfs-csi.yaml
+kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
+```
+</details>
+
+<details>
+<summary><strong>2. Install SuperSONIC with minimal configuration</strong></summary>
+
+The minimal deployment will install only a single CPU-based Triton server and an Envoy Proxy.
+We will use [`values/values-minimal.yaml`](values/values-minimal.yaml) as our minimal
+configuration file.
 
 ```
 helm repo add fastml https://fastmachinelearning.org/SuperSONIC
 helm repo update
-helm install <release-name> fastml/supersonic -n <namespace> -f <your-values.yaml>
+helm install <release-name> fastml/supersonic -n <namespace> -f values/values-minimal.yaml
 ```
-
 </details>
 
+<details>
+<summary><strong>3. Deploy a test job to run inferences</strong></summary>
+
+
+```
+helm repo add fastml https://fastmachinelearning.org/SuperSONIC
+helm repo update
+helm install <release-name> fastml/supersonic -n <namespace> -f values/values-minimal.yaml
+```
+</details>
+
+### Advanced deployment
+
+### Installing from a GitHub branch/tag/commit
 <details>
 <summary><strong>Install directly from a GitHub branch/tag/commit</strong></summary>
 
