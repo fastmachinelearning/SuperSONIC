@@ -123,6 +123,34 @@ helm install <release-name> fastml/supersonic -n <namespace> -f values/values-mi
 <details>
 <summary><strong>3. Deploy a test job to run inferences</strong></summary>
 
+To test your SuperSONIC installation, we will create a small [Nvidia Performance Analyzer](https://docs.nvidia.com/deeplearning/triton-inference-server/archives/triton-inference-server-2280/user-guide/docs/user_guide/perf_analyzer.html) job,
+which will send a single inference request with random input data to Envoy Proxy endpoint.
+
+1. In `tests/perf-analyzer-job.yaml`, edit the following parameters to match your deployment:
+
+    ```
+    metadata:
+      namespace: <namespace>
+    ```
+
+    In `perf_analyzer` command: 
+
+    ```
+    -u <release-name>.<namespace>.svc.cluster.local:8001
+    ```
+
+2. Submit the job to your Kubernetes cluster:
+
+    ```
+    kubectl apply -n <namespace> -f tests/perf-analyzer-job.yaml
+    ```
+
+3. Track job performance and inspect logs:
+
+    ```
+    kubectl get pods -l job-name=perf-analyzer-job -n <namespace>
+    kubectl logs <pod-name> -n <namespace>
+    ```
 
 </details>
 

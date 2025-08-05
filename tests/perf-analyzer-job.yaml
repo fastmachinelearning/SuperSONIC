@@ -31,5 +31,3 @@ spec:
           limits:
             cpu: 1
             memory: "2G"
-      # nodeSelector:
-      #   topology.kubernetes.io/zone: ucsd
