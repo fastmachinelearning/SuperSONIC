@@ -30,8 +30,16 @@ Currently, SuperSONIC supports the following functionality:
 ### Pre-requisites
 
   <details>
-  <summary><strong>a Kubernetes cluster</strong></summary>
+  <summary><strong>Kubernetes cluster</strong></summary>
+  
   ideally with access to GPUs, but CPUs are enough for a minimal deployment.
+  </details>
+
+  <details>
+  <summary><strong>Helm</strong></summary>
+
+  Helm is a package manager for Kubernetes. 
+  To install Helm on your machine, follow the official instructions at [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/).
   </details>
 
   <details>
