@@ -94,6 +94,11 @@ keda:
 
 prometheus:
   enabled: true
+  server:
+    useExistingClusterRoleName: test-030-prometheus-role
+  serviceAccounts:
+    server:
+      name: test-030-prometheus-sa
   external:
     enabled: true
     url: "prometheus.nrp-nautilus.io"
@@ -103,7 +108,7 @@ prometheus:
 grafana:
   enabled: true
   dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
+    default: test-030-grafana-default-dashboard
   datasources:
     datasources.yaml:
       datasources:
@@ -111,7 +116,7 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: prometheus.nrp-nautilus.io
+          url: https://prometheus.nrp-nautilus.io
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
@@ -125,7 +130,7 @@ grafana:
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
-      haproxy-ingress.github.io/backend-protocol: "h2"
+      haproxy-ingress.github.io/timeout-http-request: "5m"
       haproxy-ingress.github.io/proxy-body-size: "512m"
   grafana.ini:
     server:
