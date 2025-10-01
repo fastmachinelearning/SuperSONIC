@@ -105,6 +105,7 @@ into a Kubernetes cluster by creating a new storage class. A Persistent Volume c
 storage class will have CVMFS contents visible inside. 
 
 Cluster admin can use the following commands to install `cvmfs-csi`:
+
 ```
 kubectl create namespace cvmfs-csi
 helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values cvmfs/values-cvmfs-csi.yaml
