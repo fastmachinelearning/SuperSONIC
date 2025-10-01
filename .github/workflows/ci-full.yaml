@@ -46,8 +46,8 @@ jobs:
       - name: Mount CVMFS
         run: |
           kubectl create namespace cvmfs-csi
-          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values ci/values-cvmfs-csi.yaml
-          kubectl apply -f ci/cvmfs-storageclass.yaml -n cvmfs-csi
+          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values cvmfs/values-cvmfs-csi.yaml
+          kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
 
       - name: Deploy Helm chart
         run: |
@@ -98,7 +98,7 @@ jobs:
 
       - name: Run Perf Analyzer Job
         run: |
-          kubectl apply -f ci/perf-analyzer-job.yaml
+          kubectl apply -f tests/perf-analyzer-job-ci.yaml
           kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
           (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
 
