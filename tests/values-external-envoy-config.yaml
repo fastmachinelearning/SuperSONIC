@@ -13,7 +13,7 @@ envoy:
 # Enable minimal Triton service for testing
 triton:
   replicas: 1
-  image: "nvcr.io/nvidia/tritonserver:24.12-py3-min"
+  image: "fastml/triton-torchgeo:22.07-py3-geometric"
   command: ["/bin/sh", "-c"]
   args: 
     - |
