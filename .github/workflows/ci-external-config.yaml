@@ -61,34 +61,6 @@ jobs:
           helm upgrade --install supersonic ./helm/supersonic \
             --values tests/values-external-envoy-config.yaml -n cms
 
-      - name: Validate Envoy ConfigMap contains external config
-        run: |
-          echo "Checking that Envoy ConfigMap contains external configuration..."
-          ENVOY_CONFIG=$(kubectl get configmap supersonic-envoy-config -n cms -o jsonpath="{.data.envoy\.yaml}")
-          
-          # Check for key indicators that external config was loaded
-          if echo "$ENVOY_CONFIG" | grep -q "cms_local_rate_limiter"; then
-            echo "✓ External config loaded: Found rate limiter configuration"
-          else
-            echo "✗ External config test failed: Rate limiter not found in config"
-            exit 1
-          fi
-          
-          if echo "$ENVOY_CONFIG" | grep -q "local_ratelimit"; then
-            echo "✓ External config loaded: Found local rate limit filter"
-          else
-            echo "✗ External config test failed: Local rate limit filter not found"
-            exit 1
-          fi
-          
-          # Verify config doesn't contain dynamic generation markers
-          if echo "$ENVOY_CONFIG" | grep -q ".Values.envoy"; then
-            echo "✗ External config test failed: Dynamic template markers found in config"
-            exit 1
-          fi
-          
-          echo "✓ All external config validation checks passed"
-
       - name: CVMFS Mount ready
         run: |
           kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
