@@ -252,11 +252,24 @@
             "type": "string"
           }
         },
-        "load_external_config": {
-          "type": "boolean"
-        },
-        "external_config_path": {
-          "type": "string"
+        "external_config": {
+          "type": "object",
+          "properties": {
+            "load_from_configmap": {
+              "type": "boolean"
+            },
+            "configmap_name": {
+              "type": "string"
+            },
+            "configmap_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "configmap_key",
+            "configmap_name",
+            "load_from_configmap"
+          ]
         },
         "resources": {
           "type": "object",
@@ -456,12 +469,11 @@
         "args",
         "auth",
         "enabled",
-        "external_config_path",
+        "external_config",
         "grpc_route_timeout",
         "image",
         "ingress",
         "loadBalancerPolicy",
-        "load_external_config",
         "nodeSelector",
         "rate_limiter",
         "replicas",
