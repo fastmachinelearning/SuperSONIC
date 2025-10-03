@@ -25,8 +25,8 @@ envoy:
   enabled: true
   external_config:
     load_from_configmap: true
-    configmap_name: "external-envoy-config"
-    configmap_key: "envoy.yaml"  # Default key name
+    configmap_name: external-envoy-config
+    configmap_key: envoy.yaml
 
 prometheus:
   enabled: false

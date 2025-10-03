@@ -1,14 +1,8 @@
-# External ConfigMap containing Envoy configuration for CI testing
-# This ConfigMap will be used to test loading external Envoy configuration
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: external-envoy-config
-  namespace: cms  # Will be created in CI
-  labels:
-    app.kubernetes.io/name: envoy-external-config
-    app.kubernetes.io/instance: test
+  namespace: cms
 data:
   envoy.yaml: |
     # External Envoy configuration for CI testing
