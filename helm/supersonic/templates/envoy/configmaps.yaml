@@ -224,13 +224,29 @@ metadata:
     app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
-{{- if .Values.envoy.load_external_config }}
-    {{- if .Values.envoy.external_config_path }}
-    {{- /* Load configuration from external file */}}
-    {{ $.Files.Get .Values.envoy.external_config_path }}
+{{- if .Values.envoy.external_config.load_from_configmap }}
+    {{- if .Values.envoy.external_config.configmap_name }}
+    {{- /* Load configuration from external ConfigMap */}}
+    {{- $configmapName := .Values.envoy.external_config.configmap_name }}
+    {{- $dataKey := .Values.envoy.external_config.configmap_key | default "envoy.yaml" }}
+    {{- $externalConfig := (lookup "v1" "ConfigMap" .Release.Namespace $configmapName) }}
+    {{- if $externalConfig }}
+    {{- if $externalConfig.data }}
+    {{- if hasKey $externalConfig.data $dataKey }}
+    {{- /* Use the data from the external ConfigMap */}}
+    {{- printf "%s" (get $externalConfig.data $dataKey) }}
     {{- else }}
-    {{- /* Error if load_external_config is true but external_config_path is empty */}}
-    {{- fail "envoy.external_config_path must be specified when envoy.load_external_config is true" }}
+    {{- fail (printf "Expected key '%s' not found in ConfigMap '%s/%s'" $dataKey .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- fail (printf "No data found in ConfigMap '%s/%s'" .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- fail (printf "External ConfigMap '%s/%s' not found. Please ensure the ConfigMap exists." .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- /* Error if load_from_configmap is true but configmap_name is empty */}}
+    {{- fail "envoy.external_config.configmap_name must be specified when envoy.external_config.load_from_configmap is true" }}
     {{- end }}
 {{- else }}
 {{- /* Use dynamically generated configuration */}}

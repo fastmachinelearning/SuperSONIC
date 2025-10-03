@@ -23,10 +23,10 @@ triton:
 
 envoy:
   enabled: true
-  load_external_config: true
-  external_config_path: "tests/envoy-config-test.yaml"
-  replicas: 1
-  image: "envoyproxy/envoy:v1.30.9"
+  external_config:
+    load_from_configmap: true
+    configmap_name: "external-envoy-config"
+    configmap_key: "envoy.yaml"  # Default key name
 
 prometheus:
   enabled: false

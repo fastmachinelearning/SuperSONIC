@@ -49,6 +49,10 @@ jobs:
           helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values cvmfs/values-cvmfs-csi.yaml
           kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
 
+      - name: Create external Envoy ConfigMap
+        run: |
+          kubectl apply -f tests/envoy-config-test.yaml -n cms
+
       - name: Deploy Helm chart with external Envoy config
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
@@ -62,7 +66,28 @@ jobs:
           echo "Checking that Envoy ConfigMap contains external configuration..."
           ENVOY_CONFIG=$(kubectl get configmap supersonic-envoy-config -n cms -o jsonpath="{.data.envoy\.yaml}")
           
-          echo "✓ Success!"
+          # Check for key indicators that external config was loaded
+          if echo "$ENVOY_CONFIG" | grep -q "cms_local_rate_limiter"; then
+            echo "✓ External config loaded: Found rate limiter configuration"
+          else
+            echo "✗ External config test failed: Rate limiter not found in config"
+            exit 1
+          fi
+          
+          if echo "$ENVOY_CONFIG" | grep -q "local_ratelimit"; then
+            echo "✓ External config loaded: Found local rate limit filter"
+          else
+            echo "✗ External config test failed: Local rate limit filter not found"
+            exit 1
+          fi
+          
+          # Verify config doesn't contain dynamic generation markers
+          if echo "$ENVOY_CONFIG" | grep -q ".Values.envoy"; then
+            echo "✗ External config test failed: Dynamic template markers found in config"
+            exit 1
+          fi
+          
+          echo "✓ All external config validation checks passed"
 
       - name: CVMFS Mount ready
         run: |

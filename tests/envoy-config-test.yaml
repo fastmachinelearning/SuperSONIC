@@ -1,57 +1,81 @@
-# Test external Envoy configuration file for CI/CD testing
-# This is a minimal configuration to validate external config loading works
+# External ConfigMap containing Envoy configuration for CI testing
+# This ConfigMap will be used to test loading external Envoy configuration
 
-admin:
-  access_log_path: /tmp/admin_access.log
-  address:
-    socket_address:
-      address: 0.0.0.0
-      port_value: 9901
-
-static_resources:
-  listeners:
-    - name: listener_grpc
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: external-envoy-config
+  namespace: cms  # Will be created in CI
+  labels:
+    app.kubernetes.io/name: envoy-external-config
+    app.kubernetes.io/instance: test
+data:
+  envoy.yaml: |
+    # External Envoy configuration for CI testing
+    admin:
+      access_log_path: /tmp/admin_access.log
       address:
         socket_address:
           address: 0.0.0.0
-          port_value: 8001
-      filter_chains:
-        - filters:
-            - name: envoy.filters.network.http_connection_manager
-              typed_config:
-                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-                generate_request_id: true
-                stat_prefix: ingress_grpc
-                codec_type: AUTO
-                route_config:
-                  name: local_route_grpc
-                  virtual_hosts:
-                    - name: backend_grpc
-                      domains: ["*"]
-                      routes:
-                        - match:
-                            prefix: "/"
-                          route:
-                            cluster: triton_grpc_service
-                            timeout: 0s
-                http_filters:
-                  - name: envoy.filters.http.router
-                    typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-                http2_protocol_options: {}
+          port_value: 9901
 
-  clusters:
-    - name: triton_grpc_service
-      connect_timeout: 0.25s
-      type: STRICT_DNS
-      lb_policy: ROUND_ROBIN
-      http2_protocol_options: {}
-      load_assignment:
-        cluster_name: triton_grpc_service
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: supersonic-triton
-                      port_value: 8001
+    static_resources:
+      listeners:
+        - name: listener_grpc
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 8001
+          
+          # Enable listener-level rate limiting for testing
+          listener_filters:
+            - name: envoy.filters.listener.local_ratelimit
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.listener.local_ratelimit.v3.LocalRateLimit
+                stat_prefix: cms_local_rate_limiter
+                token_bucket:
+                  max_tokens: 5
+                  tokens_per_fill: 1
+                  fill_interval: 12s
+          
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    generate_request_id: true
+                    stat_prefix: ingress_grpc
+                    codec_type: AUTO
+                    route_config:
+                      name: local_route_grpc
+                      virtual_hosts:
+                        - name: backend_grpc
+                          domains: ["*"]
+                          routes:
+                            - match:
+                                prefix: "/"
+                              route:
+                                cluster: triton_grpc_service
+                                timeout: 0s
+                    
+                    http_filters:
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+                    http2_protocol_options: {}
+
+      clusters:
+        - name: triton_grpc_service
+          connect_timeout: 0.25s
+          type: STRICT_DNS
+          lb_policy: LEAST_REQUEST
+          http2_protocol_options: {}
+          load_assignment:
+            cluster_name: triton_grpc_service
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: supersonic-triton
+                          port_value: 8001
