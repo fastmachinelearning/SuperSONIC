@@ -1,5 +1,5 @@
 {{- /* Define the Envoy configuration in YAML at the top level */}}
-{{- /* (it will be used only if envoy.config.load_external_config is false) */}}
+{{- /* (it will be used only if envoy.external_config.load_from_configmap is false) */}}
 {{- define "envoy.configuration.yaml" }}
 {{- with . }}
 admin:
@@ -183,6 +183,8 @@ static_resources:
 {{- /* Begin iterating over servers */}}
 {{- if .Values.envoy.enabled }}
 
+{{- if not .Values.envoy.external_config.load_from_configmap }}
+{{- /* Only prepare dynamic configuration context when not using external config */}}
 {{- /* Define variables for ports */}}
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
@@ -213,6 +215,10 @@ static_resources:
     "tritonName" $tritonName
     "root" .
 }}
+{{- else }}
+{{- /* Create empty context for external config case to avoid undefined variable errors */}}
+{{- $envoyContext := dict }}
+{{- end }}
 
 apiVersion: v1
 kind: ConfigMap
@@ -254,7 +260,7 @@ data:
 {{- end }}
 ---
 
-{{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+{{- if and .Values.envoy.rate_limiter.prometheus_based.enabled (not .Values.envoy.external_config.load_from_configmap) }}
 {{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
