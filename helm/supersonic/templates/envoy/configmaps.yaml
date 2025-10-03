@@ -1,4 +1,5 @@
 {{- /* Define the Envoy configuration in YAML at the top level */}}
+{{- /* (it will be used only if envoy.external_config.load_from_configmap is false) */}}
 {{- define "envoy.configuration.yaml" }}
 {{- with . }}
 admin:
@@ -182,6 +183,11 @@ static_resources:
 {{- /* Begin iterating over servers */}}
 {{- if .Values.envoy.enabled }}
 
+{{- /* Initialize envoyContext variable */}}
+{{- $envoyContext := dict }}
+
+{{- if not .Values.envoy.external_config.load_from_configmap }}
+{{- /* Only prepare dynamic configuration context when not using external config */}}
 {{- /* Define variables for ports */}}
 {{- $tritonGrpcPort := "" -}}
 {{- $envoyGrpcPort := "" -}}
@@ -202,7 +208,7 @@ static_resources:
 {{- $tritonName := include "supersonic.tritonName" . }}
 
 {{- /* Create a context to pass to the template */}}
-{{- $envoyContext := dict
+{{- $envoyContext = dict
     "envoyAdminPort" $envoyAdminPort
     "envoyGrpcPort" $envoyGrpcPort
     "tritonGrpcPort" $tritonGrpcPort
@@ -212,6 +218,7 @@ static_resources:
     "tritonName" $tritonName
     "root" .
 }}
+{{- end }}
 
 apiVersion: v1
 kind: ConfigMap
@@ -223,10 +230,37 @@ metadata:
     app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
+{{- if .Values.envoy.external_config.load_from_configmap }}
+    {{- if .Values.envoy.external_config.configmap_name }}
+    {{- /* Load configuration from external ConfigMap */}}
+    {{- $configmapName := .Values.envoy.external_config.configmap_name }}
+    {{- $dataKey := .Values.envoy.external_config.configmap_key | default "envoy.yaml" }}
+    {{- $externalConfig := (lookup "v1" "ConfigMap" .Release.Namespace $configmapName) }}
+    {{- if $externalConfig }}
+    {{- if $externalConfig.data }}
+    {{- if hasKey $externalConfig.data $dataKey }}
+    {{- /* Use the data from the external ConfigMap */}}
+    {{- (get $externalConfig.data $dataKey) | nindent 4 }}
+    {{- else }}
+    {{- fail (printf "Expected key '%s' not found in ConfigMap '%s/%s'" $dataKey .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- fail (printf "No data found in ConfigMap '%s/%s'" .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- fail (printf "External ConfigMap '%s/%s' not found. Please ensure the ConfigMap exists." .Release.Namespace $configmapName) }}
+    {{- end }}
+    {{- else }}
+    {{- /* Error if load_from_configmap is true but configmap_name is empty */}}
+    {{- fail "envoy.external_config.configmap_name must be specified when envoy.external_config.load_from_configmap is true" }}
+    {{- end }}
+{{- else }}
+{{- /* Use dynamically generated configuration */}}
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
+{{- end }}
 ---
 
-{{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+{{- if and .Values.envoy.rate_limiter.prometheus_based.enabled (not .Values.envoy.external_config.load_from_configmap) }}
 {{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
