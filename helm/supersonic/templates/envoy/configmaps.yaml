@@ -240,7 +240,7 @@ data:
     {{- if $externalConfig.data }}
     {{- if hasKey $externalConfig.data $dataKey }}
     {{- /* Use the data from the external ConfigMap */}}
-    {{- printf "%s" (get $externalConfig.data $dataKey) }}
+    {{- (get $externalConfig.data $dataKey) | nindent 4 }}
     {{- else }}
     {{- fail (printf "Expected key '%s' not found in ConfigMap '%s/%s'" $dataKey .Release.Namespace $configmapName) }}
     {{- end }}
