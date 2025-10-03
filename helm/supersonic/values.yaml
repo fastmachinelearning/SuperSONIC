@@ -125,6 +125,11 @@ envoy:
   # -- Arguments for Envoy
   args: ["--config-path", "/etc/envoy/envoy.yaml", "--log-level", "info", "--log-path", "/dev/stdout"]
 
+  # -- If true, load Envoy configuration from an external file instead of generating it dynamically
+  load_external_config: false
+  # -- Path to the external Envoy configuration file 
+  external_config_path: ""
+
   # -- Resource requests and limits for Envoy Proxy.
   # Note: an Envoy Proxy with too many connections might run out of CPU
   resources:

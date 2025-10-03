@@ -1,4 +1,5 @@
 {{- /* Define the Envoy configuration in YAML at the top level */}}
+{{- /* (it will be used only if envoy.config.load_external_config is false) */}}
 {{- define "envoy.configuration.yaml" }}
 {{- with . }}
 admin:
@@ -223,7 +224,18 @@ metadata:
     app.kubernetes.io/component: envoy
 data:
   envoy.yaml: |-
+{{- if .Values.envoy.load_external_config }}
+    {{- if .Values.envoy.external_config_path }}
+    {{- /* Load configuration from external file */}}
+    {{ $.Files.Get .Values.envoy.external_config_path }}
+    {{- else }}
+    {{- /* Error if load_external_config is true but external_config_path is empty */}}
+    {{- fail "envoy.external_config_path must be specified when envoy.load_external_config is true" }}
+    {{- end }}
+{{- else }}
+{{- /* Use dynamically generated configuration */}}
 {{ include "envoy.configuration.yaml" $envoyContext | indent 4 }}
+{{- end }}
 ---
 
 {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
