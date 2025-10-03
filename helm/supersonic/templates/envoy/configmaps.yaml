@@ -183,6 +183,9 @@ static_resources:
 {{- /* Begin iterating over servers */}}
 {{- if .Values.envoy.enabled }}
 
+{{- /* Initialize envoyContext variable */}}
+{{- $envoyContext := dict }}
+
 {{- if not .Values.envoy.external_config.load_from_configmap }}
 {{- /* Only prepare dynamic configuration context when not using external config */}}
 {{- /* Define variables for ports */}}
@@ -205,7 +208,7 @@ static_resources:
 {{- $tritonName := include "supersonic.tritonName" . }}
 
 {{- /* Create a context to pass to the template */}}
-{{- $envoyContext := dict
+{{- $envoyContext = dict
     "envoyAdminPort" $envoyAdminPort
     "envoyGrpcPort" $envoyGrpcPort
     "tritonGrpcPort" $tritonGrpcPort
@@ -215,9 +218,6 @@ static_resources:
     "tritonName" $tritonName
     "root" .
 }}
-{{- else }}
-{{- /* Create empty context for external config case to avoid undefined variable errors */}}
-{{- $envoyContext := dict }}
 {{- end }}
 
 apiVersion: v1
