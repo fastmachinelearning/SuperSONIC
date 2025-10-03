@@ -60,5 +60,5 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          address: supersonic-dev-triton
+                          address: supersonic-triton
                           port_value: 8001
