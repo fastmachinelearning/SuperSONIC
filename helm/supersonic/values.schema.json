@@ -252,6 +252,12 @@
             "type": "string"
           }
         },
+        "load_external_config": {
+          "type": "boolean"
+        },
+        "external_config_path": {
+          "type": "string"
+        },
         "resources": {
           "type": "object",
           "properties": {
@@ -450,10 +456,12 @@
         "args",
         "auth",
         "enabled",
+        "external_config_path",
         "grpc_route_timeout",
         "image",
         "ingress",
         "loadBalancerPolicy",
+        "load_external_config",
         "nodeSelector",
         "rate_limiter",
         "replicas",
