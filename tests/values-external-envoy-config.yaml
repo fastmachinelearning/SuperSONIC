@@ -1,0 +1,42 @@
+# Test values for external Envoy configuration testing
+# This file is used by CI to validate external config loading
+
+# Enable Envoy with external configuration
+envoy:
+  enabled: true
+  # Test external config loading
+  load_external_config: true
+  external_config_path: "tests/envoy-config-test.yaml"
+  replicas: 1
+  image: "envoyproxy/envoy:v1.30.9"
+
+# Enable minimal Triton service for testing
+triton:
+  replicas: 1
+  image: "nvcr.io/nvidia/tritonserver:24.12-py3-min"
+  command: ["/bin/sh", "-c"]
+  args: 
+    - |
+      /opt/tritonserver/bin/tritonserver \
+      --model-repository=/tmp/ \
+      --log-verbose=0 \
+      --exit-timeout-secs=60
+
+# Disable optional components for faster testing
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+keda:
+  enabled: false
+
+tempo:
+  enabled: false
+
+opentelemetry-collector:
+  enabled: false
+
+metricsCollector:
+  enabled: false

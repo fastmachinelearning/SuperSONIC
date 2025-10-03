@@ -1,0 +1,118 @@
+name: ci [external-config]
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  deploy-at-github:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubernetes cluster with Kind
+        uses: helm/kind-action@v1.6.0
+        with:
+          cluster_name: gh-k8s-cluster
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Create CMS namespace
+        run: |
+          kubectl create namespace cms
+
+      - name: Install Prometheus Operator CRDs
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          kubectl create namespace monitoring
+          helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheusOperator.createCustomResource=false --set defaultRules.create=false --set alertmanager.enabled=false --set prometheus.enabled=false --set grafana.enabled=false
+
+      - name: Install KEDA Autoscaler
+        run: |
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo update
+          kubectl create namespace keda
+          helm install keda kedacore/keda --namespace keda
+
+      - name: Mount CVMFS
+        run: |
+          kubectl create namespace cvmfs-csi
+          helm install -n cvmfs-csi cvmfs-csi oci://registry.cern.ch/kubernetes/charts/cvmfs-csi --values cvmfs/values-cvmfs-csi.yaml
+          kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
+
+      - name: Deploy Helm chart with external Envoy config
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+          helm dependency build ./helm/supersonic
+          helm upgrade --install supersonic ./helm/supersonic \
+            --values tests/values-external-envoy-config.yaml -n cms
+
+      - name: Validate Envoy ConfigMap contains external config
+        run: |
+          echo "Checking that Envoy ConfigMap contains external configuration..."
+          ENVOY_CONFIG=$(kubectl get configmap supersonic-envoy-config -n cms -o jsonpath="{.data.envoy\.yaml}")
+          
+          echo "✓ Success!"
+
+      - name: CVMFS Mount ready
+        run: |
+          kubectl wait --for condition=Ready pod --all -n cvmfs-csi --timeout 120s
+
+      - name: Envoy proxy ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
+
+      - name: Prometheus ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=prometheus --timeout 120s -n cms
+          kubectl get svc,pod -l app.kubernetes.io/name=prometheus -n cms
+
+      - name: Grafana ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
+
+      - name: OpenTelemetry Collector ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=opentelemetry-collector --timeout 120s -n cms
+
+      - name: Tempo ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
+
+      - name: Autoscaler ready
+        run: |
+          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
+          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
+
+      - name: Triton server ready
+        run: |
+          kubectl describe pod -l app.kubernetes.io/component=triton -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
+
+      - name: Validate Deployment
+        run: |
+          kubectl get all -n cms
+
+      - name: Run Perf Analyzer Job
+        run: |
+          kubectl apply -f tests/perf-analyzer-job-ci.yaml
+          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
+          (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
+
+          POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
+          echo "========== Perf Analyzer Logs =========="
+          kubectl logs -n cms "$POD_NAME" 
+          echo "========================================"
+
+      - name: Cleanup
+        run: kind delete cluster --name gh-k8s-cluster
