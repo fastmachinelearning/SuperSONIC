@@ -72,28 +72,6 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
 
-      - name: Prometheus ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=prometheus --timeout 120s -n cms
-          kubectl get svc,pod -l app.kubernetes.io/name=prometheus -n cms
-
-      - name: Grafana ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
-
-      - name: OpenTelemetry Collector ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=opentelemetry-collector --timeout 120s -n cms
-
-      - name: Tempo ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
-
-      - name: Autoscaler ready
-        run: |
-          kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
-          kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
-
       - name: Triton server ready
         run: |
           kubectl describe pod -l app.kubernetes.io/component=triton -n cms
