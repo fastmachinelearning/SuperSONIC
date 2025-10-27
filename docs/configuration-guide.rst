@@ -149,6 +149,19 @@ There are two options:
 
    In this case, the client connections should be established to  ``<load_balancer_url>:8001`` and NOT use SSL.
 
+Some Envoy Proxy parameters, such as load balancing policy, rate limiting, and authentication,
+can be cofigured directly in the ``values.yaml`` file as described in sections below.
+
+Alternatively, you can provide an external Envoy configuration file to override the
+default configuration completely (the configuration file must be supplied as a ConfigMap):
+
+.. code-block:: yaml
+
+   envoy:
+     external_config:
+       load_from_configmap: true
+       configmap_name: external-envoy-config
+       configmap_key: envoy.yaml
 
 5. (Optional) Configure Rate Limiting in Envoy Proxy
 ======================================================
