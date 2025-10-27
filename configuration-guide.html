@@ -221,6 +221,17 @@ Please contact cluster administrators for more information.</p>
 <p>In this case, the client connections should be established to  <code class="docutils literal notranslate"><span class="pre">&lt;load_balancer_url&gt;:8001</span></code> and NOT use SSL.</p>
 </li>
 </ul>
+<p>Some Envoy Proxy parameters, such as load balancing policy, rate limiting, and authentication,
+can be cofigured directly in the <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file as described in sections below.</p>
+<p>Alternatively, you can provide an external Envoy configuration file to override the
+default configuration completely (the configuration file must be supplied as a ConfigMap):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">external_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">load_from_configmap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">configmap_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external-envoy-config</span>
+<span class="w">    </span><span class="nt">configmap_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.yaml</span>
+</pre></div>
+</div>
 </section>
 <section id="optional-configure-rate-limiting-in-envoy-proxy">
 <h2>5. (Optional) Configure Rate Limiting in Envoy Proxy<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h2>

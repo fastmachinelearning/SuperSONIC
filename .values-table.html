@@ -213,6 +213,26 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">[&quot;--config-path&quot;,&quot;/etc/envoy/envoy.yaml&quot;,&quot;--log-level&quot;,&quot;info&quot;,&quot;--log-path&quot;,&quot;/dev/stdout&quot;]</span></code></p></td>
 <td><p>Arguments for Envoy</p></td>
 </tr>
+<tr class="row-odd"><td><p>envoy.external_config</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;configmap_key&quot;:&quot;&quot;,&quot;configmap_name&quot;:&quot;&quot;,&quot;load_from_configmap&quot;:false}</span></code></p></td>
+<td><p>External Envoy configuration settings</p></td>
+</tr>
+<tr class="row-even"><td><p>envoy.external_config.load_from_configmap</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>If true, load Envoy configuration from an external ConfigMap instead of generating it dynamically</p></td>
+</tr>
+<tr class="row-odd"><td><p>envoy.external_config.configmap_name</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>Name of the external ConfigMap containing the Envoy configuration</p></td>
+</tr>
+<tr class="row-even"><td><p>envoy.external_config.configmap_key</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>Key name in the external ConfigMap (defaults to “envoy.yaml”)</p></td>
+</tr>
 <tr class="row-odd"><td><p>envoy.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:8,&quot;memory&quot;:&quot;4G&quot;},&quot;requests&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;}}</span></code></p></td>
