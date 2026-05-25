@@ -4,7 +4,7 @@ triton:
   replicas: 5
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   # image: fastml/triton-torchgeo:22.07-py3-geometric # run3
-  image: nvcr.io/nvidia/tritonserver:24.11-py3
+  image: nvcr.io/nvidia/tritonserver:26.04-py3
   # image: yongbinfeng/tritonserver:rhel8.9_v3
   # image: gitlab-registry.nrp-nautilus.io/kondratyevd/supersonic/triton-torchgeo:22.07-py3-geometric
   command: ["/bin/sh", "-c"]

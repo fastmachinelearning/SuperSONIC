@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: perf-analyzer
-        image: nvcr.io/nvidia/tritonserver:22.07-py3-sdk
+        image: nvcr.io/nvidia/tritonserver:26.04-py3-sdk
         command: ["/bin/bash"]
         args:
           - "-c"

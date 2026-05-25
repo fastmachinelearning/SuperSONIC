@@ -15,7 +15,7 @@ triton:
   replicas: 1
 
   # -- Docker image for the Triton server
-  image: "nvcr.io/nvidia/tritonserver:24.12-py3-min"
+  image: "nvcr.io/nvidia/tritonserver:26.04-py3-min"
   
   # -- Command and arguments to run in Triton container
   command: ["/bin/sh", "-c"]
