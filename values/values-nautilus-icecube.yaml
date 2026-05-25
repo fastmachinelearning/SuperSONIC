@@ -1,7 +1,7 @@
 serverLoadThreshold: 100
 
 triton: 
-  image: nvcr.io/nvidia/tritonserver:24.10-py3
+  image: nvcr.io/nvidia/tritonserver:26.04-py3
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
