@@ -1,5 +1,5 @@
 ![Version](https://img.shields.io/github/v/release/fastmachinelearning/SuperSONIC)
-[![DOI](https://zenodo.org/badge/876768230.svg)](https://doi.org/10.5281/zenodo.14815348)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16696112.svg)](https://doi.org/10.5281/zenodo.14815348)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/supersonic)](https://artifacthub.io/packages/search?repo=supersonic)
 ![Downloads](https://img.shields.io/github/downloads/fastmachinelearning/SuperSONIC/total)
 ![License](https://img.shields.io/github/license/fastmachinelearning/SuperSONIC)
@@ -186,16 +186,6 @@ helm install <release-name> helm/supersonic -n <namespace> -f <your-values.yaml>
   <img src="https://github.com/fastmachinelearning/SuperSONIC/blob/main/docs/img/diagram-dark.svg#gh-dark-mode-only" alt="diagram-dark" width="700"/>
 </p>
 
-
-## Status of deployment
-
-|  | **[CMS](https://home.cern/science/experiments/cms)**      | **[ATLAS](https://home.cern/science/experiments/atlas)**    | **[IceCube](https://icecube.wisc.edu)**  |
-|:---|:---:|:---:|:---:|
-| **[Purdue Geddes](https://www.rcac.purdue.edu/compute/geddes)**   | ✅ | - | - |
-| **[Purdue Anvil](https://www.rcac.purdue.edu/compute/anvil)**   | ✅ | - | - |
-| **[NRP Nautilus](https://docs.nationalresearchplatform.org)**    | ✅  |  ✅ |   ✅   |
-| **[UChicago](https://af.uchicago.edu/)**    |  -  |  ✅ |   -   |
-| **[UW–Madison](https://www.hep.wisc.edu/cms/comp/)**  | ⏳ | - | - |
 
 ## Publications
 
