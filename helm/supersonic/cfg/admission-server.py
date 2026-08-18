@@ -16,16 +16,13 @@ CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 HOLD_TTL = int(os.environ.get("HOLD_MIN_REPLICAS_SECONDS", "300"))
-READY_TIMEOUT = int(os.environ.get("READY_TIMEOUT_SECONDS", "300"))
 GPU_DEPLOYMENT = os.environ.get("GPU_DEPLOYMENT", "")
 SCALEDOBJECT_NAME = os.environ.get("SCALEDOBJECT_NAME", "")
 IDLE_MIN_REPLICAS = int(os.environ.get("IDLE_MIN_REPLICAS", "0"))
-TRITON_READY_URL = os.environ.get("TRITON_READY_URL", "")
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
 _lock = threading.Lock()
 _last_wake = 0.0
-_ready = False
 _so_held = False
 
 
@@ -62,25 +59,9 @@ def _api_request(method, path, data=None):
         return json.load(resp)
 
 
-def triton_ready():
-    if not TRITON_READY_URL:
-        return False
-    try:
-        req = urllib.request.Request(TRITON_READY_URL, method="GET")
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            return 200 <= resp.status < 300
-    except (urllib.error.URLError, TimeoutError, OSError):
-        return False
-
-
 def demand_active():
     with _lock:
         return time.time() - _last_wake < HOLD_TTL
-
-
-def is_ready():
-    with _lock:
-        return _ready
 
 
 def set_scaledobject_min(min_replicas):
@@ -144,7 +125,6 @@ def wake():
 
 
 def _watch_loop():
-    global _ready
     last_scale_check = 0.0
     while True:
         now = time.time()
@@ -153,9 +133,6 @@ def _watch_loop():
             last_scale_check = now
         elif not demand_active():
             release_scale_hold()
-        ready = triton_ready()
-        with _lock:
-            _ready = ready
         time.sleep(0.5)
 
 
@@ -166,11 +143,11 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         print(f"admission: {fmt % args}", flush=True)
 
-    def _send(self, code, body, content_type="text/plain"):
-        payload = body if isinstance(body, bytes) else body.encode("utf-8")
+    def _send(self, code, body):
+        payload = body.encode("utf-8")
         self.close_connection = True
         self.send_response(code)
-        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Type", "text/plain")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Connection", "close")
         self.end_headers()
@@ -190,12 +167,6 @@ class Handler(BaseHTTPRequestHandler):
             time.sleep(1)
             self._send(200, "ok\n")
             return
-        if path == "/ready":
-            if is_ready():
-                self._send(200, "ready\n")
-            else:
-                self._send(503, "not-ready\n")
-            return
         self._send(404, "not found\n")
 
 
@@ -204,7 +175,7 @@ def main():
     watcher.start()
     server = ThreadingHTTPServer(("0.0.0.0", LISTEN_PORT), Handler)
     print(
-        f"admission: listening on :{LISTEN_PORT} ready_url={TRITON_READY_URL}",
+        f"admission: listening on :{LISTEN_PORT} deployment={GPU_DEPLOYMENT}",
         flush=True,
     )
     server.serve_forever()

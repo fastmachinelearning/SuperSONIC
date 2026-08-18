@@ -63,18 +63,10 @@ spec:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
       {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
       {{- $sfz := .Values.keda.scaleFromZero | default dict }}
-      {{- $httpPort := 8000 }}
-      {{- range .Values.triton.service.ports }}
-        {{- if eq .name "http" }}
-          {{- $httpPort = .port }}
-        {{- end }}
-      {{- end }}
       - name: admission
         image: {{ $sfz.admissionImage | default "python:3.11-slim" }}
         command: ["python3", "/app/admission-server.py"]
         env:
-        - name: READY_TIMEOUT_SECONDS
-          value: {{ $sfz.readyTimeoutSeconds | default 300 | quote }}
         - name: HOLD_MIN_REPLICAS_SECONDS
           value: {{ $sfz.holdMinReplicasSeconds | default 300 | quote }}
         - name: GPU_DEPLOYMENT
@@ -83,8 +75,6 @@ spec:
           value: {{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}
         - name: IDLE_MIN_REPLICAS
           value: {{ .Values.keda.minReplicaCount | int | quote }}
-        - name: TRITON_READY_URL
-          value: "http://{{ include "supersonic.tritonName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ $httpPort }}/v2/health/ready"
         ports:
         - name: admission
           containerPort: 8080
