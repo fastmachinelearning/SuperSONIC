@@ -216,9 +216,6 @@
             "failureThreshold": {
               "type": "integer"
             },
-            "timeoutSeconds": {
-              "type": "integer"
-            },
             "httpGet": {
               "type": "object",
               "properties": {
@@ -233,6 +230,9 @@
                 "path",
                 "port"
               ]
+            },
+            "timeoutSeconds": {
+              "type": "integer"
             }
           },
           "required": [
