@@ -29,7 +29,7 @@ Get Envoy proxy name
 True when scaleFromZero.enabled is true.
 */}}
 {{- define "supersonic.scaleFromZeroEnabled" -}}
-{{- if eq (dig "scaleFromZero" "enabled" false .Values) true -}}true{{- end -}}
+{{- if (.Values.scaleFromZero | default dict).enabled -}}true{{- end -}}
 {{- end -}}
 
 {{/*
