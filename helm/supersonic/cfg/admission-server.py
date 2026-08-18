@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Envoy sidecar: start the first GPU Triton on RepositoryIndex and wait until it is Ready."""
+"""Envoy sidecar: start the first GPU Triton on RepositoryIndex."""
 
 import json
 import os
@@ -136,21 +136,11 @@ def release_scale_hold():
     _so_held = False
 
 
-def wait_until_ready():
-    deadline = time.time() + READY_TIMEOUT
-    while time.time() < deadline:
-        if is_ready():
-            return True
-        time.sleep(0.5)
-    return is_ready()
-
-
 def wake():
     with _lock:
         global _last_wake
         _last_wake = time.time()
     ensure_gpu_replica()
-    return wait_until_ready()
 
 
 def _watch_loop():
@@ -193,10 +183,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, "ok\n")
             return
         if path == "/wake":
-            if wake():
-                self._send(200, "ready\n")
-            else:
-                self._send(503, "not-ready\n")
+            wake()
+            self._send(200, "ok\n")
+            return
+        if path == "/idle":
+            time.sleep(1)
+            self._send(200, "ok\n")
             return
         if path == "/ready":
             if is_ready():
