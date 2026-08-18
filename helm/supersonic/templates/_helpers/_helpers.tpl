@@ -26,6 +26,20 @@ Get Envoy proxy name
 {{- end -}}
 
 {{/*
+True when RepositoryIndex should start the first GPU Triton and wait until it is Ready.
+*/}}
+{{- define "supersonic.scaleFromZeroEnabled" -}}
+{{- if and .Values.keda.enabled (eq (dig "scaleFromZero" "enabled" false .Values.keda) true) -}}true{{- end -}}
+{{- end -}}
+
+{{/*
+True if the Envoy Lua filter should be mounted (rate limiter and/or scale-from-zero).
+*/}}
+{{- define "supersonic.luaFilterEnabled" -}}
+{{- if or .Values.envoy.rate_limiter.prometheus_based.enabled (eq (include "supersonic.scaleFromZeroEnabled" .) "true") -}}true{{- end -}}
+{{- end -}}
+
+{{/*
 Get gRPC endpoint for client connections
 */}}
 {{- define "supersonic.grpcEndpoint" -}}

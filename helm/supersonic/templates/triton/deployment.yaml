@@ -7,7 +7,9 @@ metadata:
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: triton
 spec:
+{{- if ne (include "supersonic.scaleFromZeroEnabled" .) "true" }}
   replicas: {{ .Values.triton.replicas | default 1 }}
+{{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Chart.Name }}
