@@ -495,14 +495,14 @@
         "maxReplicaCount": {
           "type": "integer"
         },
-        "zeroIdleReplicas": {
-          "type": "boolean"
-        },
         "pollingInterval": {
           "type": "integer"
         },
         "cooldownPeriod": {
           "type": "integer"
+        },
+        "zeroIdleReplicas": {
+          "type": "boolean"
         },
         "scaleFromZero": {
           "type": "object",
@@ -519,7 +519,13 @@
             "admissionImage": {
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "admissionImage",
+            "enabled",
+            "holdMinReplicasSeconds",
+            "readyTimeoutSeconds"
+          ]
         },
         "scaleUp": {
           "type": "object",
@@ -561,10 +567,13 @@
         }
       },
       "required": [
+        "cooldownPeriod",
         "enabled",
         "maxReplicaCount",
         "minReplicaCount",
+        "pollingInterval",
         "scaleDown",
+        "scaleFromZero",
         "scaleUp",
         "zeroIdleReplicas"
       ]
