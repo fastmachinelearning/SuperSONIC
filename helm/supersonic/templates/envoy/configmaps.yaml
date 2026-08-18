@@ -324,7 +324,7 @@ data:
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
     {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
     {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "true" }}
-    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" (.Values.keda.scaleFromZero.readyTimeoutSeconds | default 300 | toString) }}
+    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" (.Values.scaleFromZero.readyTimeoutSeconds | default 300 | toString) }}
     {{- else }}
     {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "false" }}
     {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" "300" }}

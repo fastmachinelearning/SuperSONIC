@@ -71,7 +71,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
      
      ## -- OR --
      ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-     storageType: "cvmfs"
+     storageType: "cvmfs-hostPath"
 
      ## -- OR --
      ## Option 4: mount an NFS storage volume

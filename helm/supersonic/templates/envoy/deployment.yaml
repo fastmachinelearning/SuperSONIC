@@ -62,7 +62,7 @@ spec:
         resources:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
       {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
-      {{- $sfz := .Values.keda.scaleFromZero | default dict }}
+      {{- $sfz := .Values.scaleFromZero | default dict }}
       - name: admission
         image: {{ $sfz.admissionImage | default "python:3.11-slim" }}
         command: ["python3", "/app/admission-server.py"]

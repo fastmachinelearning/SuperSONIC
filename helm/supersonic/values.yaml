@@ -10,8 +10,23 @@ serverLoadMetric: ""
 # -- Threshold for the metric
 serverLoadThreshold: 100
 
+# -- Start the first GPU Triton from Envoy when a client sends RepositoryIndex.
+# SuperSONIC feature (not a KEDA ScaledObject field). Requires keda.enabled,
+# keda.minReplicaCount: 0, and envoy.enabled.
+# A successful index is returned only after Envoy has a healthy Triton upstream,
+# so ModelConfig and inference can keep their normal (short) client timeouts.
+scaleFromZero:
+  enabled: false
+  # -- How long Envoy waits for a healthy Triton upstream before rejecting RepositoryIndex
+  readyTimeoutSeconds: 300
+  # -- Keep minReplicaCount at 1 this long after the last index so KEDA does not scale to 0 during warmup
+  holdMinReplicasSeconds: 300
+  # -- Image for the admission sidecar running next to Envoy
+  admissionImage: python:3.11-slim
+
 triton:
-  # -- Number of Triton server instances (if autoscaling is disabled)
+  # -- Number of Triton server instances (if autoscaling is disabled).
+  # Ignored when scaleFromZero.enabled is true.
   replicas: 1
 
   # -- Docker image for the Triton server
@@ -73,7 +88,7 @@ triton:
     # storageType: "cvmfs-pvc"
     
     ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-    # storageType: "cvmfs"
+    # storageType: "cvmfs-hostPath"
 
     ## Option 4: mount an NFS storage volume
     # storageType: "nfs"
@@ -99,7 +114,7 @@ triton:
     periodSeconds: 10
     failureThreshold: 10
     command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
-    timeoutSeconds: 5
+    timeoutSeconds: 15
     successThreshold: 1
 
   # -- Custom startup probe configuration
@@ -108,10 +123,12 @@ triton:
     reset: false
     initialDelaySeconds: 0
     periodSeconds: 10
-    failureThreshold: 12
+    failureThreshold: 24
     httpGet:
       path: /v2/health/ready
       port: http
+    timeoutSeconds: 15
+
 envoy:
   # -- Enable Envoy Proxy
   enabled: true
@@ -186,11 +203,12 @@ envoy:
       fill_interval: 12s
 
     # -- This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency).
-    # The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``.
+    # The metric is taken from parameter ``serverLoadMetric``, and the threshold is set by ``serverLoadThreshold``.
     # These parameters are the same as those used by the KEDA autoscaler.
     prometheus_based:
       # -- Enable rate limiter
       enabled: false
+      # -- Lua filter used by the prometheus rate limiter and by scale-from-zero
       luaConfig: "cfg/envoy-filter.lua" 
 
   # -- Envoy load balancer policy.
@@ -211,13 +229,12 @@ envoy:
 keda:
 
   # -- Enable autoscaling (requires Prometheus to also be enabled).
-  # Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``,
-  # new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``.
+  # Autoscaling will be based on the metric from parameter ``serverLoadMetric``;
+  # new Triton servers will spawn if the metric exceeds the threshold set by ``serverLoadThreshold``.
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
-  # Use minReplicaCount: 0 with keda.scaleFromZero.enabled to park GPUs when idle.
-  # Envoy starts the first server on RepositoryIndex and waits until Triton is Ready.
+  # Use minReplicaCount: 0 with scaleFromZero.enabled to park GPUs when idle.
   minReplicaCount: 1
   maxReplicaCount: 2
 
@@ -230,20 +247,8 @@ keda:
   # -- If set to true, the server will release all GPUs when idle.
   # Be careful: if the scaling metric is extracted from Triton servers,
   # it will be unavailable, and scaling from 0 to 1 will never happen.
-  # Prefer keda.scaleFromZero instead of this flag.
+  # Prefer scaleFromZero instead of this flag.
   zeroIdleReplicas: false
-
-  # -- Start the first GPU Triton from Envoy when a client sends RepositoryIndex.
-  # A successful index is returned only after Triton /v2/health/ready succeeds,
-  # so ModelConfig and inference can keep their normal (short) client timeouts.
-  scaleFromZero:
-    enabled: false
-    # -- How long Envoy waits for GPU Triton to become Ready before rejecting RepositoryIndex
-    readyTimeoutSeconds: 300
-    # -- Keep minReplicaCount at 1 this long after the last index so KEDA does not scale to 0 during warmup
-    holdMinReplicasSeconds: 300
-    # -- Image for the admission sidecar running next to Envoy
-    admissionImage: python:3.11-slim
 
   scaleUp:
     stabilizationWindowSeconds: 60
@@ -294,7 +299,7 @@ prometheus:
     ingress:
       enabled: false
       # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
-      # can be ommitted, as they will be set by the installer plugin
+      # can be omitted, as they will be set by the installer plugin
       hostName: ""
       hosts: []
       tls:
@@ -408,7 +413,7 @@ grafana:
     pathType: ImplementationSpecific
     ingressClassName: ""
     # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
-    # can be ommitted, as they will be set by the installer plugin
+    # can be omitted, as they will be set by the installer plugin
     hostName: ""
     hosts: [] # If installer plugin is used, this value is set by the plugin
     tls:

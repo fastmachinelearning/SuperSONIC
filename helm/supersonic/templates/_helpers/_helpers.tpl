@@ -26,10 +26,10 @@ Get Envoy proxy name
 {{- end -}}
 
 {{/*
-True when RepositoryIndex should start the first GPU Triton and wait until it is Ready.
+True when RepositoryIndex should start the first GPU Triton and wait for a healthy Envoy upstream.
 */}}
 {{- define "supersonic.scaleFromZeroEnabled" -}}
-{{- if and .Values.keda.enabled (eq (dig "scaleFromZero" "enabled" false .Values.keda) true) -}}true{{- end -}}
+{{- if eq (dig "scaleFromZero" "enabled" false .Values) true -}}true{{- end -}}
 {{- end -}}
 
 {{/*

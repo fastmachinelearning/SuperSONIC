@@ -1,12 +1,17 @@
 # Geddes CMS SuperSONIC with GPU scale-from-zero.
 # GPU replicas park at 0 when idle. RepositoryIndex starts the first GPU
-# Triton and waits until /v2/health/ready succeeds, so ModelConfig and
+# Triton and waits until Envoy has a healthy upstream, so ModelConfig and
 # inference can keep their normal (short) client timeouts.
 #
 # Based on Purdue AF production values:
 # https://github.com/PurdueAF/purdue-af/blob/main/apps/sonic/supersonic/values.yaml
 
 serverLoadThreshold: 100
+
+scaleFromZero:
+  enabled: true
+  readyTimeoutSeconds: 300
+  holdMinReplicasSeconds: 300
 
 triton:
   image: fastml/triton-torchgeo:26.04-py3-geometric
@@ -58,18 +63,6 @@ triton:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
-  readinessProbe:
-    timeoutSeconds: 15
-    periodSeconds: 10
-    failureThreshold: 10
-    successThreshold: 1
-  startupProbe:
-    periodSeconds: 10
-    failureThreshold: 24
-    timeoutSeconds: 15
-    httpGet:
-      path: /v2/health/ready
-      port: http
 
 envoy:
   enabled: true
@@ -96,10 +89,6 @@ keda:
   maxReplicaCount: 10
   pollingInterval: 1
   cooldownPeriod: 300
-  scaleFromZero:
-    enabled: true
-    readyTimeoutSeconds: 300
-    holdMinReplicasSeconds: 300
   scaleUp:
     stabilizationWindowSeconds: 0
     periodSeconds: 15
@@ -108,9 +97,6 @@ keda:
     stabilizationWindowSeconds: 300
     periodSeconds: 45
     stepsize: 1
-
-ingress:
-  enabled: false
 
 prometheus:
   external:

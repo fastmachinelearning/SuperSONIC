@@ -11,6 +11,29 @@
     "serverLoadThreshold": {
       "type": "integer"
     },
+    "scaleFromZero": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "readyTimeoutSeconds": {
+          "type": "integer"
+        },
+        "holdMinReplicasSeconds": {
+          "type": "integer"
+        },
+        "admissionImage": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "admissionImage",
+        "enabled",
+        "holdMinReplicasSeconds",
+        "readyTimeoutSeconds"
+      ]
+    },
     "triton": {
       "type": "object",
       "properties": {
@@ -193,6 +216,9 @@
             "failureThreshold": {
               "type": "integer"
             },
+            "timeoutSeconds": {
+              "type": "integer"
+            },
             "httpGet": {
               "type": "object",
               "properties": {
@@ -214,7 +240,8 @@
             "httpGet",
             "initialDelaySeconds",
             "periodSeconds",
-            "reset"
+            "reset",
+            "timeoutSeconds"
           ]
         }
       },
@@ -504,29 +531,6 @@
         "zeroIdleReplicas": {
           "type": "boolean"
         },
-        "scaleFromZero": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean"
-            },
-            "readyTimeoutSeconds": {
-              "type": "integer"
-            },
-            "holdMinReplicasSeconds": {
-              "type": "integer"
-            },
-            "admissionImage": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "admissionImage",
-            "enabled",
-            "holdMinReplicasSeconds",
-            "readyTimeoutSeconds"
-          ]
-        },
         "scaleUp": {
           "type": "object",
           "properties": {
@@ -573,7 +577,6 @@
         "minReplicaCount",
         "pollingInterval",
         "scaleDown",
-        "scaleFromZero",
         "scaleUp",
         "zeroIdleReplicas"
       ]
@@ -2014,6 +2017,7 @@
     "nameOverride",
     "opentelemetry-collector",
     "prometheus",
+    "scaleFromZero",
     "serverLoadMetric",
     "serverLoadThreshold",
     "tempo",
