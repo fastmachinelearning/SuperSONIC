@@ -216,14 +216,34 @@ keda:
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
-  # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
+  # Use minReplicaCount: 0 with keda.scaleFromZero.enabled to park GPUs when idle.
+  # Envoy starts the first server on RepositoryIndex and waits until Triton is Ready.
   minReplicaCount: 1
   maxReplicaCount: 2
+
+  # -- How often KEDA polls Prometheus for 1→N scaling
+  pollingInterval: 30
+
+  # -- Period to wait after the last trigger is inactive before scaling to minReplicaCount
+  cooldownPeriod: 120
 
   # -- If set to true, the server will release all GPUs when idle.
   # Be careful: if the scaling metric is extracted from Triton servers,
   # it will be unavailable, and scaling from 0 to 1 will never happen.
+  # Prefer keda.scaleFromZero instead of this flag.
   zeroIdleReplicas: false
+
+  # -- Start the first GPU Triton from Envoy when a client sends RepositoryIndex.
+  # A successful index is returned only after Triton /v2/health/ready succeeds,
+  # so ModelConfig and inference can keep their normal (short) client timeouts.
+  scaleFromZero:
+    enabled: false
+    # -- How long Envoy waits for GPU Triton to become Ready before rejecting RepositoryIndex
+    readyTimeoutSeconds: 300
+    # -- Keep minReplicaCount at 1 this long after the last index so KEDA does not scale to 0 during warmup
+    holdMinReplicasSeconds: 300
+    # -- Image for the admission sidecar running next to Envoy
+    admissionImage: python:3.11-slim
 
   scaleUp:
     stabilizationWindowSeconds: 60

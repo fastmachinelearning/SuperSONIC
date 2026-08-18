@@ -1,0 +1,133 @@
+# Geddes CMS SuperSONIC with GPU scale-from-zero.
+# GPU replicas park at 0 when idle. RepositoryIndex starts the first GPU
+# Triton and waits until /v2/health/ready succeeds, so ModelConfig and
+# inference can keep their normal (short) client timeouts.
+#
+# Based on Purdue AF production values:
+# https://github.com/PurdueAF/purdue-af/blob/main/apps/sonic/supersonic/values.yaml
+
+serverLoadThreshold: 100
+
+triton:
+  image: nvcr.io/nvidia/tritonserver:26.04-py3
+  command: ["/bin/sh", "-c"]
+  args:
+    - |
+      /opt/tritonserver/bin/tritonserver \
+      --model-repository=/models \
+      --model-control-mode=explicit \
+      --load-model=* \
+      --allow-gpu-metrics=true \
+      --log-verbose=0 \
+      --disable-auto-complete-config \
+      --exit-timeout-secs=60
+
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+      cpu: 16
+      memory: 16G
+    requests:
+      nvidia.com/gpu: 1
+      cpu: 16
+      memory: 16G
+  nodeSelector: { "cms-af-prod": "true" }
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
+  service:
+    labels:
+      scrape_metrics: "true"
+    annotations:
+      metallb.universe.tf/address-pool: geddes-private-pool
+  modelRepository:
+    enabled: true
+    storageType: pvc
+    pvc:
+      claimName: supersonic-model-repository
+    mountPath: /models
+  readinessProbe:
+    successThreshold: 3
+
+envoy:
+  enabled: true
+  nodeSelector: { "cms-af-prod": "true" }
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: cms-af
+      effect: NoSchedule
+  loadBalancerPolicy: "ROUND_ROBIN"
+  service:
+    type: LoadBalancer
+  ingress:
+    enabled: false
+    hostName: supersonic.geddes.rcac.purdue.edu
+    ingressClassName: public
+  rate_limiter:
+    prometheus_based:
+      enabled: true
+    listener_level:
+      enabled: false
+
+keda:
+  enabled: true
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 1
+  cooldownPeriod: 300
+  scaleFromZero:
+    enabled: true
+    readyTimeoutSeconds: 300
+    holdMinReplicasSeconds: 300
+  scaleUp:
+    stabilizationWindowSeconds: 0
+    periodSeconds: 15
+    stepsize: 1
+  scaleDown:
+    stabilizationWindowSeconds: 300
+    periodSeconds: 45
+    stepsize: 1
+
+ingress:
+  enabled: false
+
+prometheus:
+  # Use the AF Prometheus already running in cms (HelmRelease `prometheus`).
+  # FQDN required: KEDA operator runs in the keda namespace and cannot
+  # resolve the short name prometheus-server.
+  external:
+    enabled: true
+    url: prometheus-server.cms.svc.cluster.local
+    port: 9090
+    scheme: http
+
+grafana:
+  enabled: true
+  dashboardsConfigMaps:
+    default: supersonic-grafana-default-dashboard
+  datasources:
+    datasources.yaml:
+      datasources:
+        - name: prometheus
+          uid: prometheus
+          type: prometheus
+          access: proxy
+          isDefault: true
+          url: http://prometheus-server.cms.svc.cluster.local
+          jsonData:
+            timeInterval: "5s"
+            tlsSkipVerify: true
+  ingress:
+    enabled: true
+    hosts:
+      - supersonic-grafana.geddes.rcac.purdue.edu
+    tls:
+      - hosts:
+          - supersonic-grafana.geddes.rcac.purdue.edu
+    ingressClassName: public
+  grafana.ini:
+    server:
+      root_url: https://supersonic-grafana.geddes.rcac.purdue.edu

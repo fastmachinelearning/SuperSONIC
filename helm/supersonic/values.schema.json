@@ -498,6 +498,29 @@
         "zeroIdleReplicas": {
           "type": "boolean"
         },
+        "pollingInterval": {
+          "type": "integer"
+        },
+        "cooldownPeriod": {
+          "type": "integer"
+        },
+        "scaleFromZero": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "readyTimeoutSeconds": {
+              "type": "integer"
+            },
+            "holdMinReplicasSeconds": {
+              "type": "integer"
+            },
+            "admissionImage": {
+              "type": "string"
+            }
+          }
+        },
         "scaleUp": {
           "type": "object",
           "properties": {
