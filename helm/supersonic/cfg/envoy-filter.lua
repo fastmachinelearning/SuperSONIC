@@ -12,12 +12,12 @@ function envoy_on_request(request_handle)
         local scale_from_zero = ("SCALE_FROM_ZERO_ENABLED" == "true")
         local prometheus_rate_limit_enabled = ("PROMETHEUS_RATE_LIMIT_ENABLED" == "true")
 
-        -- Start the first GPU Triton and wait until it is Ready before forwarding
-        -- RepositoryIndex. CMSSW treats a successful index as a commitment, then
-        -- issues ModelConfig / inference with a short timeout.
+        -- Start the first GPU Triton and wait until Envoy has a healthy
+        -- upstream before forwarding RepositoryIndex. CMSSW treats a successful
+        -- index as a commitment, then issues ModelConfig / inference with a short timeout.
         if scale_from_zero then
-            local timeout_ms = (tonumber("READY_TIMEOUT_SECONDS") or 300) * 1000 + 2000
-            request_handle:logInfo("Scale-from-zero: waiting for GPU Triton to become Ready")
+            local timeout_seconds = tonumber("READY_TIMEOUT_SECONDS") or 300
+            request_handle:logInfo("Scale-from-zero: starting GPU Triton")
             local wake_headers = request_handle:httpCall(
                 "triton_admission",
                 {
@@ -26,38 +26,51 @@ function envoy_on_request(request_handle)
                     [":authority"] = "triton_admission"
                 },
                 "",
-                timeout_ms
+                5000
             )
             if not wake_headers or wake_headers[":status"] ~= "200" then
-                request_handle:logErr("GPU Triton was not Ready in time; rejecting RepositoryIndex")
+                request_handle:logErr("Admission /wake failed; rejecting RepositoryIndex")
                 return
             end
-            request_handle:logInfo("GPU Triton is Ready")
-            -- Headless Triton Service: Envoy STRICT_DNS can still have 0 hosts
-            -- until the next refresh. Probe the gRPC cluster so we do not
-            -- forward RepositoryIndex into "no healthy upstream".
-            local resolved = false
-            for _ = 1, 30 do
-                local probe_headers = request_handle:httpCall(
-                    "triton_grpc_service",
+
+            -- Headless Triton Service has no DNS addresses at 0 replicas.
+            -- Do not forward RepositoryIndex until Envoy has a healthy host.
+            local healthy = false
+            for _ = 1, timeout_seconds do
+                local stats_headers, stats_body = request_handle:httpCall(
+                    "envoy_admin",
                     {
                         [":method"] = "GET",
-                        [":path"] = "/",
-                        [":authority"] = "triton_grpc_service"
+                        [":path"] = "/stats?filter=cluster.triton_grpc_service.membership_healthy",
+                        [":authority"] = "envoy_admin"
                     },
                     "",
                     1000
                 )
-                if probe_headers then
-                    resolved = true
+                local n = 0
+                if stats_body then
+                    n = tonumber(string.match(stats_body, "cluster%.triton_grpc_service%.membership_healthy: ([0-9]+)")) or 0
+                end
+                if n > 0 then
+                    healthy = true
                     break
                 end
+                request_handle:httpCall(
+                    "triton_admission",
+                    {
+                        [":method"] = "GET",
+                        [":path"] = "/idle",
+                        [":authority"] = "triton_admission"
+                    },
+                    "",
+                    2000
+                )
             end
-            if not resolved then
-                request_handle:logErr("GPU Triton has no Envoy upstream yet; rejecting RepositoryIndex")
+            if not healthy then
+                request_handle:logErr("No healthy Triton upstream in time; rejecting RepositoryIndex")
                 return
             end
-            request_handle:logInfo("GPU Triton Envoy upstream is available")
+            request_handle:logInfo("GPU Triton has a healthy Envoy upstream")
         end
 
         if prometheus_rate_limit_enabled then
@@ -124,11 +137,15 @@ function envoy_on_request(request_handle)
 end
 
 function envoy_on_response(response_handle)
-    -- Send error back if request was not accepted
-    if not response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["accept_request"] then
+    local accepted = response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["accept_request"]
+    local grpc_message = response_handle:headers():get("grpc-message") or ""
+    local no_upstream = string.find(grpc_message, "no healthy upstream", 1, true)
+    -- Send error back if request was not accepted, or if Envoy still has no upstream.
+    if not accepted or no_upstream then
         response_handle:logInfo("Sending error as a response.")
         response_handle:body():setBytes("")
         response_handle:headers():replace("grpc-status", "1")
+        response_handle:headers():remove("grpc-message")
     end
 end
 
