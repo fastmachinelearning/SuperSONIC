@@ -33,6 +33,31 @@ function envoy_on_request(request_handle)
                 return
             end
             request_handle:logInfo("GPU Triton is Ready")
+            -- Headless Triton Service: Envoy STRICT_DNS can still have 0 hosts
+            -- until the next refresh. Probe the gRPC cluster so we do not
+            -- forward RepositoryIndex into "no healthy upstream".
+            local resolved = false
+            for _ = 1, 30 do
+                local probe_headers = request_handle:httpCall(
+                    "triton_grpc_service",
+                    {
+                        [":method"] = "GET",
+                        [":path"] = "/",
+                        [":authority"] = "triton_grpc_service"
+                    },
+                    "",
+                    1000
+                )
+                if probe_headers then
+                    resolved = true
+                    break
+                end
+            end
+            if not resolved then
+                request_handle:logErr("GPU Triton has no Envoy upstream yet; rejecting RepositoryIndex")
+                return
+            end
+            request_handle:logInfo("GPU Triton Envoy upstream is available")
         end
 
         if prometheus_rate_limit_enabled then

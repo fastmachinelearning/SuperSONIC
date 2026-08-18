@@ -56,6 +56,20 @@ static_resources:
                     - name: backend_grpc
                       domains: ["*"]
                       routes:
+                        {{- if .scaleFromZeroEnabled }}
+                        - match:
+                            path: "/inference.GRPCInferenceService/RepositoryIndex"
+                          route:
+                            cluster: triton_grpc_service
+                            timeout: {{ .envoy.grpc_route_timeout }}
+                            retry_policy:
+                              retry_on: 5xx,connect-failure,refused-stream,unavailable
+                              num_retries: 15
+                              per_try_timeout: 2s
+                              retry_back_off:
+                                base_interval: 0.25s
+                                max_interval: 1s
+                        {{- end }}
                         - match:
                             prefix: "/"
                           route:
@@ -179,6 +193,9 @@ static_resources:
     - name: triton_grpc_service
       connect_timeout: {{ if .scaleFromZeroEnabled }}2s{{ else }}0.25s{{ end }}
       type: STRICT_DNS
+      {{- if .scaleFromZeroEnabled }}
+      dns_refresh_rate: 1s
+      {{- end }}
       lb_policy: {{ .envoy.loadBalancerPolicy }}
       http2_protocol_options: {}
       load_assignment:
