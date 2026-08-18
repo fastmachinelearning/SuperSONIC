@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Envoy sidecar: start the first GPU Triton on RepositoryIndex."""
+"""Scale Triton to at least one replica on /wake."""
 
 import json
 import os
@@ -87,7 +87,7 @@ def set_scaledobject_min(min_replicas):
 
 
 def ensure_gpu_replica():
-    """Keep KEDA min at 1 and scale the GPU Deployment to at least 1."""
+    """Set ScaledObject minReplicaCount to 1 and scale the Triton Deployment to at least 1."""
     global _so_held
     set_scaledobject_min(1)
     _so_held = True

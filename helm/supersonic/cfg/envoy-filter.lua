@@ -12,9 +12,7 @@ function envoy_on_request(request_handle)
         local scale_from_zero = ("SCALE_FROM_ZERO_ENABLED" == "true")
         local prometheus_rate_limit_enabled = ("PROMETHEUS_RATE_LIMIT_ENABLED" == "true")
 
-        -- Start the first GPU Triton and wait until Envoy has a healthy
-        -- upstream before forwarding RepositoryIndex. CMSSW treats a successful
-        -- index as a commitment, then issues ModelConfig / inference with a short timeout.
+        -- Scale Triton to at least one replica and wait for a healthy Envoy upstream before forwarding RepositoryIndex.
         if scale_from_zero then
             local timeout_seconds = tonumber("READY_TIMEOUT_SECONDS") or 300
             request_handle:logInfo("Scale-from-zero: starting GPU Triton")
@@ -33,8 +31,7 @@ function envoy_on_request(request_handle)
                 return
             end
 
-            -- Headless Triton Service has no DNS addresses at 0 replicas.
-            -- Do not forward RepositoryIndex until Envoy has a healthy host.
+            -- Wait until Envoy reports a healthy Triton host.
             local healthy = false
             for _ = 1, timeout_seconds do
                 local stats_headers, stats_body = request_handle:httpCall(
@@ -140,7 +137,7 @@ function envoy_on_response(response_handle)
     local accepted = response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["accept_request"]
     local grpc_message = response_handle:headers():get("grpc-message") or ""
     local no_upstream = string.find(grpc_message, "no healthy upstream", 1, true)
-    -- Send error back if request was not accepted, or if Envoy still has no upstream.
+    -- Reject the request if it was not accepted, or if Envoy has no healthy upstream.
     if not accepted or no_upstream then
         response_handle:logInfo("Sending error as a response.")
         response_handle:body():setBytes("")

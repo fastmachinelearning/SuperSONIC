@@ -10,23 +10,19 @@ serverLoadMetric: ""
 # -- Threshold for the metric
 serverLoadThreshold: 100
 
-# -- Start the first GPU Triton from Envoy when a client sends RepositoryIndex.
-# SuperSONIC feature (not a KEDA ScaledObject field). Requires keda.enabled,
-# keda.minReplicaCount: 0, and envoy.enabled.
-# A successful index is returned only after Envoy has a healthy Triton upstream,
-# so ModelConfig and inference can keep their normal (short) client timeouts.
+# -- On RepositoryIndex, scale Triton to at least one replica and return the index only after Envoy has a healthy Triton upstream.
+# Requires keda.enabled, keda.minReplicaCount: 0, and envoy.enabled.
 scaleFromZero:
   enabled: false
-  # -- How long Envoy waits for a healthy Triton upstream before rejecting RepositoryIndex
+  # -- Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex
   readyTimeoutSeconds: 300
-  # -- Keep minReplicaCount at 1 this long after the last index so KEDA does not scale to 0 during warmup
+  # -- Seconds to keep KEDA minReplicaCount at 1 after the last RepositoryIndex
   holdMinReplicasSeconds: 300
-  # -- Image for the admission sidecar running next to Envoy
+  # -- Image for the admission sidecar on the Envoy pod
   admissionImage: python:3.11-slim
 
 triton:
-  # -- Number of Triton server instances (if autoscaling is disabled).
-  # Ignored when scaleFromZero.enabled is true.
+  # -- Number of Triton server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
   # -- Docker image for the Triton server
@@ -208,7 +204,7 @@ envoy:
     prometheus_based:
       # -- Enable rate limiter
       enabled: false
-      # -- Lua filter used by the prometheus rate limiter and by scale-from-zero
+      # -- Envoy Lua filter (prometheus rate limiter and scaleFromZero)
       luaConfig: "cfg/envoy-filter.lua" 
 
   # -- Envoy load balancer policy.
@@ -234,11 +230,11 @@ keda:
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
-  # Use minReplicaCount: 0 with scaleFromZero.enabled to park GPUs when idle.
+  # Set minReplicaCount to 0 when scaleFromZero.enabled is true.
   minReplicaCount: 1
   maxReplicaCount: 2
 
-  # -- How often KEDA polls Prometheus for 1→N scaling
+  # -- How often KEDA polls Prometheus
   pollingInterval: 30
 
   # -- Period to wait after the last trigger is inactive before scaling to minReplicaCount
@@ -247,7 +243,6 @@ keda:
   # -- If set to true, the server will release all GPUs when idle.
   # Be careful: if the scaling metric is extracted from Triton servers,
   # it will be unavailable, and scaling from 0 to 1 will never happen.
-  # Prefer scaleFromZero instead of this flag.
   zeroIdleReplicas: false
 
   scaleUp:

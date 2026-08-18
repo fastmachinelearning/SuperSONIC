@@ -26,14 +26,14 @@ Get Envoy proxy name
 {{- end -}}
 
 {{/*
-True when RepositoryIndex should start the first GPU Triton and wait for a healthy Envoy upstream.
+True when scaleFromZero.enabled is true.
 */}}
 {{- define "supersonic.scaleFromZeroEnabled" -}}
 {{- if eq (dig "scaleFromZero" "enabled" false .Values) true -}}true{{- end -}}
 {{- end -}}
 
 {{/*
-True if the Envoy Lua filter should be mounted (rate limiter and/or scale-from-zero).
+True when the Envoy Lua filter should be mounted.
 */}}
 {{- define "supersonic.luaFilterEnabled" -}}
 {{- if or .Values.envoy.rate_limiter.prometheus_based.enabled (eq (include "supersonic.scaleFromZeroEnabled" .) "true") -}}true{{- end -}}

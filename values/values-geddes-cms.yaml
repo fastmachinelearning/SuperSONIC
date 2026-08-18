@@ -1,7 +1,6 @@
-# Geddes CMS SuperSONIC with GPU scale-from-zero.
-# GPU replicas park at 0 when idle. RepositoryIndex starts the first GPU
-# Triton and waits until Envoy has a healthy upstream, so ModelConfig and
-# inference can keep their normal (short) client timeouts.
+# Geddes CMS SuperSONIC.
+# Triton minReplicaCount is 0. RepositoryIndex scales the first replica
+# and waits for a healthy Envoy upstream.
 #
 # Based on Purdue AF production values:
 # https://github.com/PurdueAF/purdue-af/blob/main/apps/sonic/supersonic/values.yaml
