@@ -231,6 +231,7 @@ keda:
 
   # -- Minimum and maximum number of Triton servers.
   # Set minReplicaCount to 0 when scaleFromZero.enabled is true.
+  # With scaleFromZero, upgrades keep the live ScaledObject minReplicaCount.
   minReplicaCount: 1
   maxReplicaCount: 2
 

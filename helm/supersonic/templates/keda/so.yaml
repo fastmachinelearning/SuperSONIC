@@ -2,6 +2,13 @@
 
 {{- $scaleUp := .Values.keda.scaleUp | default dict }}
 {{- $scaleDown := .Values.keda.scaleDown | default dict }}
+{{- $minReplicaCount := .Values.keda.minReplicaCount | int }}
+{{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+{{- $existing := lookup "keda.sh/v1alpha1" "ScaledObject" .Release.Namespace (printf "%s-keda-so" (include "supersonic.name" .)) }}
+{{- if $existing }}
+{{- $minReplicaCount = int (dig "spec" "minReplicaCount" $minReplicaCount $existing) }}
+{{- end }}
+{{- end }}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -20,7 +27,7 @@ spec:
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
   idleReplicaCount: 0
 {{- end }}
-  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  minReplicaCount: {{ $minReplicaCount }}
   maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
   advanced:
     horizontalPodAutoscalerConfig:
