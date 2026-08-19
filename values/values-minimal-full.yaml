@@ -1,3 +1,9 @@
+# Full CI values. Triton starts at 0 replicas; RepositoryIndex scales the first pod.
+scaleFromZero:
+  enabled: true
+  readyTimeoutSeconds: 300
+  holdMinReplicasSeconds: 120
+
 triton:
   replicas: 1
   image: fastml/triton-torchgeo:26.04-py3-geometric # works for CMSSW run3
@@ -36,8 +42,14 @@ envoy:
 
 keda:
   enabled: true
-  minReplicaCount: 1
+  minReplicaCount: 0
   maxReplicaCount: 2
+  pollingInterval: 5
+  cooldownPeriod: 5
+  scaleDown:
+    stabilizationWindowSeconds: 0
+    periodSeconds: 15
+    stepsize: 1
 
 prometheus:
   enabled: true

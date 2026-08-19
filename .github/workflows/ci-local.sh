@@ -45,7 +45,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 helm repo update
 helm dependency build ./helm/supersonic
-helm upgrade --install supersonic ./helm/supersonic --values values/values-cms-ci.yaml -n cms
+helm upgrade --install supersonic ./helm/supersonic --values values/values-minimal-full.yaml -n cms
 
 # 8. Wait for components to become ready
 
@@ -53,7 +53,7 @@ echo "Waiting for CVMFS pods to be ready..."
 kubectl wait --for=condition=Ready pod --all -n cvmfs-csi --timeout 120s
 
 echo "Waiting for Envoy proxy pods to be ready..."
-kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 180s -n cms
 
 echo "Waiting for Prometheus pods to be ready..."
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=prometheus --timeout 120s -n cms
@@ -69,12 +69,25 @@ echo "Waiting for Tempo pods to be ready..."
 kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
 
 
-echo "Waiting for Triton server pods to be ready..."
-kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=triton --timeout 300s -n cms
-
 echo "Waiting for KEDA Autoscaler to be ready..."
 kubectl wait --for=condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
 kubectl wait --for=condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
+
+echo "Waiting for Triton Deployment spec.replicas=0..."
+for i in $(seq 1 36); do
+  replicas=$(kubectl get deploy -l app.kubernetes.io/component=triton -n cms -o jsonpath='{.items[0].spec.replicas}')
+  echo "Triton spec.replicas=${replicas:-unset}"
+  if [ "${replicas}" = "0" ]; then
+    break
+  fi
+  if [ "$i" -eq 36 ]; then
+    echo "Triton did not scale to 0 replicas"
+    kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
+    kubectl get so,hpa -n cms -o yaml
+    exit 1
+  fi
+  sleep 5
+done
 
 # 9. Validate the Deployment
 echo "Validating Deployment in 'cms' namespace..."
@@ -83,7 +96,7 @@ kubectl get all -n cms
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
 kubectl apply -f tests/perf-analyzer-job-ci.yaml
-kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=180s || {
+kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || {
   echo "Perf-analyzer job did not complete in time or failed."
   exit 1
 }

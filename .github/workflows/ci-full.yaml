@@ -63,7 +63,7 @@ jobs:
 
       - name: Envoy proxy ready
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 180s -n cms
 
       - name: Prometheus ready
         run: |
@@ -87,10 +87,22 @@ jobs:
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
           kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
 
-      - name: Triton server ready
+      - name: Triton idle at zero replicas
         run: |
-          kubectl describe pod -l app.kubernetes.io/component=triton -n cms
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
+          echo "Waiting for Triton Deployment spec.replicas=0..."
+          for i in $(seq 1 36); do
+            replicas=$(kubectl get deploy -l app.kubernetes.io/component=triton -n cms -o jsonpath='{.items[0].spec.replicas}')
+            echo "Triton spec.replicas=${replicas:-unset}"
+            if [ "${replicas}" = "0" ]; then
+              kubectl get deploy,pod -l app.kubernetes.io/component=triton -n cms
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Triton did not scale to 0 replicas"
+          kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
+          kubectl get so,hpa -n cms -o yaml
+          exit 1
 
       - name: Validate Deployment
         run: |
@@ -99,7 +111,7 @@ jobs:
       - name: Run Perf Analyzer Job
         run: |
           kubectl apply -f tests/perf-analyzer-job-ci.yaml
-          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
+          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || \
           (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
