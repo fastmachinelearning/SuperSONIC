@@ -4,9 +4,9 @@
 {{- $scaleDown := .Values.keda.scaleDown | default dict }}
 {{- $minReplicaCount := .Values.keda.minReplicaCount | int }}
 {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
-{{- $existing := lookup "keda.sh/v1alpha1" "ScaledObject" .Release.Namespace (printf "%s-keda-so" (include "supersonic.name" .)) }}
-{{- if $existing }}
-{{- $minReplicaCount = int (dig "spec" "minReplicaCount" $minReplicaCount $existing) }}
+{{- $scaled_object := lookup "keda.sh/v1alpha1" "ScaledObject" .Release.Namespace (printf "%s-keda-so" (include "supersonic.name" .)) }}
+{{- if $scaled_object }}
+{{- $minReplicaCount = int (dig "spec" "minReplicaCount" $minReplicaCount $scaled_object) }}
 {{- end }}
 {{- end }}
 

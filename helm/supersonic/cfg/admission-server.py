@@ -16,19 +16,33 @@ CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 HOLD_TTL = int(os.environ.get("HOLD_MIN_REPLICAS_SECONDS", "300"))
-GPU_DEPLOYMENT = os.environ.get("GPU_DEPLOYMENT", "")
+TRITON_DEPLOYMENT = os.environ.get("GPU_DEPLOYMENT", "")
 SCALEDOBJECT_NAME = os.environ.get("SCALEDOBJECT_NAME", "")
 IDLE_MIN_REPLICAS = int(os.environ.get("IDLE_MIN_REPLICAS", "0"))
+LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
 _lock = threading.Lock()
 _last_wake = 0.0
-_so_held = False
+_scaled_object_held = False
+_ssl_ctx = None
+_namespace_name = None
+
+
+class ApiError(Exception):
+    pass
+
+
+def _log(message):
+    print(f"admission: {message}", flush=True)
 
 
 def _namespace():
-    with open(NS_PATH, encoding="utf-8") as fh:
-        return fh.read().strip()
+    global _namespace_name
+    if _namespace_name is None:
+        with open(NS_PATH, encoding="utf-8") as fh:
+            _namespace_name = fh.read().strip()
+    return _namespace_name
 
 
 def _token():
@@ -37,7 +51,10 @@ def _token():
 
 
 def _ssl_context():
-    return ssl.create_default_context(cafile=CA_PATH)
+    global _ssl_ctx
+    if _ssl_ctx is None:
+        _ssl_ctx = ssl.create_default_context(cafile=CA_PATH)
+    return _ssl_ctx
 
 
 def _api_url(path):
@@ -55,84 +72,104 @@ def _api_request(method, path, data=None):
     req = urllib.request.Request(
         _api_url(path), data=body, headers=headers, method=method
     )
-    with urllib.request.urlopen(req, context=_ssl_context(), timeout=3) as resp:
-        return json.load(resp)
+    try:
+        with urllib.request.urlopen(req, context=_ssl_context(), timeout=3) as resp:
+            raw = resp.read()
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:300]
+        raise ApiError(f"HTTP {exc.code}: {detail}") from exc
+    except (urllib.error.URLError, TimeoutError, OSError, KeyError) as exc:
+        raise ApiError(str(exc)) from exc
+    if not raw:
+        return {}
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ApiError(f"invalid JSON: {exc}") from exc
 
 
-def demand_active():
-    with _lock:
-        return time.time() - _last_wake < HOLD_TTL
+def _spec_int(obj, key, default=0):
+    value = (obj.get("spec") or {}).get(key, default)
+    if value is None:
+        value = default
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise ApiError(f"invalid spec.{key}: {exc}") from exc
 
 
-def set_scaledobject_min(min_replicas):
-    if not SCALEDOBJECT_NAME:
-        return
-    ns = _namespace()
-    path = f"/apis/keda.sh/v1alpha1/namespaces/{ns}/scaledobjects/{SCALEDOBJECT_NAME}"
+def _hold_active():
+    return time.time() - _last_wake < HOLD_TTL
+
+
+def set_scaled_object_min(min_replicas):
+    path = (
+        f"/apis/keda.sh/v1alpha1/namespaces/{_namespace()}"
+        f"/scaledobjects/{SCALEDOBJECT_NAME}"
+    )
     try:
         current = _api_request("GET", path)
-        current_min = int((current.get("spec") or {}).get("minReplicaCount") or 0)
-        if current_min == min_replicas:
-            return
-        _api_request("PATCH", path, {"spec": {"minReplicaCount": min_replicas}})
-        print(
-            f"admission: ScaledObject {SCALEDOBJECT_NAME} minReplicaCount {current_min} -> {min_replicas}",
-            flush=True,
-        )
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")[:300]
-        print(f"admission: ScaledObject HTTP {exc.code}: {body}", flush=True)
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError, ValueError) as exc:
-        print(f"admission: ScaledObject patch failed: {exc}", flush=True)
+        current_min = _spec_int(current, "minReplicaCount")
+        if current_min != min_replicas:
+            _api_request("PATCH", path, {"spec": {"minReplicaCount": min_replicas}})
+            _log(
+                f"ScaledObject {SCALEDOBJECT_NAME} minReplicaCount {current_min} -> {min_replicas}"
+            )
+        return True
+    except ApiError as exc:
+        _log(f"ScaledObject {SCALEDOBJECT_NAME}: {exc}")
+        return False
 
 
-def ensure_gpu_replica():
+def ensure_triton_replica():
     """Set ScaledObject minReplicaCount to 1 and scale the Triton Deployment to at least 1."""
-    global _so_held
-    set_scaledobject_min(1)
-    _so_held = True
-    if not GPU_DEPLOYMENT:
-        return
-    ns = _namespace()
-    path = f"/apis/apps/v1/namespaces/{ns}/deployments/{GPU_DEPLOYMENT}/scale"
+    global _scaled_object_held
+    if not set_scaled_object_min(1):
+        return False
+    _scaled_object_held = True
+    path = (
+        f"/apis/apps/v1/namespaces/{_namespace()}/deployments/{TRITON_DEPLOYMENT}/scale"
+    )
     try:
         current = _api_request("GET", path)
-        replicas = int((current.get("spec") or {}).get("replicas") or 0)
-        if replicas >= 1:
-            return
-        _api_request("PATCH", path, {"spec": {"replicas": 1}})
-        print(f"admission: scaled {GPU_DEPLOYMENT} 0 -> 1", flush=True)
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")[:300]
-        print(f"admission: scale {GPU_DEPLOYMENT} HTTP {exc.code}: {body}", flush=True)
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError, ValueError) as exc:
-        print(f"admission: scale {GPU_DEPLOYMENT} failed: {exc}", flush=True)
+        replicas = _spec_int(current, "replicas")
+        if replicas < 1:
+            _api_request("PATCH", path, {"spec": {"replicas": 1}})
+            _log(f"scaled {TRITON_DEPLOYMENT} 0 -> 1")
+        return True
+    except ApiError as exc:
+        _log(f"scale {TRITON_DEPLOYMENT}: {exc}")
+        return False
 
 
 def release_scale_hold():
-    global _so_held
-    if not _so_held:
+    global _scaled_object_held
+    if not _scaled_object_held:
         return
-    set_scaledobject_min(IDLE_MIN_REPLICAS)
-    _so_held = False
+    if set_scaled_object_min(IDLE_MIN_REPLICAS):
+        _scaled_object_held = False
 
 
 def wake():
     with _lock:
         global _last_wake
         _last_wake = time.time()
-    ensure_gpu_replica()
+        return ensure_triton_replica()
 
 
 def _watch_loop():
     last_scale_check = 0.0
     while True:
-        now = time.time()
-        if demand_active() and now - last_scale_check >= 2:
-            ensure_gpu_replica()
-            last_scale_check = now
-        elif not demand_active():
-            release_scale_hold()
+        try:
+            now = time.time()
+            with _lock:
+                if _hold_active() and now - last_scale_check >= 2:
+                    ensure_triton_replica()
+                    last_scale_check = now
+                elif not _hold_active():
+                    release_scale_hold()
+        except Exception as exc:
+            _log(f"watch: {exc}")
         time.sleep(0.5)
 
 
@@ -141,18 +178,21 @@ class Handler(BaseHTTPRequestHandler):
     close_connection = True
 
     def log_message(self, fmt, *args):
-        print(f"admission: {fmt % args}", flush=True)
+        _log(fmt % args)
 
     def _send(self, code, body):
         payload = body.encode("utf-8")
         self.close_connection = True
-        self.send_response(code)
-        self.send_header("Content-Type", "text/plain")
-        self.send_header("Content-Length", str(len(payload)))
-        self.send_header("Connection", "close")
-        self.end_headers()
-        self.wfile.write(payload)
-        self.wfile.flush()
+        try:
+            self.send_response(code)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Connection", "close")
+            self.end_headers()
+            self.wfile.write(payload)
+            self.wfile.flush()
+        except OSError as exc:
+            _log(f"write failed: {exc}")
 
     def do_GET(self):
         path = urllib.parse.urlparse(self.path).path
@@ -160,8 +200,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, "ok\n")
             return
         if path == "/wake":
-            wake()
-            self._send(200, "ok\n")
+            try:
+                ok = wake()
+            except Exception as exc:
+                _log(f"/wake: {exc}")
+                ok = False
+            self._send(200 if ok else 503, "ok\n" if ok else "scale failed\n")
             return
         if path == "/idle":
             time.sleep(1)
@@ -171,13 +215,20 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    watcher = threading.Thread(target=_watch_loop, name="gpu-watch", daemon=True)
+    if not TRITON_DEPLOYMENT or not SCALEDOBJECT_NAME:
+        raise SystemExit(
+            "admission: GPU_DEPLOYMENT and SCALEDOBJECT_NAME are required"
+        )
+    try:
+        _namespace()
+        _ssl_context()
+        _token()
+    except OSError as exc:
+        raise SystemExit(f"admission: cannot read service account: {exc}") from exc
+    watcher = threading.Thread(target=_watch_loop, name="scale-watch", daemon=True)
     watcher.start()
-    server = ThreadingHTTPServer(("0.0.0.0", LISTEN_PORT), Handler)
-    print(
-        f"admission: listening on :{LISTEN_PORT} deployment={GPU_DEPLOYMENT}",
-        flush=True,
-    )
+    server = ThreadingHTTPServer((LISTEN_HOST, LISTEN_PORT), Handler)
+    _log(f"listening on {LISTEN_HOST}:{LISTEN_PORT} deployment={TRITON_DEPLOYMENT}")
     server.serve_forever()
 
 
