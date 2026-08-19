@@ -28,9 +28,11 @@ metadata:
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments/scale"]
+    resourceNames: [{{ include "supersonic.tritonName" . | quote }}]
     verbs: ["get", "patch", "update"]
   - apiGroups: ["keda.sh"]
     resources: ["scaledobjects"]
+    resourceNames: [{{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}]
     verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
