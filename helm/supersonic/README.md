@@ -19,7 +19,7 @@ applications in large high energy physics (HEP) and multi-messenger astrophysics
 Currently, SuperSONIC supports the following functionality:
 - GPU inference-as-a-service via [Nvidia Triton Inference Server](https://developer.nvidia.com/triton-inference-server)
 - Load balancing across many GPUs via [Envoy Proxy](envoyproxy.io)
-- Load-based autoscaling via [KEDA](keda.sh)
+- Load-based autoscaling via [KEDA](keda.sh), including scale from zero replicas on `RepositoryIndex`
 - Monitoring via [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), and [OpenTelemetry](https://opentelemetry.io/docs/collector/)
 - Rate limiting
 - Token-based authentication

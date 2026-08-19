@@ -163,6 +163,11 @@ default configuration completely (the configuration file must be supplied as a C
        configmap_name: external-envoy-config
        configmap_key: envoy.yaml
 
+.. warning::
+
+   ``scaleFromZero.enabled`` cannot be used with ``envoy.external_config.load_from_configmap``.
+   Scale-from-zero injects Envoy clusters and a Lua filter that an external ConfigMap would replace.
+
 5. (Optional) Configure Rate Limiting in Envoy Proxy
 ======================================================
    
@@ -343,7 +348,9 @@ can be enabled via the ``keda.enabled`` parameter in the values file.
    Please contact cluster administrators if this step of installation fails.
 
 The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
-the number of Triton servers can scale.
+the number of Triton servers can scale. ``keda.pollingInterval`` is how often KEDA queries
+Prometheus, and ``keda.cooldownPeriod`` is how long the load metric must stay below the
+threshold before KEDA scales down to ``minReplicaCount``.
 
 Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:
 
@@ -355,6 +362,9 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
      minReplicaCount: 1
      maxReplicaCount: 10
 
+     pollingInterval: 30
+     cooldownPeriod: 120
+
      scaleUp:
        stabilizationWindowSeconds: 120
        periodSeconds: 30
@@ -363,6 +373,46 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        stabilizationWindowSeconds: 120
        periodSeconds: 30
        stepsize: 1
+
+To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
+``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC
+used by CMS SONIC clients), SuperSONIC scales Triton to one replica and returns the index
+only after Envoy has a healthy Triton upstream. KEDA then scales from 1 to
+``maxReplicaCount`` using the Prometheus load metric. After
+``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
+the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
+
+.. code-block:: yaml
+
+   envoy:
+     enabled: true
+
+   keda:
+     enabled: true
+     minReplicaCount: 0
+     maxReplicaCount: 10
+
+   scaleFromZero:
+     enabled: true
+     readyTimeoutSeconds: 300
+     holdMinReplicasSeconds: 300
+
+.. warning::
+
+   The client deadline for ``RepositoryIndex`` must cover Triton startup. If no healthy
+   upstream is available within ``scaleFromZero.readyTimeoutSeconds``, the index request
+   is rejected.
+
+``triton.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
+count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do not
+interrupt the hold at 1 replica. ``scaleFromZero`` requires ``keda.enabled`` and
+``envoy.enabled``, and cannot be used with an external Envoy ConfigMap.
+
+Do not set ``keda.zeroIdleReplicas: true`` together with ``minReplicaCount: 0``.
+``zeroIdleReplicas`` sets KEDA ``idleReplicaCount`` to 0 and cannot scale from 0 back to 1
+when the load metric is scraped from Triton. Use ``scaleFromZero`` for that.
+
+An example is ``values/values-geddes-cms.yaml``.
 
 11. (Optional) Configure Metrics Collector for Running ``perf_analyzer``
 =========================================================================
