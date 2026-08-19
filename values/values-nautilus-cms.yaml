@@ -1,86 +1,44 @@
 serverLoadThreshold: 100
 
 triton:
-  replicas: 1
+  replicas: 5
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   # image: fastml/triton-torchgeo:22.07-py3-geometric # run3
-  # image: nvcr.io/nvidia/tritonserver:26.04-py3
-  # image: fastml/triton-torchgeo:26.04-py3-geometric
-  image: gitlab-registry.nrp-nautilus.io/kondratyevd/supersonic/triton-torchgeo:26.04-py3-geometric
+  image: nvcr.io/nvidia/tritonserver:26.04-py3
   # image: yongbinfeng/tritonserver:rhel8.9_v3
   # image: gitlab-registry.nrp-nautilus.io/kondratyevd/supersonic/triton-torchgeo:22.07-py3-geometric
   command: ["/bin/sh", "-c"]
   args: 
     - |
       /opt/tritonserver/bin/tritonserver \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc13/cms/cmssw/CMSSW_17_0_0_pre2/external/el9_amd64_gcc13/data/RecoBTag/Combined/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc13/cms/cmssw/CMSSW_17_0_0_pre2/external/el9_amd64_gcc13/data/RecoEgamma/EgammaPhotonProducers/data/models/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc13/cms/cmssw/CMSSW_17_0_0_pre2/external/el9_amd64_gcc13/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
-      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc13/cms/cmssw/CMSSW_17_0_0_pre2/external/el9_amd64_gcc13/data/RecoMET/METPUSubtraction/data/models/ \
-      --model-control-mode=explicit \
-      --load-model=deepmet \
-      --load-model=deeptau_2018v2p5 \
-      --load-model=particleNetFromMiniAODAK4CHSCentral \
-      --load-model=particleNetFromMiniAODAK4PuppiCentral \
-      --load-model=particleNetFromMiniAODAK4PuppiForward \
-      --load-model=particleNetFromMiniAODAK8 \
-      --load-model=particlenet_AK8_MD-2prong_PT \
-      --load-model=particlenet_AK8_MassRegression_PT \
-      --load-model=particlenet_PT \
-      --load-model=unifiedparticletransformer_AK4_V01 \
-      --allow-gpu-metrics=true \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoBTag/Combined/data/models/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/ \
+      --model-repository=/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre7/external/el9_amd64_gcc12/data/RecoMET/METPUSubtraction/data/models/ \
       --log-verbose=0 \
       --strict-model-config=false \
-      --exit-timeout-secs=60
+      --exit-timeout-secs=60 \
+      --backend-config=onnxruntime,enable-global-threadpool=1
 
   resources:
-    limits:
-      # nvidia.com/gpu: 1
-      nvidia.com/a100: 1
-      cpu: 16
-      memory: 16G
-    requests:
-      # nvidia.com/gpu: 1
-      nvidia.com/a100: 1
-      cpu: 16
-      memory: 16G
+    limits: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
+    requests: { cpu: 1, memory: 3G, nvidia.com/gpu: 1}
   nodeSelector:
-    topology.kubernetes.io/region: us-west
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              # - key: nvidia.com/gpu.product
-              #   operator: In
-              #   values:
-              #       - NVIDIA-A100-SXM4-80GB
-              #     - NVIDIA-GeForce-RTX-2080-Ti
-              #     - Tesla-V100-SXM2-32GB
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                  - node-2-3.sdsc.optiputer.net
-              # - key: nvidia.com/cuda.driver.major
-              #   operator: Gt
-              #   values:
-              #     - "594"
+    topology.kubernetes.io/zone: ucsd
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #             - key: nvidia.com/gpu.product
+  #               operator: In
+  #               values:
+  #                 - NVIDIA-GeForce-RTX-3090
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
-  readinessProbe:
-    timeoutSeconds: 15
-    periodSeconds: 10
-    failureThreshold: 10
-    successThreshold: 1
-  startupProbe:
-    periodSeconds: 10
-    failureThreshold: 24
-    timeoutSeconds: 15
-    httpGet:
-      path: /v2/health/ready
-      port: http
+  # readinessProbe:
+  #   reset: true
 
 envoy:
   enabled: true
@@ -88,10 +46,14 @@ envoy:
   grpc_route_timeout: 5s
   loadBalancerPolicy: "LEAST_REQUEST"
   nodeSelector:
-    topology.kubernetes.io/region: us-west
+    topology.kubernetes.io/zone: ucsd
   ingress:
     enabled: true
-    hostName: sonic-cms.nrp-nautilus.io
+    hosts:
+      - sonic-cms.nrp-nautilus.io
+    tls:
+      - hosts:
+          - sonic-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
@@ -107,28 +69,28 @@ envoy:
   tracing_sampling_rate: 0.001
 
 keda:
-  enabled: true
+  enabled: false
   minReplicaCount: 1
-  maxReplicaCount: 10
+  maxReplicaCount: 100
   scaleUp:
-    stabilizationWindowSeconds: 30
+    stabilizationWindowSeconds: 60
     periodSeconds: 15
     stepsize: 1
   scaleDown:
-    stabilizationWindowSeconds: 45
-    periodSeconds: 45
+    stabilizationWindowSeconds: 60
+    periodSeconds: 15
     stepsize: 1
 
 prometheus:
   enabled: true
   server:
     ingress:
-      enabled: false
+      enabled: true
       hosts:
-        - prometheus-sonic-cms.nrp-nautilus.io
+        - prometheus-cms.nrp-nautilus.io
       tls:
         - hosts:
-            - prometheus-sonic-cms.nrp-nautilus.io
+            - prometheus-cms.nrp-nautilus.io
       ingressClassName: haproxy
       annotations:
         haproxy-ingress.github.io/cors-enable: "true"
@@ -153,10 +115,10 @@ grafana:
   ingress:
     enabled: true
     hosts:
-      - grafana-sonic-cms.nrp-nautilus.io
+      - grafana-cms.nrp-nautilus.io
     tls:
       - hosts:
-          - grafana-sonic-cms.nrp-nautilus.io
+          - grafana-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
@@ -164,7 +126,7 @@ grafana:
       haproxy-ingress.github.io/timeout-http-request: "5m"
   grafana.ini:
     server:
-      root_url: https://grafana-sonic-cms.nrp-nautilus.io
+      root_url: https://grafana-cms.nrp-nautilus.io
 
 opentelemetry-collector:
   enabled: false
