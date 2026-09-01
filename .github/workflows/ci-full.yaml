@@ -110,5 +110,16 @@ jobs:
           kubectl logs -n cms "$POD_NAME" 
           echo "========================================"
 
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -n cms -o wide
+          kubectl describe pods -n cms
+          for pod in $(kubectl get pods -n cms -o name); do
+            echo "========== Logs: $pod =========="
+            kubectl logs -n cms "$pod" --all-containers --tail=100 || true
+            kubectl logs -n cms "$pod" --all-containers --tail=100 --previous || true
+          done
+
       - name: Cleanup
         run: kind delete cluster --name gh-k8s-cluster
