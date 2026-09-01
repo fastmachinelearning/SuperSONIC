@@ -400,6 +400,9 @@ metricsCollector:
   # -- Enable metrics collector
   enabled: false
 
+  # -- Image for the metrics collector
+  image: "python:3.14-slim"
+
   # -- Host and port for metrics collector
   host: "0.0.0.0"
   port: 8003

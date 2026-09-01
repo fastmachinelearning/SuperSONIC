@@ -64,7 +64,7 @@ spec:
       {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
       {{- $sfz := .Values.scaleFromZero | default dict }}
       - name: admission
-        image: {{ $sfz.admissionImage | default "python:3.14-slim" }}
+        image: {{ $sfz.admissionImage }}
         command: ["python3", "/app/admission-server.py"]
         env:
         - name: HOLD_MIN_REPLICAS_SECONDS

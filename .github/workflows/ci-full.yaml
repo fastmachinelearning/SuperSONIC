@@ -73,6 +73,10 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
 
+      - name: Metrics collector ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=metrics-collector --timeout 180s -n cms
+
       - name: Autoscaler ready
         run: |
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
@@ -113,13 +117,14 @@ jobs:
       - name: Diagnostics on failure
         if: failure()
         run: |
-          kubectl get pods -n cms -o wide
-          kubectl describe pods -n cms
-          for pod in $(kubectl get pods -n cms -o name); do
+          kubectl get pods -n cms -o wide || true
+          kubectl get events -n cms --sort-by=.lastTimestamp || true
+          for pod in $(kubectl get pods -n cms -o name 2>/dev/null); do
             echo "========== Logs: $pod =========="
             kubectl logs -n cms "$pod" --all-containers --tail=100 || true
-            kubectl logs -n cms "$pod" --all-containers --tail=100 --previous || true
+            kubectl logs -n cms "$pod" --all-containers --tail=100 --previous 2>/dev/null || true
           done
 
       - name: Cleanup
+        if: always()
         run: kind delete cluster --name gh-k8s-cluster
