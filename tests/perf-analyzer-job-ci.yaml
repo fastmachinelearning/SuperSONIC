@@ -15,6 +15,12 @@ spec:
         args:
           - "-c"
           - |
+            echo "Sending RepositoryIndex to scale Triton from zero..."
+            python3 -c '
+            import tritonclient.grpc as grpcclient
+            client = grpcclient.InferenceServerClient("supersonic.cms.svc.cluster.local:8001")
+            print(client.get_model_repository_index(client_timeout=400))
+            '
             echo "Running perf_analyzer..."
             perf_analyzer -i grpc \
                           -m higgsInteractionNet \

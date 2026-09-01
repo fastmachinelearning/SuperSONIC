@@ -26,6 +26,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+      serviceAccountName: {{ include "supersonic.envoyName" . }}
+      {{- end }}
       containers:
       - name: envoy
         image: {{ .Values.envoy.image }}
@@ -51,24 +54,65 @@ spec:
         volumeMounts:
         - name: {{ include "supersonic.name" . }}-envoy-config
           mountPath: /etc/envoy
-        {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+        {{- if (include "supersonic.luaFilterEnabled" .) }}
         - name: {{ include "supersonic.name" . }}-lua-volume
           mountPath: /etc/envoy/lua
           readOnly: true
         {{- end }}
         resources:
           {{ toYaml .Values.envoy.resources | nindent 10 }}
+      {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+      {{- $sfz := .Values.scaleFromZero | default dict }}
+      - name: admission
+        image: {{ $sfz.admissionImage | default "python:3.11-slim" }}
+        command: ["python3", "/app/admission-server.py"]
+        env:
+        - name: HOLD_MIN_REPLICAS_SECONDS
+          value: {{ $sfz.holdMinReplicasSeconds | default 300 | quote }}
+        - name: GPU_DEPLOYMENT
+          value: {{ include "supersonic.tritonName" . | quote }}
+        - name: SCALEDOBJECT_NAME
+          value: {{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}
+        - name: IDLE_MIN_REPLICAS
+          value: {{ .Values.keda.minReplicaCount | int | quote }}
+        ports:
+        - name: admission
+          containerPort: 8080
+        volumeMounts:
+        - name: admission-config
+          mountPath: /app
+          readOnly: true
+        readinessProbe:
+          exec:
+            command:
+              - python3
+              - -c
+              - import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=2)
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+      {{- end }}
       volumes:
       - name: {{ include "supersonic.name" . }}-envoy-config
         configMap:
           name: {{ include "supersonic.name" . }}-envoy-config
-      {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+      {{- if (include "supersonic.luaFilterEnabled" .) }}
       - name: {{ include "supersonic.name" . }}-lua-volume
         configMap:
           name: {{ include "supersonic.name" . }}-lua-config
           items:
           - key: envoy-filter.lua
             path: envoy-filter.lua
+      {{- end }}
+      {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+      - name: admission-config
+        configMap:
+          name: {{ include "supersonic.envoyName" . }}-admission
       {{- end }}
 
 

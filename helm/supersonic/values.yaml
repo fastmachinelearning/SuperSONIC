@@ -10,8 +10,21 @@ serverLoadMetric: ""
 # -- Threshold for the metric
 serverLoadThreshold: 100
 
+# -- On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas
+# and return the index only after Envoy has a healthy Triton upstream.
+# Requires keda.enabled and envoy.enabled.
+scaleFromZero:
+  # -- Enable scale from zero
+  enabled: false
+  # -- Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex
+  readyTimeoutSeconds: 300
+  # -- Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex
+  holdMinReplicasSeconds: 300
+  # -- Image for the admission sidecar on the Envoy pod
+  admissionImage: python:3.11-slim
+
 triton:
-  # -- Number of Triton server instances (if autoscaling is disabled)
+  # -- Number of Triton server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
   # -- Docker image for the Triton server
@@ -73,7 +86,7 @@ triton:
     # storageType: "cvmfs-pvc"
     
     ## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)
-    # storageType: "cvmfs"
+    # storageType: "cvmfs-hostPath"
 
     ## Option 4: mount an NFS storage volume
     # storageType: "nfs"
@@ -99,7 +112,7 @@ triton:
     periodSeconds: 10
     failureThreshold: 10
     command: ["/bin/sh", "-c", "curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"]
-    timeoutSeconds: 5
+    timeoutSeconds: 15
     successThreshold: 1
 
   # -- Custom startup probe configuration
@@ -108,10 +121,12 @@ triton:
     reset: false
     initialDelaySeconds: 0
     periodSeconds: 10
-    failureThreshold: 12
+    failureThreshold: 24
     httpGet:
       path: /v2/health/ready
       port: http
+    timeoutSeconds: 15
+
 envoy:
   # -- Enable Envoy Proxy
   enabled: true
@@ -186,11 +201,12 @@ envoy:
       fill_interval: 12s
 
     # -- This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency).
-    # The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``.
+    # The metric is taken from parameter ``serverLoadMetric``, and the threshold is set by ``serverLoadThreshold``.
     # These parameters are the same as those used by the KEDA autoscaler.
     prometheus_based:
       # -- Enable rate limiter
       enabled: false
+      # -- Envoy Lua filter (prometheus rate limiter and scaleFromZero)
       luaConfig: "cfg/envoy-filter.lua" 
 
   # -- Envoy load balancer policy.
@@ -211,18 +227,26 @@ envoy:
 keda:
 
   # -- Enable autoscaling (requires Prometheus to also be enabled).
-  # Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``,
-  # new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``.
+  # Autoscaling will be based on the metric from parameter ``serverLoadMetric``;
+  # new Triton servers will spawn if the metric exceeds the threshold set by ``serverLoadThreshold``.
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
-  # Warning: if min=0 and desired Prometheus metric is empty, the first server will never start
+  # Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled).
+  # With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount),
+  # and upgrades keep the live ScaledObject minReplicaCount.
   minReplicaCount: 1
   maxReplicaCount: 2
 
-  # -- If set to true, the server will release all GPUs when idle.
-  # Be careful: if the scaling metric is extracted from Triton servers,
-  # it will be unavailable, and scaling from 0 to 1 will never happen.
+  # -- How often KEDA polls Prometheus
+  pollingInterval: 30
+
+  # -- Period to wait after the last trigger is inactive before scaling to minReplicaCount
+  cooldownPeriod: 120
+
+  # -- If set to true, KEDA sets idleReplicaCount to 0.
+  # This cannot scale from 0 back to 1 when the load metric comes from Triton.
+  # Use scaleFromZero.enabled with keda.minReplicaCount: 0 instead.
   zeroIdleReplicas: false
 
   scaleUp:
@@ -274,7 +298,7 @@ prometheus:
     ingress:
       enabled: false
       # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
-      # can be ommitted, as they will be set by the installer plugin
+      # can be omitted, as they will be set by the installer plugin
       hostName: ""
       hosts: []
       tls:
@@ -388,7 +412,7 @@ grafana:
     pathType: ImplementationSpecific
     ingressClassName: ""
     # -- If this parameter is set in values.yaml, the `hosts` and `tls` parameters
-    # can be ommitted, as they will be set by the installer plugin
+    # can be omitted, as they will be set by the installer plugin
     hostName: ""
     hosts: [] # If installer plugin is used, this value is set by the plugin
     tls:

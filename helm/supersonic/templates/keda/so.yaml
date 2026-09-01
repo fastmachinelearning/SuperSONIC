@@ -2,6 +2,13 @@
 
 {{- $scaleUp := .Values.keda.scaleUp | default dict }}
 {{- $scaleDown := .Values.keda.scaleDown | default dict }}
+{{- $minReplicaCount := .Values.keda.minReplicaCount | int }}
+{{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+{{- $scaled_object := lookup "keda.sh/v1alpha1" "ScaledObject" .Release.Namespace (printf "%s-keda-so" (include "supersonic.name" .)) }}
+{{- if $scaled_object }}
+{{- $minReplicaCount = int (dig "spec" "minReplicaCount" $minReplicaCount $scaled_object) }}
+{{- end }}
+{{- end }}
 
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -15,28 +22,28 @@ spec:
   scaleTargetRef:
     name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
-  pollingInterval: 30
-  cooldownPeriod: 120
+  pollingInterval: {{ .Values.keda.pollingInterval | default 30 }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod | default 120 }}
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
   idleReplicaCount: 0
 {{- end }}
-  minReplicaCount: {{ default 1 .Values.keda.minReplicaCount }}
-  maxReplicaCount: {{ default 14 .Values.keda.maxReplicaCount }}
+  minReplicaCount: {{ $minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
         scaleDown:
-          stabilizationWindowSeconds: {{ default 120 $scaleDown.stabilizationWindowSeconds }}
+          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 120 $scaleDown }}
           policies:
-            - periodSeconds: {{ default 30 $scaleDown.periodSeconds }}
+            - periodSeconds: {{ dig "periodSeconds" 30 $scaleDown }}
               type: Pods
-              value: {{ default 1 $scaleDown.stepsize }}
+              value: {{ dig "stepsize" 1 $scaleDown }}
         scaleUp:
-          stabilizationWindowSeconds: {{ default 120 $scaleUp.stabilizationWindowSeconds }}
+          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 120 $scaleUp }}
           policies:
-            - periodSeconds: {{ default 30 $scaleUp.periodSeconds }}
+            - periodSeconds: {{ dig "periodSeconds" 30 $scaleUp }}
               type: Pods
-              value: {{ default 1 $scaleUp.stepsize }}
+              value: {{ dig "stepsize" 1 $scaleUp }}
 
   triggers:
   - type: prometheus
@@ -45,6 +52,7 @@ spec:
       serverAddress: {{ include "supersonic.prometheusUrl" . }}
       metricName: autoscaler-metric
       threshold: {{ .Values.serverLoadThreshold | quote }}
+      ignoreNullValues: "true"
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}
 ---

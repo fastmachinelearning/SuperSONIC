@@ -26,6 +26,20 @@ Get Envoy proxy name
 {{- end -}}
 
 {{/*
+True when scaleFromZero.enabled is true.
+*/}}
+{{- define "supersonic.scaleFromZeroEnabled" -}}
+{{- if (.Values.scaleFromZero | default dict).enabled -}}true{{- end -}}
+{{- end -}}
+
+{{/*
+True when the Envoy Lua filter should be mounted.
+*/}}
+{{- define "supersonic.luaFilterEnabled" -}}
+{{- if or .Values.envoy.rate_limiter.prometheus_based.enabled (eq (include "supersonic.scaleFromZeroEnabled" .) "true") -}}true{{- end -}}
+{{- end -}}
+
+{{/*
 Get gRPC endpoint for client connections
 */}}
 {{- define "supersonic.grpcEndpoint" -}}

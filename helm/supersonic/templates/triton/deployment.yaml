@@ -7,7 +7,9 @@ metadata:
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: triton
 spec:
+{{- if ne (include "supersonic.scaleFromZeroEnabled" .) "true" }}
   replicas: {{ .Values.triton.replicas | default 1 }}
+{{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Chart.Name }}
@@ -50,6 +52,7 @@ spec:
           initialDelaySeconds: {{ .Values.triton.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.triton.startupProbe.periodSeconds }}
           failureThreshold: {{ .Values.triton.startupProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.triton.startupProbe.timeoutSeconds | default 1 }}
           httpGet:
             path: {{ .Values.triton.startupProbe.httpGet.path }}
             port: {{ .Values.triton.startupProbe.httpGet.port }}

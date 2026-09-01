@@ -11,6 +11,29 @@
     "serverLoadThreshold": {
       "type": "integer"
     },
+    "scaleFromZero": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "readyTimeoutSeconds": {
+          "type": "integer"
+        },
+        "holdMinReplicasSeconds": {
+          "type": "integer"
+        },
+        "admissionImage": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "admissionImage",
+        "enabled",
+        "holdMinReplicasSeconds",
+        "readyTimeoutSeconds"
+      ]
+    },
     "triton": {
       "type": "object",
       "properties": {
@@ -207,6 +230,9 @@
                 "path",
                 "port"
               ]
+            },
+            "timeoutSeconds": {
+              "type": "integer"
             }
           },
           "required": [
@@ -214,7 +240,8 @@
             "httpGet",
             "initialDelaySeconds",
             "periodSeconds",
-            "reset"
+            "reset",
+            "timeoutSeconds"
           ]
         }
       },
@@ -495,6 +522,12 @@
         "maxReplicaCount": {
           "type": "integer"
         },
+        "pollingInterval": {
+          "type": "integer"
+        },
+        "cooldownPeriod": {
+          "type": "integer"
+        },
         "zeroIdleReplicas": {
           "type": "boolean"
         },
@@ -538,9 +571,11 @@
         }
       },
       "required": [
+        "cooldownPeriod",
         "enabled",
         "maxReplicaCount",
         "minReplicaCount",
+        "pollingInterval",
         "scaleDown",
         "scaleUp",
         "zeroIdleReplicas"
@@ -1982,6 +2017,7 @@
     "nameOverride",
     "opentelemetry-collector",
     "prometheus",
+    "scaleFromZero",
     "serverLoadMetric",
     "serverLoadThreshold",
     "tempo",

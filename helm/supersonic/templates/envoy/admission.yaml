@@ -1,0 +1,66 @@
+{{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+{{- if not .Values.keda.enabled }}
+{{- fail "scaleFromZero.enabled requires keda.enabled" }}
+{{- end }}
+{{- if not .Values.envoy.enabled }}
+{{- fail "scaleFromZero.enabled requires envoy.enabled" }}
+{{- end }}
+{{- if .Values.envoy.external_config.load_from_configmap }}
+{{- fail "scaleFromZero.enabled is incompatible with envoy.external_config.load_from_configmap" }}
+{{- end }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "supersonic.envoyName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "supersonic.envoyName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    resourceNames: [{{ include "supersonic.tritonName" . | quote }}]
+    verbs: ["get", "patch", "update"]
+  - apiGroups: ["keda.sh"]
+    resources: ["scaledobjects"]
+    resourceNames: [{{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "supersonic.envoyName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "supersonic.envoyName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "supersonic.envoyName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supersonic.envoyName" . }}-admission
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: envoy
+data:
+  admission-server.py: |
+{{ .Files.Get "cfg/admission-server.py" | indent 4 }}
+{{- end }}

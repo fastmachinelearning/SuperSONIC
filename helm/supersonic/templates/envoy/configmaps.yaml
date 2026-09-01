@@ -56,20 +56,32 @@ static_resources:
                     - name: backend_grpc
                       domains: ["*"]
                       routes:
+                        {{- if .scaleFromZeroEnabled }}
+                        - match:
+                            path: "/inference.GRPCInferenceService/RepositoryIndex"
+                          route:
+                            cluster: triton_grpc_service
+                            timeout: {{ .envoy.grpc_route_timeout }}
+                            retry_policy:
+                              retry_on: 5xx,connect-failure,refused-stream,unavailable
+                              num_retries: 15
+                              per_try_timeout: 2s
+                              retry_back_off:
+                                base_interval: 0.25s
+                                max_interval: 1s
+                        {{- end }}
                         - match:
                             prefix: "/"
                           route:
                             cluster: triton_grpc_service
                             timeout: {{ .envoy.grpc_route_timeout }}
                 http_filters:
-                  {{- with .envoy.rate_limiter.prometheus_based }}
-                  {{- if .enabled }}
+                  {{- if or .envoy.rate_limiter.prometheus_based.enabled .scaleFromZeroEnabled }}
                   - name: envoy.filters.http.lua
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
                       default_source_code:
                         filename: /etc/envoy/lua/envoy-filter.lua
-                  {{- end }}
                   {{- end }}
 
                   {{- with .envoy.auth }}
@@ -163,9 +175,39 @@ static_resources:
                   address: {{ .root.Release.Name }}-opentelemetry-collector
                   port_value: 4317
     {{- end }}
+    {{- if .scaleFromZeroEnabled }}
+    - name: triton_admission
+      type: STATIC
+      connect_timeout: 1s
+      load_assignment:
+        cluster_name: triton_admission
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 8080
+    - name: envoy_admin
+      type: STATIC
+      connect_timeout: 1s
+      load_assignment:
+        cluster_name: envoy_admin
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: {{ .envoyAdminPort }}
+    {{- end }}
+
     - name: triton_grpc_service
-      connect_timeout: 0.25s
+      connect_timeout: {{ if .scaleFromZeroEnabled }}2s{{ else }}0.25s{{ end }}
       type: STRICT_DNS
+      {{- if .scaleFromZeroEnabled }}
+      dns_refresh_rate: 1s
+      {{- end }}
       lb_policy: {{ .envoy.loadBalancerPolicy }}
       http2_protocol_options: {}
       load_assignment:
@@ -216,6 +258,7 @@ static_resources:
     "envoy" .Values.envoy
     "triton" .Values.triton
     "tritonName" $tritonName
+    "scaleFromZeroEnabled" (eq (include "supersonic.scaleFromZeroEnabled" .) "true")
     "root" .
 }}
 {{- end }}
@@ -260,7 +303,7 @@ data:
 {{- end }}
 ---
 
-{{- if and .Values.envoy.rate_limiter.prometheus_based.enabled (not .Values.envoy.external_config.load_from_configmap) }}
+{{- if and (include "supersonic.luaFilterEnabled" .) (not .Values.envoy.external_config.load_from_configmap) }}
 {{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
@@ -279,6 +322,18 @@ data:
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" (include "supersonic.prometheusScheme" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_HOST" (include "supersonic.prometheusHost" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
+    {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+    {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "true" }}
+    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" (.Values.scaleFromZero.readyTimeoutSeconds | default 300 | toString) }}
+    {{- else }}
+    {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "false" }}
+    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" "300" }}
+    {{- end }}
+    {{- if .Values.envoy.rate_limiter.prometheus_based.enabled }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_RATE_LIMIT_ENABLED" "true" }}
+    {{- else }}
+    {{- $luaConfig = $luaConfig | replace "PROMETHEUS_RATE_LIMIT_ENABLED" "false" }}
+    {{- end }}
     {{ $luaConfig | indent 4 }}
 
 ---
