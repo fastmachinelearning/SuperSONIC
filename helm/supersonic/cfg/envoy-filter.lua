@@ -16,6 +16,9 @@ function envoy_on_request(request_handle)
         if scale_from_zero then
             local timeout_seconds = tonumber("READY_TIMEOUT_SECONDS") or 300
             request_handle:logInfo("Scale-from-zero: starting GPU Triton")
+            -- /wake may wait behind an in-flight scaling pass and then make up to
+            -- four Kubernetes API calls of its own (3s timeout each), so give it
+            -- enough headroom for a slow apiserver.
             local wake_headers = request_handle:httpCall(
                 "triton_admission",
                 {
@@ -24,7 +27,7 @@ function envoy_on_request(request_handle)
                     [":authority"] = "triton_admission"
                 },
                 "",
-                5000
+                30000
             )
             if not wake_headers or wake_headers[":status"] ~= "200" then
                 request_handle:logErr("Admission /wake failed; rejecting RepositoryIndex")

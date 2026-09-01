@@ -24,7 +24,11 @@ WAKE_MIN_REPLICAS = max(1, IDLE_MIN_REPLICAS)
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
-_lock = threading.Lock()
+# _state_lock guards _last_wake and is never held across Kubernetes API calls,
+# so /wake handlers do not queue behind slow API traffic. _scale_lock serializes
+# the API scaling passes themselves and guards _scaled_object_held.
+_state_lock = threading.Lock()
+_scale_lock = threading.Lock()
 _last_wake = 0.0
 _scaled_object_held = False
 _ssl_ctx = None
@@ -101,7 +105,8 @@ def _spec_int(obj, key, default=0):
 
 
 def _hold_active():
-    return time.time() - _last_wake < HOLD_TTL
+    with _state_lock:
+        return time.time() - _last_wake < HOLD_TTL
 
 
 def set_scaled_object_min(min_replicas):
@@ -153,9 +158,10 @@ def release_scale_hold():
 
 
 def wake():
-    with _lock:
-        global _last_wake
+    global _last_wake
+    with _state_lock:
         _last_wake = time.time()
+    with _scale_lock:
         return ensure_triton_replica()
 
 
@@ -164,12 +170,16 @@ def _watch_loop():
     while True:
         try:
             now = time.time()
-            with _lock:
-                if _hold_active() and now - last_scale_check >= 2:
-                    ensure_triton_replica()
+            if _hold_active():
+                if now - last_scale_check >= 2:
+                    with _scale_lock:
+                        ensure_triton_replica()
                     last_scale_check = now
-                elif not _hold_active():
-                    release_scale_hold()
+            else:
+                with _scale_lock:
+                    # Re-check: a wake may have landed since the check above.
+                    if not _hold_active():
+                        release_scale_hold()
         except Exception as exc:
             _log(f"watch: {exc}")
         time.sleep(0.5)
