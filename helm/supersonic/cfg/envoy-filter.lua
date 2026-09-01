@@ -31,9 +31,13 @@ function envoy_on_request(request_handle)
                 return
             end
 
-            -- Wait until Envoy reports a healthy Triton host.
+            -- Wait until Envoy reports a healthy Triton host, or until the deadline passes.
+            -- Envoy Lua has no sleep primitive, so the loop is paced by the admission
+            -- sidecar's /sleep endpoint, which blocks for ~1s before responding.
             local healthy = false
-            for _ = 1, timeout_seconds do
+            local deadline = os.time() + timeout_seconds
+            local sleep_failures = 0
+            while os.time() < deadline do
                 local stats_headers, stats_body = request_handle:httpCall(
                     "envoy_admin",
                     {
@@ -52,16 +56,26 @@ function envoy_on_request(request_handle)
                     healthy = true
                     break
                 end
-                request_handle:httpCall(
+                local sleep_headers = request_handle:httpCall(
                     "triton_admission",
                     {
                         [":method"] = "GET",
-                        [":path"] = "/idle",
+                        [":path"] = "/sleep",
                         [":authority"] = "triton_admission"
                     },
                     "",
                     2000
                 )
+                if not sleep_headers or sleep_headers[":status"] ~= "200" then
+                    -- Do not busy-spin against the admin endpoint if the sidecar is down.
+                    sleep_failures = sleep_failures + 1
+                    if sleep_failures >= 5 then
+                        request_handle:logErr("Admission /sleep unavailable; aborting wait")
+                        break
+                    end
+                else
+                    sleep_failures = 0
+                end
             end
             if not healthy then
                 request_handle:logErr("No healthy Triton upstream in time; rejecting RepositoryIndex")

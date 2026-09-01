@@ -209,7 +209,9 @@ class Handler(BaseHTTPRequestHandler):
                 ok = False
             self._send(200 if ok else 503, "ok\n" if ok else "scale failed\n")
             return
-        if path == "/idle":
+        if path == "/sleep":
+            # Delay primitive for the Envoy Lua filter, which cannot sleep on its
+            # own: it paces its healthy-upstream poll loop by calling this endpoint.
             time.sleep(1)
             self._send(200, "ok\n")
             return
