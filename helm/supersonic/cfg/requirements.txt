@@ -1,0 +1,16 @@
+# Top-level dependencies
+flask==3.1.3
+requests==2.34.2
+gunicorn==26.2.0
+# Transitive dependencies (pinned for reproducibility)
+blinker==1.9.0
+certifi==2026.7.22
+charset-normalizer==3.5.1
+click==8.5.0
+idna==3.19
+itsdangerous==2.2.0
+jinja2==3.1.6
+markupsafe==3.0.3
+packaging==26.3
+urllib3==2.7.0
+werkzeug==3.1.8

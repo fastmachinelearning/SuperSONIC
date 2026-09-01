@@ -88,5 +88,12 @@ jobs:
           kubectl logs -n cms "$POD_NAME" 
           echo "========================================"
 
+      - name: Diagnostics on failure
+        if: failure()
+        uses: ./.github/actions/k8s-diagnostics
+        with:
+          namespace: cms
+
       - name: Cleanup
+        if: always()
         run: kind delete cluster --name gh-k8s-cluster

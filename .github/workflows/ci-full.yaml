@@ -95,8 +95,6 @@ jobs:
             sleep 5
           done
           echo "Triton did not scale to 0 replicas"
-          kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
-          kubectl get so,hpa -n cms -o yaml
           exit 1
 
       - name: Validate Deployment
@@ -116,14 +114,9 @@ jobs:
 
       - name: Diagnostics on failure
         if: failure()
-        run: |
-          kubectl get pods -n cms -o wide || true
-          kubectl get events -n cms --sort-by=.lastTimestamp || true
-          for pod in $(kubectl get pods -n cms -o name 2>/dev/null); do
-            echo "========== Logs: $pod =========="
-            kubectl logs -n cms "$pod" --all-containers --tail=100 || true
-            kubectl logs -n cms "$pod" --all-containers --tail=100 --previous 2>/dev/null || true
-          done
+        uses: ./.github/actions/k8s-diagnostics
+        with:
+          namespace: cms
 
       - name: Cleanup
         if: always()

@@ -1,3 +1,12 @@
+{{- /* Shared HTTP/2 upstream protocol options for gRPC clusters */}}
+{{- define "envoy.http2ProtocolOptions" -}}
+typed_extension_protocol_options:
+  envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+    "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+    explicit_http_config:
+      http2_protocol_options: {}
+{{- end }}
+
 {{- /* Define the Envoy configuration in YAML at the top level */}}
 {{- /* (it will be used only if envoy.external_config.load_from_configmap is false) */}}
 {{- define "envoy.configuration.yaml" }}
@@ -177,14 +186,13 @@ static_resources:
       connect_timeout: {{ if .scaleFromZeroEnabled }}2s{{ else }}0.25s{{ end }}
       type: STRICT_DNS
       {{- if .scaleFromZeroEnabled }}
+      # NOTE: dns_refresh_rate is deprecated in Envoy in favor of the
+      # envoy.extensions.clusters.dns.v3.DnsCluster custom cluster type.
+      # Kept for now (warn-only) because migrating to DnsCluster is a larger change.
       dns_refresh_rate: 1s
       {{- end }}
       lb_policy: {{ .envoy.loadBalancerPolicy }}
-      typed_extension_protocol_options:
-        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-          explicit_http_config:
-            http2_protocol_options: {}
+      {{- include "envoy.http2ProtocolOptions" . | nindent 6 }}
       load_assignment:
         cluster_name: triton_grpc_service
         endpoints:
