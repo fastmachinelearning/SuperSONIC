@@ -151,7 +151,13 @@ function envoy_on_request(request_handle)
 end
 
 function envoy_on_response(response_handle)
-    local accepted = response_handle:streamInfo():dynamicMetadata():get("envoy.lua")["accept_request"]
+    local metadata = response_handle:streamInfo():dynamicMetadata():get("envoy.lua")
+    if metadata == nil then
+        -- Not a RepositoryIndex request: envoy_on_request set no metadata,
+        -- so pass the response through untouched.
+        return
+    end
+    local accepted = metadata["accept_request"]
     local grpc_message = response_handle:headers():get("grpc-message") or ""
     local no_upstream = string.find(grpc_message, "no healthy upstream", 1, true)
     -- Reject the request if it was not accepted, or if Envoy has no healthy upstream.
