@@ -49,4 +49,5 @@ jobs:
           helm uninstall supersonic -n test-ns
 
       - name: Cleanup
-        run: kind delete cluster --name gh-k8s-cluster 
+        if: always()
+        run: kind delete cluster --name gh-k8s-cluster

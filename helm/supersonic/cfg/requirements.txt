@@ -1,3 +1,6 @@
+# Installed at metrics-collector pod startup (requires PyPI access at runtime).
+# This is a stopgap: for production or air-gapped clusters, bake these packages
+# into a prebuilt image and set it via metricsCollector.image.
 # Top-level dependencies
 flask==3.1.3
 requests==2.34.2

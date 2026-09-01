@@ -8,3 +8,4 @@
 
 # Helm packaging
 # *.tgz
+__pycache__/

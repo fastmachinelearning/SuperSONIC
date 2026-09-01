@@ -19,6 +19,11 @@ runs:
       run: |
         kubectl get events -n "${{ inputs.namespace }}" --sort-by=.lastTimestamp || true
 
+    - name: Deployment status
+      shell: bash
+      run: |
+        kubectl get deploy -n "${{ inputs.namespace }}" -o yaml || true
+
     - name: Container restart and termination states
       shell: bash
       run: |
@@ -27,7 +32,8 @@ runs:
     - name: KEDA ScaledObjects and HPAs
       shell: bash
       run: |
-        kubectl get so,hpa -n "${{ inputs.namespace }}" -o yaml 2>/dev/null || true
+        kubectl get so -n "${{ inputs.namespace }}" -o yaml || true
+        kubectl get hpa -n "${{ inputs.namespace }}" -o yaml || true
 
     - name: Pod logs
       shell: bash
