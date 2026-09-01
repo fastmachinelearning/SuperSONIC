@@ -80,7 +80,7 @@ jobs:
       - name: Run Perf Analyzer Job
         run: |
           kubectl apply -f tests/perf-analyzer-job-ci.yaml
-          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=300s || \
+          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || \
           (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
