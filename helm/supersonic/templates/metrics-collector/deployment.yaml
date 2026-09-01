@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: metrics-collector
-        image: python:3.11-slim
+        image: python:3.14-slim
         command: ["/bin/sh", "-c"]
         args:
         - |
