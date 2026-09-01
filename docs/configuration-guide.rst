@@ -376,9 +376,9 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
 
 To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC
-used by CMS SONIC clients), SuperSONIC scales Triton to one replica and returns the index
-only after Envoy has a healthy Triton upstream. KEDA then scales from 1 to
-``maxReplicaCount`` using the Prometheus load metric. After
+used by CMS SONIC clients), SuperSONIC scales Triton to ``max(1, keda.minReplicaCount)``
+replicas and returns the index only after Envoy has a healthy Triton upstream. KEDA then
+scales up to ``maxReplicaCount`` using the Prometheus load metric. After
 ``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
 the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
 
@@ -405,7 +405,7 @@ the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale
 
 ``triton.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
 count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do not
-interrupt the hold at 1 replica. ``scaleFromZero`` requires ``keda.enabled`` and
+interrupt an active hold. ``scaleFromZero`` requires ``keda.enabled`` and
 ``envoy.enabled``, and cannot be used with an external Envoy ConfigMap.
 
 Do not set ``keda.zeroIdleReplicas: true`` together with ``minReplicaCount: 0``.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scale Triton to at least one replica on /wake."""
+"""Scale Triton to at least max(1, minReplicaCount) replicas on /wake."""
 
 import json
 import os
@@ -19,6 +19,8 @@ HOLD_TTL = int(os.environ.get("HOLD_MIN_REPLICAS_SECONDS", "300"))
 TRITON_DEPLOYMENT = os.environ.get("GPU_DEPLOYMENT", "")
 SCALEDOBJECT_NAME = os.environ.get("SCALEDOBJECT_NAME", "")
 IDLE_MIN_REPLICAS = int(os.environ.get("IDLE_MIN_REPLICAS", "0"))
+# On wake, scale to the configured minReplicaCount, but never below one replica.
+WAKE_MIN_REPLICAS = max(1, IDLE_MIN_REPLICAS)
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
@@ -122,9 +124,9 @@ def set_scaled_object_min(min_replicas):
 
 
 def ensure_triton_replica():
-    """Set ScaledObject minReplicaCount to 1 and scale the Triton Deployment to at least 1."""
+    """Set ScaledObject minReplicaCount to the wake target and scale the Triton Deployment up to it."""
     global _scaled_object_held
-    if not set_scaled_object_min(1):
+    if not set_scaled_object_min(WAKE_MIN_REPLICAS):
         return False
     _scaled_object_held = True
     path = (
@@ -133,9 +135,9 @@ def ensure_triton_replica():
     try:
         current = _api_request("GET", path)
         replicas = _spec_int(current, "replicas")
-        if replicas < 1:
-            _api_request("PATCH", path, {"spec": {"replicas": 1}})
-            _log(f"scaled {TRITON_DEPLOYMENT} 0 -> 1")
+        if replicas < WAKE_MIN_REPLICAS:
+            _api_request("PATCH", path, {"spec": {"replicas": WAKE_MIN_REPLICAS}})
+            _log(f"scaled {TRITON_DEPLOYMENT} {replicas} -> {WAKE_MIN_REPLICAS}")
         return True
     except ApiError as exc:
         _log(f"scale {TRITON_DEPLOYMENT}: {exc}")

@@ -10,14 +10,15 @@ serverLoadMetric: ""
 # -- Threshold for the metric
 serverLoadThreshold: 100
 
-# -- On RepositoryIndex, scale Triton to at least one replica and return the index only after Envoy has a healthy Triton upstream.
-# Requires keda.enabled, keda.minReplicaCount: 0, and envoy.enabled.
+# -- On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas
+# and return the index only after Envoy has a healthy Triton upstream.
+# Requires keda.enabled and envoy.enabled.
 scaleFromZero:
   # -- Enable scale from zero
   enabled: false
   # -- Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex
   readyTimeoutSeconds: 300
-  # -- Seconds to keep KEDA minReplicaCount at 1 after the last RepositoryIndex
+  # -- Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex
   holdMinReplicasSeconds: 300
   # -- Image for the admission sidecar on the Envoy pod
   admissionImage: python:3.11-slim
@@ -231,8 +232,9 @@ keda:
   enabled: false
 
   # -- Minimum and maximum number of Triton servers.
-  # Set minReplicaCount to 0 when scaleFromZero.enabled is true.
-  # With scaleFromZero, upgrades keep the live ScaledObject minReplicaCount.
+  # Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled).
+  # With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount),
+  # and upgrades keep the live ScaledObject minReplicaCount.
   minReplicaCount: 1
   maxReplicaCount: 2
 
