@@ -2,8 +2,8 @@ function envoy_on_request(request_handle)
     local path = request_handle:headers():get(":path")
     local contentType = request_handle:headers():get("content-type")
 
-    -- Any other request except model index
-    request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
+    -- Metadata is set only for RepositoryIndex requests, so envoy_on_response
+    -- leaves every other response untouched.
 
     -- Model index requested?
     if path == "/inference.GRPCInferenceService/RepositoryIndex" and contentType == "application/grpc" then

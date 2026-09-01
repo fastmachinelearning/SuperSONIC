@@ -36,6 +36,7 @@ LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 _state_lock = threading.Lock()
 _scale_lock = threading.Lock()
 _last_wake = 0.0
+_last_wake_pass = 0.0
 _scaled_object_held = False
 _ssl_ctx = None
 _namespace_name = None
@@ -195,6 +196,13 @@ def maybe_release(assume_held=False):
         if current_min != IDLE_MIN_REPLICAS and (hold_until is not None or assume_held):
             patch["spec"] = {"minReplicaCount": IDLE_MIN_REPLICAS}
         if patch:
+            # Send the observed resourceVersion so this release conflicts (409)
+            # instead of clobbering a wake that landed after the GET above.
+            resource_version = (scaled_object.get("metadata") or {}).get(
+                "resourceVersion"
+            )
+            if resource_version:
+                patch.setdefault("metadata", {})["resourceVersion"] = resource_version
             _api_request("PATCH", _so_path(), patch)
             if "spec" in patch:
                 _log(
@@ -208,11 +216,19 @@ def maybe_release(assume_held=False):
 
 
 def wake():
-    global _last_wake
+    global _last_wake, _last_wake_pass
     with _state_lock:
         _last_wake = time.time()
+    arrived = time.time()
     with _scale_lock:
-        return ensure_triton_replica(extend_hold=True)
+        # A wake pass that finished after this request arrived has already
+        # scaled up and extended the hold; do not queue another identical pass.
+        if _last_wake_pass >= arrived:
+            return True
+        ok = ensure_triton_replica(extend_hold=True)
+        if ok:
+            _last_wake_pass = time.time()
+        return ok
 
 
 def _watch_loop():
