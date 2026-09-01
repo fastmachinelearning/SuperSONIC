@@ -5,7 +5,12 @@
 | nameOverride | string | `""` | Unique identifier of SuperSONIC instance (equal to release name by default) |
 | serverLoadMetric | string | `""` | A metric used by both KEDA autoscaler and Envoy's prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl |
 | serverLoadThreshold | int | `100` | Threshold for the metric |
-| triton.replicas | int | `1` | Number of Triton server instances (if autoscaling is disabled) |
+| scaleFromZero | object | `{"admissionImage":"python:3.11-slim","enabled":false,"holdMinReplicasSeconds":300,"readyTimeoutSeconds":300}` | On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas and return the index only after Envoy has a healthy Triton upstream. Requires keda.enabled and envoy.enabled. |
+| scaleFromZero.enabled | bool | `false` | Enable scale from zero |
+| scaleFromZero.readyTimeoutSeconds | int | `300` | Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex |
+| scaleFromZero.holdMinReplicasSeconds | int | `300` | Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex |
+| scaleFromZero.admissionImage | string | `"python:3.11-slim"` | Image for the admission sidecar on the Envoy pod |
+| triton.replicas | int | `1` | Number of Triton server instances. Unused when scaleFromZero.enabled is true. |
 | triton.image | string | `"nvcr.io/nvidia/tritonserver:26.04-py3-min"` | Docker image for the Triton server |
 | triton.command | list | `["/bin/sh","-c"]` | Command and arguments to run in Triton container |
 | triton.args[0] | string | `"/opt/tritonserver/bin/tritonserver \\\n--model-repository=/tmp/ \\\n--log-verbose=0 \\\n--exit-timeout-secs=60\n"` |  |
@@ -19,9 +24,9 @@
 | triton.service.labels | object | `{}` |  |
 | triton.service.annotations | object | `{}` |  |
 | triton.service.ports | list | `[{"name":"http","port":8000,"protocol":"TCP","targetPort":8000},{"name":"grpc","port":8001,"protocol":"TCP","targetPort":8001},{"name":"metrics","port":8002,"protocol":"TCP","targetPort":8002}]` | Ports for communication with Triton servers |
-| triton.readinessProbe | object | `{"command":["/bin/sh","-c","curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"],"failureThreshold":10,"initialDelaySeconds":10,"periodSeconds":10,"reset":false,"successThreshold":1,"timeoutSeconds":5}` | Custom readiness probe configuration |
+| triton.readinessProbe | object | `{"command":["/bin/sh","-c","curl -sf http://localhost:8000/v2/health/ready > /dev/null && [ ! -f /tmp/shutdown ]"],"failureThreshold":10,"initialDelaySeconds":10,"periodSeconds":10,"reset":false,"successThreshold":1,"timeoutSeconds":15}` | Custom readiness probe configuration |
 | triton.readinessProbe.reset | bool | `false` | If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored) |
-| triton.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/v2/health/ready","port":"http"},"initialDelaySeconds":0,"periodSeconds":10,"reset":false}` | Custom startup probe configuration |
+| triton.startupProbe | object | `{"failureThreshold":24,"httpGet":{"path":"/v2/health/ready","port":"http"},"initialDelaySeconds":0,"periodSeconds":10,"reset":false,"timeoutSeconds":15}` | Custom startup probe configuration |
 | triton.startupProbe.reset | bool | `false` | If true, will reset settings to k8s defaults (other startupProbe settings will be ignored) |
 | envoy.enabled | bool | `true` | Enable Envoy Proxy |
 | envoy.replicas | int | `1` | Number of Envoy Proxy pods in Deployment |
@@ -44,8 +49,9 @@
 | envoy.rate_limiter.listener_level.max_tokens | int | `5` | Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a "token" from the "bucket" which initially contains ``max_tokens`` tokens. |
 | envoy.rate_limiter.listener_level.tokens_per_fill | int | `1` | ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established. |
 | envoy.rate_limiter.listener_level.fill_interval | string | `"12s"` | For example, adding a new token every 12 seconds allows 5 new connections every minute. |
-| envoy.rate_limiter.prometheus_based | object | `{"enabled":false,"luaConfig":"cfg/envoy-filter.lua"}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter ``prometheus.serverLoadMetric``, and the threshold is set by ``prometheus.serverLoadThreshold``. These parameters are the same as those used by the KEDA autoscaler. |
+| envoy.rate_limiter.prometheus_based | object | `{"enabled":false,"luaConfig":"cfg/envoy-filter.lua"}` | This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter ``serverLoadMetric``, and the threshold is set by ``serverLoadThreshold``. These parameters are the same as those used by the KEDA autoscaler. |
 | envoy.rate_limiter.prometheus_based.enabled | bool | `false` | Enable rate limiter |
+| envoy.rate_limiter.prometheus_based.luaConfig | string | `"cfg/envoy-filter.lua"` | Envoy Lua filter (prometheus rate limiter and scaleFromZero) |
 | envoy.loadBalancerPolicy | string | `"LEAST_REQUEST"` | Envoy load balancer policy. Options: ROUND_ROBIN, LEAST_REQUEST, RING_HASH, RANDOM, MAGLEV |
 | envoy.auth.enabled | bool | `false` | Enable authentication in Envoy proxy |
 | envoy.auth.jwt_issuer | string | `""` |  |
@@ -54,10 +60,12 @@
 | envoy.auth.url | string | `""` |  |
 | envoy.auth.port | int | `443` |  |
 | envoy.tracing_sampling_rate | float | `0.01` |  |
-| keda.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter ``prometheus.serverLoadMetric``, new Triton servers will spawn if the metric exceedds the threshold set by ``prometheus.serverLoadThreshold``. |
-| keda.minReplicaCount | int | `1` | Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start |
+| keda.enabled | bool | `false` | Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric from parameter ``serverLoadMetric``; new Triton servers will spawn if the metric exceeds the threshold set by ``serverLoadThreshold``. |
+| keda.minReplicaCount | int | `1` | Minimum and maximum number of Triton servers. Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled). With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount), and upgrades keep the live ScaledObject minReplicaCount. |
 | keda.maxReplicaCount | int | `2` |  |
-| keda.zeroIdleReplicas | bool | `false` | If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen. |
+| keda.pollingInterval | int | `30` | How often KEDA polls Prometheus |
+| keda.cooldownPeriod | int | `120` | Period to wait after the last trigger is inactive before scaling to minReplicaCount |
+| keda.zeroIdleReplicas | bool | `false` | If set to true, KEDA sets idleReplicaCount to 0. This cannot scale from 0 back to 1 when the load metric comes from Triton. Use scaleFromZero.enabled with keda.minReplicaCount: 0 instead. |
 | keda.scaleUp.stabilizationWindowSeconds | int | `60` |  |
 | keda.scaleUp.periodSeconds | int | `60` |  |
 | keda.scaleUp.stepsize | int | `1` |  |
@@ -84,7 +92,7 @@
 | prometheus.server.service.servicePort | int | `9090` |  |
 | prometheus.server.configMapOverrideName | string | `"prometheus-config"` |  |
 | prometheus.server.ingress | object | `{"annotations":{},"enabled":false,"hostName":"","hosts":[],"ingressClassName":"","tls":[{"hosts":[]}]}` | Ingress configuration for Prometheus |
-| prometheus.server.ingress.hostName | string | `""` | If this parameter is set in values.yaml, the `hosts` and `tls` parameters can be ommitted, as they will be set by the installer plugin |
+| prometheus.server.ingress.hostName | string | `""` | If this parameter is set in values.yaml, the `hosts` and `tls` parameters can be omitted, as they will be set by the installer plugin |
 | prometheus.serviceAccounts.server.create | bool | `false` |  |
 | prometheus.serviceAccounts.server.name | string | `"supersonic-prometheus-sa"` |  |
 | prometheus.rbac.create | bool | `false` |  |
@@ -120,7 +128,7 @@
 | grafana.resources.requests.cpu | string | `"100m"` |  |
 | grafana.resources.requests.memory | string | `"128Mi"` |  |
 | grafana.ingress | object | `{"annotations":{},"enabled":false,"hostName":"","hosts":[],"ingressClassName":"","path":"/","pathType":"ImplementationSpecific","tls":[{"hosts":[]}]}` | Ingress configuration for Grafana |
-| grafana.ingress.hostName | string | `""` | If this parameter is set in values.yaml, the `hosts` and `tls` parameters can be ommitted, as they will be set by the installer plugin |
+| grafana.ingress.hostName | string | `""` | If this parameter is set in values.yaml, the `hosts` and `tls` parameters can be omitted, as they will be set by the installer plugin |
 | tempo.enabled | bool | `false` |  |
 | tempo.tempo.metricsGenerator.enabled | bool | `true` |  |
 | tempo.tempo.metricsGenerator.remoteWriteUrl | string | `"http://supersonic-prometheus-server:9090/api/v1/write"` |  |

@@ -103,210 +103,240 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
 <td><p>Threshold for the metric</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.replicas</p></td>
+<tr class="row-odd"><td><p>scaleFromZero</p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;admissionImage&quot;:&quot;python:3.11-slim&quot;,&quot;enabled&quot;:false,&quot;holdMinReplicasSeconds&quot;:300,&quot;readyTimeoutSeconds&quot;:300}</span></code></p></td>
+<td><p>On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas and return the index only after Envoy has a healthy Triton upstream. Requires keda.enabled and envoy.enabled.</p></td>
+</tr>
+<tr class="row-even"><td><p>scaleFromZero.enabled</p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable scale from zero</p></td>
+</tr>
+<tr class="row-odd"><td><p>scaleFromZero.readyTimeoutSeconds</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex</p></td>
+</tr>
+<tr class="row-even"><td><p>scaleFromZero.holdMinReplicasSeconds</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex</p></td>
+</tr>
+<tr class="row-odd"><td><p>scaleFromZero.admissionImage</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;python:3.11-slim&quot;</span></code></p></td>
+<td><p>Image for the admission sidecar on the Envoy pod</p></td>
+</tr>
+<tr class="row-even"><td><p>triton.replicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p>Number of Triton server instances (if autoscaling is disabled)</p></td>
+<td><p>Number of Triton server instances. Unused when scaleFromZero.enabled is true.</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.image</p></td>
+<tr class="row-odd"><td><p>triton.image</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;nvcr.io/nvidia/tritonserver:26.04-py3-min&quot;</span></code></p></td>
 <td><p>Docker image for the Triton server</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.command</p></td>
+<tr class="row-even"><td><p>triton.command</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[&quot;/bin/sh&quot;,&quot;-c&quot;]</span></code></p></td>
 <td><p>Command and arguments to run in Triton container</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.args[0]</p></td>
+<tr class="row-odd"><td><p>triton.args[0]</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;/opt/tritonserver/bin/tritonserver</span> <span class="pre">\\\n--model-repository=/tmp/</span> <span class="pre">\\\n--log-verbose=0</span> <span class="pre">\\\n--exit-timeout-secs=60\n&quot;</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.resources</p></td>
+<tr class="row-even"><td><p>triton.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;},&quot;requests&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;}}</span></code></p></td>
 <td><p>Resource limits and requests for each Triton instance. You can add necessary GPU request here.</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.annotations</p></td>
+<tr class="row-odd"><td><p>triton.annotations</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Annotations for Triton pods</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.nodeSelector</p></td>
+<tr class="row-even"><td><p>triton.nodeSelector</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Node selector for Triton pods</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.tolerations</p></td>
+<tr class="row-odd"><td><p>triton.tolerations</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
 <td><p>Tolerations for Triton pods</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.affinity</p></td>
+<tr class="row-even"><td><p>triton.affinity</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Affinity rules for Triton pods - another way to request GPUs</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.modelRepository</p></td>
+<tr class="row-odd"><td><p>triton.modelRepository</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;mountPath&quot;:&quot;&quot;}</span></code></p></td>
 <td><p>Model repository configuration</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.modelRepository.mountPath</p></td>
+<tr class="row-even"><td><p>triton.modelRepository.mountPath</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p>Model repository mount path</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.service.labels</p></td>
+<tr class="row-odd"><td><p>triton.service.labels</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.service.annotations</p></td>
+<tr class="row-even"><td><p>triton.service.annotations</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>triton.service.ports</p></td>
+<tr class="row-odd"><td><p>triton.service.ports</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[{&quot;name&quot;:&quot;http&quot;,&quot;port&quot;:8000,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8000},{&quot;name&quot;:&quot;grpc&quot;,&quot;port&quot;:8001,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8001},{&quot;name&quot;:&quot;metrics&quot;,&quot;port&quot;:8002,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8002}]</span></code></p></td>
 <td><p>Ports for communication with Triton servers</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.readinessProbe</p></td>
+<tr class="row-even"><td><p>triton.readinessProbe</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;command&quot;:[&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;curl</span> <span class="pre">-sf</span> <span class="pre">http://localhost:8000/v2/health/ready</span> <span class="pre">&gt;</span> <span class="pre">/dev/null</span> <span class="pre">&amp;&amp;</span> <span class="pre">[</span> <span class="pre">!</span> <span class="pre">-f</span> <span class="pre">/tmp/shutdown</span> <span class="pre">]&quot;],&quot;failureThreshold&quot;:10,&quot;initialDelaySeconds&quot;:10,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false,&quot;successThreshold&quot;:1,&quot;timeoutSeconds&quot;:5}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;command&quot;:[&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;curl</span> <span class="pre">-sf</span> <span class="pre">http://localhost:8000/v2/health/ready</span> <span class="pre">&gt;</span> <span class="pre">/dev/null</span> <span class="pre">&amp;&amp;</span> <span class="pre">[</span> <span class="pre">!</span> <span class="pre">-f</span> <span class="pre">/tmp/shutdown</span> <span class="pre">]&quot;],&quot;failureThreshold&quot;:10,&quot;initialDelaySeconds&quot;:10,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false,&quot;successThreshold&quot;:1,&quot;timeoutSeconds&quot;:15}</span></code></p></td>
 <td><p>Custom readiness probe configuration</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.readinessProbe.reset</p></td>
+<tr class="row-odd"><td><p>triton.readinessProbe.reset</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)</p></td>
 </tr>
-<tr class="row-odd"><td><p>triton.startupProbe</p></td>
+<tr class="row-even"><td><p>triton.startupProbe</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;failureThreshold&quot;:12,&quot;httpGet&quot;:{&quot;path&quot;:&quot;/v2/health/ready&quot;,&quot;port&quot;:&quot;http&quot;},&quot;initialDelaySeconds&quot;:0,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;failureThreshold&quot;:24,&quot;httpGet&quot;:{&quot;path&quot;:&quot;/v2/health/ready&quot;,&quot;port&quot;:&quot;http&quot;},&quot;initialDelaySeconds&quot;:0,&quot;periodSeconds&quot;:10,&quot;reset&quot;:false,&quot;timeoutSeconds&quot;:15}</span></code></p></td>
 <td><p>Custom startup probe configuration</p></td>
 </tr>
-<tr class="row-even"><td><p>triton.startupProbe.reset</p></td>
+<tr class="row-odd"><td><p>triton.startupProbe.reset</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.enabled</p></td>
+<tr class="row-even"><td><p>envoy.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p>Enable Envoy Proxy</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.replicas</p></td>
+<tr class="row-odd"><td><p>envoy.replicas</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p>Number of Envoy Proxy pods in Deployment</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.image</p></td>
+<tr class="row-even"><td><p>envoy.image</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.30.9&quot;</span></code></p></td>
 <td><p>Envoy Proxy Docker image</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.args</p></td>
+<tr class="row-odd"><td><p>envoy.args</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[&quot;--config-path&quot;,&quot;/etc/envoy/envoy.yaml&quot;,&quot;--log-level&quot;,&quot;info&quot;,&quot;--log-path&quot;,&quot;/dev/stdout&quot;]</span></code></p></td>
 <td><p>Arguments for Envoy</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.external_config</p></td>
+<tr class="row-even"><td><p>envoy.external_config</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;configmap_key&quot;:&quot;&quot;,&quot;configmap_name&quot;:&quot;&quot;,&quot;load_from_configmap&quot;:false}</span></code></p></td>
 <td><p>External Envoy configuration settings</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.external_config.load_from_configmap</p></td>
+<tr class="row-odd"><td><p>envoy.external_config.load_from_configmap</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true, load Envoy configuration from an external ConfigMap instead of generating it dynamically</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.external_config.configmap_name</p></td>
+<tr class="row-even"><td><p>envoy.external_config.configmap_name</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p>Name of the external ConfigMap containing the Envoy configuration</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.external_config.configmap_key</p></td>
+<tr class="row-odd"><td><p>envoy.external_config.configmap_key</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
 <td><p>Key name in the external ConfigMap (defaults to “envoy.yaml”)</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.resources</p></td>
+<tr class="row-even"><td><p>envoy.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:8,&quot;memory&quot;:&quot;4G&quot;},&quot;requests&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;2G&quot;}}</span></code></p></td>
 <td><p>Resource requests and limits for Envoy Proxy. Note: an Envoy Proxy with too many connections might run out of CPU</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.annotations</p></td>
+<tr class="row-odd"><td><p>envoy.annotations</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Annotations for Envoy pods</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.nodeSelector</p></td>
+<tr class="row-even"><td><p>envoy.nodeSelector</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
 <td><p>Node selector for Envoy pods</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.tolerations</p></td>
+<tr class="row-odd"><td><p>envoy.tolerations</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
 <td><p>Tolerations for Envoy pods</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.service.type</p></td>
+<tr class="row-even"><td><p>envoy.service.type</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;ClusterIP&quot;</span></code></p></td>
 <td><p>This is the client-facing endpoint. In order to be able to connect to it, either enable ingress, or use type: LoadBalancer.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.service.ports</p></td>
+<tr class="row-odd"><td><p>envoy.service.ports</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[{&quot;name&quot;:&quot;grpc&quot;,&quot;port&quot;:8001,&quot;targetPort&quot;:8001},{&quot;name&quot;:&quot;admin&quot;,&quot;port&quot;:9901,&quot;targetPort&quot;:9901}]</span></code></p></td>
 <td><p>Envoy Service ports</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.ingress</p></td>
+<tr class="row-even"><td><p>envoy.ingress</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
 <td><p>Ingress configuration for Envoy</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.grpc_route_timeout</p></td>
+<tr class="row-odd"><td><p>envoy.grpc_route_timeout</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0s&quot;</span></code></p></td>
 <td><p>Timeout for gRPC route in Envoy; disabled by default (0s), preventing Envoy from closing connections too early.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;fill_interval&quot;:&quot;12s&quot;,&quot;max_tokens&quot;:5,&quot;tokens_per_fill&quot;:1}</span></code></p></td>
 <td><p>This rate limiter explicitly controls the number of client connections to the Envoy Proxy.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.enabled</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable rate limiter</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.max_tokens</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.max_tokens</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
 <td><p>Maximum number of simultaneous connections to the Envoy Proxy. Each new connection takes a “token” from the “bucket” which initially contains <code class="docutils literal notranslate"><span class="pre">max_tokens</span></code> tokens.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.tokens_per_fill</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.tokens_per_fill</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">tokens_per_fill</span></code> tokens are added to the “bucket” every <code class="docutils literal notranslate"><span class="pre">fill_interval</span></code>, allowing new connections to be established.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.listener_level.fill_interval</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.listener_level.fill_interval</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;12s&quot;</span></code></p></td>
 <td><p>For example, adding a new token every 12 seconds allows 5 new connections every minute.</p></td>
 </tr>
-<tr class="row-even"><td><p>envoy.rate_limiter.prometheus_based</p></td>
+<tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;luaConfig&quot;:&quot;cfg/envoy-filter.lua&quot;}</span></code></p></td>
-<td><p>This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code>, and the threshold is set by <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code>. These parameters are the same as those used by the KEDA autoscaler.</p></td>
+<td><p>This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code>, and the threshold is set by <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code>. These parameters are the same as those used by the KEDA autoscaler.</p></td>
 </tr>
-<tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based.enabled</p></td>
+<tr class="row-even"><td><p>envoy.rate_limiter.prometheus_based.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable rate limiter</p></td>
+</tr>
+<tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based.luaConfig</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;cfg/envoy-filter.lua&quot;</span></code></p></td>
+<td><p>Envoy Lua filter (prometheus rate limiter and scaleFromZero)</p></td>
 </tr>
 <tr class="row-even"><td><p>envoy.loadBalancerPolicy</p></td>
 <td><p>string</p></td>
@@ -351,22 +381,32 @@
 <tr class="row-even"><td><p>keda.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p>Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadMetric</span></code>, new Triton servers will spawn if the metric exceedds the threshold set by <code class="docutils literal notranslate"><span class="pre">prometheus.serverLoadThreshold</span></code>.</p></td>
+<td><p>Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric from parameter <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code>; new Triton servers will spawn if the metric exceeds the threshold set by <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p>keda.minReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p>Minimum and maximum number of Triton servers. Warning: if min=0 and desired Prometheus metric is empty, the first server will never start</p></td>
+<td><p>Minimum and maximum number of Triton servers. Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled). With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount), and upgrades keep the live ScaledObject minReplicaCount.</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.maxReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p>keda.pollingInterval</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">30</span></code></p></td>
+<td><p>How often KEDA polls Prometheus</p></td>
+</tr>
+<tr class="row-even"><td><p>keda.cooldownPeriod</p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
+<td><p>Period to wait after the last trigger is inactive before scaling to minReplicaCount</p></td>
+</tr>
 <tr class="row-odd"><td><p>keda.zeroIdleReplicas</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p>If set to true, the server will release all GPUs when idle. Be careful: if the scaling metric is extracted from Triton servers, it will be unavailable, and scaling from 0 to 1 will never happen.</p></td>
+<td><p>If set to true, KEDA sets idleReplicaCount to 0. This cannot scale from 0 back to 1 when the load metric comes from Triton. Use scaleFromZero.enabled with keda.minReplicaCount: 0 instead.</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.scaleUp.stabilizationWindowSeconds</p></td>
 <td><p>int</p></td>
@@ -501,7 +541,7 @@
 <tr class="row-even"><td><p>prometheus.server.ingress.hostName</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be ommitted, as they will be set by the installer plugin</p></td>
+<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be omitted, as they will be set by the installer plugin</p></td>
 </tr>
 <tr class="row-odd"><td><p>prometheus.serviceAccounts.server.create</p></td>
 <td><p>bool</p></td>
@@ -681,7 +721,7 @@
 <tr class="row-even"><td><p>grafana.ingress.hostName</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be ommitted, as they will be set by the installer plugin</p></td>
+<td><p>If this parameter is set in values.yaml, the <code class="docutils literal notranslate"><span class="pre">hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">tls</span></code> parameters can be omitted, as they will be set by the installer plugin</p></td>
 </tr>
 <tr class="row-odd"><td><p>tempo.enabled</p></td>
 <td><p>bool</p></td>

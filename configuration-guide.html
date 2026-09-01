@@ -141,26 +141,26 @@ The following options for model repository mounting are provided via <code class
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="c1"># -- Model repository mount path (e.g /cvmfs/)</span>
-<span class="w">  </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
 
 <span class="w">  </span><span class="c1">## Model repository options:</span>
 
 <span class="w">  </span><span class="c1">## Option 1: mount an arbitrary PersistentVolumeClaim</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pvc&quot;</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">"pvc"</span>
 <span class="w">  </span><span class="nt">pvc</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">claimName</span><span class="p">:</span>
 
 <span class="w">  </span><span class="c1">## -- OR --</span>
 <span class="w">  </span><span class="c1">## Option 2: mount CVMFS as PersistentVolumeClaim (CVMFS StorageClass must be installed at the cluster)</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs-pvc&quot;</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">"cvmfs-pvc"</span>
 
 <span class="w">  </span><span class="c1">## -- OR --</span>
 <span class="w">  </span><span class="c1">## Option 3: mount CVMFS via hostPath (CVMFS must be already mounted on the nodes)</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cvmfs&quot;</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">"cvmfs-hostPath"</span>
 
 <span class="w">  </span><span class="c1">## -- OR --</span>
 <span class="w">  </span><span class="c1">## Option 4: mount an NFS storage volume</span>
-<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nfs&quot;</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">"nfs"</span>
 <span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">server</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">path</span><span class="p">:</span>
@@ -202,8 +202,8 @@ You can configure the Ingress resource via the <code class="docutils literal not
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_url&gt;&quot;</span>
-<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
+<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;ingress_url&gt;"</span>
+<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;ingress_class&gt;"</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 </pre></div>
 </div>
@@ -232,6 +232,11 @@ default configuration completely (the configuration file must be supplied as a C
 <span class="w">    </span><span class="nt">configmap_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.yaml</span>
 </pre></div>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">scaleFromZero.enabled</span></code> cannot be used with <code class="docutils literal notranslate"><span class="pre">envoy.external_config.load_from_configmap</span></code>.
+Scale-from-zero injects Envoy clusters and a Lua filter that an external ConfigMap would replace.</p>
+</div>
 </section>
 <section id="optional-configure-rate-limiting-in-envoy-proxy">
 <h2>5. (Optional) Configure Rate Limiting in Envoy Proxy<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h2>
@@ -250,7 +255,7 @@ Each new connection consumes a token from the bucket, and the bucket is refilled
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">      </span><span class="c1"># -- Maximum number of simultaneous connections to the Envoy Proxy.</span>
 <span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">      </span><span class="c1"># -- ``tokens_per_fill`` tokens are added to the &quot;bucket&quot; every ``fill_interval``, allowing new connections to be established.</span>
+<span class="w">      </span><span class="c1"># -- ``tokens_per_fill`` tokens are added to the "bucket" every ``fill_interval``, allowing new connections to be established.</span>
 <span class="w">      </span><span class="nt">tokens_per_fill</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">      </span><span class="c1"># -- For example, adding a new token every 12 seconds allows 5 new connections every minute.</span>
 <span class="w">      </span><span class="nt">fill_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12s</span>
@@ -297,12 +302,12 @@ under the <code class="docutils literal notranslate"><span class="pre">prometheu
 <span class="w">  </span><span class="nt">server</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
+<span class="w">      </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;ingress_class&gt;"</span>
 <span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
-<span class="w">         </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
+<span class="w">         </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"&lt;prometheus_url&gt;"</span>
 <span class="w">      </span><span class="nt">tls</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"&lt;prometheus_url&gt;"</span>
 </pre></div>
 </div>
 <p>The parameters you will most likely need to configure in your values file are related to
@@ -322,8 +327,8 @@ all  parameters in the <code class="docutils literal notranslate"><span class="p
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">prometheus</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">external</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">scheme</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&lt;https</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">http&gt;&quot;</span>
-<span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;prometheus_url&gt;&quot;</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">scheme</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"&lt;https</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">http&gt;"</span>
+<span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;prometheus_url&gt;"</span>
 <span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;prometheus_port&gt;</span>
 </pre></div>
 </div>
@@ -362,12 +367,12 @@ under the <code class="docutils literal notranslate"><span class="pre">grafana</
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
+<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;ingress_class&gt;"</span>
 <span class="w">    </span><span class="nt">hosts</span><span class="p">:</span>
-<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;grafana_url&gt;&quot;</span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"&lt;grafana_url&gt;"</span>
 <span class="w">    </span><span class="nt">tls</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;grafana_url&gt;&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"&lt;grafana_url&gt;"</span>
 </pre></div>
 </div>
 <p>The values you will most likely need to configure in your values file are related to
@@ -387,13 +392,18 @@ can be enabled via the <code class="docutils literal notranslate"><span class="p
 Please contact cluster administrators if this step of installation fails.</p>
 </div>
 <p>The parameters <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> define the range in which
-the number of Triton servers can scale.</p>
+the number of Triton servers can scale. <code class="docutils literal notranslate"><span class="pre">keda.pollingInterval</span></code> is how often KEDA queries
+Prometheus, and <code class="docutils literal notranslate"><span class="pre">keda.cooldownPeriod</span></code> is how long the load metric must stay below the
+threshold before KEDA scales down to <code class="docutils literal notranslate"><span class="pre">minReplicaCount</span></code>.</p>
 <p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">keda</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="nt">minReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">maxReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+
+<span class="w">  </span><span class="nt">pollingInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">cooldownPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
 
 <span class="w">  </span><span class="nt">scaleUp</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">stabilizationWindowSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
@@ -405,6 +415,43 @@ the number of Triton servers can scale.</p>
 <span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
+<p>To keep <strong>zero</strong> Triton replicas when idle, set <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code> and enable
+<code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code>. Envoy stays running. On a <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> request (the first RPC
+used by CMS SONIC clients), SuperSONIC scales Triton to <code class="docutils literal notranslate"><span class="pre">max(1,</span> <span class="pre">keda.minReplicaCount)</span></code>
+replicas and returns the index only after Envoy has a healthy Triton upstream. KEDA then
+scales up to <code class="docutils literal notranslate"><span class="pre">maxReplicaCount</span></code> using the Prometheus load metric. After
+<code class="docutils literal notranslate"><span class="pre">scaleFromZero.holdMinReplicasSeconds</span></code> with no further <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests,
+the ScaledObject minimum returns to <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code>, and KEDA can scale back to zero.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">keda</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">minReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">maxReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+
+<span class="nt">scaleFromZero</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">readyTimeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">  </span><span class="nt">holdMinReplicasSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The client deadline for <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> must cover Triton startup. If no healthy
+upstream is available within <code class="docutils literal notranslate"><span class="pre">scaleFromZero.readyTimeoutSeconds</span></code>, the index request
+is rejected.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">triton.replicas</span></code> is unused when <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> is enabled; KEDA owns the replica
+count. Helm upgrades keep the live ScaledObject <code class="docutils literal notranslate"><span class="pre">minReplicaCount</span></code> so they do not
+interrupt an active hold. The hold deadline is stored as an annotation on the
+ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
+and none can release a peer’s active hold. <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> requires <code class="docutils literal notranslate"><span class="pre">keda.enabled</span></code> and
+<code class="docutils literal notranslate"><span class="pre">envoy.enabled</span></code>, and cannot be used with an external Envoy ConfigMap.</p>
+<p>Do not set <code class="docutils literal notranslate"><span class="pre">keda.zeroIdleReplicas:</span> <span class="pre">true</span></code> together with <code class="docutils literal notranslate"><span class="pre">minReplicaCount:</span> <span class="pre">0</span></code>.
+<code class="docutils literal notranslate"><span class="pre">zeroIdleReplicas</span></code> sets KEDA <code class="docutils literal notranslate"><span class="pre">idleReplicaCount</span></code> to 0 and cannot scale from 0 back to 1
+when the load metric is scraped from Triton. Use <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> for that.</p>
+<p>An example is <code class="docutils literal notranslate"><span class="pre">values/values-geddes-cms.yaml</span></code>.</p>
 </section>
 <section id="optional-configure-metrics-collector-for-running-perf-analyzer">
 <h2>11. (Optional) Configure Metrics Collector for Running <code class="docutils literal notranslate"><span class="pre">perf_analyzer</span></code><a class="headerlink" href="#optional-configure-metrics-collector-for-running-perf-analyzer" title="Link to this heading"></a></h2>
@@ -418,8 +465,8 @@ and configure ingress settings if needed as shown below:</p>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;metrics_collector_url&gt;&quot;</span>
-<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ingress_class&gt;&quot;</span>
+<span class="w">    </span><span class="nt">hostName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;metrics_collector_url&gt;"</span>
+<span class="w">    </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;ingress_class&gt;"</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 </pre></div>
 </div>

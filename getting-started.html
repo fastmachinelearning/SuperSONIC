@@ -94,7 +94,9 @@
 <li><p><a class="reference external" href="https://kubernetes.io">Kubernetes</a> cluster</p></li>
 <li><p><a class="reference external" href="https://helm.sh">Helm</a></p></li>
 <li><p>Access to an existing <a class="reference external" href="https://prometheus.io">Prometheus</a> instance in the cluster, or sufficient permissions to deploy a custom instance (preferred).</p></li>
-<li><p>If using autoscaling, you may need to ask cluster administrators to install CustomResourceDefinitions for <a class="reference external" href="https://keda.sh">KEDA</a>.</p></li>
+<li><p>If using autoscaling, you may need to ask cluster administrators to install CustomResourceDefinitions for <a class="reference external" href="https://keda.sh">KEDA</a>.
+To keep zero Triton replicas when idle, enable <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> as described in the
+<a class="reference internal" href="configuration-guide.html"><span class="doc">configuration guide</span></a>.</p></li>
 </ol>
 </div></blockquote>
 </section>
