@@ -21,12 +21,18 @@ SCALEDOBJECT_NAME = os.environ.get("SCALEDOBJECT_NAME", "")
 IDLE_MIN_REPLICAS = int(os.environ.get("IDLE_MIN_REPLICAS", "0"))
 # On wake, scale to the configured minReplicaCount, but never below one replica.
 WAKE_MIN_REPLICAS = max(1, IDLE_MIN_REPLICAS)
+# The hold deadline is shared between all Envoy replicas as an annotation on the
+# ScaledObject (unix seconds), so one sidecar cannot release a peer's active hold
+# and an expired hold survives sidecar restarts.
+HOLD_ANNOTATION = "supersonic.fastmachinelearning.org/hold-until"
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 
 # _state_lock guards _last_wake and is never held across Kubernetes API calls,
 # so /wake handlers do not queue behind slow API traffic. _scale_lock serializes
-# the API scaling passes themselves and guards _scaled_object_held.
+# the API scaling passes themselves and guards _scaled_object_held, which only
+# controls how eagerly this sidecar checks for release; the authoritative hold
+# state is the HOLD_ANNOTATION on the ScaledObject.
 _state_lock = threading.Lock()
 _scale_lock = threading.Lock()
 _last_wake = 0.0
@@ -109,29 +115,46 @@ def _hold_active():
         return time.time() - _last_wake < HOLD_TTL
 
 
-def set_scaled_object_min(min_replicas):
-    path = (
+def _so_path():
+    return (
         f"/apis/keda.sh/v1alpha1/namespaces/{_namespace()}"
         f"/scaledobjects/{SCALEDOBJECT_NAME}"
     )
+
+
+def _hold_until(scaled_object):
+    annotations = (scaled_object.get("metadata") or {}).get("annotations") or {}
     try:
-        current = _api_request("GET", path)
-        current_min = _spec_int(current, "minReplicaCount")
-        if current_min != min_replicas:
-            _api_request("PATCH", path, {"spec": {"minReplicaCount": min_replicas}})
-            _log(
-                f"ScaledObject {SCALEDOBJECT_NAME} minReplicaCount {current_min} -> {min_replicas}"
-            )
-        return True
+        return float(annotations[HOLD_ANNOTATION])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def ensure_triton_replica(extend_hold=False):
+    """Raise the ScaledObject minimum and the Triton Deployment to the wake target.
+
+    With extend_hold, also advance the shared hold annotation to now + HOLD_TTL
+    in the same patch (it is only ever moved forward)."""
+    global _scaled_object_held
+    try:
+        scaled_object = _api_request("GET", _so_path())
+        current_min = _spec_int(scaled_object, "minReplicaCount")
+        patch = {}
+        if current_min != WAKE_MIN_REPLICAS:
+            patch["spec"] = {"minReplicaCount": WAKE_MIN_REPLICAS}
+        if extend_hold:
+            new_until = int(time.time()) + HOLD_TTL
+            current_until = _hold_until(scaled_object)
+            if current_until is None or current_until < new_until:
+                patch["metadata"] = {"annotations": {HOLD_ANNOTATION: str(new_until)}}
+        if patch:
+            _api_request("PATCH", _so_path(), patch)
+            if "spec" in patch:
+                _log(
+                    f"ScaledObject {SCALEDOBJECT_NAME} minReplicaCount {current_min} -> {WAKE_MIN_REPLICAS}"
+                )
     except ApiError as exc:
         _log(f"ScaledObject {SCALEDOBJECT_NAME}: {exc}")
-        return False
-
-
-def ensure_triton_replica():
-    """Set ScaledObject minReplicaCount to the wake target and scale the Triton Deployment up to it."""
-    global _scaled_object_held
-    if not set_scaled_object_min(WAKE_MIN_REPLICAS):
         return False
     _scaled_object_held = True
     path = (
@@ -149,12 +172,39 @@ def ensure_triton_replica():
         return False
 
 
-def release_scale_hold():
+def maybe_release(assume_held=False):
+    """Restore the idle minimum once the shared hold annotation has expired.
+
+    Any sidecar may release an expired hold (including one left behind by a
+    restarted peer), and none releases while the annotation is still in the
+    future. With assume_held, a missing annotation is treated as our own
+    expired hold. Returns False only on an API error."""
     global _scaled_object_held
-    if not _scaled_object_held:
-        return
-    if set_scaled_object_min(IDLE_MIN_REPLICAS):
+    try:
+        scaled_object = _api_request("GET", _so_path())
+        hold_until = _hold_until(scaled_object)
+        if hold_until is not None and time.time() < hold_until:
+            # A hold (possibly a peer's) is still active; its owner or the
+            # periodic sweep will release it later.
+            _scaled_object_held = False
+            return True
+        current_min = _spec_int(scaled_object, "minReplicaCount")
+        patch = {}
+        if hold_until is not None:
+            patch["metadata"] = {"annotations": {HOLD_ANNOTATION: None}}
+        if current_min != IDLE_MIN_REPLICAS and (hold_until is not None or assume_held):
+            patch["spec"] = {"minReplicaCount": IDLE_MIN_REPLICAS}
+        if patch:
+            _api_request("PATCH", _so_path(), patch)
+            if "spec" in patch:
+                _log(
+                    f"ScaledObject {SCALEDOBJECT_NAME} minReplicaCount {current_min} -> {IDLE_MIN_REPLICAS}"
+                )
         _scaled_object_held = False
+        return True
+    except ApiError as exc:
+        _log(f"ScaledObject {SCALEDOBJECT_NAME}: {exc}")
+        return False
 
 
 def wake():
@@ -162,24 +212,31 @@ def wake():
     with _state_lock:
         _last_wake = time.time()
     with _scale_lock:
-        return ensure_triton_replica()
+        return ensure_triton_replica(extend_hold=True)
 
 
 def _watch_loop():
-    last_scale_check = 0.0
+    last_reassert = 0.0
+    last_sweep = 0.0
     while True:
         try:
             now = time.time()
             if _hold_active():
-                if now - last_scale_check >= 2:
+                if now - last_reassert >= 2:
                     with _scale_lock:
                         ensure_triton_replica()
-                    last_scale_check = now
-            else:
+                    last_reassert = now
+            elif _scaled_object_held:
                 with _scale_lock:
                     # Re-check: a wake may have landed since the check above.
                     if not _hold_active():
-                        release_scale_hold()
+                        maybe_release(assume_held=True)
+            elif now - last_sweep >= 60:
+                # Backstop: release an expired hold left behind by a crashed or
+                # restarted sidecar (ours or a peer's).
+                with _scale_lock:
+                    maybe_release()
+                last_sweep = now
         except Exception as exc:
             _log(f"watch: {exc}")
         time.sleep(0.5)

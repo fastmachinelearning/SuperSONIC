@@ -405,7 +405,9 @@ the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale
 
 ``triton.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
 count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do not
-interrupt an active hold. ``scaleFromZero`` requires ``keda.enabled`` and
+interrupt an active hold. The hold deadline is stored as an annotation on the
+ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
+and none can release a peer's active hold. ``scaleFromZero`` requires ``keda.enabled`` and
 ``envoy.enabled``, and cannot be used with an external Envoy ConfigMap.
 
 Do not set ``keda.zeroIdleReplicas: true`` together with ``minReplicaCount: 0``.
