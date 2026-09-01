@@ -10,7 +10,7 @@ Pre-requisites
    3. Access to an existing `Prometheus <https://prometheus.io>`_ instance in the cluster, or sufficient permissions to deploy a custom instance (preferred).
    4. If using autoscaling, you may need to ask cluster administrators to install CustomResourceDefinitions for `KEDA <https://keda.sh>`_.
       To keep zero Triton replicas when idle, enable ``scaleFromZero`` as described in the
-      `configuration guide <configuration-guide>`_.
+      :doc:`configuration guide <configuration-guide>`.
 
 Installation
 ~~~~~~~~~~~~~~
