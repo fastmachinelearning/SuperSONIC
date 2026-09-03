@@ -1,0 +1,107 @@
+# Example deployment backed by Nereid instead of Triton.
+#
+# Nereid (https://github.com/ngpaladi/nereid-server) serves the same KServe v2
+# gRPC protocol as Triton, so Envoy, the Service, the ServiceMonitor and the
+# autoscaling metric are all unchanged. What differs is the image, how models
+# are configured, and the probe endpoints.
+#
+# Two upstream features this file assumes (see the PR description):
+#   - the KServe v2 HTTP health endpoints used by the probes below
+#   - Triton-named nv_inference_* metrics on /metrics, which the default
+#     serverLoadMetric and the ServiceMonitor scrape
+
+inferenceServer:
+  type: nereid
+
+  # TODO: pin a released tag once nereid-server publishes one. The repository
+  # has no releases or tags yet and its GHCR package is not published, so this
+  # reference is a placeholder rather than a working image.
+  image: ghcr.io/ngpaladi/nereid-server:latest
+
+  # Nereid is configured by nereid.yaml, not by flags: fall back to the image's
+  # own entrypoint. `null` (not `[]`) is what drops the chart's Triton defaults.
+  command: null
+  args: null
+
+  replicas: 1
+
+  resources:
+    limits: { cpu: 1, memory: 2G }
+    requests: { cpu: 1, memory: 2G }
+
+  # No HTTP port 8000: Nereid serves gRPC plus a single HTTP port carrying both
+  # /metrics and the health endpoints. Keeping Triton's port numbers means the
+  # rest of the chart needs no per-server special-casing.
+  service:
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
+
+  nereid:
+    config:
+      server:
+        bind_addr: "[::]:8001"
+        http_addr: "[::]:8002"
+        # Absolute, because Nereid resolves this relative to its working
+        # directory while the models arrive on the modelRepository mount.
+        ml_backends_path: "/models"
+      # One entry per model folder under ml_backends_path. Nereid refuses to
+      # start with an empty list.
+      models:
+        - name: model3
+          device: cpu
+          queue_capacity: 16
+
+  # Mount the model folders. A read-only volume serves .pt/ONNX/TensorFlow
+  # models fine, but not Nereid's Python backend: that one builds a venv/ inside
+  # each model folder at load time, and the container runs as uid 10001.
+  modelRepository:
+    enabled: true
+    storageType: "pvc"
+    mountPath: "/models"
+    pvc:
+      claimName: nereid-models
+
+  # `command: null` drops the chart's Triton exec probe: the Nereid image has no
+  # curl, and setting a second handler without clearing the first is an error.
+  readinessProbe:
+    reset: false
+    command: null
+    httpGet:
+      path: /v2/health/ready
+      port: metrics
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 15
+    successThreshold: 1
+
+  startupProbe:
+    reset: false
+    httpGet:
+      path: /v2/health/live
+      port: metrics
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    failureThreshold: 24
+    timeoutSeconds: 15
+
+envoy:
+  enabled: true
+  resources:
+    requests:
+      cpu: 0.1
+      memory: "128Mi"
+
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+keda:
+  enabled: false
+
+metricsCollector:
+  # Queries nv_gpu_* series, which Nereid does not export.
+  enabled: false
