@@ -20,7 +20,7 @@ metadata:
     app.kubernetes.io/component: keda
 spec:
   scaleTargetRef:
-    name: {{ include "supersonic.tritonName" . }}
+    name: {{ include "supersonic.inferenceServerName" . }}
     kind: Deployment
   pollingInterval: {{ .Values.keda.pollingInterval | default 30 }}
   cooldownPeriod: {{ .Values.keda.cooldownPeriod | default 120 }}

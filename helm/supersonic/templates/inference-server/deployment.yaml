@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supersonic.inferenceServerName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: inference-server
+spec:
+{{- if ne (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+  replicas: {{ .Values.inferenceServer.replicas | default 1 }}
+{{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: inference-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: inference-server
+      {{- with .Values.inferenceServer.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: inference-server
+        image: {{ .Values.inferenceServer.image }}
+        resources:
+          {{ toYaml .Values.inferenceServer.resources | nindent 10 }}
+        ports:
+        {{- range .Values.inferenceServer.service.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+          protocol: {{ .protocol }}
+        {{- end }}
+        volumeMounts:
+          {{- if .Values.inferenceServer.modelRepository.enabled }}
+          - name: model-repository
+            mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
+            mountPropagation: HostToContainer
+            readOnly: true
+          {{- end }}
+        command: {{ toYaml .Values.inferenceServer.command | nindent 10 }}
+        args:  {{ toYaml .Values.inferenceServer.args | nindent 10 }}
+{{- if not (eq .Values.inferenceServer.startupProbe.reset true) }}
+        startupProbe:
+          initialDelaySeconds: {{ .Values.inferenceServer.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.inferenceServer.startupProbe.periodSeconds }}
+          failureThreshold: {{ .Values.inferenceServer.startupProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.inferenceServer.startupProbe.timeoutSeconds | default 1 }}
+          httpGet:
+            path: {{ .Values.inferenceServer.startupProbe.httpGet.path }}
+            port: {{ .Values.inferenceServer.startupProbe.httpGet.port }}
+{{- end }}
+{{- if not (eq .Values.inferenceServer.readinessProbe.reset true) }}
+        readinessProbe:
+          exec:
+            command: {{ toYaml .Values.inferenceServer.readinessProbe.command | nindent 12 }}
+          initialDelaySeconds: {{ .Values.inferenceServer.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.inferenceServer.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.inferenceServer.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.inferenceServer.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.inferenceServer.readinessProbe.failureThreshold }}
+{{- end }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "touch", "/tmp/shutdown;", "sleep 60"]
+      volumes:
+      {{- if .Values.inferenceServer.modelRepository.enabled }}
+      - name: model-repository
+      {{- if eq .Values.inferenceServer.modelRepository.storageType "nfs" }}
+        nfs:
+          server: {{ .Values.inferenceServer.modelRepository.nfs.server }}
+          path: {{ .Values.inferenceServer.modelRepository.nfs.path }}
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "pvc" }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.inferenceServer.modelRepository.pvc.claimName }}
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "cvmfs-hostPath" }}
+        hostPath: 
+          path: /cvmfs
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "cvmfs-pvc" }}
+        persistentVolumeClaim:
+          claimName: cvmfs
+          readOnly: true
+      {{- end }}
+      {{- end }}
+
+{{- if .Values.inferenceServer.affinity }}
+      affinity: {{ toYaml .Values.inferenceServer.affinity | nindent 8}}
+{{- end }}
+
+{{- if .Values.inferenceServer.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.inferenceServer.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.inferenceServer.tolerations }}
+      tolerations:
+{{ toYaml .Values.inferenceServer.tolerations | nindent 8 }}
+{{- end }}
+      restartPolicy: Always

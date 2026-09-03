@@ -1,6 +1,6 @@
 serverLoadThreshold: 100
 
-triton:
+inferenceServer:
   replicas: 5
   # image: fastml/triton-torchgeo:21.02-py3-geometric # run2
   # image: fastml/triton-torchgeo:22.07-py3-geometric # run3

@@ -34,7 +34,7 @@
         "readyTimeoutSeconds"
       ]
     },
-    "triton": {
+    "inferenceServer": {
       "type": "object",
       "properties": {
         "replicas": {
@@ -1341,13 +1341,13 @@
   "required": [
     "envoy",
     "grafana",
+    "inferenceServer",
     "keda",
     "metricsCollector",
     "nameOverride",
     "prometheus",
     "scaleFromZero",
     "serverLoadMetric",
-    "serverLoadThreshold",
-    "triton"
+    "serverLoadThreshold"
   ]
 }

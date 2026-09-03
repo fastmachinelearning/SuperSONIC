@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "supersonic.tritonName" . }}
+  name: {{ include "supersonic.inferenceServerName" . }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: triton
-    {{- if .Values.triton.service.labels }}
-{{ toYaml .Values.triton.service.labels | nindent 4 }}
+    app.kubernetes.io/component: inference-server
+    {{- if .Values.inferenceServer.service.labels }}
+{{ toYaml .Values.inferenceServer.service.labels | nindent 4 }}
     {{- end }}
   annotations:
-    {{- if .Values.triton.service.annotations }}
-{{ toYaml .Values.triton.service.annotations | nindent 4 }}
+    {{- if .Values.inferenceServer.service.annotations }}
+{{ toYaml .Values.inferenceServer.service.annotations | nindent 4 }}
     {{- end }}
 spec:
   clusterIP: None
   ports:
-  {{- range .Values.triton.service.ports }}
+  {{- range .Values.inferenceServer.service.ports }}
   - name: {{ .name }}
     port: {{ .port }}
     targetPort: {{ .targetPort }}
@@ -25,4 +25,4 @@ spec:
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: triton
+    app.kubernetes.io/component: inference-server

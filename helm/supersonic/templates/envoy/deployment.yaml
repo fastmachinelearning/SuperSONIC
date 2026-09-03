@@ -69,8 +69,8 @@ spec:
         env:
         - name: HOLD_MIN_REPLICAS_SECONDS
           value: {{ $sfz.holdMinReplicasSeconds | default 300 | quote }}
-        - name: GPU_DEPLOYMENT
-          value: {{ include "supersonic.tritonName" . | quote }}
+        - name: INFERENCE_SERVER_DEPLOYMENT
+          value: {{ include "supersonic.inferenceServerName" . | quote }}
         - name: SCALEDOBJECT_NAME
           value: {{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}
         - name: IDLE_MIN_REPLICAS

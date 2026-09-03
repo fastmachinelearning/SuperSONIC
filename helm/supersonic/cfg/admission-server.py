@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scale Triton to at least max(1, minReplicaCount) replicas on /wake."""
+"""Scale the inference server to at least max(1, minReplicaCount) replicas on /wake."""
 
 import json
 import os
@@ -16,7 +16,7 @@ CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 HOLD_TTL = int(os.environ.get("HOLD_MIN_REPLICAS_SECONDS", "300"))
-TRITON_DEPLOYMENT = os.environ.get("GPU_DEPLOYMENT", "")
+INFERENCE_SERVER_DEPLOYMENT = os.environ.get("INFERENCE_SERVER_DEPLOYMENT", "")
 SCALEDOBJECT_NAME = os.environ.get("SCALEDOBJECT_NAME", "")
 IDLE_MIN_REPLICAS = int(os.environ.get("IDLE_MIN_REPLICAS", "0"))
 # On wake, scale to the configured minReplicaCount, but never below one replica.
@@ -131,8 +131,8 @@ def _hold_until(scaled_object):
         return None
 
 
-def ensure_triton_replica(extend_hold=False):
-    """Raise the ScaledObject minimum and the Triton Deployment to the wake target.
+def ensure_inference_server_replica(extend_hold=False):
+    """Raise the ScaledObject minimum and the inference server Deployment to the wake target.
 
     With extend_hold, also advance the shared hold annotation to now + HOLD_TTL
     in the same patch (it is only ever moved forward)."""
@@ -159,17 +159,17 @@ def ensure_triton_replica(extend_hold=False):
         return False
     _scaled_object_held = True
     path = (
-        f"/apis/apps/v1/namespaces/{_namespace()}/deployments/{TRITON_DEPLOYMENT}/scale"
+        f"/apis/apps/v1/namespaces/{_namespace()}/deployments/{INFERENCE_SERVER_DEPLOYMENT}/scale"
     )
     try:
         current = _api_request("GET", path)
         replicas = _spec_int(current, "replicas")
         if replicas < WAKE_MIN_REPLICAS:
             _api_request("PATCH", path, {"spec": {"replicas": WAKE_MIN_REPLICAS}})
-            _log(f"scaled {TRITON_DEPLOYMENT} {replicas} -> {WAKE_MIN_REPLICAS}")
+            _log(f"scaled {INFERENCE_SERVER_DEPLOYMENT} {replicas} -> {WAKE_MIN_REPLICAS}")
         return True
     except ApiError as exc:
-        _log(f"scale {TRITON_DEPLOYMENT}: {exc}")
+        _log(f"scale {INFERENCE_SERVER_DEPLOYMENT}: {exc}")
         return False
 
 
@@ -225,7 +225,7 @@ def wake():
         # scaled up and extended the hold; do not queue another identical pass.
         if _last_wake_pass >= arrived:
             return True
-        ok = ensure_triton_replica(extend_hold=True)
+        ok = ensure_inference_server_replica(extend_hold=True)
         if ok:
             _last_wake_pass = time.time()
         return ok
@@ -240,7 +240,7 @@ def _watch_loop():
             if _hold_active():
                 if now - last_reassert >= 2:
                     with _scale_lock:
-                        ensure_triton_replica()
+                        ensure_inference_server_replica()
                     last_reassert = now
             elif _scaled_object_held:
                 with _scale_lock:
@@ -302,9 +302,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    if not TRITON_DEPLOYMENT or not SCALEDOBJECT_NAME:
+    if not INFERENCE_SERVER_DEPLOYMENT or not SCALEDOBJECT_NAME:
         raise SystemExit(
-            "admission: GPU_DEPLOYMENT and SCALEDOBJECT_NAME are required"
+            "admission: INFERENCE_SERVER_DEPLOYMENT and SCALEDOBJECT_NAME are required"
         )
     try:
         _namespace()
@@ -315,7 +315,7 @@ def main():
     watcher = threading.Thread(target=_watch_loop, name="scale-watch", daemon=True)
     watcher.start()
     server = ThreadingHTTPServer((LISTEN_HOST, LISTEN_PORT), Handler)
-    _log(f"listening on {LISTEN_HOST}:{LISTEN_PORT} deployment={TRITON_DEPLOYMENT}")
+    _log(f"listening on {LISTEN_HOST}:{LISTEN_PORT} deployment={INFERENCE_SERVER_DEPLOYMENT}")
     server.serve_forever()
 
 

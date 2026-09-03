@@ -65,16 +65,16 @@ echo "Waiting for KEDA Autoscaler to be ready..."
 kubectl wait --for=condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 120s -n cms
 kubectl wait --for=condition=Ready so -l app.kubernetes.io/component=keda --timeout 120s -n cms
 
-echo "Waiting for Triton Deployment spec.replicas=0..."
+echo "Waiting for inference server Deployment spec.replicas=0..."
 for i in $(seq 1 36); do
-  replicas=$(kubectl get deploy -l app.kubernetes.io/component=triton -n cms -o jsonpath='{.items[0].spec.replicas}')
-  echo "Triton spec.replicas=${replicas:-unset}"
+  replicas=$(kubectl get deploy -l app.kubernetes.io/component=inference-server -n cms -o jsonpath='{.items[0].spec.replicas}')
+  echo "Inference server spec.replicas=${replicas:-unset}"
   if [ "${replicas}" = "0" ]; then
     break
   fi
   if [ "$i" -eq 36 ]; then
-    echo "Triton did not scale to 0 replicas"
-    kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
+    echo "Inference server did not scale to 0 replicas"
+    kubectl describe deploy -l app.kubernetes.io/component=inference-server -n cms
     kubectl get so,hpa -n cms -o yaml
     exit 1
   fi
