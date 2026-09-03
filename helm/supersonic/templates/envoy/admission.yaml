@@ -28,7 +28,7 @@ metadata:
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments/scale"]
-    resourceNames: [{{ include "supersonic.tritonName" . | quote }}]
+    resourceNames: [{{ include "supersonic.inferenceServerName" . | quote }}]
     verbs: ["get", "patch", "update"]
   - apiGroups: ["keda.sh"]
     resources: ["scaledobjects"]

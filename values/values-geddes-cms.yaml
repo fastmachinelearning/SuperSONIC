@@ -1,5 +1,5 @@
 # Geddes CMS SuperSONIC.
-# Triton minReplicaCount is 0. RepositoryIndex scales the first replica
+# Inference server minReplicaCount is 0. RepositoryIndex scales the first replica
 # and waits for a healthy Envoy upstream.
 #
 # Based on Purdue AF production values:
@@ -12,7 +12,7 @@ scaleFromZero:
   readyTimeoutSeconds: 300
   holdMinReplicasSeconds: 300
 
-triton:
+inferenceServer:
   image: fastml/triton-torchgeo:26.04-py3-geometric
   command: ["/bin/sh", "-c"]
   args:

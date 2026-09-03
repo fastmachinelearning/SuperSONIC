@@ -14,7 +14,7 @@ You can find example values files in the `SuperSONIC GitHub repository <https://
 - Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_ 
   for compatibility information (CUDA versions, NVIDIA drivers, etc.).
 
-Triton version must be specified in the ``triton.image`` parameter in the values file.
+Triton version must be specified in the ``inferenceServer.image`` parameter in the values file.
 
 
 2. Configure Triton model repository
@@ -22,7 +22,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
    
 - To learn about the structure of model repositories, refer to the
   `NVIDIA Model Repository Guide <https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html>`_.
-- Model repositories are specified in the ``triton.args`` parameter in the values file.
+- Model repositories are specified in the ``inferenceServer.args`` parameter in the values file.
   The parameter contains the full command that launches a Triton server; you can specify
   one or multiple model repositories via the ``--model-repository`` flag.
 - For example, the following command loads multiple CMS models hosted at CVMFS:
@@ -41,7 +41,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
       --exit-timeout-secs=60 
 
 - Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-  The following options for model repository mounting are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
+  The following options for model repository mounting are provided via ``inferenceServer.modelRepository`` parameter in ``values.yaml``:
 
 .. raw:: html
 
@@ -92,7 +92,7 @@ Triton version must be specified in the ``triton.image`` parameter in the values
 1. Select Resources for Triton Pods
 =============================================
 
-- You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file:
+- You can configure CPU, memory, and GPU resources for Triton pods via the ``inferenceServer.resources`` parameter in the values file:
 
 .. code-block:: yaml
 
@@ -106,8 +106,8 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        cpu: 2
        memory: 16G
 
-- In addition, you can use ``triton.nodeSelector``, ``triton.tolerations``,
-  ``triton.annotations``, and ``triton.affinity`` to steer Triton pods to specific nodes.
+- In addition, you can use ``inferenceServer.nodeSelector``, ``inferenceServer.tolerations``,
+  ``inferenceServer.annotations``, and ``inferenceServer.affinity`` to steer Triton pods to specific nodes.
   This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.
 
 
@@ -403,7 +403,7 @@ the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale
    upstream is available within ``scaleFromZero.readyTimeoutSeconds``, the index request
    is rejected.
 
-``triton.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
+``inferenceServer.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
 count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do not
 interrupt an active hold. The hold deadline is stored as an annotation on the
 ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
