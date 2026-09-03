@@ -1,5 +1,6 @@
 ---
 {{- /* Run validation checks */ -}}
+{{- include "supersonic.validateNoLegacyTritonValues" . -}}
 {{- include "supersonic.validateGrafanaAddressConsistency" . -}}
 {{- include "supersonic.validateGrafanaValues" . -}}
 {{- include "supersonic.validatePrometheusAddressConsistency" . -}}
@@ -27,7 +28,7 @@ Scaling metric:{{ if not ( eq .Values.serverLoadMetric "" ) }}    {{ .Values.ser
 Scaling threshold (KEDA): {{ include "supersonic.defaultThreshold" . }}
 {{- if and .Values.keda.enabled (eq .Values.serverLoadMetric "") (gt (float64 (include "supersonic.defaultThreshold" .)) 10.0) }}
 
-WARNING: serverLoadThreshold {{ include "supersonic.defaultThreshold" . }} pins Triton at keda.minReplicaCount
+WARNING: serverLoadThreshold {{ include "supersonic.defaultThreshold" . }} pins the inference server at keda.minReplicaCount
 with the default metric (about 1 per busy replica; default threshold 1.5). Remove a threshold
 left over from the queue-latency metric, or set serverLoadMetric to that query.
 {{- end }}
