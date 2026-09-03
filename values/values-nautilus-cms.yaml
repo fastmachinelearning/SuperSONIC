@@ -1,4 +1,4 @@
-triton:
+inferenceServer:
   replicas: 5
   image: nvcr.io/nvidia/tritonserver:26.08-py3
   args: 
