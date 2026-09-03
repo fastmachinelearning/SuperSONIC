@@ -26,17 +26,14 @@
         "admissionImage": {
           "type": "string"
         }
-      },
-      "required": [
-        "admissionImage",
-        "enabled",
-        "holdMinReplicasSeconds",
-        "readyTimeoutSeconds"
-      ]
+      }
     },
     "inferenceServer": {
       "type": "object",
       "properties": {
+        "type": {
+          "type": "string"
+        },
         "replicas": {
           "type": "integer"
         },
@@ -67,11 +64,7 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             },
             "requests": {
               "type": "object",
@@ -82,17 +75,9 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             }
-          },
-          "required": [
-            "limits",
-            "requests"
-          ]
+          }
         },
         "annotations": {
           "type": "object"
@@ -115,11 +100,7 @@
             "mountPath": {
               "type": "string"
             }
-          },
-          "required": [
-            "enabled",
-            "mountPath"
-          ]
+          }
         },
         "service": {
           "type": "object",
@@ -147,21 +128,40 @@
                   "protocol": {
                     "type": "string"
                   }
-                },
-                "required": [
-                  "name",
-                  "port",
-                  "protocol",
-                  "targetPort"
-                ]
+                }
               }
             }
-          },
-          "required": [
-            "annotations",
-            "labels",
-            "ports"
-          ]
+          }
+        },
+        "nereid": {
+          "type": "object",
+          "properties": {
+            "configPath": {
+              "type": "string"
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "server": {
+                  "type": "object",
+                  "properties": {
+                    "bind_addr": {
+                      "type": "string"
+                    },
+                    "http_addr": {
+                      "type": "string"
+                    },
+                    "ml_backends_path": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "models": {
+                  "type": "array"
+                }
+              }
+            }
+          }
         },
         "readinessProbe": {
           "type": "object",
@@ -190,16 +190,7 @@
             "successThreshold": {
               "type": "integer"
             }
-          },
-          "required": [
-            "command",
-            "failureThreshold",
-            "initialDelaySeconds",
-            "periodSeconds",
-            "reset",
-            "successThreshold",
-            "timeoutSeconds"
-          ]
+          }
         },
         "startupProbe": {
           "type": "object",
@@ -225,41 +216,14 @@
                 "port": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "path",
-                "port"
-              ]
+              }
             },
             "timeoutSeconds": {
               "type": "integer"
             }
-          },
-          "required": [
-            "failureThreshold",
-            "httpGet",
-            "initialDelaySeconds",
-            "periodSeconds",
-            "reset",
-            "timeoutSeconds"
-          ]
+          }
         }
-      },
-      "required": [
-        "affinity",
-        "annotations",
-        "args",
-        "command",
-        "image",
-        "modelRepository",
-        "nodeSelector",
-        "readinessProbe",
-        "replicas",
-        "resources",
-        "service",
-        "startupProbe",
-        "tolerations"
-      ]
+      }
     },
     "envoy": {
       "type": "object",
@@ -291,12 +255,7 @@
             "configmap_key": {
               "type": "string"
             }
-          },
-          "required": [
-            "configmap_key",
-            "configmap_name",
-            "load_from_configmap"
-          ]
+          }
         },
         "resources": {
           "type": "object",
@@ -310,11 +269,7 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             },
             "limits": {
               "type": "object",
@@ -325,17 +280,9 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             }
-          },
-          "required": [
-            "limits",
-            "requests"
-          ]
+          }
         },
         "annotations": {
           "type": "object"
@@ -366,19 +313,10 @@
                   "targetPort": {
                     "type": "integer"
                   }
-                },
-                "required": [
-                  "name",
-                  "port",
-                  "targetPort"
-                ]
+                }
               }
             }
-          },
-          "required": [
-            "ports",
-            "type"
-          ]
+          }
         },
         "ingress": {
           "type": "object",
@@ -395,13 +333,7 @@
             "annotations": {
               "type": "object"
             }
-          },
-          "required": [
-            "annotations",
-            "enabled",
-            "hostName",
-            "ingressClassName"
-          ]
+          }
         },
         "grpc_route_timeout": {
           "type": "string"
@@ -424,13 +356,7 @@
                 "fill_interval": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "enabled",
-                "fill_interval",
-                "max_tokens",
-                "tokens_per_fill"
-              ]
+              }
             },
             "prometheus_based": {
               "type": "object",
@@ -441,17 +367,9 @@
                 "luaConfig": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "enabled",
-                "luaConfig"
-              ]
+              }
             }
-          },
-          "required": [
-            "listener_level",
-            "prometheus_based"
-          ]
+          }
         },
         "loadBalancerPolicy": {
           "type": "string"
@@ -477,34 +395,9 @@
             "port": {
               "type": "integer"
             }
-          },
-          "required": [
-            "audiences",
-            "enabled",
-            "jwt_issuer",
-            "jwt_remote_jwks_uri",
-            "port",
-            "url"
-          ]
+          }
         }
-      },
-      "required": [
-        "annotations",
-        "args",
-        "auth",
-        "enabled",
-        "external_config",
-        "grpc_route_timeout",
-        "image",
-        "ingress",
-        "loadBalancerPolicy",
-        "nodeSelector",
-        "rate_limiter",
-        "replicas",
-        "resources",
-        "service",
-        "tolerations"
-      ]
+      }
     },
     "keda": {
       "type": "object",
@@ -539,12 +432,7 @@
             "stepsize": {
               "type": "integer"
             }
-          },
-          "required": [
-            "periodSeconds",
-            "stabilizationWindowSeconds",
-            "stepsize"
-          ]
+          }
         },
         "scaleDown": {
           "type": "object",
@@ -558,24 +446,9 @@
             "stepsize": {
               "type": "integer"
             }
-          },
-          "required": [
-            "periodSeconds",
-            "stabilizationWindowSeconds",
-            "stepsize"
-          ]
+          }
         }
-      },
-      "required": [
-        "cooldownPeriod",
-        "enabled",
-        "maxReplicaCount",
-        "minReplicaCount",
-        "pollingInterval",
-        "scaleDown",
-        "scaleUp",
-        "zeroIdleReplicas"
-      ]
+      }
     },
     "prometheus": {
       "type": "object",
@@ -595,13 +468,7 @@
             "scheme": {
               "type": "string"
             }
-          },
-          "required": [
-            "enabled",
-            "port",
-            "scheme",
-            "url"
-          ]
+          }
         },
         "enabled": {
           "type": "boolean"
@@ -627,10 +494,7 @@
                 "enabled": {
                   "type": "boolean"
                 }
-              },
-              "required": [
-                "enabled"
-              ]
+              }
             },
             "resources": {
               "type": "object",
@@ -644,11 +508,7 @@
                     "memory": {
                       "type": "string"
                     }
-                  },
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ]
+                  }
                 },
                 "limits": {
                   "type": "object",
@@ -659,17 +519,9 @@
                     "memory": {
                       "type": "string"
                     }
-                  },
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ]
+                  }
                 }
-              },
-              "required": [
-                "limits",
-                "requests"
-              ]
+              }
             },
             "retention": {
               "type": "string"
@@ -683,11 +535,7 @@
                 "evaluation_interval": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "evaluation_interval",
-                "scrape_interval"
-              ]
+              }
             },
             "service": {
               "type": "object",
@@ -698,11 +546,7 @@
                 "servicePort": {
                   "type": "integer"
                 }
-              },
-              "required": [
-                "enabled",
-                "servicePort"
-              ]
+              }
             },
             "configMapOverrideName": {
               "type": "string"
@@ -727,10 +571,7 @@
                       "hosts": {
                         "type": "array"
                       }
-                    },
-                    "required": [
-                      "hosts"
-                    ]
+                    }
                   }
                 },
                 "ingressClassName": {
@@ -739,29 +580,9 @@
                 "annotations": {
                   "type": "object"
                 }
-              },
-              "required": [
-                "annotations",
-                "enabled",
-                "hostName",
-                "hosts",
-                "ingressClassName",
-                "tls"
-              ]
+              }
             }
-          },
-          "required": [
-            "configMapOverrideName",
-            "extraFlags",
-            "global",
-            "ingress",
-            "persistentVolume",
-            "releaseNamespace",
-            "resources",
-            "retention",
-            "service",
-            "useExistingClusterRoleName"
-          ]
+          }
         },
         "serviceAccounts": {
           "type": "object",
@@ -775,16 +596,9 @@
                 "name": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "create",
-                "name"
-              ]
+              }
             }
-          },
-          "required": [
-            "server"
-          ]
+          }
         },
         "rbac": {
           "type": "object",
@@ -792,10 +606,7 @@
             "create": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "create"
-          ]
+          }
         },
         "alertmanager": {
           "type": "object",
@@ -803,10 +614,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "pushgateway": {
           "type": "object",
@@ -814,10 +622,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "kube-state-metrics": {
           "type": "object",
@@ -825,10 +630,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "prometheus-node-exporter": {
           "type": "object",
@@ -836,10 +638,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "prometheus-pushgateway": {
           "type": "object",
@@ -847,10 +646,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "configmapReload": {
           "type": "object",
@@ -861,30 +657,11 @@
                 "enabled": {
                   "type": "boolean"
                 }
-              },
-              "required": [
-                "enabled"
-              ]
+              }
             }
-          },
-          "required": [
-            "prometheus"
-          ]
+          }
         }
-      },
-      "required": [
-        "alertmanager",
-        "configmapReload",
-        "enabled",
-        "external",
-        "kube-state-metrics",
-        "prometheus-node-exporter",
-        "prometheus-pushgateway",
-        "pushgateway",
-        "rbac",
-        "server",
-        "serviceAccounts"
-      ]
+      }
     },
     "grafana": {
       "type": "object",
@@ -904,10 +681,7 @@
             "enabled": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "enabled"
-          ]
+          }
         },
         "rbac": {
           "type": "object",
@@ -915,10 +689,7 @@
             "create": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "create"
-          ]
+          }
         },
         "serviceAccount": {
           "type": "object",
@@ -926,10 +697,7 @@
             "create": {
               "type": "boolean"
             }
-          },
-          "required": [
-            "create"
-          ]
+          }
         },
         "datasources": {
           "type": "object",
@@ -969,33 +737,14 @@
                           "tlsSkipVerify": {
                             "type": "boolean"
                           }
-                        },
-                        "required": [
-                          "timeInterval",
-                          "tlsSkipVerify"
-                        ]
+                        }
                       }
-                    },
-                    "required": [
-                      "access",
-                      "isDefault",
-                      "jsonData",
-                      "name",
-                      "type",
-                      "url"
-                    ]
+                    }
                   }
                 }
-              },
-              "required": [
-                "apiVersion",
-                "datasources"
-              ]
+              }
             }
-          },
-          "required": [
-            "datasources.yaml"
-          ]
+          }
         },
         "dashboardProviders": {
           "type": "object",
@@ -1035,33 +784,14 @@
                           "path": {
                             "type": "string"
                           }
-                        },
-                        "required": [
-                          "path"
-                        ]
+                        }
                       }
-                    },
-                    "required": [
-                      "disableDeletion",
-                      "editable",
-                      "folder",
-                      "name",
-                      "options",
-                      "orgId",
-                      "type"
-                    ]
+                    }
                   }
                 }
-              },
-              "required": [
-                "apiVersion",
-                "providers"
-              ]
+              }
             }
-          },
-          "required": [
-            "dashboardproviders.yaml"
-          ]
+          }
         },
         "dashboardsConfigMaps": {
           "type": "object",
@@ -1069,10 +799,7 @@
             "default": {
               "type": "string"
             }
-          },
-          "required": [
-            "default"
-          ]
+          }
         },
         "grafana.ini": {
           "type": "object",
@@ -1083,10 +810,7 @@
                 "disable_login_form": {
                   "type": "boolean"
                 }
-              },
-              "required": [
-                "disable_login_form"
-              ]
+              }
             },
             "auth.anonymous": {
               "type": "object",
@@ -1097,11 +821,7 @@
                 "org_role": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "enabled",
-                "org_role"
-              ]
+              }
             },
             "dashboards": {
               "type": "object",
@@ -1109,10 +829,7 @@
                 "default_home_dashboard_path": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "default_home_dashboard_path"
-              ]
+              }
             },
             "server": {
               "type": "object",
@@ -1120,18 +837,9 @@
                 "root_url": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "root_url"
-              ]
+              }
             }
-          },
-          "required": [
-            "auth",
-            "auth.anonymous",
-            "dashboards",
-            "server"
-          ]
+          }
         },
         "resources": {
           "type": "object",
@@ -1145,11 +853,7 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             },
             "requests": {
               "type": "object",
@@ -1160,17 +864,9 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             }
-          },
-          "required": [
-            "limits",
-            "requests"
-          ]
+          }
         },
         "ingress": {
           "type": "object",
@@ -1201,42 +897,15 @@
                   "hosts": {
                     "type": "array"
                   }
-                },
-                "required": [
-                  "hosts"
-                ]
+                }
               }
             },
             "annotations": {
               "type": "object"
             }
-          },
-          "required": [
-            "annotations",
-            "enabled",
-            "hostName",
-            "hosts",
-            "ingressClassName",
-            "path",
-            "pathType",
-            "tls"
-          ]
+          }
         }
-      },
-      "required": [
-        "adminPassword",
-        "adminUser",
-        "dashboardProviders",
-        "dashboardsConfigMaps",
-        "datasources",
-        "enabled",
-        "grafana.ini",
-        "ingress",
-        "persistence",
-        "rbac",
-        "resources",
-        "serviceAccount"
-      ]
+      }
     },
     "metricsCollector": {
       "type": "object",
@@ -1262,11 +931,7 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             },
             "requests": {
               "type": "object",
@@ -1277,17 +942,9 @@
                 "memory": {
                   "type": "string"
                 }
-              },
-              "required": [
-                "cpu",
-                "memory"
-              ]
+              }
             }
-          },
-          "required": [
-            "limits",
-            "requests"
-          ]
+          }
         },
         "service": {
           "type": "object",
@@ -1298,11 +955,7 @@
             "type": {
               "type": "string"
             }
-          },
-          "required": [
-            "port",
-            "type"
-          ]
+          }
         },
         "ingress": {
           "type": "object",
@@ -1319,35 +972,9 @@
             "annotations": {
               "type": "object"
             }
-          },
-          "required": [
-            "annotations",
-            "enabled",
-            "hostName",
-            "ingressClassName"
-          ]
+          }
         }
-      },
-      "required": [
-        "enabled",
-        "host",
-        "ingress",
-        "port",
-        "resources",
-        "service"
-      ]
+      }
     }
-  },
-  "required": [
-    "envoy",
-    "grafana",
-    "inferenceServer",
-    "keda",
-    "metricsCollector",
-    "nameOverride",
-    "prometheus",
-    "scaleFromZero",
-    "serverLoadMetric",
-    "serverLoadThreshold"
-  ]
+  }
 }

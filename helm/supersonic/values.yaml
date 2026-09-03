@@ -24,6 +24,12 @@ scaleFromZero:
   admissionImage: python:3.11-slim
 
 inferenceServer:
+  # -- Inference server implementation. Supported values: ``triton``, ``nereid``.
+  # Nereid speaks the same KServe v2 gRPC protocol as Triton, so only the image,
+  # launch command, model configuration and probe endpoints differ between them.
+  # See ``values/values-nereid.yaml`` for a complete Nereid example.
+  type: triton
+
   # -- Number of inference server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
@@ -97,7 +103,28 @@ inferenceServer:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
-  # -- Custom readiness probe configuration
+  # -- Nereid server configuration, used only when ``type`` is ``nereid``.
+  # Ignored for Triton, which is configured through ``command``/``args`` instead.
+  nereid:
+    # -- Path the rendered ``nereid.yaml`` is mounted at. Nereid reads this file
+    # from its working directory, which is ``/nereid`` in the official image.
+    configPath: /nereid/nereid.yaml
+
+    # -- Contents of ``nereid.yaml``, rendered into a ConfigMap verbatim.
+    # ``ml_backends_path`` is resolved relative to the working directory, so use
+    # an absolute path when models come from ``modelRepository``.
+    # ``bind_addr``/``http_addr`` default to Triton's port numbers so that the
+    # Service, Envoy config and ServiceMonitor need no per-server special-casing.
+    config:
+      server:
+        bind_addr: "[::]:8001"
+        http_addr: "[::]:8002"
+        ml_backends_path: "ml-backends"
+      models: []
+
+  # -- Custom readiness probe configuration.
+  # The handler is whichever of ``command`` (exec shorthand), ``exec``,
+  # ``httpGet`` or ``tcpSocket`` is set; ``reset: true`` drops the probe.
   readinessProbe:
     # -- If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)
     reset: false
@@ -108,7 +135,8 @@ inferenceServer:
     timeoutSeconds: 15
     successThreshold: 1
 
-  # -- Custom startup probe configuration
+  # -- Custom startup probe configuration.
+  # Same handler options as ``readinessProbe``.
   startupProbe:
     # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
     reset: false
