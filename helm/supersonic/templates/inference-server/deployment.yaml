@@ -42,7 +42,11 @@ spec:
           {{- if .Values.inferenceServer.modelRepository.enabled }}
           - name: model-repository
             mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
+            {{- /* mountPropagation is meaningful for host-backed volumes only,
+                   and the API server rejects it on a configMap volume. */}}
+            {{- if ne .Values.inferenceServer.modelRepository.storageType "configMap" }}
             mountPropagation: HostToContainer
+            {{- end }}
             readOnly: true
           {{- end }}
           {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
@@ -95,6 +99,9 @@ spec:
         persistentVolumeClaim:
           claimName: cvmfs
           readOnly: true
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "configMap" }}
+        configMap:
+          name: {{ .Values.inferenceServer.modelRepository.configMap.name }}
       {{- end }}
       {{- end }}
 

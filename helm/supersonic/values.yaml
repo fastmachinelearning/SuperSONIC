@@ -93,6 +93,12 @@ inferenceServer:
     #   server:
     #   path:
 
+    ## Option 5: mount models from a ConfigMap. Suitable for small models and
+    ## for testing; a ConfigMap is limited to ~1 MiB in total.
+    # storageType: "configMap"
+    # configMap:
+    #   name:
+
   service:
     labels: {}
     annotations: {}
