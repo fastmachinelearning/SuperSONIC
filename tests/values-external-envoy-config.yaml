@@ -37,11 +37,5 @@ grafana:
 keda:
   enabled: false
 
-tempo:
-  enabled: false
-
-opentelemetry-collector:
-  enabled: false
-
 metricsCollector:
   enabled: false

@@ -446,8 +446,3 @@ Running with ``perf_analyzer`` is then done with:
 
 If ingress is not desired, port-forward the metrics collector service and call
 ``--metrics-url localhost:8003/metrics`` to access the metrics. 
-
-12. (Optional) Configure Advanced Monitoring 
-=============================================
-
-Refer to the `advanced monitoring guide <advanced-monitoring>`_.

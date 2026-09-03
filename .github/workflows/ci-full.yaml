@@ -52,7 +52,6 @@ jobs:
       - name: Deploy Helm chart
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
             --values values/values-minimal-full.yaml -n cms
@@ -73,14 +72,6 @@ jobs:
       - name: Grafana ready
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
-
-      - name: OpenTelemetry Collector ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=opentelemetry-collector --timeout 120s -n cms
-
-      - name: Tempo ready
-        run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=tempo --timeout 300s -n cms
 
       - name: Autoscaler ready
         run: |
