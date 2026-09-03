@@ -1,6 +1,7 @@
 ---
 {{- /* Run validation checks */ -}}
 {{- include "supersonic.validateNoLegacyTritonValues" . -}}
+{{- include "supersonic.validateInferenceServerType" . -}}
 {{- include "supersonic.validateGrafanaAddressConsistency" . -}}
 {{- include "supersonic.validateGrafanaValues" . -}}
 {{- include "supersonic.validatePrometheusAddressConsistency" . -}}
