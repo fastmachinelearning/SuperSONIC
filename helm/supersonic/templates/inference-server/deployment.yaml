@@ -45,33 +45,40 @@ spec:
             mountPropagation: HostToContainer
             readOnly: true
           {{- end }}
-        command: {{ toYaml .Values.inferenceServer.command | nindent 10 }}
-        args:  {{ toYaml .Values.inferenceServer.args | nindent 10 }}
+          {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+          {{- /* subPath so the mount does not shadow the model folders that
+                 also live under Nereid's working directory */}}
+          - name: nereid-config
+            mountPath: {{ .Values.inferenceServer.nereid.configPath }}
+            subPath: nereid.yaml
+            readOnly: true
+          {{- end }}
+        {{- /* Omitted rather than emitted empty, so a server configured through
+               a file (Nereid) can fall back to its image's own entrypoint. */}}
+        {{- with .Values.inferenceServer.command }}
+        command: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.inferenceServer.args }}
+        args: {{ toYaml . | nindent 10 }}
+        {{- end }}
 {{- if not (eq .Values.inferenceServer.startupProbe.reset true) }}
         startupProbe:
-          initialDelaySeconds: {{ .Values.inferenceServer.startupProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.inferenceServer.startupProbe.periodSeconds }}
-          failureThreshold: {{ .Values.inferenceServer.startupProbe.failureThreshold }}
-          timeoutSeconds: {{ .Values.inferenceServer.startupProbe.timeoutSeconds | default 1 }}
-          httpGet:
-            path: {{ .Values.inferenceServer.startupProbe.httpGet.path }}
-            port: {{ .Values.inferenceServer.startupProbe.httpGet.port }}
+          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.startupProbe | nindent 10 }}
 {{- end }}
 {{- if not (eq .Values.inferenceServer.readinessProbe.reset true) }}
         readinessProbe:
-          exec:
-            command: {{ toYaml .Values.inferenceServer.readinessProbe.command | nindent 12 }}
-          initialDelaySeconds: {{ .Values.inferenceServer.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.inferenceServer.readinessProbe.periodSeconds }}
-          timeoutSeconds: {{ .Values.inferenceServer.readinessProbe.timeoutSeconds }}
-          successThreshold: {{ .Values.inferenceServer.readinessProbe.successThreshold }}
-          failureThreshold: {{ .Values.inferenceServer.readinessProbe.failureThreshold }}
+          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.readinessProbe | nindent 10 }}
 {{- end }}
         lifecycle:
           preStop:
             exec:
               command: ["/bin/sh", "-c", "touch", "/tmp/shutdown;", "sleep 60"]
       volumes:
+      {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+      - name: nereid-config
+        configMap:
+          name: {{ include "supersonic.inferenceServerName" . }}-nereid-config
+      {{- end }}
       {{- if .Values.inferenceServer.modelRepository.enabled }}
       - name: model-repository
       {{- if eq .Values.inferenceServer.modelRepository.storageType "nfs" }}
