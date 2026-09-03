@@ -1,0 +1,71 @@
+# Drives Nereid through Envoy with a stock tritonclient.
+#
+# tritonclient is pip-installed from PyPI rather than taken from the Triton SDK
+# image on purpose: the point is that an unmodified KServe v2 client, built from
+# Triton's own proto stubs, works against Nereid unchanged. Tensor names and
+# shapes come from ModelMetadata rather than being hardcoded, so the job tests
+# the metadata path too.
+#
+# perf_analyzer is deliberately not used here: it needs the model-config and
+# statistics RPCs, which Nereid does not implement.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nereid-infer-job
+  namespace: cms
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: infer
+        image: python:3.11-slim
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -euo pipefail
+            pip install --quiet --no-cache-dir "tritonclient[grpc]" numpy
+            python3 - <<'PY'
+            import numpy as np
+            import tritonclient.grpc as grpcclient
+
+            URL = "supersonic.cms.svc.cluster.local:8001"
+            MODEL = "model3"
+
+            client = grpcclient.InferenceServerClient(URL)
+
+            # Envoy may still be settling on its upstream just after rollout.
+            import time
+            for attempt in range(30):
+                try:
+                    meta = client.get_model_metadata(MODEL)
+                    break
+                except Exception as exc:
+                    print(f"metadata attempt {attempt}: {exc}", flush=True)
+                    time.sleep(2)
+            else:
+                raise SystemExit("FAIL: model metadata never became available")
+
+            print("server metadata:", client.get_server_metadata(), flush=True)
+            print("model metadata:", meta, flush=True)
+
+            inp_meta, out_meta = meta.inputs[0], meta.outputs[0]
+            # -1 marks a client-provided dimension; make it concrete.
+            shape = [d if d > 0 else 1 for d in inp_meta.shape]
+            count = int(np.prod(shape))
+            values = np.arange(1, count + 1, dtype=np.float32).reshape(shape)
+
+            tensor = grpcclient.InferInput(inp_meta.name, shape, inp_meta.datatype)
+            tensor.set_data_from_numpy(values)
+            result = client.infer(model_name=MODEL, inputs=[tensor], request_id="ci-1")
+
+            out = result.as_numpy(out_meta.name)
+            if out is None or out.size == 0:
+                raise SystemExit(f"FAIL: empty output for {out_meta.name!r}")
+            print(f"OK: in {shape} {inp_meta.datatype} -> out {list(out.shape)} {out.dtype}", flush=True)
+            PY
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
