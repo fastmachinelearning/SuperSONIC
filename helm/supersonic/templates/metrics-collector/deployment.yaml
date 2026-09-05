@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: metrics-collector
-        image: python:3.11-slim
+        image: {{ required "metricsCollector.image must be set" .Values.metricsCollector.image }}
         command: ["/bin/sh", "-c"]
         args:
         - |
@@ -39,6 +39,13 @@ spec:
             "serve:app"
         ports:
         - containerPort: {{ .Values.metricsCollector.port | default 8003 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.metricsCollector.port | default 8003 }}
+          periodSeconds: 5
+          failureThreshold: 24
+          timeoutSeconds: 3
         resources:
             {{- toYaml .Values.metricsCollector.resources | nindent 10 }}
         volumeMounts:

@@ -9,10 +9,8 @@ metadata:
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
     app.kubernetes.io/component: metrics-collector
 data:
-  requirements.txt: |
-    flask
-    requests
-    gunicorn
+  requirements.txt: |-
+{{ (.Files.Get "cfg/requirements.txt") | indent 4 }}
   serve.py: |-
 {{ (.Files.Get "cfg/serve.py") | indent 4 }}
 {{- end }}

@@ -13,10 +13,10 @@ annotations:
 
 dependencies:
   - name: grafana
-    version: "8.9.0"
+    version: "10.5.15"
     repository: https://grafana.github.io/helm-charts
     condition: grafana.enabled
   - name: prometheus
-    version: "27.3.0"
+    version: "29.27.0"
     repository: https://prometheus-community.github.io/helm-charts
     condition: prometheus.enabled

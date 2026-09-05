@@ -1244,6 +1244,9 @@
         "enabled": {
           "type": "boolean"
         },
+        "image": {
+          "type": "string"
+        },
         "host": {
           "type": "string"
         },
@@ -1331,6 +1334,7 @@
       "required": [
         "enabled",
         "host",
+        "image",
         "ingress",
         "port",
         "resources",

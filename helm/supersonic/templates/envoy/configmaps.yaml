@@ -1,9 +1,22 @@
+{{- /* Shared HTTP/2 upstream protocol options for gRPC clusters */}}
+{{- define "envoy.http2ProtocolOptions" -}}
+typed_extension_protocol_options:
+  envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+    "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+    explicit_http_config:
+      http2_protocol_options: {}
+{{- end }}
+
 {{- /* Define the Envoy configuration in YAML at the top level */}}
 {{- /* (it will be used only if envoy.external_config.load_from_configmap is false) */}}
 {{- define "envoy.configuration.yaml" }}
 {{- with . }}
 admin:
-  access_log_path: /tmp/admin_access.log
+  access_log:
+    - name: envoy.access_loggers.file
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+        path: /tmp/admin_access.log
   address:
     socket_address:
       address: 0.0.0.0
@@ -48,6 +61,19 @@ static_resources:
                           route:
                             cluster: triton_grpc_service
                             timeout: {{ .envoy.grpc_route_timeout }}
+                            # The Lua filter holds this stream while Triton scales up from zero.
+                            # RouteAction.idle_timeout overrides the HCM stream_idle_timeout (default
+                            # 300s) for this route only and is applied at route refresh in
+                            # decodeHeaders, i.e. before the HTTP filter chain runs, so it covers the
+                            # Lua filter's pre-routing wait. Inference streams keep Envoy's default.
+                            # The +120s margin over readyTimeoutSeconds covers:
+                            #   - the /wake httpCall to the admission sidecar (30s, envoy-filter.lua)
+                            #   - the readiness wait itself (readyTimeoutSeconds)
+                            #   - the Prometheus rate-limiter query (5s, when enabled)
+                            #   - this route's own retries (15 x ~3s including backoff, ~41s)
+                            #   - slack for scheduling/sleep-loop overrun
+                            # Raising the Lua /wake timeout requires revisiting this margin.
+                            idle_timeout: {{ add (int .root.Values.scaleFromZero.readyTimeoutSeconds) 120 }}s
                             retry_policy:
                               retry_on: 5xx,connect-failure,refused-stream,unavailable
                               num_retries: 15
@@ -173,10 +199,17 @@ static_resources:
       connect_timeout: {{ if .scaleFromZeroEnabled }}2s{{ else }}0.25s{{ end }}
       type: STRICT_DNS
       {{- if .scaleFromZeroEnabled }}
+      # NOTE: dns_refresh_rate is deprecated in Envoy in favor of the
+      # envoy.extensions.clusters.dns.v3.DnsCluster custom cluster type.
+      # Kept for now (warn-only) because migrating to DnsCluster is a larger change.
       dns_refresh_rate: 1s
       {{- end }}
       lb_policy: {{ .envoy.loadBalancerPolicy }}
-      http2_protocol_options: {}
+      # Resolve the absolute in-cluster FQDN (trailing dot) so c-ares never walks the pod's
+      # search domains: a single refresh tick falling through to NXDOMAIN would empty the
+      # host set for ~1s and surface as "no healthy upstream".
+      dns_lookup_family: V4_ONLY
+      {{- include "envoy.http2ProtocolOptions" . | nindent 6 }}
       load_assignment:
         cluster_name: triton_grpc_service
         endpoints:
@@ -184,7 +217,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: {{ .tritonName }}
+                      address: {{ .tritonName }}.{{ .root.Release.Namespace }}.svc.cluster.local.
                       port_value: {{ .tritonGrpcPort }}
 {{- end }}
 {{- end }}
@@ -291,7 +324,7 @@ data:
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}
     {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
     {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "true" }}
-    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" (.Values.scaleFromZero.readyTimeoutSeconds | default 300 | toString) }}
+    {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" (.Values.scaleFromZero.readyTimeoutSeconds | toString) }}
     {{- else }}
     {{- $luaConfig = $luaConfig | replace "SCALE_FROM_ZERO_ENABLED" "false" }}
     {{- $luaConfig = $luaConfig | replace "READY_TIMEOUT_SECONDS" "300" }}

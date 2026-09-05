@@ -10,20 +10,76 @@ spec:
       restartPolicy: Never
       containers:
       - name: perf-analyzer
-        image: nvcr.io/nvidia/tritonserver:26.04-py3-sdk
+        image: python:3.14-slim
         command: ["/bin/bash"]
         args:
           - "-c"
           - |
-            echo "Sending RepositoryIndex to scale Triton from zero..."
-            python3 -c '
+            set -euo pipefail
+            # Budget (seconds) bounding the WHOLE test from container start: pip install
+            # (~30s), the wait for a serving model, and the perf_analyzer retries. The
+            # callers wait 660s (.github/scripts/wait-for-job.sh perf-analyzer-job cms 660),
+            # so 600s here plus one final perf_analyzer attempt (~20s) still leaves ~40s
+            # for pod scheduling and image pull. With scaleFromZero enabled the first
+            # RepositoryIndex is what wakes Triton and is held by Envoy until it is ready
+            # (up to readyTimeoutSeconds=300s plus ~30s wake; route idle timeout 420s), so
+            # the wait loop doubles as the wake trigger; an expired hold or a pod that is
+            # not serving yet is retried instead of failing the test.
+            BUDGET=600
+            START=$SECONDS
+
+            pip install --quiet --no-cache-dir --disable-pip-version-check --root-user-action=ignore \
+              "tritonclient[grpc]==2.72.0" "perf-analyzer==2.60.0"
+
+            MODEL=higgsInteractionNet
+            URL=supersonic.cms.svc.cluster.local:8001
+
+            echo "Waiting for model $MODEL to be ready through Envoy..."
+            python3 - "$URL" "$MODEL" "$((BUDGET - (SECONDS - START)))" <<'PY'
+            import sys, time
             import tritonclient.grpc as grpcclient
-            client = grpcclient.InferenceServerClient("supersonic.cms.svc.cluster.local:8001")
-            print(client.get_model_repository_index(client_timeout=400))
-            '
+            url, model, budget = sys.argv[1], sys.argv[2], int(sys.argv[3])
+            deadline = time.monotonic() + budget
+            attempt = 0
+            while True:
+                attempt += 1
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    sys.exit(f"model {model} did not become ready within {budget}s")
+                try:
+                    client = grpcclient.InferenceServerClient(url)
+                    # Clip every call to what is left of the budget so a held
+                    # RepositoryIndex cannot push the wait past the deadline.
+                    index = client.get_model_repository_index(
+                        client_timeout=max(1, min(400, remaining)))
+                    remaining = deadline - time.monotonic()
+                    if not client.is_model_ready(model, client_timeout=max(1, min(30, remaining))):
+                        raise RuntimeError(f"model {model} is not ready yet")
+                    print(f"model {model} ready on attempt {attempt}; repository index:")
+                    print(index)
+                    break
+                except Exception as exc:  # gRPC/tritonclient errors and not-ready alike
+                    remaining = deadline - time.monotonic()
+                    print(f"attempt {attempt}: {exc}; {remaining:.0f}s left", flush=True)
+                    if remaining <= 0:
+                        sys.exit(f"model {model} did not become ready within {budget}s")
+                    time.sleep(min(10, remaining))
+            PY
+
             echo "Running perf_analyzer..."
-            perf_analyzer -i grpc \
-                          -m higgsInteractionNet \
-                          -u supersonic.cms.svc.cluster.local:8001 \
-                          --async -p 1 -b 100  --measurement-interval=5000 \
-                          --concurrency-range=1:1 --input-data "random"
+            for attempt in 1 2 3; do
+              perf_analyzer -i grpc -m "$MODEL" -u "$URL" \
+                            --async -p 1 -b 100 --measurement-interval=5000 \
+                            --concurrency-range=1:1 --input-data random 2>&1 | tee /tmp/perf.log || true
+              # perf_analyzer can exit 0 after printing an error; require a real result line.
+              if grep -q "Inferences/Second" /tmp/perf.log; then
+                exit 0
+              fi
+              if [ $((SECONDS - START)) -ge "$BUDGET" ]; then
+                break
+              fi
+              echo "perf_analyzer attempt $attempt produced no results; retrying in 10s"
+              sleep 10
+            done
+            echo "perf_analyzer produced no results"
+            exit 1
