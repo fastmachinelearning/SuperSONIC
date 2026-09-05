@@ -6,24 +6,95 @@ The full list of parameters can be found in the `Configuration Reference <config
 
 You can find example values files in the `SuperSONIC GitHub repository <https://github.com/fastmachinelearning/SuperSONIC/tree/main/values>`_.
 
-1. Select a Triton Inference Server Version
+1. Select an Inference Server
 =============================================
+
+SuperSONIC can run either of two inference servers, selected with
+``inferenceServer.type``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 18 82
+
+   * - ``type``
+     - Description
+   * - ``triton`` (default)
+     - `NVIDIA Triton Inference Server <https://developer.nvidia.com/triton-inference-server>`_.
+       Configured through ``inferenceServer.command``/``args``, with models
+       supplied as a Triton model repository.
+   * - ``nereid``
+     - `Nereid <https://github.com/ngpaladi/nereid-server>`_, a Rust inference
+       server. Configured through a ``nereid.yaml`` file rather than flags.
+
+Both serve the `KServe v2 <https://kserve.github.io/website/docs/concepts/architecture/data-plane/v2-protocol>`_
+inference protocol over gRPC, so clients, Envoy, load balancing, autoscaling
+and the scraped metrics are the same either way. Only the image, the model
+configuration and the health-probe endpoints differ.
+
+.. note::
+
+   Nereid does not export the ``nv_gpu_*`` metrics, so the GPU panels of the
+   Grafana dashboard and the optional ``metricsCollector`` are Triton-only.
+
+Selecting Triton
+-----------------
 
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
 - You can also use custom-built Triton images.
-- Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_ 
+- Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_
   for compatibility information (CUDA versions, NVIDIA drivers, etc.).
 
-Triton version must be specified in the ``triton.image`` parameter in the values file.
+Triton version must be specified in the ``inferenceServer.image`` parameter in the values file.
+
+Selecting Nereid
+-----------------
+
+Nereid is configured by a ``nereid.yaml`` file, rendered from
+``inferenceServer.nereid.config`` into a ConfigMap and mounted into the
+container. Use the image's own entrypoint by setting ``command`` and ``args``
+to ``null``:
+
+.. code-block:: yaml
+
+   inferenceServer:
+     type: nereid
+     image: ghcr.io/ngpaladi/nereid-server:<tag>
+     command: null
+     args: null
+     nereid:
+       config:
+         server:
+           # Keeping Triton's port numbers means the rest of the chart needs
+           # no per-server configuration.
+           bind_addr: "[::]:8001"
+           http_addr: "[::]:8002"
+           # Resolved relative to the working directory, so use an absolute
+           # path when models come from a mounted volume.
+           ml_backends_path: "/models"
+         # One entry per model folder; Nereid will not start with an empty list.
+         models:
+           - name: mymodel
+             device: cpu
+             queue_capacity: 16
+
+A complete example is in
+`values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_.
+
+.. warning::
+
+   Nereid's Python backend builds a ``venv/`` inside each model folder at load
+   time, and the container runs as an unprivileged user. A read-only model
+   volume therefore serves ``.pt``, ONNX and TensorFlow models, but not Python
+   ones.
 
 
-2. Configure Triton model repository
+2. Configure the model repository
 =============================================
    
 - To learn about the structure of model repositories, refer to the
   `NVIDIA Model Repository Guide <https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html>`_.
-- Model repositories are specified in the ``triton.args`` parameter in the values file.
-  The parameter contains the full command that launches a Triton server; you can specify
+- For Triton, model repositories are specified in the ``inferenceServer.args`` parameter in
+  the values file. The parameter contains the full command that launches a Triton server; you can specify
   one or multiple model repositories via the ``--model-repository`` flag.
 - For example, the following command loads multiple CMS models hosted at CVMFS:
      
@@ -40,8 +111,8 @@ Triton version must be specified in the ``triton.image`` parameter in the values
       --strict-model-config=false \
       --exit-timeout-secs=60 
 
-- Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-  The following options for model repository mounting are provided via ``triton.modelRepository`` parameter in ``values.yaml``:
+- Make sure that the model repository paths exist. You can load models from a volume mounted to the inference server container.
+  The following options for model repository mounting are provided via ``inferenceServer.modelRepository`` parameter in ``values.yaml``:
 
 .. raw:: html
 
@@ -80,6 +151,13 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        server:
        path:
 
+     ## -- OR --
+     ## Option 5: mount models from a ConfigMap (small models and testing;
+     ## a ConfigMap holds at most ~1 MiB in total)
+     storageType: "configMap"
+     configMap:
+       name:
+
 .. raw:: html
 
    </details>
@@ -89,10 +167,10 @@ Triton version must be specified in the ``triton.image`` parameter in the values
     <br><br>
 
 
-1. Select Resources for Triton Pods
+3. Select Resources for Inference Server Pods
 =============================================
 
-- You can configure CPU, memory, and GPU resources for Triton pods via the ``triton.resources`` parameter in the values file:
+- You can configure CPU, memory, and GPU resources for inference server pods via the ``inferenceServer.resources`` parameter in the values file:
 
 .. code-block:: yaml
 
@@ -106,16 +184,17 @@ Triton version must be specified in the ``triton.image`` parameter in the values
        cpu: 2
        memory: 16G
 
-- In addition, you can use ``triton.nodeSelector``, ``triton.tolerations``,
-  ``triton.annotations``, and ``triton.affinity`` to steer Triton pods to specific nodes.
-  This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.
+- In addition, you can use ``inferenceServer.nodeSelector``, ``inferenceServer.tolerations``,
+  ``inferenceServer.annotations``, and ``inferenceServer.affinity`` to steer inference server
+  pods to specific nodes. This is particularly useful for co-locating them with the Envoy
+  proxy to reduce latency.
 
 
 4. Configure Envoy Proxy
 ================================================
 
 By default, Envoy proxy is enabled and configured to provide per-request
-load balancing between Triton inference servers.
+load balancing between inference servers.
 
 Once the SuperSONIC chart is installed, you need an address by which clients
 can connect to the Envoy proxy and send inference requests.
@@ -201,7 +280,7 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
 
   This rate limiter can be enabled via the ``envoy.rate_limiter.prometheus_based`` parameter in the values file.
 
-  At the moment, this functionality is configured to only reject ``RepositoryIndex`` requests to Triton servers, and it ignores
+  At the moment, this functionality is configured to only reject ``RepositoryIndex`` requests to inference servers, and it ignores
   any other requests in order not to slow down the inferences.
 
   The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
@@ -284,12 +363,12 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 
 Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
 They are defined in the ``serverLoadMetric`` and ``serverLoadThreshold`` parameters at the root level of the values file.
-The default metric is the inference queue time at the Triton servers, as defined in
+The default metric is the inference queue time reported by the inference servers, as defined in
 `here <https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl>`_.
 
 When the metric value exceeds the threshold, the following happens:
 
-- Autoscaler scales up the number of Triton servers if possible.
+- Autoscaler scales up the number of inference servers if possible.
 - Envoy proxy rejects new ``RepositoryIndex`` requests.
 
 The pre-configured Grafana dashboard contains a graph of this metric, entitled "Server Load Metric".
@@ -348,7 +427,7 @@ can be enabled via the ``keda.enabled`` parameter in the values file.
    Please contact cluster administrators if this step of installation fails.
 
 The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
-the number of Triton servers can scale. ``keda.pollingInterval`` is how often KEDA queries
+the number of inference servers can scale. ``keda.pollingInterval`` is how often KEDA queries
 Prometheus, and ``keda.cooldownPeriod`` is how long the load metric must stay below the
 threshold before KEDA scales down to ``minReplicaCount``.
 
@@ -374,10 +453,10 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
        periodSeconds: 30
        stepsize: 1
 
-To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
+To keep **zero** inference server replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC
-used by CMS SONIC clients), SuperSONIC scales Triton to ``max(1, keda.minReplicaCount)``
-replicas and returns the index only after Envoy has a healthy Triton upstream. KEDA then
+used by CMS SONIC clients), SuperSONIC scales the inference server to ``max(1, keda.minReplicaCount)``
+replicas and returns the index only after Envoy has a healthy inference server upstream. KEDA then
 scales up to ``maxReplicaCount`` using the Prometheus load metric. After
 ``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
 the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
@@ -399,11 +478,11 @@ the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale
 
 .. warning::
 
-   The client deadline for ``RepositoryIndex`` must cover Triton startup. If no healthy
+   The client deadline for ``RepositoryIndex`` must cover inference server startup. If no healthy
    upstream is available within ``scaleFromZero.readyTimeoutSeconds``, the index request
    is rejected.
 
-``triton.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
+``inferenceServer.replicas`` is unused when ``scaleFromZero`` is enabled; KEDA owns the replica
 count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do not
 interrupt an active hold. The hold deadline is stored as an annotation on the
 ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
@@ -412,7 +491,7 @@ and none can release a peer's active hold. ``scaleFromZero`` requires ``keda.ena
 
 Do not set ``keda.zeroIdleReplicas: true`` together with ``minReplicaCount: 0``.
 ``zeroIdleReplicas`` sets KEDA ``idleReplicaCount`` to 0 and cannot scale from 0 back to 1
-when the load metric is scraped from Triton. Use ``scaleFromZero`` for that.
+when the load metric is scraped from the inference server. Use ``scaleFromZero`` for that.
 
 An example is ``values/values-geddes-cms.yaml``.
 

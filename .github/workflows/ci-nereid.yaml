@@ -1,0 +1,102 @@
+name: ci [nereid]
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  deploy-nereid:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # TODO: drop this gate once nereid-server publishes a release. The
+      # repository has no tags and its GHCR package is unpublished, so the
+      # image reference cannot resolve yet. Skipping loudly beats a job that
+      # is red for a reason unrelated to this chart.
+      - name: Check whether the Nereid image is published
+        id: image
+        run: |
+          IMAGE=$(grep -m1 'image: ghcr.io/ngpaladi/nereid-server' tests/values-nereid-ci.yaml | awk '{print $2}')
+          echo "ref=$IMAGE" >> "$GITHUB_OUTPUT"
+          if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "Nereid image $IMAGE is available."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Nereid image $IMAGE is not published yet; skipping the deployment test."
+          fi
+
+      - name: Set up Kubernetes cluster with Kind
+        if: steps.image.outputs.available == 'true'
+        uses: helm/kind-action@v1.6.0
+        with:
+          cluster_name: gh-k8s-cluster
+
+      - name: Set up Helm
+        if: steps.image.outputs.available == 'true'
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Create CMS namespace
+        if: steps.image.outputs.available == 'true'
+        run: kubectl create namespace cms
+
+      - name: Create model fixture
+        if: steps.image.outputs.available == 'true'
+        run: kubectl apply -f tests/nereid-model-fixture.yaml
+
+      - name: Deploy Helm chart with Nereid
+        if: steps.image.outputs.available == 'true'
+        run: |
+          # Every repository Chart.yaml lists a dependency from, even though
+          # this job disables those subcharts: `helm dependency build` still
+          # has to resolve all of them.
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm dependency build ./helm/supersonic
+          helm upgrade --install supersonic ./helm/supersonic \
+            --values tests/values-nereid-ci.yaml -n cms
+
+      - name: Nereid server ready
+        if: steps.image.outputs.available == 'true'
+        run: |
+          kubectl wait --for condition=Ready pod \
+            -l app.kubernetes.io/component=inference-server --timeout 300s -n cms \
+            || (kubectl describe pod -l app.kubernetes.io/component=inference-server -n cms; \
+                kubectl logs -l app.kubernetes.io/component=inference-server -n cms --tail=100; exit 1)
+
+      - name: Envoy proxy ready
+        if: steps.image.outputs.available == 'true'
+        run: |
+          kubectl wait --for condition=Ready pod \
+            -l app.kubernetes.io/component=envoy --timeout 180s -n cms
+
+      - name: Validate deployment
+        if: steps.image.outputs.available == 'true'
+        run: kubectl get all -n cms
+
+      - name: Run inference through Envoy
+        if: steps.image.outputs.available == 'true'
+        run: |
+          kubectl apply -f tests/nereid-infer-job.yaml
+          kubectl wait --for=condition=complete job/nereid-infer-job -n cms --timeout=600s || {
+            echo "Inference job did not complete."
+            kubectl logs -n cms job/nereid-infer-job --tail=200 || true
+            kubectl logs -l app.kubernetes.io/component=inference-server -n cms --tail=100 || true
+            exit 1
+          }
+          echo "========== Inference Job Logs =========="
+          kubectl logs -n cms job/nereid-infer-job
+          echo "========================================"
+
+      - name: Cleanup
+        if: always() && steps.image.outputs.available == 'true'
+        run: kind delete cluster --name gh-k8s-cluster

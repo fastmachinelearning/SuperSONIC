@@ -1,6 +1,6 @@
 serverLoadThreshold: 100
 
-triton: 
+inferenceServer:
   image: nvcr.io/nvidia/tritonserver:26.04-py3
   affinity:
     nodeAffinity:

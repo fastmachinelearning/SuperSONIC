@@ -1,6 +1,6 @@
 serverLoadThreshold: 100
 
-triton:
+inferenceServer:
   name: triton-atlas
   image: milescb/traccc-aas:v1.1
   affinity:

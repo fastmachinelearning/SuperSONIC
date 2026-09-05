@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supersonic.inferenceServerName" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+    app.kubernetes.io/component: inference-server
+spec:
+{{- if ne (include "supersonic.scaleFromZeroEnabled" .) "true" }}
+  replicas: {{ .Values.inferenceServer.replicas | default 1 }}
+{{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+      app.kubernetes.io/component: inference-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ include "supersonic.name" . }}
+        app.kubernetes.io/component: inference-server
+      {{- with .Values.inferenceServer.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: inference-server
+        image: {{ .Values.inferenceServer.image }}
+        resources:
+          {{ toYaml .Values.inferenceServer.resources | nindent 10 }}
+        ports:
+        {{- range .Values.inferenceServer.service.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+          protocol: {{ .protocol }}
+        {{- end }}
+        volumeMounts:
+          {{- if .Values.inferenceServer.modelRepository.enabled }}
+          - name: model-repository
+            mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
+            {{- /* mountPropagation is meaningful for host-backed volumes only,
+                   and the API server rejects it on a configMap volume. */}}
+            {{- if ne .Values.inferenceServer.modelRepository.storageType "configMap" }}
+            mountPropagation: HostToContainer
+            {{- end }}
+            readOnly: true
+          {{- end }}
+          {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+          {{- /* subPath so the mount does not shadow the model folders that
+                 also live under Nereid's working directory */}}
+          - name: nereid-config
+            mountPath: {{ .Values.inferenceServer.nereid.configPath }}
+            subPath: nereid.yaml
+            readOnly: true
+          {{- end }}
+        {{- /* Omitted rather than emitted empty, so a server configured through
+               a file (Nereid) can fall back to its image's own entrypoint. */}}
+        {{- with .Values.inferenceServer.command }}
+        command: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.inferenceServer.args }}
+        args: {{ toYaml . | nindent 10 }}
+        {{- end }}
+{{- if not (eq .Values.inferenceServer.startupProbe.reset true) }}
+        startupProbe:
+          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.startupProbe | nindent 10 }}
+{{- end }}
+{{- if not (eq .Values.inferenceServer.readinessProbe.reset true) }}
+        readinessProbe:
+          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.readinessProbe | nindent 10 }}
+{{- end }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "touch", "/tmp/shutdown;", "sleep 60"]
+      volumes:
+      {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+      - name: nereid-config
+        configMap:
+          name: {{ include "supersonic.inferenceServerName" . }}-nereid-config
+      {{- end }}
+      {{- if .Values.inferenceServer.modelRepository.enabled }}
+      - name: model-repository
+      {{- if eq .Values.inferenceServer.modelRepository.storageType "nfs" }}
+        nfs:
+          server: {{ .Values.inferenceServer.modelRepository.nfs.server }}
+          path: {{ .Values.inferenceServer.modelRepository.nfs.path }}
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "pvc" }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.inferenceServer.modelRepository.pvc.claimName }}
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "cvmfs-hostPath" }}
+        hostPath: 
+          path: /cvmfs
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "cvmfs-pvc" }}
+        persistentVolumeClaim:
+          claimName: cvmfs
+          readOnly: true
+      {{- else if eq .Values.inferenceServer.modelRepository.storageType "configMap" }}
+        configMap:
+          name: {{ .Values.inferenceServer.modelRepository.configMap.name }}
+      {{- end }}
+      {{- end }}
+
+{{- if .Values.inferenceServer.affinity }}
+      affinity: {{ toYaml .Values.inferenceServer.affinity | nindent 8}}
+{{- end }}
+
+{{- if .Values.inferenceServer.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.inferenceServer.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.inferenceServer.tolerations }}
+      tolerations:
+{{ toYaml .Values.inferenceServer.tolerations | nindent 8 }}
+{{- end }}
+      restartPolicy: Always

@@ -10,27 +10,33 @@ serverLoadMetric: ""
 # -- Threshold for the metric
 serverLoadThreshold: 100
 
-# -- On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas
-# and return the index only after Envoy has a healthy Triton upstream.
+# -- On RepositoryIndex, scale the inference server to at least max(1, keda.minReplicaCount) replicas
+# and return the index only after Envoy has a healthy inference server upstream.
 # Requires keda.enabled and envoy.enabled.
 scaleFromZero:
   # -- Enable scale from zero
   enabled: false
-  # -- Seconds to wait for a healthy Triton upstream before rejecting RepositoryIndex
+  # -- Seconds to wait for a healthy inference server upstream before rejecting RepositoryIndex
   readyTimeoutSeconds: 300
   # -- Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex
   holdMinReplicasSeconds: 300
   # -- Image for the admission sidecar on the Envoy pod
   admissionImage: python:3.11-slim
 
-triton:
-  # -- Number of Triton server instances. Unused when scaleFromZero.enabled is true.
+inferenceServer:
+  # -- Inference server implementation. Supported values: ``triton``, ``nereid``.
+  # Nereid speaks the same KServe v2 gRPC protocol as Triton, so only the image,
+  # launch command, model configuration and probe endpoints differ between them.
+  # See ``values/values-nereid.yaml`` for a complete Nereid example.
+  type: triton
+
+  # -- Number of inference server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
-  # -- Docker image for the Triton server
+  # -- Docker image for the inference server
   image: "nvcr.io/nvidia/tritonserver:26.04-py3-min"
   
-  # -- Command and arguments to run in Triton container
+  # -- Command and arguments to run in the inference server container
   command: ["/bin/sh", "-c"]
   args: 
     - |
@@ -39,7 +45,7 @@ triton:
       --log-verbose=0 \
       --exit-timeout-secs=60
 
-  # -- Resource limits and requests for each Triton instance.
+  # -- Resource limits and requests for each inference server instance.
   # You can add necessary GPU request here.
   resources:
     limits:
@@ -49,16 +55,16 @@ triton:
       cpu: 1
       memory: "2G"
 
-  # -- Annotations for Triton pods
+  # -- Annotations for inference server pods
   annotations: {}
 
-  # -- Node selector for Triton pods
+  # -- Node selector for inference server pods
   nodeSelector: {}
 
-  # -- Tolerations for Triton pods
+  # -- Tolerations for inference server pods
   tolerations: []
 
-  # -- Affinity rules for Triton pods - another way to request GPUs
+  # -- Affinity rules for inference server pods - another way to request GPUs
   affinity: {}
 
   # -- Model repository configuration
@@ -87,17 +93,44 @@ triton:
     #   server:
     #   path:
 
+    ## Option 5: mount models from a ConfigMap. Suitable for small models and
+    ## for testing; a ConfigMap is limited to ~1 MiB in total.
+    # storageType: "configMap"
+    # configMap:
+    #   name:
+
   service:
     labels: {}
     annotations: {}
 
-    # -- Ports for communication with Triton servers
+    # -- Ports for communication with inference servers
     ports:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
-  # -- Custom readiness probe configuration
+  # -- Nereid server configuration, used only when ``type`` is ``nereid``.
+  # Ignored for Triton, which is configured through ``command``/``args`` instead.
+  nereid:
+    # -- Path the rendered ``nereid.yaml`` is mounted at. Nereid reads this file
+    # from its working directory, which is ``/nereid`` in the official image.
+    configPath: /nereid/nereid.yaml
+
+    # -- Contents of ``nereid.yaml``, rendered into a ConfigMap verbatim.
+    # ``ml_backends_path`` is resolved relative to the working directory, so use
+    # an absolute path when models come from ``modelRepository``.
+    # ``bind_addr``/``http_addr`` default to Triton's port numbers so that the
+    # Service, Envoy config and ServiceMonitor need no per-server special-casing.
+    config:
+      server:
+        bind_addr: "[::]:8001"
+        http_addr: "[::]:8002"
+        ml_backends_path: "ml-backends"
+      models: []
+
+  # -- Custom readiness probe configuration.
+  # The handler is whichever of ``command`` (exec shorthand), ``exec``,
+  # ``httpGet`` or ``tcpSocket`` is set; ``reset: true`` drops the probe.
   readinessProbe:
     # -- If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)
     reset: false
@@ -108,7 +141,8 @@ triton:
     timeoutSeconds: 15
     successThreshold: 1
 
-  # -- Custom startup probe configuration
+  # -- Custom startup probe configuration.
+  # Same handler options as ``readinessProbe``.
   startupProbe:
     # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
     reset: false
@@ -219,12 +253,12 @@ keda:
 
   # -- Enable autoscaling (requires Prometheus to also be enabled).
   # Autoscaling will be based on the metric from parameter ``serverLoadMetric``;
-  # new Triton servers will spawn if the metric exceeds the threshold set by ``serverLoadThreshold``.
+  # new inference servers will spawn if the metric exceeds the threshold set by ``serverLoadThreshold``.
   enabled: false
 
-  # -- Minimum and maximum number of Triton servers.
+  # -- Minimum and maximum number of inference servers.
   # Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled).
-  # With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount),
+  # With scaleFromZero, a RepositoryIndex request scales the inference server to max(1, minReplicaCount),
   # and upgrades keep the live ScaledObject minReplicaCount.
   minReplicaCount: 1
   maxReplicaCount: 2
@@ -236,7 +270,7 @@ keda:
   cooldownPeriod: 120
 
   # -- If set to true, KEDA sets idleReplicaCount to 0.
-  # This cannot scale from 0 back to 1 when the load metric comes from Triton.
+  # This cannot scale from 0 back to 1 when the load metric comes from the inference server.
   # Use scaleFromZero.enabled with keda.minReplicaCount: 0 instead.
   zeroIdleReplicas: false
 

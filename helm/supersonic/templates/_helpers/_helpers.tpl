@@ -12,10 +12,10 @@ Get instance name (equal to release name unless overridden)
 {{- end -}}
 
 {{/*
-Get Triton server name
+Get inference server name
 */}}
-{{- define "supersonic.tritonName" -}}
-{{- printf "%s-triton" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- define "supersonic.inferenceServerName" -}}
+{{- printf "%s-inference-server" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -56,5 +56,16 @@ Get gRPC endpoint for client connections
     {{- end -}}
     {{- printf "%s.%s.svc.cluster.local:%d" $serviceName .Release.Namespace $grpcPort -}}
   {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Fail on the pre-0.4.0 `triton:` values block, which was renamed to
+`inferenceServer:`. Helm would otherwise ignore the stale key and silently
+deploy chart defaults, so an explicit error is the kinder failure.
+*/}}
+{{- define "supersonic.validateNoLegacyTritonValues" -}}
+{{- if .Values.triton -}}
+{{- fail "The `triton:` values block was renamed to `inferenceServer:`.\nRename the top-level `triton:` key in your values file (its contents are unchanged).\nSee https://fastmachinelearning.org/SuperSONIC for the migration notes." -}}
 {{- end -}}
 {{- end -}}

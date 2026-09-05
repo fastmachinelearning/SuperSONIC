@@ -38,7 +38,7 @@ data:
                             - match:
                                 prefix: "/"
                               route:
-                                cluster: triton_grpc_service
+                                cluster: inference_server_grpc_service
                                 timeout: 0s
                     
                     http_filters:
@@ -48,17 +48,17 @@ data:
                     http2_protocol_options: {}
 
       clusters:
-        - name: triton_grpc_service
+        - name: inference_server_grpc_service
           connect_timeout: 0.25s
           type: STRICT_DNS
           lb_policy: LEAST_REQUEST
           http2_protocol_options: {}
           load_assignment:
-            cluster_name: triton_grpc_service
+            cluster_name: inference_server_grpc_service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: supersonic-triton
+                          address: supersonic-inference-server
                           port_value: 8001
