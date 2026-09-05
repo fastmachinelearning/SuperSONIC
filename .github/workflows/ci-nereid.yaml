@@ -69,9 +69,7 @@ jobs:
         if: steps.image.outputs.available == 'true'
         run: |
           kubectl wait --for condition=Ready pod \
-            -l app.kubernetes.io/component=inference-server --timeout 300s -n cms \
-            || (kubectl describe pod -l app.kubernetes.io/component=inference-server -n cms; \
-                kubectl logs -l app.kubernetes.io/component=inference-server -n cms --tail=100; exit 1)
+            -l app.kubernetes.io/component=inference-server --timeout 300s -n cms
 
       - name: Envoy proxy ready
         if: steps.image.outputs.available == 'true'
@@ -87,15 +85,13 @@ jobs:
         if: steps.image.outputs.available == 'true'
         run: |
           kubectl apply -f tests/nereid-infer-job.yaml
-          kubectl wait --for=condition=complete job/nereid-infer-job -n cms --timeout=600s || {
-            echo "Inference job did not complete."
-            kubectl logs -n cms job/nereid-infer-job --tail=200 || true
-            kubectl logs -l app.kubernetes.io/component=inference-server -n cms --tail=100 || true
-            exit 1
-          }
-          echo "========== Inference Job Logs =========="
-          kubectl logs -n cms job/nereid-infer-job
-          echo "========================================"
+          bash .github/scripts/wait-for-job.sh nereid-infer-job cms 600
+
+      - name: Failure diagnostics
+        if: failure() && steps.image.outputs.available == 'true'
+        uses: ./.github/actions/k8s-diagnostics
+        with:
+          namespace: cms
 
       - name: Cleanup
         if: always() && steps.image.outputs.available == 'true'
