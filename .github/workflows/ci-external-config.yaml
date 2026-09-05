@@ -56,7 +56,6 @@ jobs:
       - name: Deploy Helm chart with external Envoy config
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm dependency build ./helm/supersonic
           helm upgrade --install supersonic ./helm/supersonic \
             --values tests/values-external-envoy-config.yaml -n cms

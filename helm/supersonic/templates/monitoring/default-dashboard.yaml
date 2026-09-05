@@ -8,11 +8,6 @@ metadata:
     app.kubernetes.io/component: grafana
 data:
   default.json: |-
-    {{- $dashboardPath := "dashboards/default.json" }}
-    {{- $advancedMonitoring := and (index .Values "opentelemetry-collector" "enabled") .Values.tempo.enabled }}
-    {{- if $advancedMonitoring }}
-    {{- $dashboardPath = "dashboards/with-server-map.json" }}
-    {{- end }}
-    {{- $dashboard := $.Files.Get $dashboardPath | fromJson }}
+    {{- $dashboard := $.Files.Get "dashboards/default.json" | fromJson }}
     {{ $dashboard | toJson | nindent 4 }}
-{{- end }} 
+{{- end }}
