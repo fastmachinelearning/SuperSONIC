@@ -1,0 +1,14 @@
+name: "Kubernetes diagnostics"
+description: "Dump pod status, events, deployment status, container termination states, KEDA/HPA state, and pod logs for a namespace"
+
+inputs:
+  namespace:
+    description: "Namespace to collect diagnostics from"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Collect diagnostics
+      shell: bash
+      run: bash "${{ github.action_path }}/../../scripts/k8s-diagnostics.sh" "${{ inputs.namespace }}"

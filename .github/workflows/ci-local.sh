@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+# On any failure, dump cluster diagnostics (same script the CI failure step uses).
+trap 'bash .github/scripts/k8s-diagnostics.sh cms' ERR
+
 echo "Starting deployment process..."
 
 # 1. Create a Kubernetes cluster with Kind
@@ -74,8 +78,7 @@ for i in $(seq 1 36); do
   fi
   if [ "$i" -eq 36 ]; then
     echo "Triton did not scale to 0 replicas"
-    kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
-    kubectl get so,hpa -n cms -o yaml
+    bash .github/scripts/k8s-diagnostics.sh cms
     exit 1
   fi
   sleep 5
@@ -88,10 +91,7 @@ kubectl get all -n cms
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
 kubectl apply -f tests/perf-analyzer-job-ci.yaml
-kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || {
-  echo "Perf-analyzer job did not complete in time or failed."
-  exit 1
-}
+bash .github/scripts/wait-for-job.sh perf-analyzer-job cms 600
 
 # Retrieve and print the logs from the Perf Analyzer pod
 POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")

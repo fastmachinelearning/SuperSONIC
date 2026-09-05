@@ -73,6 +73,10 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/name=grafana --timeout 120s -n cms
 
+      - name: Metrics collector ready
+        run: |
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=metrics-collector --timeout 180s -n cms
+
       - name: Autoscaler ready
         run: |
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
@@ -91,8 +95,6 @@ jobs:
             sleep 5
           done
           echo "Triton did not scale to 0 replicas"
-          kubectl describe deploy -l app.kubernetes.io/component=triton -n cms
-          kubectl get so,hpa -n cms -o yaml
           exit 1
 
       - name: Validate Deployment
@@ -102,13 +104,19 @@ jobs:
       - name: Run Perf Analyzer Job
         run: |
           kubectl apply -f tests/perf-analyzer-job-ci.yaml
-          kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || \
-          (echo "Perf-analyzer job did not complete in time or failed." && exit 1)
+          bash .github/scripts/wait-for-job.sh perf-analyzer-job cms 600
 
           POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")
           echo "========== Perf Analyzer Logs =========="
           kubectl logs -n cms "$POD_NAME" 
           echo "========================================"
 
+      - name: Diagnostics on failure
+        if: failure()
+        uses: ./.github/actions/k8s-diagnostics
+        with:
+          namespace: cms
+
       - name: Cleanup
+        if: always()
         run: kind delete cluster --name gh-k8s-cluster

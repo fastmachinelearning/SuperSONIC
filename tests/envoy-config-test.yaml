@@ -7,7 +7,11 @@ data:
   envoy.yaml: |
     # External Envoy configuration for CI testing
     admin:
-      access_log_path: /tmp/admin_access.log
+      access_log:
+        - name: envoy.access_loggers.file
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+            path: /tmp/admin_access.log
       address:
         socket_address:
           address: 0.0.0.0
@@ -52,7 +56,11 @@ data:
           connect_timeout: 0.25s
           type: STRICT_DNS
           lb_policy: LEAST_REQUEST
-          http2_protocol_options: {}
+          typed_extension_protocol_options:
+            envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+              "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+              explicit_http_config:
+                http2_protocol_options: {}
           load_assignment:
             cluster_name: triton_grpc_service
             endpoints:
