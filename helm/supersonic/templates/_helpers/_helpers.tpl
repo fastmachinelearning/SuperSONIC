@@ -33,6 +33,22 @@ True when scaleFromZero.enabled is true.
 {{- end -}}
 
 {{/*
+Validate scale-from-zero timeouts: the admission sidecar keeps KEDA's
+minReplicaCount raised for holdMinReplicasSeconds after a wake, while the Envoy
+Lua filter waits up to readyTimeoutSeconds for the woken pod. A hold shorter than
+the wait lets KEDA scale the pod back to zero before RepositoryIndex is answered.
+*/}}
+{{- define "supersonic.validateScaleFromZeroValues" -}}
+{{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" -}}
+  {{- $ready := int (.Values.scaleFromZero.readyTimeoutSeconds | default 300) -}}
+  {{- $hold := int (.Values.scaleFromZero.holdMinReplicasSeconds | default 300) -}}
+  {{- if lt $hold $ready -}}
+    {{- fail (printf "scaleFromZero.holdMinReplicasSeconds (%d) must be >= scaleFromZero.readyTimeoutSeconds (%d); otherwise KEDA can scale the waking pod back to zero before RepositoryIndex is answered" $hold $ready) -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 True when the Envoy Lua filter should be mounted.
 */}}
 {{- define "supersonic.luaFilterEnabled" -}}

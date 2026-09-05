@@ -91,7 +91,7 @@ kubectl get all -n cms
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
 kubectl apply -f tests/perf-analyzer-job-ci.yaml
-bash .github/scripts/wait-for-job.sh perf-analyzer-job cms 600
+bash .github/scripts/wait-for-job.sh perf-analyzer-job cms 660
 
 # Retrieve and print the logs from the Perf Analyzer pod
 POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")

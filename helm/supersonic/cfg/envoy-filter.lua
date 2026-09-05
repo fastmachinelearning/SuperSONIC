@@ -163,7 +163,11 @@ function envoy_on_response(response_handle)
     -- Reject the request if it was not accepted, or if Envoy has no healthy upstream.
     if not accepted or no_upstream then
         response_handle:logInfo("Sending error as a response.")
-        response_handle:body():setBytes("")
+        -- A headers-only response (e.g. Envoy's own 503) has no body object.
+        local body = response_handle:body()
+        if body then
+            body:setBytes("")
+        end
         response_handle:headers():replace("grpc-status", "1")
         response_handle:headers():remove("grpc-message")
     end

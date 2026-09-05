@@ -2,7 +2,9 @@
 scaleFromZero:
   enabled: true
   readyTimeoutSeconds: 300
-  holdMinReplicasSeconds: 120
+  # Must be >= readyTimeoutSeconds: KEDA would otherwise scale the waking pod
+  # back to zero while the RepositoryIndex hold is still waiting for it.
+  holdMinReplicasSeconds: 300
 
 triton:
   replicas: 1
