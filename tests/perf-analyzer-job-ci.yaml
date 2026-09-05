@@ -15,19 +15,45 @@ spec:
         args:
           - "-c"
           - |
+            set -euo pipefail
             # perf_analyzer from the PyPI wheel is dynamically linked against libstdc++,
             # which python:*-slim does not ship (libssl3 and zlib1g are already present).
             apt-get update -qq && apt-get install -y -qq --no-install-recommends libstdc++6 > /dev/null
             pip install --quiet --no-cache-dir "tritonclient[grpc]==2.72.0" "perf-analyzer==2.60.0"
-            echo "Sending RepositoryIndex to scale Triton from zero..."
-            python3 -c '
+
+            # Wait until the server answers through Envoy. With scaleFromZero enabled the
+            # first RepositoryIndex is what wakes Triton and is held until it is ready, so
+            # this loop doubles as the wake trigger; each attempt is bounded and retried
+            # until the overall budget (must stay below the CI wait-for-job budget) runs out.
+            echo "Waiting for the inference server (RepositoryIndex through Envoy)..."
+            python3 - <<'PY'
+            import sys, time
             import tritonclient.grpc as grpcclient
-            client = grpcclient.InferenceServerClient("supersonic.cms.svc.cluster.local:8001")
-            print(client.get_model_repository_index(client_timeout=400))
-            '
+            from tritonclient.utils import InferenceServerException
+            url = "supersonic.cms.svc.cluster.local:8001"
+            deadline = time.monotonic() + 480
+            attempt = 0
+            while True:
+                attempt += 1
+                try:
+                    client = grpcclient.InferenceServerClient(url)
+                    index = client.get_model_repository_index(client_timeout=400)
+                    print(f"RepositoryIndex succeeded on attempt {attempt}:")
+                    print(index)
+                    break
+                except InferenceServerException as exc:
+                    remaining = deadline - time.monotonic()
+                    print(f"attempt {attempt} failed: {exc}; {remaining:.0f}s left", flush=True)
+                    if remaining <= 0:
+                        sys.exit("inference server did not become reachable in time")
+                    time.sleep(min(10, max(remaining, 0)))
+            PY
+
             echo "Running perf_analyzer..."
             perf_analyzer -i grpc \
                           -m higgsInteractionNet \
                           -u supersonic.cms.svc.cluster.local:8001 \
                           --async -p 1 -b 100  --measurement-interval=5000 \
-                          --concurrency-range=1:1 --input-data "random"
+                          --concurrency-range=1:1 --input-data "random" | tee /tmp/perf.log
+            # perf_analyzer can exit 0 after printing an error; require a real result line.
+            grep -q "Inferences/Second" /tmp/perf.log || { echo "perf_analyzer produced no results"; exit 1; }

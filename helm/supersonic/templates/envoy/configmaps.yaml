@@ -49,6 +49,12 @@ static_resources:
                 generate_request_id: true
                 stat_prefix: ingress_grpc
                 codec_type: AUTO
+                {{- if .scaleFromZeroEnabled }}
+                # The Lua filter holds RepositoryIndex for up to scaleFromZero.readyTimeoutSeconds
+                # while Triton starts; Envoy's default stream_idle_timeout (300s) would reset
+                # that held stream first, so keep the idle timeout above the hold deadline.
+                stream_idle_timeout: {{ add (int .root.Values.scaleFromZero.readyTimeoutSeconds) 60 }}s
+                {{- end }}
                 route_config:
                   name: local_route_grpc
                   virtual_hosts:
