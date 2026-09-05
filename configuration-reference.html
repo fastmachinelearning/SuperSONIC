@@ -110,7 +110,7 @@
 </tr>
 <tr class="row-odd"><td><p>scaleFromZero</p></td>
 <td><p>object</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;admissionImage&quot;:&quot;python:3.11-slim&quot;,&quot;enabled&quot;:false,&quot;holdMinReplicasSeconds&quot;:300,&quot;readyTimeoutSeconds&quot;:300}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{&quot;admissionImage&quot;:&quot;python:3.14-slim&quot;,&quot;enabled&quot;:false,&quot;holdMinReplicasSeconds&quot;:300,&quot;readyTimeoutSeconds&quot;:300}</span></code></p></td>
 <td><p>On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas and return the index only after Envoy has a healthy Triton upstream. Requires keda.enabled and envoy.enabled.</p></td>
 </tr>
 <tr class="row-even"><td><p>scaleFromZero.enabled</p></td>
@@ -126,11 +126,11 @@
 <tr class="row-even"><td><p>scaleFromZero.holdMinReplicasSeconds</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
-<td><p>Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex</p></td>
+<td><p>Seconds to keep KEDA minReplicaCount at the wake target after the last RepositoryIndex is answered (the hold is refreshed once the server is ready, so it is measured from readiness rather than from the wake request). Must be &gt;= readyTimeoutSeconds (validated at render time), otherwise KEDA can scale the waking pod back to zero before RepositoryIndex is answered.</p></td>
 </tr>
 <tr class="row-odd"><td><p>scaleFromZero.admissionImage</p></td>
 <td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;python:3.11-slim&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;python:3.14-slim&quot;</span></code></p></td>
 <td><p>Image for the admission sidecar on the Envoy pod</p></td>
 </tr>
 <tr class="row-even"><td><p>triton.replicas</p></td>
@@ -140,7 +140,7 @@
 </tr>
 <tr class="row-odd"><td><p>triton.image</p></td>
 <td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;nvcr.io/nvidia/tritonserver:26.04-py3-min&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;nvcr.io/nvidia/tritonserver:26.08-py3-min&quot;</span></code></p></td>
 <td><p>Docker image for the Triton server</p></td>
 </tr>
 <tr class="row-even"><td><p>triton.command</p></td>
@@ -235,7 +235,7 @@
 </tr>
 <tr class="row-even"><td><p>envoy.image</p></td>
 <td><p>string</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.30.9&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;envoyproxy/envoy:v1.39.1&quot;</span></code></p></td>
 <td><p>Envoy Proxy Docker image</p></td>
 </tr>
 <tr class="row-odd"><td><p>envoy.args</p></td>
@@ -728,27 +728,32 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>Enable metrics collector</p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.host</p></td>
+<tr class="row-odd"><td><p>metricsCollector.image</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;python:3.14-slim&quot;</span></code></p></td>
+<td><p>Image for the metrics collector</p></td>
+</tr>
+<tr class="row-even"><td><p>metricsCollector.host</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0&quot;</span></code></p></td>
 <td><p>Host and port for metrics collector</p></td>
 </tr>
-<tr class="row-even"><td><p>metricsCollector.port</p></td>
+<tr class="row-odd"><td><p>metricsCollector.port</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">8003</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.resources</p></td>
+<tr class="row-even"><td><p>metricsCollector.resources</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;limits&quot;:{&quot;cpu&quot;:1,&quot;memory&quot;:&quot;1Gi&quot;},&quot;requests&quot;:{&quot;cpu&quot;:&quot;500m&quot;,&quot;memory&quot;:&quot;512Mi&quot;}}</span></code></p></td>
 <td><p>Resource limits and requests for metrics collector</p></td>
 </tr>
-<tr class="row-even"><td><p>metricsCollector.service</p></td>
+<tr class="row-odd"><td><p>metricsCollector.service</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;port&quot;:8003,&quot;type&quot;:&quot;ClusterIP&quot;}</span></code></p></td>
 <td><p>Add service</p></td>
 </tr>
-<tr class="row-odd"><td><p>metricsCollector.ingress</p></td>
+<tr class="row-even"><td><p>metricsCollector.ingress</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;annotations&quot;:{},&quot;enabled&quot;:false,&quot;hostName&quot;:&quot;&quot;,&quot;ingressClassName&quot;:&quot;&quot;}</span></code></p></td>
 <td><p>Ingress configuration for metrics collector</p></td>
