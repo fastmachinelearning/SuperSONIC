@@ -6,7 +6,6 @@
     getting-started
     configuration-guide
     configuration-reference
-    advanced-monitoring
 
 SuperSONIC
 ========================================
