@@ -5,10 +5,16 @@
 # autoscaling metric are all unchanged. What differs is the image, how models
 # are configured, and the probe endpoints.
 #
-# Two upstream features this file assumes (see the PR description):
+# Upstream features this file assumes (see the PR description):
 #   - the KServe v2 HTTP health endpoints used by the probes below
+#     (ngpaladi/nereid-server#19)
 #   - Triton-named nv_inference_* metrics on /metrics, which the default
-#     serverLoadMetric and the ServiceMonitor scrape
+#     serverLoadMetric and the ServiceMonitor scrape (same PR)
+#
+# scaleFromZero additionally needs the RepositoryIndex RPC
+# (ngpaladi/nereid-server#20). It is left disabled here, but nothing about it
+# is Triton-specific: Nereid vendors the same `inference.GRPCInferenceService`
+# proto, so the path Envoy routes and the Lua filter matches is identical.
 
 inferenceServer:
   type: nereid
