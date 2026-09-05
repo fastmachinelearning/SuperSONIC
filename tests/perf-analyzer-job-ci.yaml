@@ -10,11 +10,15 @@ spec:
       restartPolicy: Never
       containers:
       - name: perf-analyzer
-        image: nvcr.io/nvidia/tritonserver:26.08-py3-sdk
+        image: python:3.14-slim
         command: ["/bin/bash"]
         args:
           - "-c"
           - |
+            # perf_analyzer from the PyPI wheel is dynamically linked against libstdc++,
+            # which python:*-slim does not ship (libssl3 and zlib1g are already present).
+            apt-get update -qq && apt-get install -y -qq --no-install-recommends libstdc++6 > /dev/null
+            pip install --quiet --no-cache-dir "tritonclient[grpc]==2.72.0" "perf-analyzer==2.60.0"
             echo "Sending RepositoryIndex to scale Triton from zero..."
             python3 -c '
             import tritonclient.grpc as grpcclient

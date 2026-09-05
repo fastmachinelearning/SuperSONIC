@@ -1,22 +1,8 @@
 #!/bin/bash
 
-# Dump Kubernetes diagnostics for a namespace.
-# Mirrors the command set of .github/actions/k8s-diagnostics/action.yml
-# (composite actions cannot be reused from a shell script).
-dump_diagnostics() {
-  local namespace="$1"
-  kubectl get pods -n "$namespace" -o wide || true
-  kubectl get events -n "$namespace" --sort-by=.lastTimestamp || true
-  kubectl get pods -n "$namespace" -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{range .status.containerStatuses[*]}{.name}={.restartCount} last={.lastState.terminated.reason}/{.lastState.terminated.exitCode}{" "}{end}{"\n"}{end}' || true
-  kubectl get deploy -n "$namespace" -o yaml || true
-  kubectl get so -n "$namespace" -o yaml || true
-  kubectl get hpa -n "$namespace" -o yaml || true
-  for pod in $(kubectl get pods -n "$namespace" -o name 2>/dev/null); do
-    echo "========== Logs: $pod =========="
-    kubectl logs -n "$namespace" "$pod" --all-containers --tail=100 || true
-    kubectl logs -n "$namespace" "$pod" --all-containers --tail=100 --previous 2>/dev/null || true
-  done
-}
+set -e
+# On any failure, dump cluster diagnostics (same script the CI failure step uses).
+trap 'bash .github/scripts/k8s-diagnostics.sh cms' ERR
 
 echo "Starting deployment process..."
 
@@ -92,7 +78,7 @@ for i in $(seq 1 36); do
   fi
   if [ "$i" -eq 36 ]; then
     echo "Triton did not scale to 0 replicas"
-    dump_diagnostics cms
+    bash .github/scripts/k8s-diagnostics.sh cms
     exit 1
   fi
   sleep 5
@@ -105,10 +91,7 @@ kubectl get all -n cms
 # 10. Run Perf Analyzer Job
 echo "Running Perf Analyzer Job..."
 kubectl apply -f tests/perf-analyzer-job-ci.yaml
-kubectl wait --for=condition=complete job/perf-analyzer-job -n cms --timeout=800s || {
-  echo "Perf-analyzer job did not complete in time or failed."
-  exit 1
-}
+bash .github/scripts/wait-for-job.sh perf-analyzer-job cms 600
 
 # Retrieve and print the logs from the Perf Analyzer pod
 POD_NAME=$(kubectl get pods -n cms -l job-name=perf-analyzer-job -o jsonpath="{.items[0].metadata.name}")

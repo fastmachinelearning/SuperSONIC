@@ -1,5 +1,5 @@
 name: "Kubernetes diagnostics"
-description: "Dump pod status, events, container termination states, KEDA/HPA state, and pod logs for a namespace"
+description: "Dump pod status, events, deployment status, container termination states, KEDA/HPA state, and pod logs for a namespace"
 
 inputs:
   namespace:
@@ -9,37 +9,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Pod status
+    - name: Collect diagnostics
       shell: bash
-      run: |
-        kubectl get pods -n "${{ inputs.namespace }}" -o wide || true
-
-    - name: Events
-      shell: bash
-      run: |
-        kubectl get events -n "${{ inputs.namespace }}" --sort-by=.lastTimestamp || true
-
-    - name: Deployment status
-      shell: bash
-      run: |
-        kubectl get deploy -n "${{ inputs.namespace }}" -o yaml || true
-
-    - name: Container restart and termination states
-      shell: bash
-      run: |
-        kubectl get pods -n "${{ inputs.namespace }}" -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{range .status.containerStatuses[*]}{.name}={.restartCount} last={.lastState.terminated.reason}/{.lastState.terminated.exitCode}{" "}{end}{"\n"}{end}' || true
-
-    - name: KEDA ScaledObjects and HPAs
-      shell: bash
-      run: |
-        kubectl get so -n "${{ inputs.namespace }}" -o yaml || true
-        kubectl get hpa -n "${{ inputs.namespace }}" -o yaml || true
-
-    - name: Pod logs
-      shell: bash
-      run: |
-        for pod in $(kubectl get pods -n "${{ inputs.namespace }}" -o name 2>/dev/null); do
-          echo "========== Logs: $pod =========="
-          kubectl logs -n "${{ inputs.namespace }}" "$pod" --all-containers --tail=100 || true
-          kubectl logs -n "${{ inputs.namespace }}" "$pod" --all-containers --tail=100 --previous 2>/dev/null || true
-        done
+      run: bash "${{ github.action_path }}/../../scripts/k8s-diagnostics.sh" "${{ inputs.namespace }}"
