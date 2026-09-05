@@ -461,6 +461,10 @@ scales up to ``maxReplicaCount`` using the Prometheus load metric. After
 ``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
 the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
 
+This works with either ``inferenceServer.type``: ``RepositoryIndex`` belongs to the
+shared ``inference.GRPCInferenceService`` protocol, so the path Envoy routes on is the
+same for both servers.
+
 .. code-block:: yaml
 
    envoy:
