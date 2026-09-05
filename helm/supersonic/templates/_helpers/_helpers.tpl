@@ -40,8 +40,8 @@ the wait lets KEDA scale the pod back to zero before RepositoryIndex is answered
 */}}
 {{- define "supersonic.validateScaleFromZeroValues" -}}
 {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" -}}
-  {{- $ready := int (.Values.scaleFromZero.readyTimeoutSeconds | default 300) -}}
-  {{- $hold := int (.Values.scaleFromZero.holdMinReplicasSeconds | default 300) -}}
+  {{- $ready := int .Values.scaleFromZero.readyTimeoutSeconds -}}
+  {{- $hold := int .Values.scaleFromZero.holdMinReplicasSeconds -}}
   {{- if lt $hold $ready -}}
     {{- fail (printf "scaleFromZero.holdMinReplicasSeconds (%d) must be >= scaleFromZero.readyTimeoutSeconds (%d); otherwise KEDA can scale the waking pod back to zero before RepositoryIndex is answered" $hold $ready) -}}
   {{- end -}}

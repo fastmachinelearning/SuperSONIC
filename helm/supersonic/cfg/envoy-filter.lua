@@ -31,6 +31,7 @@ function envoy_on_request(request_handle)
             )
             if not wake_headers or wake_headers[":status"] ~= "200" then
                 request_handle:logErr("Admission /wake failed; rejecting RepositoryIndex")
+                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "no healthy upstream: scale-from-zero wake failed")
                 return
             end
 
@@ -82,9 +83,34 @@ function envoy_on_request(request_handle)
             end
             if not healthy then
                 request_handle:logErr("No healthy Triton upstream in time; rejecting RepositoryIndex")
+                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "no healthy upstream: Triton did not become ready in time")
                 return
             end
             request_handle:logInfo("GPU Triton has a healthy Envoy upstream")
+
+            -- Refresh the KEDA hold now that Triton is ready. The first /wake
+            -- anchored hold-until at the moment the wake started, so by the time
+            -- the index is answered only hold - startup_time of it would remain
+            -- (and could be nearly nothing after a slow start). /wake only moves
+            -- hold-until forward and does not lower minReplicaCount, so calling it
+            -- again is safe. Failure is non-fatal: the index is about to be served
+            -- and the original hold still applies. The timeout is shorter than the
+            -- first wake's because this must not delay the index much; the
+            -- admission sidecar finishes the wake pass server-side even if Envoy
+            -- stops waiting for the reply.
+            local refresh_headers = request_handle:httpCall(
+                "triton_admission",
+                {
+                    [":method"] = "GET",
+                    [":path"] = "/wake",
+                    [":authority"] = "triton_admission"
+                },
+                "",
+                10000
+            )
+            if not refresh_headers or refresh_headers[":status"] ~= "200" then
+                request_handle:logWarn("Admission /wake refresh after readiness failed; hold is anchored at wake time")
+            end
         end
 
         if prometheus_rate_limit_enabled then
@@ -114,6 +140,8 @@ function envoy_on_request(request_handle)
                 request_handle:logErr("HTTP call to Prometheus failed.")
                 if scale_from_zero then
                     request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
+                else
+                    request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "request rejected: rate limiter could not reach Prometheus")
                 end
                 return
             end
@@ -122,6 +150,8 @@ function envoy_on_request(request_handle)
                 request_handle:logErr("Prometheus could not be reached or returned no data.")
                 if scale_from_zero then
                     request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
+                else
+                    request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "request rejected: rate limiter got no data from Prometheus")
                 end
                 return
             end
@@ -134,6 +164,7 @@ function envoy_on_request(request_handle)
                 local metric_value = tonumber(metric_value_str)
                 if metric_value > metric_threshold then
                     request_handle:logInfo("Metric value exceeds threshold: " .. metric_value .. " > " .. metric_threshold)
+                    request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "request rejected: server load above threshold, retry later")
                 else
                     request_handle:logInfo("Metric value below threshold: " .. metric_value .. " < " .. metric_threshold)
                     request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
@@ -143,6 +174,7 @@ function envoy_on_request(request_handle)
                 request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
             else
                 request_handle:logErr("Failed to parse metric value from Prometheus response.")
+                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "request rejected: rate limiter could not parse Prometheus response")
             end
         else
             request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
@@ -162,14 +194,22 @@ function envoy_on_response(response_handle)
     local no_upstream = string.find(grpc_message, "no healthy upstream", 1, true)
     -- Reject the request if it was not accepted, or if Envoy has no healthy upstream.
     if not accepted or no_upstream then
-        response_handle:logInfo("Sending error as a response.")
+        -- Prefer Envoy's own message (e.g. "no healthy upstream"), then the reason
+        -- recorded by envoy_on_request, then a generic fallback.
+        local message = grpc_message
+        if message == "" then
+            message = metadata["reject_reason"] or "request rejected"
+        end
+        response_handle:logInfo("Sending error as a response: " .. message)
         -- A headers-only response (e.g. Envoy's own 503) has no body object.
         local body = response_handle:body()
         if body then
             body:setBytes("")
         end
-        response_handle:headers():replace("grpc-status", "1")
-        response_handle:headers():remove("grpc-message")
+        -- UNAVAILABLE (14) is the retryable code gRPC clients expect for
+        -- "no upstream" and "try again later" (rate-limited) conditions.
+        response_handle:headers():replace("grpc-status", "14")
+        response_handle:headers():replace("grpc-message", message)
     end
 end
 

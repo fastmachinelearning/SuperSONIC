@@ -16,23 +16,26 @@ spec:
           - "-c"
           - |
             set -euo pipefail
-            # perf_analyzer from the PyPI wheel is dynamically linked against libstdc++,
-            # which python:*-slim does not ship (libssl3 and zlib1g are already present).
-            apt-get update -qq && apt-get install -y -qq --no-install-recommends libstdc++6 > /dev/null
-            pip install --quiet --no-cache-dir "tritonclient[grpc]==2.72.0" "perf-analyzer==2.60.0"
+            # Budget (seconds) bounding the WHOLE test from container start: pip install
+            # (~30s), the wait for a serving model, and the perf_analyzer retries. The
+            # callers wait 660s (.github/scripts/wait-for-job.sh perf-analyzer-job cms 660),
+            # so 600s here plus one final perf_analyzer attempt (~20s) still leaves ~40s
+            # for pod scheduling and image pull. With scaleFromZero enabled the first
+            # RepositoryIndex is what wakes Triton and is held by Envoy until it is ready
+            # (up to readyTimeoutSeconds=300s plus ~30s wake; route idle timeout 420s), so
+            # the wait loop doubles as the wake trigger; an expired hold or a pod that is
+            # not serving yet is retried instead of failing the test.
+            BUDGET=600
+            START=$SECONDS
+
+            pip install --quiet --no-cache-dir --disable-pip-version-check --root-user-action=ignore \
+              "tritonclient[grpc]==2.72.0" "perf-analyzer==2.60.0"
 
             MODEL=higgsInteractionNet
             URL=supersonic.cms.svc.cluster.local:8001
-            # Overall budget (seconds) for reaching a serving model; keep it below the
-            # CI wait-for-job budget (660s). With scaleFromZero enabled the first
-            # RepositoryIndex is what wakes Triton and is held until it is ready, so the
-            # loop doubles as the wake trigger; an expired hold or a pod that is not
-            # serving yet is retried instead of failing the test.
-            BUDGET=540
-            START=$SECONDS
 
             echo "Waiting for model $MODEL to be ready through Envoy..."
-            python3 - "$URL" "$MODEL" "$BUDGET" <<'PY'
+            python3 - "$URL" "$MODEL" "$((BUDGET - (SECONDS - START)))" <<'PY'
             import sys, time
             import tritonclient.grpc as grpcclient
             url, model, budget = sys.argv[1], sys.argv[2], int(sys.argv[3])
@@ -40,10 +43,17 @@ spec:
             attempt = 0
             while True:
                 attempt += 1
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    sys.exit(f"model {model} did not become ready within {budget}s")
                 try:
                     client = grpcclient.InferenceServerClient(url)
-                    index = client.get_model_repository_index(client_timeout=400)
-                    if not client.is_model_ready(model, client_timeout=30):
+                    # Clip every call to what is left of the budget so a held
+                    # RepositoryIndex cannot push the wait past the deadline.
+                    index = client.get_model_repository_index(
+                        client_timeout=max(1, min(400, remaining)))
+                    remaining = deadline - time.monotonic()
+                    if not client.is_model_ready(model, client_timeout=max(1, min(30, remaining))):
                         raise RuntimeError(f"model {model} is not ready yet")
                     print(f"model {model} ready on attempt {attempt}; repository index:")
                     print(index)
