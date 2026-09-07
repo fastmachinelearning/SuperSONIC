@@ -53,6 +53,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 kubectl create namespace monitoring
 helm install prometheus-operator prometheus-community/kube-prometheus-stack \
+  --version 89.2.4 \
   --namespace monitoring \
   --set prometheusOperator.createCustomResource=false \
   --set defaultRules.create=false \
