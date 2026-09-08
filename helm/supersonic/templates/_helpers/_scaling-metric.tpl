@@ -1,36 +1,26 @@
 {{/*
 Scaling and admission metrics.
 
-The default scaling metric is an "occupancy ratio" derived from Little's law
-(L = lambda * W: mean occupancy equals the per-second rate of a cumulative
-time counter). It is built from three measured quantities:
-
-  L_envoy   - mean number of requests in flight between Envoy and the Triton
-              fleet (queued + executing + on the wire), from Envoy's
-              cumulative upstream request-time counter (milliseconds).
-  L_service - mean number of requests being actively executed across all
-              models and pods, from Triton's cumulative request-duration
-              minus queue-duration counters (microseconds).
-  R_healthy - number of Triton endpoints Envoy currently routes to
-              (max across Envoy pods - each pod reports the same
-              upstream cluster membership).
-
-"supersonic.defaultMetric" renders the extensive form
+The default scaling metric estimates how many replicas the current in-flight
+work needs:
 
   R_needed = L_envoy / max(L_service / R_healthy, 1)
 
-("how many replicas the current in-flight work needs"), spelled in PromQL as
-L_envoy * R_healthy / max(L_service, R_healthy, 1) because clamp_min(v, s)
-is PromQL for max(v, s). The floors encode two physical facts: each healthy
-replica can serve at least one request concurrently (so serving capacity is
-never below R_healthy), and at zero replicas the metric degrades to "requests
-in flight" instead of dividing by zero. KEDA consumes this form with
-metricType AverageValue: desired = ceil(R_needed / serverLoadThreshold).
+  L_envoy   - mean requests in flight between Envoy and Triton: rate of
+              Envoy's cumulative upstream request-time counter (ms -> /1e3).
+  L_service - mean requests being executed across all models and pods: rate
+              of Triton's request-duration minus queue-duration counters
+              (us -> /1e6).
+  R_healthy - Triton endpoints Envoy routes to (max across Envoy pods).
 
-"supersonic.admissionMetric" is the same quantity per healthy replica
-(R_needed / R_healthy, i.e. the sojourn-time inflation clients experience);
-the Envoy Lua filter rejects RepositoryIndex requests when it exceeds
-"supersonic.admissionThreshold".
+clamp_min(v, s) is PromQL for max(v, s). The floors encode that a healthy
+replica can always execute at least one request, and that at zero replicas
+the metric reads "requests in flight" instead of dividing by zero.
+
+KEDA consumes "supersonic.defaultMetric" (the form above) with metricType
+AverageValue: desired = ceil(R_needed / serverLoadThreshold). The Envoy Lua
+filter consumes "supersonic.admissionMetric" (the same per healthy replica)
+and rejects RepositoryIndex above "supersonic.admissionThreshold".
 
 If .Values.serverLoadMetric is set, both helpers return it verbatim.
 */}}

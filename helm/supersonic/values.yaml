@@ -4,27 +4,24 @@
 nameOverride: ""
 
 # -- Prometheus query used by the KEDA autoscaler and (per healthy replica) by Envoy's
-# prometheus-based rate limiter. Leave empty to use the default "occupancy ratio" metric:
-# the mean number of requests in flight between Envoy and Triton (Little's law applied to
-# Envoy's cumulative upstream request time) divided by per-replica serving occupancy
-# (rate of Triton request time minus queue time). It reads ~1 when nothing queues, grows
-# linearly with overload, and contains no model-specific constants, so one threshold works
-# for any model mixture. Defined in templates/_helpers/_scaling-metric.tpl and documented
-# in the configuration guide. A custom query set here is used verbatim by both consumers.
+# prometheus-based rate limiter. Leave empty for the default metric: requests in flight
+# between Envoy and Triton divided by requests being executed, i.e. how many replicas
+# the current load needs. Reads ~1 with no queueing, grows linearly with overload, and
+# has no model-specific constants. See templates/_helpers/_scaling-metric.tpl and the
+# configuration guide. A custom query set here is used verbatim by both consumers.
 serverLoadMetric: ""
 
-# -- Threshold for the scaling metric. With the default metric this is the tolerated
-# sojourn inflation per replica: KEDA scales to ceil(metric / threshold), so 2 targets
-# "requests spend about as long waiting as being served"; 1.5 trades GPUs for latency.
+# -- Threshold for the scaling metric. KEDA scales to ceil(metric / threshold):
+# 2 targets "waiting = serving" per replica; 1.5 trades GPUs for latency.
 serverLoadThreshold: 2
 
 # -- Range-vector window used by rate() in the default metric.
 # Keep it at or above 4x your Prometheus scrape interval.
 serverLoadRateInterval: "1m"
 
-# -- Threshold for Envoy's prometheus-based rate limiter, compared against the scaling
-# metric per healthy replica. Kept above serverLoadThreshold so that new clients are
-# rejected only when scaling can no longer keep up, not at the normal operating point.
+# -- Threshold for Envoy's prometheus-based rate limiter (scaling metric per healthy
+# replica). Kept above serverLoadThreshold so new clients are rejected only when
+# scaling can no longer keep up.
 serverAdmissionThreshold: 3
 
 # -- On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas
