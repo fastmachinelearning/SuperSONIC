@@ -1,5 +1,3 @@
-serverLoadThreshold: 100
-
 triton:
   name: triton-atlas
   image: milescb/traccc-aas:v1.1
