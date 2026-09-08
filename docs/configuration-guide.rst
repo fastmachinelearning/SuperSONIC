@@ -282,20 +282,60 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 8. (Optional) Configure Metrics for Scaling and Rate Limiting
 ===============================================================
 
-Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
-They are defined in the ``serverLoadMetric`` and ``serverLoadThreshold`` parameters at the root level of the values file.
-The default metric is the inference queue time at the Triton servers, as defined in
-`here <https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl>`_.
+The autoscaler and the Prometheus-based rate limiter are driven by one Prometheus
+query, set by ``serverLoadMetric`` at the root of the values file and rendered in
+``templates/_helpers/_scaling-metric.tpl``.
 
-When the metric value exceeds the threshold, the following happens:
+The default metric
+-------------------
 
-- Autoscaler scales up the number of Triton servers if possible.
-- Envoy proxy rejects new ``RepositoryIndex`` requests.
+By default, SuperSONIC estimates **how many Triton replicas the current in-flight
+work needs**::
 
-The pre-configured Grafana dashboard contains a graph of this metric, entitled "Server Load Metric".
-The Prometheus query for the graph is automatically inferred from the value of ``serverLoadMetric`` parameter.
-The graph also displays the threshold value defined in ``serverLoadThreshold`` parameter.
+   R_needed = L_envoy / max(L_service / R_healthy, 1)
 
+Each input is measured — the ``rate()`` of a cumulative time counter equals the
+mean number of requests inside that stage:
+
+- ``L_envoy`` — requests in flight between Envoy and Triton (queued, executing,
+  or on the wire): ``sum(rate(envoy_cluster_upstream_rq_time_sum{...}[1m])) / 1e3``.
+- ``L_service`` — requests being executed across all models and pods:
+  ``sum(rate(nv_inference_request_duration_us − nv_inference_queue_duration_us)) / 1e6``.
+  Models are weighted by the time they consume, so the metric has no
+  model-specific constants and one threshold works for any mixture.
+- ``R_healthy`` — Triton endpoints Envoy routes to:
+  ``max(envoy_cluster_membership_healthy{...})``.
+
+In PromQL, ``clamp_min(v, s)`` spells ``max(v, s)``. The floors encode that a
+healthy replica can always execute at least one request (which lets an
+underutilized fleet scale down), and that at zero replicas the metric reads
+"requests in flight" instead of dividing by zero.
+
+Per healthy replica, the metric is the inflation clients experience: 1 means
+every in-flight request is being executed, 2 means requests wait as long as they
+are served, and it keeps growing linearly with overload.
+
+Thresholds
+-----------
+
+- ``serverLoadThreshold`` (default ``2``) — KEDA scales to
+  ``ceil(metric / threshold)`` (``metricType: AverageValue``). ``2`` targets
+  "waiting ≈ serving"; ``1.5`` trades GPUs for latency. The unloaded floor is
+  ~1.2–1.3 (network transit), so values below that over-provision.
+- ``serverAdmissionThreshold`` (default ``3``) — Envoy rejects new
+  ``RepositoryIndex`` requests when the per-replica metric exceeds it. Kept
+  above ``serverLoadThreshold``: the autoscaler settles near its threshold, and
+  gating admission there would reject clients during normal operation.
+- ``serverLoadRateInterval`` (default ``1m``) — the ``rate()`` window; keep it
+  at or above 4x the Prometheus scrape interval.
+
+Custom metrics
+---------------
+
+If ``serverLoadMetric`` is set, it is used **verbatim** by both consumers: KEDA
+compares it against ``serverLoadThreshold`` and the rate limiter against
+``serverAdmissionThreshold``. Set ``keda.metricType: Value`` for per-replica
+custom metrics.
 
 9. (Optional) Deploy Grafana Dashboard
 ==========================================

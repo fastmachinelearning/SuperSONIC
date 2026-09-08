@@ -11,6 +11,12 @@
     "serverLoadThreshold": {
       "type": "integer"
     },
+    "serverLoadRateInterval": {
+      "type": "string"
+    },
+    "serverAdmissionThreshold": {
+      "type": "integer"
+    },
     "scaleFromZero": {
       "type": "object",
       "properties": {
@@ -512,6 +518,9 @@
         "enabled": {
           "type": "boolean"
         },
+        "metricType": {
+          "type": "string"
+        },
         "minReplicaCount": {
           "type": "integer"
         },
@@ -570,6 +579,7 @@
         "cooldownPeriod",
         "enabled",
         "maxReplicaCount",
+        "metricType",
         "minReplicaCount",
         "pollingInterval",
         "scaleDown",
@@ -1350,7 +1360,9 @@
     "nameOverride",
     "prometheus",
     "scaleFromZero",
+    "serverAdmissionThreshold",
     "serverLoadMetric",
+    "serverLoadRateInterval",
     "serverLoadThreshold",
     "triton"
   ]

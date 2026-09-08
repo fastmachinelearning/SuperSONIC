@@ -24,7 +24,9 @@ SuperSONIC chart successfully installed!
 
 Scaling metric:{{ if not ( eq .Values.serverLoadMetric "" ) }}    {{ .Values.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
 
-Scaling threshold: {{ include "supersonic.defaultThreshold" . }}
+Scaling threshold (KEDA): {{ include "supersonic.defaultThreshold" . }}
+
+Admission threshold (Envoy rate limiter): {{ include "supersonic.admissionThreshold" . }}
 
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC

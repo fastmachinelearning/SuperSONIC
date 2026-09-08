@@ -47,11 +47,11 @@ spec:
 
   triggers:
   - type: prometheus
-    metricType: Value
+    metricType: {{ .Values.keda.metricType | default "AverageValue" }}
     metadata:
       serverAddress: {{ include "supersonic.prometheusUrl" . }}
       metricName: autoscaler-metric
-      threshold: {{ .Values.serverLoadThreshold | quote }}
+      threshold: {{ include "supersonic.defaultThreshold" . | quote }}
       ignoreNullValues: "true"
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}

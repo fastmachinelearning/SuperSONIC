@@ -5,8 +5,6 @@
 # Based on Purdue AF production values:
 # https://github.com/PurdueAF/purdue-af/blob/main/apps/sonic/supersonic/values.yaml
 
-serverLoadThreshold: 100
-
 scaleFromZero:
   enabled: true
   readyTimeoutSeconds: 300
