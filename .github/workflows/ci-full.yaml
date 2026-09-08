@@ -31,6 +31,9 @@ jobs:
 
       - name: Install Prometheus Operator CRDs
         run: |
+          # Pinned: 90.0.0 refuses to template the control-plane ServiceMonitors
+          # unless prometheus.enabled is true, and this step wants only the
+          # operator and its CRDs. Bump deliberately, not implicitly.
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
           kubectl create namespace monitoring
@@ -82,19 +85,19 @@ jobs:
           kubectl wait --for condition=AbleToScale hpa -l app.kubernetes.io/component=keda --timeout 180s -n cms
           kubectl wait --for condition=Ready so -l app.kubernetes.io/component=keda --timeout 180s -n cms
 
-      - name: Triton idle at zero replicas
+      - name: Inference server idle at zero replicas
         run: |
-          echo "Waiting for Triton Deployment spec.replicas=0..."
+          echo "Waiting for inference server Deployment spec.replicas=0..."
           for i in $(seq 1 36); do
-            replicas=$(kubectl get deploy -l app.kubernetes.io/component=triton -n cms -o jsonpath='{.items[0].spec.replicas}')
-            echo "Triton spec.replicas=${replicas:-unset}"
+            replicas=$(kubectl get deploy -l app.kubernetes.io/component=inference-server -n cms -o jsonpath='{.items[0].spec.replicas}')
+            echo "Inference server spec.replicas=${replicas:-unset}"
             if [ "${replicas}" = "0" ]; then
-              kubectl get deploy,pod -l app.kubernetes.io/component=triton -n cms
+              kubectl get deploy,pod -l app.kubernetes.io/component=inference-server -n cms
               exit 0
             fi
             sleep 5
           done
-          echo "Triton did not scale to 0 replicas"
+          echo "Inference server did not scale to 0 replicas"
           exit 1
 
       - name: Validate Deployment

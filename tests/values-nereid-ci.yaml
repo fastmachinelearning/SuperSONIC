@@ -1,0 +1,85 @@
+# CI values for the Nereid job: a single CPU server with the vendored model3
+# fixture, behind Envoy. No CVMFS, no Prometheus, no KEDA, so the job needs
+# only a bare kind cluster.
+
+inferenceServer:
+  type: nereid
+
+  # TODO: pin a released tag once nereid-server publishes one.
+  image: ghcr.io/ngpaladi/nereid-server:latest
+
+  # Nereid reads nereid.yaml; use the image's entrypoint.
+  command: null
+  args: null
+
+  replicas: 1
+
+  resources:
+    limits: { cpu: 1, memory: 2G }
+    requests: { cpu: 1, memory: "512Mi" }
+
+  service:
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
+
+  nereid:
+    config:
+      server:
+        bind_addr: "[::]:8001"
+        http_addr: "[::]:8002"
+        ml_backends_path: "/models"
+      models:
+        - name: model3
+          device: cpu
+          queue_capacity: 16
+
+  # The fixture ConfigMap is the model *folder*, so it mounts at
+  # <ml_backends_path>/<model name> rather than at ml_backends_path itself.
+  modelRepository:
+    enabled: true
+    storageType: "configMap"
+    mountPath: "/models/model3"
+    configMap:
+      name: nereid-model-fixture
+
+  readinessProbe:
+    reset: false
+    command: null
+    httpGet:
+      path: /v2/health/ready
+      port: metrics
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+
+  startupProbe:
+    reset: false
+    httpGet:
+      path: /v2/health/live
+      port: metrics
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    failureThreshold: 30
+    timeoutSeconds: 5
+
+envoy:
+  enabled: true
+  resources:
+    requests:
+      cpu: 0.1
+      memory: "128Mi"
+
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+keda:
+  enabled: false
+
+metricsCollector:
+  enabled: false

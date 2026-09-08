@@ -128,7 +128,7 @@
           "useBackend": false
         }
       ],
-      "title": "Number of Triton Servers",
+      "title": "Number of Inference Servers",
       "type": "stat"
     },
     {
@@ -136,7 +136,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Latency components measured by Triton servers, as well as total latency measured at proxy.",
+      "description": "Latency components measured by the inference servers, as well as total latency measured at proxy.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -502,7 +502,7 @@
           "useBackend": false
         }
       ],
-      "title": "Number of Triton Servers",
+      "title": "Number of Inference Servers",
       "type": "timeseries"
     },
     {
