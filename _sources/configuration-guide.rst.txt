@@ -163,10 +163,10 @@ default configuration completely (the configuration file must be supplied as a C
        configmap_name: external-envoy-config
        configmap_key: envoy.yaml
 
-.. warning::
-
-   ``scaleFromZero.enabled`` cannot be used with ``envoy.external_config.load_from_configmap``.
-   Scale-from-zero injects Envoy clusters and a Lua filter that an external ConfigMap would replace.
+``scaleFromZero`` and the prometheus-based rate limiter work with an external
+configuration only if it carries the clusters, Lua filter and routes that the generated
+configuration would have added (see ``templates/envoy/configmaps.yaml``); the chart does
+not check for them.
 
 5. (Optional) Configure Rate Limiting in Envoy Proxy
 ======================================================
@@ -408,7 +408,7 @@ count. Helm upgrades keep the live ScaledObject ``minReplicaCount`` so they do n
 interrupt an active hold. The hold deadline is stored as an annotation on the
 ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
 and none can release a peer's active hold. ``scaleFromZero`` requires ``keda.enabled`` and
-``envoy.enabled``, and cannot be used with an external Envoy ConfigMap.
+``envoy.enabled``.
 
 Do not set ``keda.zeroIdleReplicas: true`` together with ``minReplicaCount: 0``.
 ``zeroIdleReplicas`` sets KEDA ``idleReplicaCount`` to 0 and cannot scale from 0 back to 1

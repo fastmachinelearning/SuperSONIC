@@ -230,11 +230,10 @@ default configuration completely (the configuration file must be supplied as a C
 <span class="w">    </span><span class="nt">configmap_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.yaml</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code class="docutils literal notranslate"><span class="pre">scaleFromZero.enabled</span></code> cannot be used with <code class="docutils literal notranslate"><span class="pre">envoy.external_config.load_from_configmap</span></code>.
-Scale-from-zero injects Envoy clusters and a Lua filter that an external ConfigMap would replace.</p>
-</div>
+<p><code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> and the prometheus-based rate limiter work with an external
+configuration only if it carries the clusters, Lua filter and routes that the generated
+configuration would have added (see <code class="docutils literal notranslate"><span class="pre">templates/envoy/configmaps.yaml</span></code>); the chart does
+not check for them.</p>
 </section>
 <section id="optional-configure-rate-limiting-in-envoy-proxy">
 <h2>5. (Optional) Configure Rate Limiting in Envoy Proxy<a class="headerlink" href="#optional-configure-rate-limiting-in-envoy-proxy" title="Link to this heading"></a></h2>
@@ -445,7 +444,7 @@ count. Helm upgrades keep the live ScaledObject <code class="docutils literal no
 interrupt an active hold. The hold deadline is stored as an annotation on the
 ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
 and none can release a peer’s active hold. <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> requires <code class="docutils literal notranslate"><span class="pre">keda.enabled</span></code> and
-<code class="docutils literal notranslate"><span class="pre">envoy.enabled</span></code>, and cannot be used with an external Envoy ConfigMap.</p>
+<code class="docutils literal notranslate"><span class="pre">envoy.enabled</span></code>.</p>
 <p>Do not set <code class="docutils literal notranslate"><span class="pre">keda.zeroIdleReplicas:</span> <span class="pre">true</span></code> together with <code class="docutils literal notranslate"><span class="pre">minReplicaCount:</span> <span class="pre">0</span></code>.
 <code class="docutils literal notranslate"><span class="pre">zeroIdleReplicas</span></code> sets KEDA <code class="docutils literal notranslate"><span class="pre">idleReplicaCount</span></code> to 0 and cannot scale from 0 back to 1
 when the load metric is scraped from Triton. Use <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> for that.</p>
