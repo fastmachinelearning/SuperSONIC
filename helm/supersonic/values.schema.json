@@ -15,7 +15,7 @@
       "type": "string"
     },
     "serverAdmissionThreshold": {
-      "type": "number"
+      "type": "integer"
     },
     "scaleFromZero": {
       "type": "object",
