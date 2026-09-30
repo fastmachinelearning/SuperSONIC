@@ -22,7 +22,8 @@ spec:
   scaleTargetRef:
     name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
-  pollingInterval: {{ .Values.keda.pollingInterval }}
+  {{- /* 0 is not a valid KEDA polling interval (busy loop, rejected by KEDA >= 2.20); fall back to the default. */}}
+  pollingInterval: {{ .Values.keda.pollingInterval | default 10 }}
   cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
   idleReplicaCount: 0

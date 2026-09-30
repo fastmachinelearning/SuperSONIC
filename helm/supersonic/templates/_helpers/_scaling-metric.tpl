@@ -12,7 +12,8 @@ work needs:
               of Triton's request-duration minus queue-duration counters
               (us -> /1e6). Ensemble and BLS parent models report their
               composing models' time again under their own model label;
-              exclude them with .Values.serverLoadExcludeModels.
+              exclude them with .Values.serverLoadExcludeModels (a regex
+              inserted verbatim as a PromQL raw string).
   R_healthy - Triton endpoints Envoy routes to (max across Envoy pods).
 
 clamp_min(v, s) is PromQL for max(v, s). The floors encode that a healthy
@@ -39,10 +40,11 @@ Keep it at >= 4x the Prometheus scrape interval.
 
 {{/*
 Extra matcher for the Triton selectors: excludes ensemble/BLS parent models.
-Renders nothing when serverLoadExcludeModels is empty.
+Renders nothing when serverLoadExcludeModels is empty. The regex is a PromQL
+raw (backtick) string, so backslashes and quotes need no escaping.
 */}}
 {{- define "supersonic.tritonModelMatcher" -}}
-{{- with .Values.serverLoadExcludeModels }}, model!~"{{ . }}"{{- end -}}
+{{- with .Values.serverLoadExcludeModels }}, model!~`{{ . }}`{{- end -}}
 {{- end -}}
 
 {{/*

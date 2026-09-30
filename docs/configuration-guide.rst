@@ -344,17 +344,23 @@ Limitations
   under the parent model *and* under each composing model, and the parent's
   request time spans the composing models' queue waits. ``L_service`` then
   double-counts execution and absorbs queueing, and the metric stops reacting to
-  overload. Exclude the parent models with ``serverLoadExcludeModels`` (a PromQL
-  regex, e.g. ``"my_ensemble|.*_bls"``); the composing models carry the real
-  execution time.
+  overload. Exclude the parent models with ``serverLoadExcludeModels``, a PromQL
+  regex inserted verbatim as a raw string (e.g. ``"my_ensemble|.*_bls"``; any
+  regex without a backtick works). For ensembles the composing models carry all
+  execution time; for a BLS parent, work done in the parent's own Python code is
+  no longer counted once it is excluded. A regex that matches every loaded model
+  empties the metric, which reads as no load, so check it first with
+  ``count by (model) (nv_inference_request_duration_us{release="<name>", model!~"<regex>"})``.
 - **Failed requests** count as in-flight work in ``L_envoy`` but not in
   ``L_service``, so a model that returns errors scales the fleet up, not down.
 - **Envoy's default circuit breaker** allows 1024 concurrent upstream requests per
   Envoy replica. Requests beyond it are rejected with ``UNAVAILABLE`` and are
   invisible to both metrics, so ``L_envoy`` saturates there.
-- **No data is no load.** A lost Envoy or Triton scrape target, or a Prometheus
-  outage longer than the scale-down window, reads as zero load and shrinks the
-  fleet to ``keda.minReplicaCount``.
+- **No data is no load.** An empty query result (a lost Envoy or Triton scrape
+  target, a missing ``release`` label, the wrong Prometheus) reads as zero load
+  and shrinks the fleet to ``keda.minReplicaCount``. An unreachable Prometheus is
+  different: KEDA and the HPA keep the current replica count, and the rate
+  limiter rejects ``RepositoryIndex`` unless ``scaleFromZero`` is enabled.
 
 Thresholds
 -----------
@@ -382,8 +388,13 @@ startup, so restart them after changing either.
 default query and its scale changed, so remove a leftover
 ``serverLoadThreshold: 100`` from your values file. With the default metric it
 pins Triton at ``keda.minReplicaCount`` (``helm install`` prints a warning). To
-keep the old behaviour instead, set ``serverLoadMetric`` to the old query, keep
-the threshold, and set ``serverAdmissionThreshold`` to the same value.
+keep the old behaviour instead, keep the threshold, set
+``serverAdmissionThreshold`` to the same value, and set ``serverLoadMetric`` to
+the old query, where ``<release>`` is the instance name::
+
+   sum by (release) (rate(nv_inference_queue_duration_us{release="<release>"}[30s]))
+   /
+   sum by (release) ((rate(nv_inference_exec_count{release="<release>"}[30s]) * 1000) + 0.001)
 
 Custom metrics
 ---------------
@@ -486,9 +497,10 @@ HPA evaluation and scale down only after the metric has stayed low for 90 second
 
 Scaling down removes pods that may hold requests. Triton finishes them within
 ``--exit-timeout-secs`` (60 seconds in the default ``triton.args``), which must cover the
-longest request and fit inside the pod's termination grace period (60 seconds); requests
-routed to a terminating pod before Envoy's next endpoint refresh fail with ``UNAVAILABLE``
-and are not retried.
+longest request and fit inside the pod's termination grace period (60 seconds); inference
+requests routed to a terminating pod before Envoy's next endpoint refresh fail with
+``UNAVAILABLE`` and are not retried (only the scale-from-zero ``RepositoryIndex`` route has
+a retry policy).
 
 To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC

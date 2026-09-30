@@ -33,7 +33,7 @@ default metric reads about 1 per busy replica (default threshold 1.5). Remove a 
 over from the queue-latency metric, or set serverLoadMetric to that query.
 {{- end }}
 
-Admission threshold (Envoy rate limiter, applied to the scaling metric per healthy replica): {{ include "supersonic.admissionThreshold" . }}
+Admission threshold (Envoy rate limiter{{ if eq .Values.serverLoadMetric "" }}, applied to the scaling metric per healthy replica{{ else }}, applied to serverLoadMetric verbatim{{ end }}): {{ include "supersonic.admissionThreshold" . }}
 
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC

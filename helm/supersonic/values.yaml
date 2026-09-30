@@ -25,11 +25,12 @@ serverLoadThreshold: 1.5
 # scrapes every 15s.
 serverLoadRateInterval: "30s"
 
-# -- PromQL regex of Triton models to exclude from the default metric. Ensemble and BLS
-# parent models report their composing models' queue and execution time again under
-# their own model label, which makes the metric stop reacting to overload: list the
-# parent model names here (e.g. "my_ensemble|.*_bls"); the composing models carry the
-# real execution time.
+# -- PromQL regex of Triton models to exclude from the default metric, inserted verbatim
+# as a raw string (any regex without a backtick). Ensemble and BLS parent models report
+# their composing models' queue and execution time again under their own model label,
+# which makes the metric stop reacting to overload: list the parent model names here
+# (e.g. "my_ensemble"); the composing models carry the execution time. A regex that
+# matches every loaded model empties the metric, which reads as no load.
 serverLoadExcludeModels: ""
 
 # -- Threshold for Envoy's prometheus-based rate limiter (scaling metric per healthy
@@ -251,8 +252,8 @@ envoy:
 keda:
 
   # -- Enable autoscaling (requires Prometheus to also be enabled).
-  # KEDA scales Triton to ceil(metric / ``serverLoadThreshold``) replicas,
-  # where the metric is set by ``serverLoadMetric``.
+  # KEDA scales Triton to ceil(metric / ``serverLoadThreshold``) replicas with the default
+  # metric; see ``keda.metricType`` for the arithmetic used with a custom ``serverLoadMetric``.
   enabled: false
 
   # -- How the HPA interprets the scaling metric. Leave empty to use AverageValue with the
@@ -268,16 +269,17 @@ keda:
   minReplicaCount: 1
   maxReplicaCount: 2
 
-  # -- How often KEDA checks whether the trigger is active, in seconds. This governs scaling
-  # to zero and from zero to one replica; scaling between one and maxReplicaCount re-evaluates
-  # on the HPA sync period (15s by default), and each evaluation queries Prometheus.
+  # -- How often KEDA checks whether the trigger is active, in seconds (at least 1; 0 falls
+  # back to 10). This governs scaling to zero and from zero to one replica; scaling between
+  # one and maxReplicaCount re-evaluates on the HPA sync period (15s by default), and each
+  # evaluation queries Prometheus.
   pollingInterval: 10
 
   # -- Seconds the scaling metric must stay at or below activationThreshold before KEDA scales
   # Triton to zero replicas. Only applies when scaling to zero (minReplicaCount 0 or
   # zeroIdleReplicas); scaling between 1 and maxReplicaCount is governed by scaleUp and
-  # scaleDown. An empty query result (no Envoy or Triton series, Prometheus outage) counts
-  # as no load.
+  # scaleDown. An empty query result (no Envoy or Triton series) counts as no load; an
+  # unreachable Prometheus keeps the current replica count instead.
   cooldownPeriod: 300
 
   # -- Metric value at or below which the trigger counts as inactive for scaling to zero.
