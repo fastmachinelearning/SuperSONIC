@@ -14,8 +14,11 @@
     "serverLoadRateInterval": {
       "type": "string"
     },
+    "serverLoadExcludeModels": {
+      "type": "string"
+    },
     "serverAdmissionThreshold": {
-      "type": "integer"
+      "type": "number"
     },
     "scaleFromZero": {
       "type": "object",
@@ -533,6 +536,9 @@
         "cooldownPeriod": {
           "type": "integer"
         },
+        "activationThreshold": {
+          "type": "number"
+        },
         "zeroIdleReplicas": {
           "type": "boolean"
         },
@@ -576,6 +582,7 @@
         }
       },
       "required": [
+        "activationThreshold",
         "cooldownPeriod",
         "enabled",
         "maxReplicaCount",
@@ -1361,6 +1368,7 @@
     "prometheus",
     "scaleFromZero",
     "serverAdmissionThreshold",
+    "serverLoadExcludeModels",
     "serverLoadMetric",
     "serverLoadRateInterval",
     "serverLoadThreshold",

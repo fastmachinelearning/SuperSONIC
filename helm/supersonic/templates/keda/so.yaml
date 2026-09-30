@@ -22,8 +22,8 @@ spec:
   scaleTargetRef:
     name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
-  pollingInterval: {{ .Values.keda.pollingInterval | default 10 }}
-  cooldownPeriod: {{ .Values.keda.cooldownPeriod | default 300 }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
   idleReplicaCount: 0
 {{- end }}
@@ -47,11 +47,15 @@ spec:
 
   triggers:
   - type: prometheus
-    metricType: {{ .Values.keda.metricType | default "AverageValue" }}
+    {{- /* Default metric: fleet-wide "replicas needed". Custom metric: per-replica, as before the default metric. */}}
+    metricType: {{ .Values.keda.metricType | default (ternary "Value" "AverageValue" (ne .Values.serverLoadMetric "")) }}
     metadata:
       serverAddress: {{ include "supersonic.prometheusUrl" . }}
       metricName: autoscaler-metric
       threshold: {{ include "supersonic.defaultThreshold" . | quote }}
+      {{- with .Values.keda.activationThreshold }}
+      activationThreshold: {{ . | quote }}
+      {{- end }}
       ignoreNullValues: "true"
       query: |-
         {{ include "supersonic.defaultMetric" . | nindent 8 }}
