@@ -350,7 +350,7 @@ Limitations
   execution time; for a BLS parent, work done in the parent's own Python code is
   no longer counted once it is excluded. A regex that matches every loaded model
   empties the metric, which reads as no load, so check it first with
-  ``count by (model) (nv_inference_request_duration_us{release="<name>", model!~"<regex>"})``.
+  ``count by (model) (nv_inference_request_duration_us{release="<name>", model!~`<regex>`})``.
 - **Failed requests** count as in-flight work in ``L_envoy`` but not in
   ``L_service``, so a model that returns errors scales the fleet up, not down.
 - **Envoy's default circuit breaker** allows 1024 concurrent upstream requests per
