@@ -204,7 +204,8 @@ There are two types of rate limiting available in Envoy Proxy: *listener-level*,
   At the moment, this functionality is configured to only reject ``RepositoryIndex`` requests to Triton servers, and it ignores
   any other requests in order not to slow down the inferences.
 
-  The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).
+  The rate limiter evaluates the autoscaler's scaling metric per healthy Triton replica and rejects
+  ``RepositoryIndex`` requests above ``serverAdmissionThreshold`` (see step 8).
 
 6. (Optional) Configure Authentication in Envoy Proxy
 ======================================================
@@ -298,7 +299,7 @@ Each input is measured — the ``rate()`` of a cumulative time counter equals th
 mean number of requests inside that stage:
 
 - ``L_envoy`` — requests in flight between Envoy and Triton (queued, executing,
-  or on the wire): ``sum(rate(envoy_cluster_upstream_rq_time_sum{...}[1m])) / 1e3``.
+  or on the wire): ``sum(rate(envoy_cluster_upstream_rq_time_sum{...}[30s])) / 1e3``.
 - ``L_service`` — requests being executed across all models and pods:
   ``sum(rate(nv_inference_request_duration_us − nv_inference_queue_duration_us)) / 1e6``.
   Models are weighted by the time they consume, so the metric has no
@@ -318,16 +319,18 @@ are served, and it keeps growing linearly with overload.
 Thresholds
 -----------
 
-- ``serverLoadThreshold`` (default ``2``) — KEDA scales to
-  ``ceil(metric / threshold)`` (``metricType: AverageValue``). ``2`` targets
-  "waiting ≈ serving"; ``1.5`` trades GPUs for latency. The unloaded floor is
+- ``serverLoadThreshold`` (default ``1.5``) — KEDA scales to
+  ``ceil(metric / threshold)`` (``metricType: AverageValue``). ``1.5`` keeps
+  queueing at about half the service time per replica; ``2`` tolerates
+  "waiting ≈ serving" and trades latency for GPUs. The unloaded floor is
   ~1.2–1.3 (network transit), so values below that over-provision.
 - ``serverAdmissionThreshold`` (default ``3``) — Envoy rejects new
   ``RepositoryIndex`` requests when the per-replica metric exceeds it. Kept
   above ``serverLoadThreshold``: the autoscaler settles near its threshold, and
   gating admission there would reject clients during normal operation.
-- ``serverLoadRateInterval`` (default ``1m``) — the ``rate()`` window; keep it
-  at or above 4x the Prometheus scrape interval.
+- ``serverLoadRateInterval`` (default ``30s``) — the ``rate()`` window; keep it
+  at or above 4x the Prometheus scrape interval. The bundled Prometheus scrapes
+  every 5s; use ``1m`` with an external Prometheus that scrapes every 15s.
 
 Custom metrics
 ---------------
@@ -389,10 +392,15 @@ can be enabled via the ``keda.enabled`` parameter in the values file.
 
 The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
 the number of Triton servers can scale. ``keda.pollingInterval`` is how often KEDA queries
-Prometheus, and ``keda.cooldownPeriod`` is how long the load metric must stay below the
-threshold before KEDA scales down to ``minReplicaCount``.
+Prometheus, and ``keda.cooldownPeriod`` is how long the load metric must report no load before
+KEDA scales Triton to zero replicas (it only applies with ``minReplicaCount: 0``; scaling
+between 1 and ``maxReplicaCount`` is governed by the HPA behavior below).
 
-Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:
+``keda.scaleUp`` and ``keda.scaleDown`` map to the HPA scaling behavior: the HPA adds or
+removes at most ``stepsize`` replicas per ``periodSeconds``, and ``stabilizationWindowSeconds``
+is how long the lowest (for scale-up) or highest (for scale-down) desired replica count from
+recent polls keeps overriding the latest one. The defaults react to load within one poll and
+scale down only after the metric has stayed low for 90 seconds:
 
 .. code-block:: yaml
 
@@ -402,17 +410,17 @@ Additional optional parameters can control how quickly the autoscaler reacts to 
      minReplicaCount: 1
      maxReplicaCount: 10
 
-     pollingInterval: 30
-     cooldownPeriod: 120
+     pollingInterval: 10
+     cooldownPeriod: 300
 
      scaleUp:
-       stabilizationWindowSeconds: 120
-       periodSeconds: 30
-       stepsize: 1
+       stabilizationWindowSeconds: 0
+       periodSeconds: 15
+       stepsize: 2
      scaleDown:
-       stabilizationWindowSeconds: 120
-       periodSeconds: 30
-       stepsize: 1
+       stabilizationWindowSeconds: 90
+       periodSeconds: 15
+       stepsize: 2
 
 To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC

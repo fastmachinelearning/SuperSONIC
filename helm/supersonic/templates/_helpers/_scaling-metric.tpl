@@ -30,14 +30,14 @@ Range-vector window for rate() in the default metric.
 Keep it at >= 4x the Prometheus scrape interval.
 */}}
 {{- define "supersonic.rateInterval" -}}
-{{- default "1m" .Values.serverLoadRateInterval -}}
+{{- default "30s" .Values.serverLoadRateInterval -}}
 {{- end -}}
 
 {{/*
 Healthy Triton endpoints as seen by Envoy.
 */}}
 {{- define "supersonic.healthyReplicasExpr" -}}
-max(envoy_cluster_membership_healthy{release=~"{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"})
+max(envoy_cluster_membership_healthy{release="{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"})
 {{- end -}}
 
 {{/*
@@ -48,14 +48,14 @@ Get default scaling metric (extensive form: replicas needed)
   {{- printf "%s" .Values.serverLoadMetric -}}
 {{- else }}
 {{- $w := include "supersonic.rateInterval" . }}
-sum(rate(envoy_cluster_upstream_rq_time_sum{release=~"{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"}[{{ $w }}])) / 1e3
+sum(rate(envoy_cluster_upstream_rq_time_sum{release="{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"}[{{ $w }}])) / 1e3
 * scalar(clamp_min({{ include "supersonic.healthyReplicasExpr" . }}, 1))
 / clamp_min(
     clamp_min(
       (
-        sum(rate(nv_inference_request_duration_us{release=~"{{ include "supersonic.name" . }}"}[{{ $w }}]))
+        sum(rate(nv_inference_request_duration_us{release="{{ include "supersonic.name" . }}"}[{{ $w }}]))
         -
-        sum(rate(nv_inference_queue_duration_us{release=~"{{ include "supersonic.name" . }}"}[{{ $w }}]))
+        sum(rate(nv_inference_queue_duration_us{release="{{ include "supersonic.name" . }}"}[{{ $w }}]))
       ) / 1e6,
       scalar({{ include "supersonic.healthyReplicasExpr" . }})
     ),
@@ -79,10 +79,10 @@ Get admission metric (intensive form: load per healthy replica)
 {{- end }}
 
 {{/*
-Get scaling threshold (defaults to 2 if not set)
+Get scaling threshold (defaults to 1.5 if not set)
 */}}
 {{- define "supersonic.defaultThreshold" -}}
-{{- default 2 .Values.serverLoadThreshold -}}
+{{- default 1.5 .Values.serverLoadThreshold -}}
 {{- end -}}
 
 {{/*

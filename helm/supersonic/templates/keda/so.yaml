@@ -22,8 +22,8 @@ spec:
   scaleTargetRef:
     name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
-  pollingInterval: {{ .Values.keda.pollingInterval | default 30 }}
-  cooldownPeriod: {{ .Values.keda.cooldownPeriod | default 120 }}
+  pollingInterval: {{ .Values.keda.pollingInterval | default 10 }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod | default 300 }}
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
   idleReplicaCount: 0
 {{- end }}
@@ -33,17 +33,17 @@ spec:
     horizontalPodAutoscalerConfig:
       behavior:
         scaleDown:
-          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 120 $scaleDown }}
+          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 90 $scaleDown }}
           policies:
-            - periodSeconds: {{ dig "periodSeconds" 30 $scaleDown }}
+            - periodSeconds: {{ dig "periodSeconds" 15 $scaleDown }}
               type: Pods
-              value: {{ dig "stepsize" 1 $scaleDown }}
+              value: {{ dig "stepsize" 2 $scaleDown }}
         scaleUp:
-          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 120 $scaleUp }}
+          stabilizationWindowSeconds: {{ dig "stabilizationWindowSeconds" 0 $scaleUp }}
           policies:
-            - periodSeconds: {{ dig "periodSeconds" 30 $scaleUp }}
+            - periodSeconds: {{ dig "periodSeconds" 15 $scaleUp }}
               type: Pods
-              value: {{ dig "stepsize" 1 $scaleUp }}
+              value: {{ dig "stepsize" 2 $scaleUp }}
 
   triggers:
   - type: prometheus

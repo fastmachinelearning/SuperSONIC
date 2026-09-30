@@ -9,13 +9,13 @@
       "type": "string"
     },
     "serverLoadThreshold": {
-      "type": "integer"
+      "type": "number"
     },
     "serverLoadRateInterval": {
       "type": "string"
     },
     "serverAdmissionThreshold": {
-      "type": "integer"
+      "type": "number"
     },
     "scaleFromZero": {
       "type": "object",
