@@ -283,9 +283,8 @@ Prometheus is needed to scrape metrics for monitoring, as well as for the rate l
 8. (Optional) Configure Metrics for Scaling and Rate Limiting
 ===============================================================
 
-The autoscaler and the Prometheus-based rate limiter are driven by one Prometheus
-query, set by ``serverLoadMetric`` at the root of the values file and rendered in
-``templates/_helpers/_scaling-metric.tpl``.
+The autoscaler and the Prometheus-based rate limiter share one Prometheus query,
+set by ``serverLoadMetric`` and rendered in ``templates/_helpers/_scaling-metric.tpl``.
 
 The default metric
 -------------------
@@ -295,93 +294,61 @@ work needs**::
 
    R_needed = L_envoy / max(L_service / R_healthy, 1)
 
-Each input is measured — the ``rate()`` of a cumulative time counter equals the
-mean number of requests inside that stage:
+The ``rate()`` of a cumulative time counter is the mean number of requests inside
+that stage (Little's law):
 
-- ``L_envoy`` — requests in flight between Envoy and Triton (queued, executing,
-  or on the wire): ``sum(rate(envoy_cluster_upstream_rq_time_sum{...}[30s])) / 1e3``.
-- ``L_service`` — requests being executed across all models and pods:
+- ``L_envoy`` — requests in flight between Envoy and Triton:
+  ``sum(rate(envoy_cluster_upstream_rq_time_sum{...}[30s])) / 1e3``.
+- ``L_service`` — requests being executed:
   ``(sum(rate(nv_inference_request_duration_us{...}[30s])) - sum(rate(nv_inference_queue_duration_us{...}[30s]))) / 1e6``.
-  Models are weighted by the time they consume, so the metric has no
-  model-specific constants and one threshold works for any mixture.
 - ``R_healthy`` — Triton endpoints Envoy routes to:
   ``max(envoy_cluster_membership_healthy{...})``.
 
-In PromQL, ``clamp_min(v, s)`` spells ``max(v, s)``. The floors encode that a
-healthy replica can always execute at least one request (which lets an
-underutilized fleet scale down) and keep the division finite while Triton series
-exist with no healthy endpoint. Once no Triton pod exports metrics, the query
-returns no data: KEDA reads it as zero load (``ignoreNullValues``) and the rate
-limiter admits.
+Models are weighted by the time they consume, so the metric has no model-specific
+constants. The ``clamp_min`` floors encode that a healthy replica can always
+execute one request, which lets an idle fleet scale down, and keep the division
+finite. The rate limiter uses the metric per healthy replica: 1 means nothing
+queues, 2 means requests wait as long as they are served.
 
-The rate limiter uses the metric per healthy replica: in-flight requests per
-replica, with executing requests floored at one per replica. When every replica
-is busy this is the inflation clients experience: 1 means every in-flight request
-is being executed, 2 means requests wait as long as they are served, and it keeps
-growing linearly with overload.
+Requirements and limitations
+-----------------------------
 
-Requirements
--------------
-
-The default metric needs all of the following; the chart defaults provide them:
-
-- ``envoy.enabled: true``, with the Triton cluster named ``triton_grpc_service``
-  (as in the bundled Envoy configuration; keep the name in a custom one, step 4).
-- Prometheus scraping Envoy's admin port and Triton's metrics port with a
-  ``release`` label equal to the instance name. The bundled Prometheus and the
-  chart's ServiceMonitors do this; a hand-written scrape configuration for an
-  external Prometheus must add the label.
-- All inference traffic entering through Envoy. Requests sent directly to the
-  Triton service (gRPC port 8001 or HTTP port 8000) are executed but never
-  counted in ``L_envoy``, so they lower the metric: the autoscaler scales a loaded
-  fleet down and the rate limiter keeps admitting.
-
-Limitations
-------------
-
-- **Ensemble and BLS models** are reported under the parent model and under each
-  composing model, so ``L_service`` double-counts them and the metric under-reads
-  overload; use a custom ``serverLoadMetric`` that excludes the parent models.
-- **Failed requests** count as in-flight work in ``L_envoy`` but not in
-  ``L_service``, so a model that returns errors scales the fleet up, not down.
-- **Envoy's default circuit breaker** allows 1024 concurrent upstream requests per
-  Envoy replica. Requests beyond it are rejected with ``UNAVAILABLE`` and are
-  invisible to both metrics, so ``L_envoy`` saturates there.
-- **No data is no load.** An empty query result (a lost Envoy or Triton scrape
-  target, a missing ``release`` label, the wrong Prometheus) reads as zero load
-  and shrinks the fleet to ``keda.minReplicaCount``. An unreachable Prometheus is
-  different: KEDA and the HPA keep the current replica count, and the rate
-  limiter rejects ``RepositoryIndex`` unless ``scaleFromZero`` is enabled.
+- Envoy must be enabled with the Triton cluster named ``triton_grpc_service``, and
+  Prometheus must scrape Envoy and Triton with a ``release`` label (the chart
+  defaults do both).
+- All inference traffic must enter through Envoy; requests sent directly to the
+  Triton service are not counted and scale the fleet down.
+- Ensemble and BLS models are reported under the parent and under each composing
+  model, so the metric under-reads overload for them; use a custom
+  ``serverLoadMetric`` that excludes the parent models.
+- Failed requests count as load. Envoy's default circuit breaker caps in-flight
+  requests at 1024 per Envoy replica, invisibly to the metric.
+- An empty query result (lost scrape target, missing ``release`` label) reads as
+  zero load. An unreachable Prometheus keeps the current replica count and makes
+  the rate limiter reject ``RepositoryIndex`` unless ``scaleFromZero`` is enabled.
 
 Thresholds
 -----------
 
 - ``serverLoadThreshold`` (default ``1.5``) — KEDA scales to
-  ``ceil(metric / threshold)`` (``metricType: AverageValue``), within the HPA's
-  10% tolerance. ``1.5`` keeps queueing at about half the service time per
-  replica; ``2`` tolerates "waiting ≈ serving" and trades latency for GPUs. The
-  unloaded floor is ~1.2–1.3 (network transit), so values below that over-provision.
+  ``ceil(metric / threshold)``. ``1.5`` keeps queueing at about half the service
+  time per replica; ``2`` tolerates "waiting ≈ serving". The unloaded floor is
+  ~1.2–1.3, so values below that over-provision.
 - ``serverAdmissionThreshold`` (default ``3``) — Envoy rejects new
-  ``RepositoryIndex`` requests when the per-replica metric exceeds it. Kept
-  above ``serverLoadThreshold``: the autoscaler settles near its threshold, and
-  gating admission there would reject clients during normal operation.
-- ``serverLoadRateInterval`` (default ``30s``) — the ``rate()`` window. It must
-  hold at least two scrapes; keep it at or above 4x the scrape interval to
-  tolerate a missed one. The bundled Prometheus scrapes every 5s; use ``1m``
-  with an external Prometheus that scrapes every 15s.
+  ``RepositoryIndex`` requests when the per-replica metric exceeds it. Keep it
+  above ``serverLoadThreshold`` so admission is not gated at the operating point.
+- ``serverLoadRateInterval`` (default ``30s``) — the ``rate()`` window; keep it
+  at or above 4x the Prometheus scrape interval (``1m`` for a 15s scrape).
 
-Set fractional thresholds in a values file or with ``--set-json``:
-``helm --set serverLoadThreshold=1.5`` passes the decimal as a string, which the
-values schema rejects. Envoy pods read the query and the admission threshold at
-startup, so restart them after changing either.
+Fractional thresholds must come from a values file or ``--set-json``; ``--set``
+passes decimals as strings. Envoy reads the query and the admission threshold at
+startup, so restart its pods after changing them.
 
-**Upgrading from the queue-latency metric** (the default before this one): the
-default query and its scale changed, so remove a leftover
-``serverLoadThreshold: 100`` from your values file. With the default metric it
-pins Triton at ``keda.minReplicaCount`` (``helm install`` prints a warning). To
-keep the old behaviour instead, keep the threshold, set
-``serverAdmissionThreshold`` to the same value, and set ``serverLoadMetric`` to
-the old query, where ``<release>`` is the instance name::
+**Upgrading from the queue-latency metric**: remove a leftover
+``serverLoadThreshold: 100``; with the default metric it pins Triton at
+``keda.minReplicaCount`` (``helm install`` warns). To keep the old behaviour, keep
+the threshold, set ``serverAdmissionThreshold`` to the same value, and set
+``serverLoadMetric`` to the old query::
 
    sum by (release) (rate(nv_inference_queue_duration_us{release="<release>"}[30s]))
    /
@@ -390,13 +357,10 @@ the old query, where ``<release>`` is the instance name::
 Custom metrics
 ---------------
 
-If ``serverLoadMetric`` is set, it is used **verbatim** by both consumers: KEDA
-compares it against ``serverLoadThreshold`` and the rate limiter against
-``serverAdmissionThreshold``, so set the latter in the custom metric's units when
-the rate limiter is enabled. ``keda.metricType`` then defaults to ``Value``
-(per-replica semantics, ``desired = ceil(ready_replicas * metric / threshold)``,
-as before the default metric); set it to ``AverageValue`` for a custom fleet-wide
-metric.
+A custom ``serverLoadMetric`` is used verbatim by both consumers: KEDA compares
+it with ``serverLoadThreshold`` (``keda.metricType`` then defaults to ``Value``,
+i.e. per replica) and the rate limiter with ``serverAdmissionThreshold``, so set
+both in the metric's units.
 
 9. (Optional) Deploy Grafana Dashboard
 ==========================================
@@ -448,23 +412,17 @@ can be enabled via the ``keda.enabled`` parameter in the values file.
    Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
    Please contact cluster administrators if this step of installation fails.
 
-The parameters ``keda.minReplicaCount`` and ``keda.maxReplicaCount`` define the range in which
-the number of Triton servers can scale. ``keda.pollingInterval`` is how often KEDA checks
-whether the trigger is active, which governs scaling to zero and from zero to one replica;
-scaling between one and ``maxReplicaCount`` re-evaluates on the HPA sync period (15 seconds
-by default), and each evaluation queries Prometheus. ``keda.cooldownPeriod`` is how long the
-load metric must stay at or below ``keda.activationThreshold`` before KEDA scales Triton to
-zero replicas; it only applies when scaling to zero (``minReplicaCount: 0`` or
-``zeroIdleReplicas``). With the default ``activationThreshold`` of 0, any traffic through
-Envoy, including metadata or health probes, keeps the fleet alive; a value around 0.1 ignores
-such probes while a single busy client still reads about 1. An empty query result counts as
-no load.
+``keda.minReplicaCount`` and ``keda.maxReplicaCount`` bound the number of Triton servers.
+``keda.pollingInterval`` is how often KEDA checks whether the trigger is active (scaling to
+and from zero); scaling between one and ``maxReplicaCount`` follows the HPA sync period
+(15 seconds). ``keda.cooldownPeriod`` is how long the metric must stay at or below
+``keda.activationThreshold`` before KEDA scales to zero; with the default
+``activationThreshold`` of 0 any traffic through Envoy keeps the fleet alive, and about 0.1
+ignores probe traffic.
 
-``keda.scaleUp`` and ``keda.scaleDown`` map to the HPA scaling behavior: the HPA adds or
-removes at most ``stepsize`` replicas per ``periodSeconds``, and ``stabilizationWindowSeconds``
-is how long the lowest (for scale-up) or highest (for scale-down) desired replica count from
-recent evaluations keeps overriding the latest one. The defaults react to load within one
-HPA evaluation and scale down only after the metric has stayed low for 90 seconds:
+``keda.scaleUp`` and ``keda.scaleDown`` set the HPA behavior: at most ``stepsize`` replicas
+per ``periodSeconds``, after a ``stabilizationWindowSeconds`` look-back. The defaults react
+within one HPA evaluation and scale down after 90 seconds of low load:
 
 .. code-block:: yaml
 
@@ -486,12 +444,10 @@ HPA evaluation and scale down only after the metric has stayed low for 90 second
        periodSeconds: 15
        stepsize: 2
 
-Scaling down removes pods that may hold requests. Triton finishes them within
-``--exit-timeout-secs`` (60 seconds in the default ``triton.args``), which must cover the
-longest request and fit inside the pod's termination grace period (60 seconds); inference
-requests routed to a terminating pod before Envoy's next endpoint refresh fail with
-``UNAVAILABLE`` and are not retried (only the scale-from-zero ``RepositoryIndex`` route has
-a retry policy).
+Scaling down removes pods that may hold requests; Triton finishes them within
+``--exit-timeout-secs`` (60 seconds by default), which must fit inside the pod's 60-second
+termination grace period. Inference requests that reach a terminating pod fail with
+``UNAVAILABLE`` and are not retried.
 
 To keep **zero** Triton replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC
