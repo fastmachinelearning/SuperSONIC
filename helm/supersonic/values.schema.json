@@ -14,9 +14,6 @@
     "serverLoadRateInterval": {
       "type": "string"
     },
-    "serverLoadExcludeModels": {
-      "type": "string"
-    },
     "serverAdmissionThreshold": {
       "type": "number"
     },
@@ -1368,7 +1365,6 @@
     "prometheus",
     "scaleFromZero",
     "serverAdmissionThreshold",
-    "serverLoadExcludeModels",
     "serverLoadMetric",
     "serverLoadRateInterval",
     "serverLoadThreshold",

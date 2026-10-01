@@ -10,10 +10,7 @@ work needs:
               Envoy's cumulative upstream request-time counter (ms -> /1e3).
   L_service - mean requests being executed across all models and pods: rate
               of Triton's request-duration minus queue-duration counters
-              (us -> /1e6). Ensemble and BLS parent models report their
-              composing models' time again under their own model label;
-              exclude them with .Values.serverLoadExcludeModels (a regex
-              inserted verbatim as a PromQL raw string).
+              (us -> /1e6).
   R_healthy - Triton endpoints Envoy routes to (max across Envoy pods).
 
 clamp_min(v, s) is PromQL for max(v, s). The floors encode that a healthy
@@ -39,15 +36,6 @@ Keep it at >= 4x the Prometheus scrape interval.
 {{- end -}}
 
 {{/*
-Extra matcher for the Triton selectors: excludes ensemble/BLS parent models.
-Renders nothing when serverLoadExcludeModels is empty. The regex is a PromQL
-raw (backtick) string, so backslashes and quotes need no escaping.
-*/}}
-{{- define "supersonic.tritonModelMatcher" -}}
-{{- with .Values.serverLoadExcludeModels }}, model!~`{{ . }}`{{- end -}}
-{{- end -}}
-
-{{/*
 Healthy Triton endpoints as seen by Envoy.
 */}}
 {{- define "supersonic.healthyReplicasExpr" -}}
@@ -62,15 +50,14 @@ Get default scaling metric (extensive form: replicas needed)
   {{- printf "%s" .Values.serverLoadMetric -}}
 {{- else }}
 {{- $w := include "supersonic.rateInterval" . }}
-{{- $m := include "supersonic.tritonModelMatcher" . }}
 sum(rate(envoy_cluster_upstream_rq_time_sum{release="{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"}[{{ $w }}])) / 1e3
 * scalar(clamp_min({{ include "supersonic.healthyReplicasExpr" . }}, 1))
 / clamp_min(
     clamp_min(
       (
-        sum(rate(nv_inference_request_duration_us{release="{{ include "supersonic.name" . }}"{{ $m }}}[{{ $w }}]))
+        sum(rate(nv_inference_request_duration_us{release="{{ include "supersonic.name" . }}"}[{{ $w }}]))
         -
-        sum(rate(nv_inference_queue_duration_us{release="{{ include "supersonic.name" . }}"{{ $m }}}[{{ $w }}]))
+        sum(rate(nv_inference_queue_duration_us{release="{{ include "supersonic.name" . }}"}[{{ $w }}]))
       ) / 1e6,
       scalar({{ include "supersonic.healthyReplicasExpr" . }})
     ),

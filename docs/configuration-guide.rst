@@ -303,8 +303,7 @@ mean number of requests inside that stage:
 - ``L_service`` — requests being executed across all models and pods:
   ``(sum(rate(nv_inference_request_duration_us{...}[30s])) - sum(rate(nv_inference_queue_duration_us{...}[30s]))) / 1e6``.
   Models are weighted by the time they consume, so the metric has no
-  model-specific constants and one threshold works for any mixture of plain
-  models (ensembles need the exclusion described under Limitations).
+  model-specific constants and one threshold works for any mixture.
 - ``R_healthy`` — Triton endpoints Envoy routes to:
   ``max(envoy_cluster_membership_healthy{...})``.
 
@@ -340,17 +339,9 @@ The default metric needs all of the following; the chart defaults provide them:
 Limitations
 ------------
 
-- **Ensemble and BLS models.** Triton reports an ensemble (or BLS parent) request
-  under the parent model *and* under each composing model, and the parent's
-  request time spans the composing models' queue waits. ``L_service`` then
-  double-counts execution and absorbs queueing, and the metric stops reacting to
-  overload. Exclude the parent models with ``serverLoadExcludeModels``, a PromQL
-  regex inserted verbatim as a raw string (e.g. ``"my_ensemble|.*_bls"``; any
-  regex without a backtick works). For ensembles the composing models carry all
-  execution time; for a BLS parent, work done in the parent's own Python code is
-  no longer counted once it is excluded. A regex that matches every loaded model
-  empties the metric, which reads as no load, so check it first with
-  ``count by (model) (nv_inference_request_duration_us{release="<name>", model!~`<regex>`})``.
+- **Ensemble and BLS models** are reported under the parent model and under each
+  composing model, so ``L_service`` double-counts them and the metric under-reads
+  overload; use a custom ``serverLoadMetric`` that excludes the parent models.
 - **Failed requests** count as in-flight work in ``L_envoy`` but not in
   ``L_service``, so a model that returns errors scales the fleet up, not down.
 - **Envoy's default circuit breaker** allows 1024 concurrent upstream requests per
@@ -405,7 +396,7 @@ compares it against ``serverLoadThreshold`` and the rate limiter against
 the rate limiter is enabled. ``keda.metricType`` then defaults to ``Value``
 (per-replica semantics, ``desired = ceil(ready_replicas * metric / threshold)``,
 as before the default metric); set it to ``AverageValue`` for a custom fleet-wide
-metric. ``serverLoadExcludeModels`` does not apply to custom queries.
+metric.
 
 9. (Optional) Deploy Grafana Dashboard
 ==========================================

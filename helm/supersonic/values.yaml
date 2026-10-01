@@ -25,14 +25,6 @@ serverLoadThreshold: 1.5
 # scrapes every 15s.
 serverLoadRateInterval: "30s"
 
-# -- PromQL regex of Triton models to exclude from the default metric, inserted verbatim
-# as a raw string (any regex without a backtick). Ensemble and BLS parent models report
-# their composing models' queue and execution time again under their own model label,
-# which makes the metric stop reacting to overload: list the parent model names here
-# (e.g. "my_ensemble"); the composing models carry the execution time. A regex that
-# matches every loaded model empties the metric, which reads as no load.
-serverLoadExcludeModels: ""
-
 # -- Threshold for Envoy's prometheus-based rate limiter (scaling metric per healthy
 # replica). Kept above serverLoadThreshold so new clients are rejected only when
 # scaling can no longer keep up. With a custom serverLoadMetric, set it in that
