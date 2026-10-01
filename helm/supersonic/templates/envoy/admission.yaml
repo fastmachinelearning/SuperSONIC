@@ -5,9 +5,6 @@
 {{- if not .Values.envoy.enabled }}
 {{- fail "scaleFromZero.enabled requires envoy.enabled" }}
 {{- end }}
-{{- if .Values.envoy.external_config.load_from_configmap }}
-{{- fail "scaleFromZero.enabled is incompatible with envoy.external_config.load_from_configmap" }}
-{{- end }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:

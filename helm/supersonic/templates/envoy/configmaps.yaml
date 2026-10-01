@@ -303,7 +303,7 @@ data:
 {{- end }}
 ---
 
-{{- if and (include "supersonic.luaFilterEnabled" .) (not .Values.envoy.external_config.load_from_configmap) }}
+{{- if (include "supersonic.luaFilterEnabled" .) }}
 {{- /* Create a ConfigMap for the Lua filter */}}
 apiVersion: v1
 kind: ConfigMap
