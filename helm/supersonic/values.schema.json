@@ -9,7 +9,13 @@
       "type": "string"
     },
     "serverLoadThreshold": {
-      "type": "integer"
+      "type": "number"
+    },
+    "serverLoadRateInterval": {
+      "type": "string"
+    },
+    "serverAdmissionThreshold": {
+      "type": "number"
     },
     "scaleFromZero": {
       "type": "object",
@@ -512,6 +518,9 @@
         "enabled": {
           "type": "boolean"
         },
+        "metricType": {
+          "type": "string"
+        },
         "minReplicaCount": {
           "type": "integer"
         },
@@ -523,6 +532,9 @@
         },
         "cooldownPeriod": {
           "type": "integer"
+        },
+        "activationThreshold": {
+          "type": "number"
         },
         "zeroIdleReplicas": {
           "type": "boolean"
@@ -567,9 +579,11 @@
         }
       },
       "required": [
+        "activationThreshold",
         "cooldownPeriod",
         "enabled",
         "maxReplicaCount",
+        "metricType",
         "minReplicaCount",
         "pollingInterval",
         "scaleDown",
@@ -1350,7 +1364,9 @@
     "nameOverride",
     "prometheus",
     "scaleFromZero",
+    "serverAdmissionThreshold",
     "serverLoadMetric",
+    "serverLoadRateInterval",
     "serverLoadThreshold",
     "triton"
   ]

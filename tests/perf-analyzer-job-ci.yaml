@@ -67,7 +67,14 @@ spec:
             PY
 
             echo "Running perf_analyzer..."
-            for attempt in 1 2 3; do
+            # Retry until the budget runs out, not a fixed number of times: with
+            # scaleFromZero the index above can be served by a pod that is already
+            # terminating (the previous scale-to-zero may still be in progress on the
+            # kind node), and the replacement pod only becomes serving a minute or two
+            # later, so "no healthy upstream" here is transient.
+            attempt=0
+            while :; do
+              attempt=$((attempt + 1))
               perf_analyzer -i grpc -m "$MODEL" -u "$URL" \
                             --async -p 1 -b 100 --measurement-interval=5000 \
                             --concurrency-range=1:1 --input-data random 2>&1 | tee /tmp/perf.log || true

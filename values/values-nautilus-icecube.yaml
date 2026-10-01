@@ -1,5 +1,3 @@
-serverLoadThreshold: 100
-
 triton: 
   image: nvcr.io/nvidia/tritonserver:26.08-py3
   affinity:
