@@ -116,8 +116,7 @@ function envoy_on_request(request_handle)
         if prometheus_rate_limit_enabled then
             local query = SERVER_LOAD_METRIC
             local metric_threshold = tonumber(SERVER_LOAD_THRESHOLD)
-            -- Instant-query sample: "value":[<timestamp>,"<number>"]. The timestamp may be
-            -- a whole number; the number may be in exponent notation, NaN or Inf.
+            -- "value":[<timestamp>,"<number>"]; the timestamp may be whole, the number NaN/Inf.
             local query_response_template = '"value":%[[%d%.]+,"([^"]+)"%]'
             local encoded_query = encode_query(query)
 
@@ -160,21 +159,18 @@ function envoy_on_request(request_handle)
 
             request_handle:logInfo("Query response body: " .. body)
             local metric_value_str = string.match(body, query_response_template)
-            -- A successful query with no matching series ("result":[]) means no load: Envoy
-            -- has not proxied a request yet, or no Triton pod exports metrics. KEDA reads the
-            -- same response as 0 (ignoreNullValues).
+            -- No matching series means no load (KEDA reads it as 0 with ignoreNullValues).
             local empty_result = string.find(body, '"result":[]', 1, true) ~= nil
             request_handle:logInfo("Extracted metric: " .. tostring(metric_value_str))
 
             if metric_value_str then
-                -- Prometheus spells non-finite samples "NaN", "+Inf" and "-Inf", which
-                -- tonumber() does not parse on every Lua implementation.
+                -- tonumber() does not parse "NaN"/"+Inf" on every Lua implementation.
                 local metric_value = tonumber(metric_value_str)
                 if metric_value_str == "+Inf" then
                     metric_value = math.huge
                 end
                 if metric_value_str == "NaN" then
-                    -- No measurable load (KEDA reads NaN as 0 with ignoreNullValues).
+                    -- NaN: no measurable load.
                     request_handle:logInfo("Prometheus returned NaN; treating load as 0")
                     request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "accept_request", true)
                 elseif metric_value == nil then

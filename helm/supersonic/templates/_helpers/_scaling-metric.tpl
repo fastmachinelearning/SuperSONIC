@@ -1,30 +1,25 @@
 {{/*
 Scaling and admission metrics.
 
-The default scaling metric estimates how many replicas the current in-flight
-work needs:
+Default scaling metric: replicas needed by the current in-flight work,
 
   R_needed = L_envoy / max(L_service / R_healthy, 1)
 
-  L_envoy   - mean requests in flight between Envoy and Triton: rate of
-              Envoy's cumulative upstream request-time counter (ms -> /1e3).
-  L_service - mean requests being executed across all models and pods: rate
-              of Triton's request-duration minus queue-duration counters
-              (us -> /1e6).
-  R_healthy - Triton endpoints Envoy routes to (max across Envoy pods).
+  L_envoy   - requests in flight between Envoy and Triton (rate of the upstream
+              request-time counter, ms -> /1e3)
+  L_service - requests being executed (rate of Triton request minus queue
+              duration, us -> /1e6)
+  R_healthy - Triton endpoints Envoy routes to
 
-clamp_min(v, s) is PromQL for max(v, s). The floors encode that a healthy
-replica can always execute at least one request, and keep the division finite
-while Triton series exist with no healthy endpoint. Once no Triton pod exports
-metrics the query returns no data: KEDA reads it as 0 (ignoreNullValues) and
-the Lua filter treats it as no load.
+clamp_min is PromQL for max; the floors keep the division finite and let an
+idle fleet scale down. With no Triton series the query is empty, which both
+consumers read as no load.
 
-KEDA consumes "supersonic.defaultMetric" (the form above) with metricType
-AverageValue: desired = ceil(R_needed / serverLoadThreshold). The Envoy Lua
-filter consumes "supersonic.admissionMetric" (the same per healthy replica)
-and rejects RepositoryIndex above "supersonic.admissionThreshold".
-
-If .Values.serverLoadMetric is set, both helpers return it verbatim.
+KEDA uses "supersonic.defaultMetric" (metricType AverageValue, desired =
+ceil(R_needed / serverLoadThreshold)); the Envoy Lua filter uses
+"supersonic.admissionMetric" (per healthy replica) against
+"supersonic.admissionThreshold". A custom .Values.serverLoadMetric is
+returned verbatim by both.
 */}}
 
 {{/*

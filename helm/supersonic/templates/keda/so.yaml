@@ -22,7 +22,7 @@ spec:
   scaleTargetRef:
     name: {{ include "supersonic.tritonName" . }}
     kind: Deployment
-  {{- /* 0 is not a valid KEDA polling interval (busy loop, rejected by KEDA >= 2.20); fall back to the default. */}}
+  {{- /* 0 is not a valid polling interval; fall back to the default. */}}
   pollingInterval: {{ .Values.keda.pollingInterval | default 10 }}
   cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
 {{- if (eq .Values.keda.zeroIdleReplicas true) }}
@@ -48,7 +48,7 @@ spec:
 
   triggers:
   - type: prometheus
-    {{- /* Default metric: fleet-wide "replicas needed". Custom metric: per-replica, as before the default metric. */}}
+    {{- /* AverageValue for the default metric, Value (per replica) for a custom one. */}}
     metricType: {{ .Values.keda.metricType | default (ternary "Value" "AverageValue" (ne .Values.serverLoadMetric "")) }}
     metadata:
       serverAddress: {{ include "supersonic.prometheusUrl" . }}

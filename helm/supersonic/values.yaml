@@ -3,32 +3,20 @@
 # -- Unique identifier of SuperSONIC instance (equal to release name by default)
 nameOverride: ""
 
-# -- Prometheus query used by the KEDA autoscaler and (per healthy replica) by Envoy's
-# prometheus-based rate limiter. Leave empty for the default metric: requests in flight
-# between Envoy and Triton divided by requests being executed, i.e. how many replicas
-# the current load needs. Reads ~1 with no queueing, grows linearly with overload, and
-# has no model-specific constants. See templates/_helpers/_scaling-metric.tpl and the
-# configuration guide. A custom query set here is used verbatim by both consumers.
+# -- Prometheus query used by the KEDA autoscaler and, per healthy replica, by Envoy's
+# prometheus-based rate limiter. Empty selects the default metric: the number of replicas
+# the current in-flight work needs (see the configuration guide). A custom query is used verbatim.
 serverLoadMetric: ""
 
-# -- Threshold for the scaling metric. KEDA scales to ceil(metric / threshold), within the
-# HPA's 10% tolerance: 1.5 keeps queueing at about half the service time per replica;
-# 2 tolerates "waiting = serving" and trades latency for GPUs. Set fractional values in a
-# values file or with --set-json (helm --set passes decimals as strings, which the schema
-# rejects). Upgrading from the queue-latency metric: remove a leftover
-# ``serverLoadThreshold: 100``, it pins Triton at minReplicaCount with the default metric.
+# -- Scaling threshold: KEDA scales to ceil(metric / threshold). Set fractions from a values
+# file or --set-json. Remove a leftover ``serverLoadThreshold: 100`` when upgrading.
 serverLoadThreshold: 1.5
 
-# -- Range-vector window used by rate() in the default metric. It must hold at least two
-# scrapes; keep it at or above 4x your Prometheus scrape interval to tolerate a missed one.
-# The bundled Prometheus scrapes every 5s; use "1m" with an external Prometheus that
-# scrapes every 15s.
+# -- rate() window of the default metric; keep it at or above 4x the Prometheus scrape interval.
 serverLoadRateInterval: "30s"
 
-# -- Threshold for Envoy's prometheus-based rate limiter (scaling metric per healthy
-# replica). Kept above serverLoadThreshold so new clients are rejected only when
-# scaling can no longer keep up. With a custom serverLoadMetric, set it in that
-# metric's units. Envoy pods read it at startup: restart them after a change.
+# -- Threshold of Envoy's prometheus-based rate limiter (the scaling metric per healthy
+# replica, or a custom serverLoadMetric verbatim). Envoy reads it at startup.
 serverAdmissionThreshold: 3.0  # float literal keeps the generated schema type "number"
 
 # -- On RepositoryIndex, scale Triton to at least max(1, keda.minReplicaCount) replicas
@@ -116,8 +104,8 @@ triton:
     labels: {}
     annotations: {}
 
-    # -- Ports for communication with Triton servers. Envoy proxies only gRPC; inference sent
-    # directly to these ports bypasses the scaling metric and the rate limiter.
+    # -- Ports for communication with Triton servers. Inference sent directly to them bypasses
+    # Envoy and the scaling metric.
     ports:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
@@ -219,9 +207,8 @@ envoy:
       # -- For example, adding a new token every 12 seconds allows 5 new connections every minute.
       fill_interval: 12s
 
-    # -- This rate limiter rejects new ``RepositoryIndex`` requests based on a metric queried from Prometheus:
-    # the KEDA scaling metric (``serverLoadMetric``) per healthy Triton replica, compared against
-    # ``serverAdmissionThreshold``.
+    # -- This rate limiter rejects new ``RepositoryIndex`` requests when the scaling metric per
+    # healthy Triton replica exceeds ``serverAdmissionThreshold``.
     prometheus_based:
       # -- Enable rate limiter
       enabled: false
@@ -243,15 +230,12 @@ envoy:
 
 keda:
 
-  # -- Enable autoscaling (requires Prometheus to also be enabled).
-  # KEDA scales Triton to ceil(metric / ``serverLoadThreshold``) replicas with the default
-  # metric; see ``keda.metricType`` for the arithmetic used with a custom ``serverLoadMetric``.
+  # -- Enable autoscaling (requires Prometheus). KEDA scales Triton on ``serverLoadMetric``
+  # against ``serverLoadThreshold``.
   enabled: false
 
-  # -- How the HPA interprets the scaling metric. Leave empty to use AverageValue with the
-  # default metric (fleet-wide "replicas needed": desired = ceil(metric / threshold)) and
-  # Value with a custom serverLoadMetric (per replica, as before the default metric:
-  # desired = ceil(ready_replicas * metric / threshold)); or set either explicitly.
+  # -- How the HPA interprets the metric. Empty selects AverageValue (fleet-wide) for the
+  # default metric and Value (per replica) for a custom serverLoadMetric.
   metricType: ""
 
   # -- Minimum and maximum number of Triton servers.
@@ -261,22 +245,16 @@ keda:
   minReplicaCount: 1
   maxReplicaCount: 2
 
-  # -- How often KEDA checks whether the trigger is active, in seconds (at least 1; 0 falls
-  # back to 10). This governs scaling to zero and from zero to one replica; scaling between
-  # one and maxReplicaCount re-evaluates on the HPA sync period (15s by default), and each
-  # evaluation queries Prometheus.
+  # -- Seconds between KEDA activity checks, which govern scaling to and from zero
+  # (scaling between 1 and maxReplicaCount follows the HPA sync period). 0 falls back to 10.
   pollingInterval: 10
 
-  # -- Seconds the scaling metric must stay at or below activationThreshold before KEDA scales
-  # Triton to zero replicas. Only applies when scaling to zero (minReplicaCount 0 or
-  # zeroIdleReplicas); scaling between 1 and maxReplicaCount is governed by scaleUp and
-  # scaleDown. An empty query result (no Envoy or Triton series) counts as no load; an
-  # unreachable Prometheus keeps the current replica count instead.
+  # -- Seconds the metric must stay at or below activationThreshold before KEDA scales to zero.
+  # An empty query result counts as no load.
   cooldownPeriod: 300
 
-  # -- Metric value at or below which the trigger counts as inactive for scaling to zero.
-  # 0 (KEDA's default) keeps the fleet alive on any traffic through Envoy, including metadata
-  # or health probes; about 0.1 ignores such probes while a single busy client still reads ~1.
+  # -- Metric value at or below which the trigger is inactive for scaling to zero; about 0.1
+  # ignores probe traffic through Envoy.
   activationThreshold: 0.0  # float literal keeps the generated schema type "number"
 
   # -- If set to true, KEDA sets idleReplicaCount to 0.
@@ -285,18 +263,18 @@ keda:
   zeroIdleReplicas: false
 
   scaleUp:
-    # -- Seconds over which the HPA keeps the lowest recent desired replica count before scaling up (0 reacts to the latest HPA evaluation)
+    # -- HPA scale-up stabilization window in seconds (0 reacts to the latest evaluation)
     stabilizationWindowSeconds: 0
-    # -- Length of the scale-up rate-limit window, in seconds
+    # -- Scale-up rate-limit period in seconds
     periodSeconds: 15
-    # -- Maximum number of replicas added per ``periodSeconds``
+    # -- Replicas added per period
     stepsize: 2
   scaleDown:
-    # -- Seconds over which the HPA keeps the highest recent desired replica count before scaling down
+    # -- HPA scale-down stabilization window in seconds
     stabilizationWindowSeconds: 90
-    # -- Length of the scale-down rate-limit window, in seconds
+    # -- Scale-down rate-limit period in seconds
     periodSeconds: 15
-    # -- Maximum number of replicas removed per ``periodSeconds``
+    # -- Replicas removed per period
     stepsize: 2
 
 prometheus:
