@@ -42,23 +42,18 @@ spec:
           {{- if .Values.inferenceServer.modelRepository.enabled }}
           - name: model-repository
             mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
-            {{- /* mountPropagation is meaningful for host-backed volumes only,
-                   and the API server rejects it on a configMap volume. */}}
             {{- if ne .Values.inferenceServer.modelRepository.storageType "configMap" }}
             mountPropagation: HostToContainer
             {{- end }}
             readOnly: true
           {{- end }}
           {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
-          {{- /* subPath so the mount does not shadow the model folders that
-                 also live under Nereid's working directory */}}
           - name: nereid-config
             mountPath: {{ .Values.inferenceServer.nereid.configPath }}
             subPath: nereid.yaml
             readOnly: true
           {{- end }}
-        {{- /* Omitted rather than emitted empty, so a server configured through
-               a file (Nereid) can fall back to its image's own entrypoint. */}}
+        {{- /* empty command/args fall back to the image entrypoint */}}
         {{- with .Values.inferenceServer.command }}
         command: {{ toYaml . | nindent 10 }}
         {{- end }}

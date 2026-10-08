@@ -1,22 +1,19 @@
-{{- /* templates/_helpers/_inference-server.tpl */ -}}
-
 {{/*
-Inference server implementation, defaulting to Triton.
+Inference server type (triton or nereid)
 */}}
 {{- define "supersonic.inferenceServerType" -}}
 {{- .Values.inferenceServer.type | default "triton" -}}
 {{- end -}}
 
 {{/*
-True when the configured inference server is Nereid.
+True when the inference server is Nereid
 */}}
 {{- define "supersonic.nereidEnabled" -}}
 {{- if eq (include "supersonic.inferenceServerType" .) "nereid" -}}true{{- end -}}
 {{- end -}}
 
 {{/*
-Reject an unknown inferenceServer.type before it produces a confusing
-half-configured Deployment.
+Fail on an unknown inferenceServer.type
 */}}
 {{- define "supersonic.validateInferenceServerType" -}}
 {{- $type := include "supersonic.inferenceServerType" . -}}
@@ -26,24 +23,9 @@ half-configured Deployment.
 {{- end -}}
 
 {{/*
-Render one probe body from a values block.
-
-The handler is whichever one of these the block sets:
-  command:    exec shorthand, a bare command list
-  exec:       full exec handler
-  httpGet:    HTTP handler
-  tcpSocket:  TCP handler
-
-Exactly one may be set. Helm deep-merges values, so a values file that adds a
-handler does *not* drop the one this chart defaults to -- switching handler
-type means nulling the inherited key (`command: null`). Setting two is
-therefore almost always that mistake rather than an intent, and picking one by
-precedence would silently probe the wrong endpoint, so it fails instead.
-
-Triton is probed over its HTTP port; Nereid's image ships no curl, so it uses
-httpGet against the KServe v2 health endpoints on its own HTTP port.
-
-Usage: include "supersonic.inferenceServerProbe" .Values.inferenceServer.readinessProbe
+Probe body from a values block. One handler may be set: command (exec
+shorthand), exec, httpGet or tcpSocket. Helm merges values with the chart
+defaults, so switching handler needs the default one nulled.
 */}}
 {{- define "supersonic.inferenceServerProbe" -}}
 {{- $probe := . -}}
@@ -54,7 +36,7 @@ Usage: include "supersonic.inferenceServerProbe" .Values.inferenceServer.readine
 {{- end -}}
 {{- end -}}
 {{- if gt (len $set) 1 -}}
-{{- fail (printf "A probe sets more than one handler (%s). Set exactly one; because Helm merges values with the chart defaults, switching handler type means nulling the inherited key, e.g. `command: null`." (join ", " $set)) -}}
+{{- fail (printf "A probe sets more than one handler (%s); null the default one, e.g. `command: null`." (join ", " $set)) -}}
 {{- end -}}
 {{- if $probe.command }}
 exec:

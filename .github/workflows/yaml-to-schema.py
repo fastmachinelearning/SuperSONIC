@@ -6,14 +6,8 @@ from genson import SchemaBuilder
 
 
 def drop_required(node):
-    """Remove genson's inferred "required" lists.
-
-    genson marks every key it saw as required, and it only ever sees
-    values.yaml -- so "required" is just a copy of the defaults. Helm merges
-    those defaults into every release, which means the constraint cannot catch
-    a missing key; it only fires when a values file deliberately clears one
-    (`command: null` to swap a probe handler, say) and rejects it.
-    """
+    """Drop genson's "required" lists: they mirror the defaults, so they only
+    reject a values file that nulls a default key (e.g. `command: null`)."""
     if isinstance(node, dict):
         node.pop("required", None)
         for value in node.values():

@@ -1,12 +1,5 @@
-# Model fixture for the Nereid CI job: NVIDIA-free, self-contained.
-#
-# This is nereid-server's own `ml-backends/model3` example (a TorchScript MLP
-# taking a [16] FP32 tensor), vendored so CI needs no model volume, no CVMFS
-# and no network fetch. It is served by Nereid's Rust `torch` backend, which is
-# in the image's default feature set and needs no writable model directory --
-# unlike the Python backend, which builds a venv/ inside the model folder.
-#
-# Upstream: https://github.com/ngpaladi/nereid-server/tree/main/ml-backends/model3
+# CI model for Nereid: the model3 example (TorchScript MLP) from
+# https://github.com/ngpaladi/nereid-server/tree/main/ml-backends/model3
 apiVersion: v1
 kind: ConfigMap
 metadata:
