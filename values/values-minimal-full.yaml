@@ -35,13 +35,10 @@ envoy:
 keda:
   enabled: true
   minReplicaCount: 0
-  maxReplicaCount: 2
   pollingInterval: 5
   cooldownPeriod: 5
   scaleDown:
     stabilizationWindowSeconds: 0
-    periodSeconds: 15
-    stepsize: 1
 
 prometheus:
   enabled: true

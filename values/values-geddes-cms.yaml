@@ -76,16 +76,6 @@ keda:
   enabled: true
   minReplicaCount: 0
   maxReplicaCount: 10
-  pollingInterval: 1
-  cooldownPeriod: 300
-  scaleUp:
-    stabilizationWindowSeconds: 0
-    periodSeconds: 15
-    stepsize: 1
-  scaleDown:
-    stabilizationWindowSeconds: 300
-    periodSeconds: 45
-    stepsize: 1
 
 prometheus:
   external:

@@ -57,19 +57,6 @@ envoy:
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
-keda:
-  enabled: false
-  minReplicaCount: 1
-  maxReplicaCount: 100
-  scaleUp:
-    stabilizationWindowSeconds: 60
-    periodSeconds: 15
-    stepsize: 1
-  scaleDown:
-    stabilizationWindowSeconds: 60
-    periodSeconds: 15
-    stepsize: 1
-
 prometheus:
   enabled: true
   server:
