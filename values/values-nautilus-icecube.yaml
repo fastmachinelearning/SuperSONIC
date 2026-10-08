@@ -34,7 +34,6 @@ triton:
     storageType: cvmfs-pvc
     mountPath: /models
   readinessProbe:
-    reset: false
     initialDelaySeconds: 250
     periodSeconds: 30
     failureThreshold: 10
@@ -42,19 +41,16 @@ triton:
     timeoutSeconds: 5
     successThreshold: 1
   startupProbe:
-    reset: false
     initialDelaySeconds: 240
     periodSeconds: 10
     failureThreshold: 10
 envoy:
-  enabled: true
   auth:
     enabled: true
     jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
     jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
     audiences: [icesonic]
     url: keycloak.icecube.wisc.edu
-    port: 443
   ingress:
     enabled: true
     hostName: icesonic.nrp-nautilus.io
@@ -80,13 +76,9 @@ prometheus:
   external:
     enabled: true
     url: "prometheus.nrp-nautilus.io"
-    port: 443
-    scheme: https
 
 grafana:
   enabled: true
-  dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
   datasources:
     datasources.yaml:
       datasources:
