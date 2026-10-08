@@ -95,12 +95,22 @@
 <tr class="row-odd"><td><p>serverLoadMetric</p></td>
 <td><p>string</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>A metric used by both KEDA autoscaler and Envoy’s prometheus-based rate limiter. # Default metric (inference queue latency) is defined in templates/_helpers.tpl</p></td>
+<td><p>Prometheus query used by the KEDA autoscaler and, per healthy replica, by Envoy’s prometheus-based rate limiter. Empty selects the default metric: the number of replicas the current in-flight work needs (see the configuration guide). A custom query is used verbatim.</p></td>
 </tr>
 <tr class="row-even"><td><p>serverLoadThreshold</p></td>
-<td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
-<td><p>Threshold for the metric</p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.5</span></code></p></td>
+<td><p>Scaling threshold: KEDA scales to ceil(metric / threshold). Set fractions from a values file or –set-json. Remove a leftover <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold:</span> <span class="pre">100</span></code> when upgrading.</p></td>
+</tr>
+<tr class="row-odd"><td><p>serverLoadRateInterval</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;30s&quot;</span></code></p></td>
+<td><p>rate() window of the default metric; keep it at or above 4x the Prometheus scrape interval.</p></td>
+</tr>
+<tr class="row-even"><td><p>serverAdmissionThreshold</p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+<td><p>Threshold of Envoy’s prometheus-based rate limiter (the scaling metric per healthy replica, or a custom serverLoadMetric verbatim). Envoy reads it at startup.</p></td>
 </tr>
 <tr class="row-odd"><td><p>scaleFromZero</p></td>
 <td><p>object</p></td>
@@ -195,7 +205,7 @@
 <tr class="row-odd"><td><p>triton.service.ports</p></td>
 <td><p>list</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">[{&quot;name&quot;:&quot;http&quot;,&quot;port&quot;:8000,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8000},{&quot;name&quot;:&quot;grpc&quot;,&quot;port&quot;:8001,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8001},{&quot;name&quot;:&quot;metrics&quot;,&quot;port&quot;:8002,&quot;protocol&quot;:&quot;TCP&quot;,&quot;targetPort&quot;:8002}]</span></code></p></td>
-<td><p>Ports for communication with Triton servers</p></td>
+<td><p>Ports for communication with Triton servers. Inference sent directly to them bypasses Envoy and the scaling metric.</p></td>
 </tr>
 <tr class="row-even"><td><p>triton.readinessProbe</p></td>
 <td><p>object</p></td>
@@ -325,7 +335,7 @@
 <tr class="row-odd"><td><p>envoy.rate_limiter.prometheus_based</p></td>
 <td><p>object</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:false,&quot;luaConfig&quot;:&quot;cfg/envoy-filter.lua&quot;}</span></code></p></td>
-<td><p>This rate limiter rejects new connections based on metric extracted from Prometheus (e.g. inference queue latency). The metric is taken from parameter <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code>, and the threshold is set by <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code>. These parameters are the same as those used by the KEDA autoscaler.</p></td>
+<td><p>This rate limiter rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests when the scaling metric per healthy Triton replica exceeds <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p>envoy.rate_limiter.prometheus_based.enabled</p></td>
 <td><p>bool</p></td>
@@ -375,27 +385,37 @@
 <tr class="row-odd"><td><p>keda.enabled</p></td>
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
-<td><p>Enable autoscaling (requires Prometheus to also be enabled). Autoscaling will be based on the metric from parameter <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code>; new Triton servers will spawn if the metric exceeds the threshold set by <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code>.</p></td>
+<td><p>Enable autoscaling (requires Prometheus). KEDA scales Triton on <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> against <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p>keda.minReplicaCount</p></td>
+<tr class="row-even"><td><p>keda.metricType</p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>How the HPA interprets the metric. Empty selects AverageValue (fleet-wide) for the default metric and Value (per replica) for a custom serverLoadMetric.</p></td>
+</tr>
+<tr class="row-odd"><td><p>keda.minReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 <td><p>Minimum and maximum number of Triton servers. Set minReplicaCount to 0 to release all resources when idle (requires scaleFromZero.enabled). With scaleFromZero, a RepositoryIndex request scales Triton to max(1, minReplicaCount), and upgrades keep the live ScaledObject minReplicaCount.</p></td>
 </tr>
-<tr class="row-odd"><td><p>keda.maxReplicaCount</p></td>
+<tr class="row-even"><td><p>keda.maxReplicaCount</p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p>keda.pollingInterval</p></td>
+<tr class="row-odd"><td><p>keda.pollingInterval</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">30</span></code></p></td>
-<td><p>How often KEDA polls Prometheus</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>Seconds between KEDA activity checks, which govern scaling to and from zero (scaling between 1 and maxReplicaCount follows the HPA sync period). 0 falls back to 10.</p></td>
 </tr>
-<tr class="row-odd"><td><p>keda.cooldownPeriod</p></td>
+<tr class="row-even"><td><p>keda.cooldownPeriod</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
-<td><p>Period to wait after the last trigger is inactive before scaling to minReplicaCount</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>Seconds the metric must stay at or below activationThreshold before KEDA scales to zero. An empty query result counts as no load.</p></td>
+</tr>
+<tr class="row-odd"><td><p>keda.activationThreshold</p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Metric value at or below which the trigger is inactive for scaling to zero; about 0.1 ignores probe traffic through Envoy.</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.zeroIdleReplicas</p></td>
 <td><p>bool</p></td>
@@ -404,33 +424,33 @@
 </tr>
 <tr class="row-odd"><td><p>keda.scaleUp.stabilizationWindowSeconds</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>HPA scale-up stabilization window in seconds (0 reacts to the latest evaluation)</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.scaleUp.periodSeconds</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15</span></code></p></td>
+<td><p>Scale-up rate-limit period in seconds</p></td>
 </tr>
 <tr class="row-odd"><td><p>keda.scaleUp.stepsize</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Replicas added per period</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.scaleDown.stabilizationWindowSeconds</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">600</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">90</span></code></p></td>
+<td><p>HPA scale-down stabilization window in seconds</p></td>
 </tr>
 <tr class="row-odd"><td><p>keda.scaleDown.periodSeconds</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">120</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15</span></code></p></td>
+<td><p>Scale-down rate-limit period in seconds</p></td>
 </tr>
 <tr class="row-even"><td><p>keda.scaleDown.stepsize</p></td>
 <td><p>int</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Replicas removed per period</p></td>
 </tr>
 <tr class="row-odd"><td><p>prometheus.external.enabled</p></td>
 <td><p>bool</p></td>

@@ -53,7 +53,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#select-a-triton-inference-server-version">1. Select a Triton Inference Server Version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-triton-model-repository">2. Configure Triton model repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">1. Select Resources for Triton Pods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">3. Select Resources for Triton Pods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-envoy-proxy">4. Configure Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-rate-limiting-in-envoy-proxy">5. (Optional) Configure Rate Limiting in Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-authentication-in-envoy-proxy">6. (Optional) Configure Authentication in Envoy Proxy</a></li>
@@ -166,7 +166,7 @@ The following options for model repository mounting are provided via <code class
 </div>
 </details><br><br></section>
 <section id="select-resources-for-triton-pods">
-<h2>1. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
+<h2>3. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file:</p></li>
 </ul>
@@ -264,7 +264,8 @@ This can be useful to dynamically control server load and stop accepting new con
 <p>This rate limiter can be enabled via the <code class="docutils literal notranslate"><span class="pre">envoy.rate_limiter.prometheus_based</span></code> parameter in the values file.</p>
 <p>At the moment, this functionality is configured to only reject <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests to Triton servers, and it ignores
 any other requests in order not to slow down the inferences.</p>
-<p>The metric and threshold for the Prometheus-based rate limiter are the same as those used for the autoscaler (see Prometheus Configuration).</p>
+<p>The rate limiter evaluates the autoscaler’s scaling metric per healthy Triton replica and rejects
+<code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests above <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code> (see step 8).</p>
 </li>
 </ul>
 </section>
@@ -334,18 +335,83 @@ all  parameters in the <code class="docutils literal notranslate"><span class="p
 </section>
 <section id="optional-configure-metrics-for-scaling-and-rate-limiting">
 <h2>8. (Optional) Configure Metrics for Scaling and Rate Limiting<a class="headerlink" href="#optional-configure-metrics-for-scaling-and-rate-limiting" title="Link to this heading"></a></h2>
-<p>Both the rate limiter and the autoscaler are currently configured to use the same Prometheus metric and threshold.
-They are defined in the <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameters at the root level of the values file.
-The default metric is the inference queue time at the Triton servers, as defined in
-<a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/helm/supersonic/templates/_scaling-metric.tpl">here</a>.</p>
-<p>When the metric value exceeds the threshold, the following happens:</p>
+<p>The autoscaler and the Prometheus-based rate limiter share one Prometheus query,
+set by <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and rendered in <code class="docutils literal notranslate"><span class="pre">templates/_helpers/_scaling-metric.tpl</span></code>.</p>
+<section id="the-default-metric">
+<h3>The default metric<a class="headerlink" href="#the-default-metric" title="Link to this heading"></a></h3>
+<p>By default, SuperSONIC estimates <strong>how many Triton replicas the current in-flight
+work needs</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">R_needed</span> <span class="o">=</span> <span class="n">L_envoy</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">L_service</span> <span class="o">/</span> <span class="n">R_healthy</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">rate()</span></code> of a cumulative time counter is the mean number of requests inside
+that stage (Little’s law):</p>
 <ul class="simple">
-<li><p>Autoscaler scales up the number of Triton servers if possible.</p></li>
-<li><p>Envoy proxy rejects new <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">L_envoy</span></code> — requests in flight between Envoy and Triton:
+<code class="docutils literal notranslate"><span class="pre">sum(rate(envoy_cluster_upstream_rq_time_sum{...}[30s]))</span> <span class="pre">/</span> <span class="pre">1e3</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">L_service</span></code> — requests being executed:
+<code class="docutils literal notranslate"><span class="pre">(sum(rate(nv_inference_request_duration_us{...}[30s]))</span> <span class="pre">-</span> <span class="pre">sum(rate(nv_inference_queue_duration_us{...}[30s])))</span> <span class="pre">/</span> <span class="pre">1e6</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">R_healthy</span></code> — Triton endpoints Envoy routes to:
+<code class="docutils literal notranslate"><span class="pre">max(envoy_cluster_membership_healthy{...})</span></code>.</p></li>
 </ul>
-<p>The pre-configured Grafana dashboard contains a graph of this metric, entitled “Server Load Metric”.
-The Prometheus query for the graph is automatically inferred from the value of <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> parameter.
-The graph also displays the threshold value defined in <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> parameter.</p>
+<p>Models are weighted by the time they consume, so the metric has no model-specific
+constants. The <code class="docutils literal notranslate"><span class="pre">clamp_min</span></code> floors encode that a healthy replica can always
+execute one request, which lets an idle fleet scale down, and keep the division
+finite. The rate limiter uses the metric per healthy replica: 1 means nothing
+queues, 2 means requests wait as long as they are served.</p>
+</section>
+<section id="requirements-and-limitations">
+<h3>Requirements and limitations<a class="headerlink" href="#requirements-and-limitations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Envoy must be enabled with the Triton cluster named <code class="docutils literal notranslate"><span class="pre">triton_grpc_service</span></code>, and
+Prometheus must scrape Envoy and Triton with a <code class="docutils literal notranslate"><span class="pre">release</span></code> label (the chart
+defaults do both).</p></li>
+<li><p>All inference traffic must enter through Envoy; requests sent directly to the
+Triton service are not counted and scale the fleet down.</p></li>
+<li><p>Ensemble and BLS models are reported under the parent and under each composing
+model, so the metric under-reads overload for them; use a custom
+<code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> that excludes the parent models.</p></li>
+<li><p>Failed requests count as load. Envoy’s default circuit breaker caps in-flight
+requests at 1024 per Envoy replica, invisibly to the metric.</p></li>
+<li><p>An empty query result (lost scrape target, missing <code class="docutils literal notranslate"><span class="pre">release</span></code> label) reads as
+zero load. An unreachable Prometheus keeps the current replica count and makes
+the rate limiter reject <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> unless <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> is enabled.</p></li>
+</ul>
+</section>
+<section id="thresholds">
+<h3>Thresholds<a class="headerlink" href="#thresholds" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">1.5</span></code>) — KEDA scales to
+<code class="docutils literal notranslate"><span class="pre">ceil(metric</span> <span class="pre">/</span> <span class="pre">threshold)</span></code>. <code class="docutils literal notranslate"><span class="pre">1.5</span></code> keeps queueing at about half the service
+time per replica; <code class="docutils literal notranslate"><span class="pre">2</span></code> tolerates “waiting ≈ serving”. The unloaded floor is
+~1.2–1.3, so values below that over-provision.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">3</span></code>) — Envoy rejects new
+<code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests when the per-replica metric exceeds it. Keep it
+above <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> so admission is not gated at the operating point.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">serverLoadRateInterval</span></code> (default <code class="docutils literal notranslate"><span class="pre">30s</span></code>) — the <code class="docutils literal notranslate"><span class="pre">rate()</span></code> window; keep it
+at or above 4x the Prometheus scrape interval (<code class="docutils literal notranslate"><span class="pre">1m</span></code> for a 15s scrape).</p></li>
+</ul>
+<p>Fractional thresholds must come from a values file or <code class="docutils literal notranslate"><span class="pre">--set-json</span></code>; <code class="docutils literal notranslate"><span class="pre">--set</span></code>
+passes decimals as strings. Envoy reads the query and the admission threshold at
+startup, so restart its pods after changing them.</p>
+<p><strong>Upgrading from the queue-latency metric</strong>: remove a leftover
+<code class="docutils literal notranslate"><span class="pre">serverLoadThreshold:</span> <span class="pre">100</span></code>; with the default metric it pins Triton at
+<code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> (<code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">install</span></code> warns). To keep the old behaviour, keep
+the threshold, set <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code> to the same value, and set
+<code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> to the old query:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">sum</span> <span class="n">by</span> <span class="p">(</span><span class="n">release</span><span class="p">)</span> <span class="p">(</span><span class="n">rate</span><span class="p">(</span><span class="n">nv_inference_queue_duration_us</span><span class="p">{</span><span class="n">release</span><span class="o">=</span><span class="s2">"&lt;release&gt;"</span><span class="p">}[</span><span class="mi">30</span><span class="n">s</span><span class="p">]))</span>
+<span class="o">/</span>
+<span class="nb">sum</span> <span class="n">by</span> <span class="p">(</span><span class="n">release</span><span class="p">)</span> <span class="p">((</span><span class="n">rate</span><span class="p">(</span><span class="n">nv_inference_exec_count</span><span class="p">{</span><span class="n">release</span><span class="o">=</span><span class="s2">"&lt;release&gt;"</span><span class="p">}[</span><span class="mi">30</span><span class="n">s</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-metrics">
+<h3>Custom metrics<a class="headerlink" href="#custom-metrics" title="Link to this heading"></a></h3>
+<p>A custom <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> is used verbatim by both consumers: KEDA compares
+it with <code class="docutils literal notranslate"><span class="pre">serverLoadThreshold</span></code> (<code class="docutils literal notranslate"><span class="pre">keda.metricType</span></code> then defaults to <code class="docutils literal notranslate"><span class="pre">Value</span></code>,
+i.e. per replica) and the rate limiter with <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code>, so set
+both in the metric’s units.</p>
+</section>
 </section>
 <section id="optional-deploy-grafana-dashboard">
 <h2>9. (Optional) Deploy Grafana Dashboard<a class="headerlink" href="#optional-deploy-grafana-dashboard" title="Link to this heading"></a></h2>
@@ -388,30 +454,39 @@ can be enabled via the <code class="docutils literal notranslate"><span class="p
 <p>Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
 Please contact cluster administrators if this step of installation fails.</p>
 </div>
-<p>The parameters <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> define the range in which
-the number of Triton servers can scale. <code class="docutils literal notranslate"><span class="pre">keda.pollingInterval</span></code> is how often KEDA queries
-Prometheus, and <code class="docutils literal notranslate"><span class="pre">keda.cooldownPeriod</span></code> is how long the load metric must stay below the
-threshold before KEDA scales down to <code class="docutils literal notranslate"><span class="pre">minReplicaCount</span></code>.</p>
-<p>Additional optional parameters can control how quickly the autoscaler reacts to changes in the Prometheus metric:</p>
+<p><code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> bound the number of Triton servers.
+<code class="docutils literal notranslate"><span class="pre">keda.pollingInterval</span></code> is how often KEDA checks whether the trigger is active (scaling to
+and from zero); scaling between one and <code class="docutils literal notranslate"><span class="pre">maxReplicaCount</span></code> follows the HPA sync period
+(15 seconds). <code class="docutils literal notranslate"><span class="pre">keda.cooldownPeriod</span></code> is how long the metric must stay at or below
+<code class="docutils literal notranslate"><span class="pre">keda.activationThreshold</span></code> before KEDA scales to zero; with the default
+<code class="docutils literal notranslate"><span class="pre">activationThreshold</span></code> of 0 any traffic through Envoy keeps the fleet alive, and about 0.1
+ignores probe traffic.</p>
+<p><code class="docutils literal notranslate"><span class="pre">keda.scaleUp</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.scaleDown</span></code> set the HPA behavior: at most <code class="docutils literal notranslate"><span class="pre">stepsize</span></code> replicas
+per <code class="docutils literal notranslate"><span class="pre">periodSeconds</span></code>, after a <code class="docutils literal notranslate"><span class="pre">stabilizationWindowSeconds</span></code> look-back. The defaults react
+within one HPA evaluation and scale down after 90 seconds of low load:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">keda</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="nt">minReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">maxReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 
-<span class="w">  </span><span class="nt">pollingInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="w">  </span><span class="nt">cooldownPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">  </span><span class="nt">pollingInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">cooldownPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
 
 <span class="w">  </span><span class="nt">scaleUp</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">stabilizationWindowSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
-<span class="w">    </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">stabilizationWindowSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">  </span><span class="nt">scaleDown</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">stabilizationWindowSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
-<span class="w">    </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">stabilizationWindowSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span>
+<span class="w">    </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </pre></div>
 </div>
+<p>Scaling down removes pods that may hold requests; Triton finishes them within
+<code class="docutils literal notranslate"><span class="pre">--exit-timeout-secs</span></code> (60 seconds by default), which must fit inside the pod’s 60-second
+termination grace period. Inference requests that reach a terminating pod fail with
+<code class="docutils literal notranslate"><span class="pre">UNAVAILABLE</span></code> and are not retried.</p>
 <p>To keep <strong>zero</strong> Triton replicas when idle, set <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code> and enable
 <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code>. Envoy stays running. On a <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> request (the first RPC
 used by CMS SONIC clients), SuperSONIC scales Triton to <code class="docutils literal notranslate"><span class="pre">max(1,</span> <span class="pre">keda.minReplicaCount)</span></code>
