@@ -9,83 +9,23 @@ You can find example values files in the `SuperSONIC GitHub repository <https://
 1. Select an Inference Server
 =============================================
 
-SuperSONIC can run either of two inference servers, selected with
-``inferenceServer.type``:
+The server is selected with ``inferenceServer.type`` and its version with ``inferenceServer.image``.
 
-.. list-table::
-   :header-rows: 1
-   :widths: 18 82
-
-   * - ``type``
-     - Description
-   * - ``triton`` (default)
-     - `NVIDIA Triton Inference Server <https://developer.nvidia.com/triton-inference-server>`_.
-       Configured through ``inferenceServer.command``/``args``, with models
-       supplied as a Triton model repository.
-   * - ``nereid``
-     - `Nereid <https://github.com/ngpaladi/nereid-server>`_, a Rust inference
-       server. Configured through a ``nereid.yaml`` file rather than flags.
-
-Both serve the `KServe v2 <https://kserve.github.io/website/docs/concepts/architecture/data-plane/v2-protocol>`_
-inference protocol over gRPC, so clients, Envoy, load balancing, autoscaling
-and the scraped metrics are the same either way. Only the image, the model
-configuration and the health-probe endpoints differ.
-
-.. note::
-
-   Nereid does not export the ``nv_gpu_*`` metrics, so the GPU panels of the
-   Grafana dashboard and the optional ``metricsCollector`` are Triton-only.
-
-Selecting Triton
------------------
+**Triton** (``type: triton``, default)
 
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
 - You can also use custom-built Triton images.
 - Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_
   for compatibility information (CUDA versions, NVIDIA drivers, etc.).
 
-Triton version must be specified in the ``inferenceServer.image`` parameter in the values file.
+**Nereid** (``type: nereid``)
 
-Selecting Nereid
------------------
-
-Nereid is configured by a ``nereid.yaml`` file, rendered from
-``inferenceServer.nereid.config`` into a ConfigMap and mounted into the
-container. Use the image's own entrypoint by setting ``command`` and ``args``
-to ``null``:
-
-.. code-block:: yaml
-
-   inferenceServer:
-     type: nereid
-     image: ghcr.io/ngpaladi/nereid-server:<tag>
-     command: null
-     args: null
-     nereid:
-       config:
-         server:
-           # Keeping Triton's port numbers means the rest of the chart needs
-           # no per-server configuration.
-           bind_addr: "[::]:8001"
-           http_addr: "[::]:8002"
-           # Resolved relative to the working directory, so use an absolute
-           # path when models come from a mounted volume.
-           ml_backends_path: "/models"
-         # One entry per model folder; Nereid will not start with an empty list.
-         models:
-           - name: mymodel
-             device: cpu
-             queue_capacity: 16
-
-A complete example is in
-`values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_.
-
-.. warning::
-
-   Nereid's Python backend builds a ``venv/`` inside each model folder at load
-   time, and the container runs as an unprivileged user. A read-only model
-   volume therefore serves ``.pt``, ONNX and TensorFlow models, but not Python
-   ones.
+- `Nereid <https://github.com/ngpaladi/nereid-server>`_ serves the same KServe v2 gRPC protocol
+  as Triton, so Envoy, autoscaling and monitoring work unchanged.
+- It is configured through ``inferenceServer.nereid.config`` (rendered to ``nereid.yaml``) instead of
+  command-line flags; see `values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_.
+- It does not export ``nv_gpu_*`` metrics (the GPU dashboard panels and ``metricsCollector`` stay
+  empty), and its Python backend needs a writable model directory.
 
 
 2. Configure the model repository
@@ -152,8 +92,7 @@ A complete example is in
        path:
 
      ## -- OR --
-     ## Option 5: mount models from a ConfigMap (small models and testing;
-     ## a ConfigMap holds at most ~1 MiB in total)
+     ## Option 5: mount models from a ConfigMap (small models, at most 1 MiB in total)
      storageType: "configMap"
      configMap:
        name:
@@ -535,10 +474,6 @@ replicas and returns the index only after Envoy has a healthy inference server u
 scales up to ``maxReplicaCount`` using the Prometheus load metric. After
 ``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
 the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
-
-This works with either ``inferenceServer.type``: ``RepositoryIndex`` belongs to the
-shared ``inference.GRPCInferenceService`` protocol, so the path Envoy routes on is the
-same for both servers.
 
 .. code-block:: yaml
 
