@@ -47,11 +47,7 @@ envoy:
     topology.kubernetes.io/zone: ucsd
   ingress:
     enabled: true
-    hosts:
-      - sonic-cms.nrp-nautilus.io
-    tls:
-      - hosts:
-          - sonic-cms.nrp-nautilus.io
+    hostName: sonic-cms.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"

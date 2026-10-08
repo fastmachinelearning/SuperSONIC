@@ -1,5 +1,4 @@
 triton:
-  name: triton-atlas
   image: milescb/traccc-aas:v1.1
   affinity:
     nodeAffinity:
@@ -76,7 +75,7 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: prometheus.nrp-nautilus.io
+          url: https://prometheus.nrp-nautilus.io
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
@@ -100,11 +99,7 @@ metricsCollector:
   enabled: true
   ingress:
     enabled: true
-    hosts:
-      - metrics-collector-atlas.nrp-nautilus.io
-    tls:
-      - hosts:
-          - metrics-collector-atlas.nrp-nautilus.io
+    hostName: metrics-collector-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"
