@@ -76,12 +76,11 @@ Get gRPC endpoint for client connections
 {{- end -}}
 
 {{/*
-Fail on the pre-0.4.0 `triton:` values block, which was renamed to
-`inferenceServer:`. Helm would otherwise ignore the stale key and silently
-deploy chart defaults, so an explicit error is the kinder failure.
+Fail on the `triton:` values block, renamed to `inferenceServer:`
+(Helm would otherwise ignore it and deploy the chart defaults)
 */}}
 {{- define "supersonic.validateNoLegacyTritonValues" -}}
 {{- if .Values.triton -}}
-{{- fail "The `triton:` values block was renamed to `inferenceServer:`.\nRename the top-level `triton:` key in your values file (its contents are unchanged).\nSee https://fastmachinelearning.org/SuperSONIC for the migration notes." -}}
+{{- fail "The `triton:` values block was renamed to `inferenceServer:`; rename the key in your values file." -}}
 {{- end -}}
 {{- end -}}

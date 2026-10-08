@@ -1,7 +1,4 @@
 {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
-{{- /* Nereid reads nereid.yaml from its working directory and resolves
-       server.ml_backends_path relative to it, so point ml_backends_path at
-       the model repository mount path when models come from a volume. */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
