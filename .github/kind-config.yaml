@@ -1,0 +1,8 @@
+# kind cluster for CI. Pull images in parallel: with the kubelet's default serial
+# pulls, a small image requested after the multi-GB Triton image waits for that download.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+kubeadmConfigPatches:
+  - |
+    kind: KubeletConfiguration
+    serializeImagePulls: false

@@ -317,8 +317,8 @@ data:
   envoy-filter.lua: |-
     {{- /* Read and process the Lua configuration file */}}
     {{- $luaConfig := $.Files.Get .Values.envoy.rate_limiter.prometheus_based.luaConfig | nindent 4 }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.defaultMetric" . | quote) }}
-    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (quote .Values.serverLoadThreshold) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_METRIC" (include "supersonic.admissionMetric" . | quote) }}
+    {{- $luaConfig = $luaConfig | replace "SERVER_LOAD_THRESHOLD" (include "supersonic.admissionThreshold" . | quote) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_SCHEME" (include "supersonic.prometheusScheme" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_HOST" (include "supersonic.prometheusHost" .) }}
     {{- $luaConfig = $luaConfig | replace "PROMETHEUS_PORT" (include "supersonic.prometheusPort" .) }}

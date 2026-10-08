@@ -24,7 +24,15 @@ SuperSONIC chart successfully installed!
 
 Scaling metric:{{ if not ( eq .Values.serverLoadMetric "" ) }}    {{ .Values.serverLoadMetric }}{{ else }}{{ include "supersonic.defaultMetric" . | nindent 4 }}{{ end }}
 
-Scaling threshold: {{ include "supersonic.defaultThreshold" . }}
+Scaling threshold (KEDA): {{ include "supersonic.defaultThreshold" . }}
+{{- if and .Values.keda.enabled (eq .Values.serverLoadMetric "") (gt (float64 (include "supersonic.defaultThreshold" .)) 10.0) }}
+
+WARNING: serverLoadThreshold {{ include "supersonic.defaultThreshold" . }} pins Triton at keda.minReplicaCount
+with the default metric (about 1 per busy replica; default threshold 1.5). Remove a threshold
+left over from the queue-latency metric, or set serverLoadMetric to that query.
+{{- end }}
+
+Admission threshold (Envoy rate limiter{{ if eq .Values.serverLoadMetric "" }}, applied to the scaling metric per healthy replica{{ else }}, applied to serverLoadMetric verbatim{{ end }}): {{ include "supersonic.admissionThreshold" . }}
 
 ┌-----------------------------------------------------------------------------┐
 | Documentation:           https://fastmachinelearning.org/SuperSONIC

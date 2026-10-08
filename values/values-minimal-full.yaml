@@ -1,15 +1,9 @@
 # Full CI values. Triton starts at 0 replicas; RepositoryIndex scales the first pod.
 scaleFromZero:
   enabled: true
-  readyTimeoutSeconds: 300
-  # Must be >= readyTimeoutSeconds: KEDA would otherwise scale the waking pod
-  # back to zero while the RepositoryIndex hold is still waiting for it.
-  holdMinReplicasSeconds: 300
 
 triton:
-  replicas: 1
   image: fastml/triton-torchgeo:26.04-py3-geometric # works for CMSSW run3
-  command: ["/bin/sh", "-c"]
   args: 
     - |
       /opt/tritonserver/bin/tritonserver \
@@ -28,7 +22,6 @@ triton:
     reset: true
 
 envoy:
-  enabled: true
   resources:
     requests:
       cpu: 0.1
@@ -38,34 +31,20 @@ envoy:
   rate_limiter:
     listener_level:
       enabled: true
-      max_tokens: 5
-      tokens_per_fill: 1
-      fill_interval: 12s
 
 keda:
   enabled: true
   minReplicaCount: 0
-  maxReplicaCount: 2
   pollingInterval: 5
   cooldownPeriod: 5
   scaleDown:
     stabilizationWindowSeconds: 0
-    periodSeconds: 15
-    stepsize: 1
 
 prometheus:
   enabled: true
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
 
 grafana:
   enabled: true
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
 
 metricsCollector:
   enabled: true

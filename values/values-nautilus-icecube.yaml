@@ -1,5 +1,3 @@
-serverLoadThreshold: 100
-
 triton: 
   image: nvcr.io/nvidia/tritonserver:26.08-py3
   affinity:
@@ -36,7 +34,6 @@ triton:
     storageType: cvmfs-pvc
     mountPath: /models
   readinessProbe:
-    reset: false
     initialDelaySeconds: 250
     periodSeconds: 30
     failureThreshold: 10
@@ -44,19 +41,16 @@ triton:
     timeoutSeconds: 5
     successThreshold: 1
   startupProbe:
-    reset: false
     initialDelaySeconds: 240
     periodSeconds: 10
     failureThreshold: 10
 envoy:
-  enabled: true
   auth:
     enabled: true
     jwt_issuer: https://keycloak.icecube.wisc.edu/auth/realms/IceCube
     jwt_remote_jwks_uri: https://keycloak.icecube.wisc.edu/auth/realms/IceCube/protocol/openid-connect/certs
     audiences: [icesonic]
     url: keycloak.icecube.wisc.edu
-    port: 443
   ingress:
     enabled: true
     hostName: icesonic.nrp-nautilus.io
@@ -73,22 +67,13 @@ envoy:
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
-keda:
-  enabled: false
-  minReplicaCount: 0
-  maxReplicaCount: 1
-
 prometheus:
   external:
     enabled: true
     url: "prometheus.nrp-nautilus.io"
-    port: 443
-    scheme: https
 
 grafana:
   enabled: true
-  dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
   datasources:
     datasources.yaml:
       datasources:
@@ -96,7 +81,7 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: prometheus.nrp-nautilus.io
+          url: https://prometheus.nrp-nautilus.io
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true

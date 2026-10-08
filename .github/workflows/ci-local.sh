@@ -39,7 +39,7 @@ if kind get clusters 2>/dev/null | grep -qx "${CLUSTER_NAME}"; then
   kind delete cluster --name "${CLUSTER_NAME}"
 fi
 echo "Creating Kind cluster..."
-kind create cluster --name "${CLUSTER_NAME}"
+kind create cluster --name "${CLUSTER_NAME}" --config .github/kind-config.yaml
 
 # 2. (Assuming Helm is installed and at the proper version)
 

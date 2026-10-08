@@ -1,7 +1,4 @@
-serverLoadThreshold: 100
-
 triton:
-  name: triton-atlas
   image: milescb/traccc-aas:v1.1
   affinity:
     nodeAffinity:
@@ -20,7 +17,6 @@ triton:
                   # - NVIDIA-L4
                   # - NVIDIA-A100-PCIE-40GB
                   # - NVIDIA-GH200-480GB
-  command: ["/bin/sh", "-c"]
   args:
     - |
       /opt/tritonserver/bin/tritonserver \
@@ -30,14 +26,12 @@ triton:
   resources:
     limits: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
     requests: { nvidia.com/gpu: 1, cpu: 2, memory: 16G }
-  replicas: 1
   modelRepository:
     enabled: true
     storageType: cvmfs-pvc
     mountPath: /cvmfs
 
 envoy:
-  enabled: true
   loadBalancerPolicy: "ROUND_ROBIN"
   ingress:
     enabled: true
@@ -55,17 +49,10 @@ envoy:
       haproxy-ingress.github.io/health-check-interval: "30s"
       haproxy-ingress.github.io/health-check-rise-count: "1"
 
-keda:
-  enabled: False
-  minReplicaCount: 0
-  maxReplicaCount: 1
-
 prometheus:
   external:
     enabled: true
     url: "prometheus.nrp-nautilus.io"
-    port: 443
-    scheme: https
 
 grafana:
   enabled: true
@@ -78,7 +65,7 @@ grafana:
           type: prometheus
           access: proxy
           isDefault: true
-          url: prometheus.nrp-nautilus.io
+          url: https://prometheus.nrp-nautilus.io
           jsonData:
             timeInterval: "5s"
             tlsSkipVerify: true
@@ -102,11 +89,7 @@ metricsCollector:
   enabled: true
   ingress:
     enabled: true
-    hosts:
-      - metrics-collector-atlas.nrp-nautilus.io
-    tls:
-      - hosts:
-          - metrics-collector-atlas.nrp-nautilus.io
+    hostName: metrics-collector-atlas.nrp-nautilus.io
     ingressClassName: haproxy
     annotations:
       haproxy-ingress.github.io/cors-enable: "true"

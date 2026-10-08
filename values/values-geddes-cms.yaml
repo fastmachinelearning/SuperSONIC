@@ -5,16 +5,11 @@
 # Based on Purdue AF production values:
 # https://github.com/PurdueAF/purdue-af/blob/main/apps/sonic/supersonic/values.yaml
 
-serverLoadThreshold: 100
-
 scaleFromZero:
   enabled: true
-  readyTimeoutSeconds: 300
-  holdMinReplicasSeconds: 300
 
 triton:
   image: fastml/triton-torchgeo:26.04-py3-geometric
-  command: ["/bin/sh", "-c"]
   args:
     - |
       /opt/tritonserver/bin/tritonserver \
@@ -64,7 +59,6 @@ triton:
     mountPath: /cvmfs
 
 envoy:
-  enabled: true
   nodeSelector: { "cms-af-prod": "true" }
   tolerations:
     - key: hub.jupyter.org/dedicated
@@ -74,28 +68,14 @@ envoy:
   loadBalancerPolicy: "ROUND_ROBIN"
   service:
     type: LoadBalancer
-  ingress:
-    enabled: false
   rate_limiter:
     prometheus_based:
       enabled: true
-    listener_level:
-      enabled: false
 
 keda:
   enabled: true
   minReplicaCount: 0
   maxReplicaCount: 10
-  pollingInterval: 1
-  cooldownPeriod: 300
-  scaleUp:
-    stabilizationWindowSeconds: 0
-    periodSeconds: 15
-    stepsize: 1
-  scaleDown:
-    stabilizationWindowSeconds: 300
-    periodSeconds: 45
-    stepsize: 1
 
 prometheus:
   external:
@@ -106,8 +86,6 @@ prometheus:
 
 grafana:
   enabled: true
-  dashboardsConfigMaps:
-    default: supersonic-grafana-default-dashboard
   datasources:
     datasources.yaml:
       datasources:
