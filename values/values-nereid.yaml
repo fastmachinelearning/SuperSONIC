@@ -1,0 +1,35 @@
+# Nereid (https://github.com/ngpaladi/nereid-server) as the inference server
+inferenceServer:
+  type: nereid
+  image: ghcr.io/ngpaladi/nereid-server:latest # placeholder until a release is published
+  # Nereid is configured through nereid.yaml: use the image entrypoint
+  command: null
+  args: null
+  service:
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP } # metrics and health
+  nereid:
+    config:
+      server:
+        ml_backends_path: "/models"
+      models:
+        - { name: model3, device: cpu, queue_capacity: 16 }
+  modelRepository:
+    enabled: true
+    storageType: pvc
+    mountPath: /models
+    pvc:
+      claimName: nereid-models
+  # The image has no curl: probe over HTTP instead of the default exec handler
+  readinessProbe:
+    command: null
+    httpGet: { path: /v2/health/ready, port: metrics }
+  startupProbe:
+    httpGet: { port: metrics }
+
+envoy:
+  resources:
+    requests:
+      cpu: 0.1
+      memory: "128Mi"

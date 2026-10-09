@@ -1,0 +1,47 @@
+# One inference through Envoy with a stock tritonclient (perf_analyzer needs
+# RPCs that Nereid does not implement)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nereid-infer-job
+  namespace: cms
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: infer
+        image: python:3.14-slim
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -euo pipefail
+            pip install --quiet --no-cache-dir "tritonclient[grpc]==2.72.0" numpy
+            python3 - <<'PY'
+            import time
+            import numpy as np
+            import tritonclient.grpc as grpcclient
+
+            MODEL = "model3"
+            client = grpcclient.InferenceServerClient("supersonic.cms.svc.cluster.local:8001")
+
+            for attempt in range(30):
+                try:
+                    meta = client.get_model_metadata(MODEL)
+                    break
+                except Exception as exc:
+                    print(f"metadata attempt {attempt}: {exc}", flush=True)
+                    time.sleep(2)
+            else:
+                raise SystemExit("FAIL: model metadata never became available")
+
+            inp, out = meta.inputs[0], meta.outputs[0]
+            shape = [d if d > 0 else 1 for d in inp.shape]
+            tensor = grpcclient.InferInput(inp.name, shape, inp.datatype)
+            tensor.set_data_from_numpy(np.ones(shape, dtype=np.float32))
+            result = client.infer(model_name=MODEL, inputs=[tensor]).as_numpy(out.name)
+            if result is None or result.size == 0:
+                raise SystemExit(f"FAIL: empty output for {out.name!r}")
+            print(f"OK: in {shape} -> out {list(result.shape)} {result.dtype}", flush=True)
+            PY

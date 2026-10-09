@@ -21,10 +21,12 @@ spec:
         app.kubernetes.io/name: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: envoy
-      {{- with .Values.envoy.annotations }}
       annotations:
+        {{- /* restart Envoy when its configuration changes; it is read only at startup */}}
+        checksum/config: {{ print (include (print $.Template.BasePath "/envoy/configmaps.yaml") .) (include (print $.Template.BasePath "/envoy/admission.yaml") .) | sha256sum }}
+        {{- with .Values.envoy.annotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       {{- if eq (include "supersonic.scaleFromZeroEnabled" .) "true" }}
       serviceAccountName: {{ include "supersonic.envoyName" . }}
@@ -69,8 +71,8 @@ spec:
         env:
         - name: HOLD_MIN_REPLICAS_SECONDS
           value: {{ $sfz.holdMinReplicasSeconds | quote }}
-        - name: GPU_DEPLOYMENT
-          value: {{ include "supersonic.tritonName" . | quote }}
+        - name: INFERENCE_SERVER_DEPLOYMENT
+          value: {{ include "supersonic.inferenceServerName" . | quote }}
         - name: SCALEDOBJECT_NAME
           value: {{ printf "%s-keda-so" (include "supersonic.name" .) | quote }}
         - name: IDLE_MIN_REPLICAS

@@ -1,0 +1,85 @@
+name: ci [nereid]
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  # TODO: remove once nereid-server publishes an image
+  check-image:
+    runs-on: ubuntu-latest
+    outputs:
+      available: ${{ steps.image.outputs.available }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check whether the Nereid image is published
+        id: image
+        run: |
+          IMAGE=$(grep -m1 'image: ghcr.io/ngpaladi/nereid-server' values/values-nereid.yaml | awk '{print $2}')
+          if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Nereid image $IMAGE is not published yet; skipping the deployment test."
+          fi
+
+  deploy-nereid:
+    needs: check-image
+    if: needs.check-image.outputs.available == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubernetes cluster with Kind
+        uses: helm/kind-action@v1.6.0
+        with:
+          cluster_name: gh-k8s-cluster
+          config: .github/kind-config.yaml
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Deploy Helm chart with Nereid
+        run: |
+          kubectl create namespace cms
+          kubectl apply -f tests/nereid-model-fixture.yaml
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm dependency build ./helm/supersonic
+          helm upgrade --install supersonic ./helm/supersonic -n cms \
+            --values values/values-nereid.yaml \
+            --set inferenceServer.modelRepository.storageType=configMap \
+            --set inferenceServer.modelRepository.configMap.name=nereid-model-fixture \
+            --set inferenceServer.modelRepository.mountPath=/models/model3
+
+      - name: Nereid server ready
+        run: |
+          kubectl rollout status deployment/supersonic-inference-server --timeout 300s -n cms
+
+      - name: Envoy proxy ready
+        run: |
+          kubectl rollout status deployment/supersonic-envoy --timeout 180s -n cms
+
+      - name: Run inference through Envoy
+        run: |
+          kubectl apply -f tests/nereid-infer-job.yaml
+          bash .github/scripts/wait-for-job.sh nereid-infer-job cms 600
+
+      - name: Failure diagnostics
+        if: failure()
+        uses: ./.github/actions/k8s-diagnostics
+        with:
+          namespace: cms
+
+      - name: Cleanup
+        if: always()
+        run: kind delete cluster --name gh-k8s-cluster

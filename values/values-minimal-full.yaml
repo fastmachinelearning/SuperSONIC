@@ -1,8 +1,8 @@
-# Full CI values. Triton starts at 0 replicas; RepositoryIndex scales the first pod.
+# Full CI values. The inference server starts at 0 replicas; RepositoryIndex scales the first pod.
 scaleFromZero:
   enabled: true
 
-triton:
+inferenceServer:
   image: fastml/triton-torchgeo:26.04-py3-geometric # works for CMSSW run3
   args: 
     - |

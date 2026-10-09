@@ -12,10 +12,10 @@ Get instance name (equal to release name unless overridden)
 {{- end -}}
 
 {{/*
-Get Triton server name
+Get inference server name
 */}}
-{{- define "supersonic.tritonName" -}}
-{{- printf "%s-triton" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- define "supersonic.inferenceServerName" -}}
+{{- printf "%s-inference-server" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -72,5 +72,15 @@ Get gRPC endpoint for client connections
     {{- end -}}
     {{- printf "%s.%s.svc.cluster.local:%d" $serviceName .Release.Namespace $grpcPort -}}
   {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Fail on the `triton:` values block, renamed to `inferenceServer:`
+(Helm would otherwise ignore it and deploy the chart defaults)
+*/}}
+{{- define "supersonic.validateNoLegacyTritonValues" -}}
+{{- if .Values.triton -}}
+{{- fail "The `triton:` values block was renamed to `inferenceServer:`; rename the key in your values file." -}}
 {{- end -}}
 {{- end -}}
