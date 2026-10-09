@@ -462,10 +462,9 @@ within one HPA evaluation and scale down after 90 seconds of low load:
        periodSeconds: 15
        stepsize: 2
 
-Scaling down removes pods that may hold requests; the server finishes them within
-``--exit-timeout-secs`` (60 seconds by default), which must fit inside the pod's 60-second
-termination grace period. Inference requests that reach a terminating pod fail with
-``UNAVAILABLE`` and are not retried.
+Scaling down removes pods that may hold requests. A terminating pod keeps serving for
+60 seconds while Envoy stops routing to it, and is then stopped; requests still running
+at that point fail.
 
 To keep **zero** inference server replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC
