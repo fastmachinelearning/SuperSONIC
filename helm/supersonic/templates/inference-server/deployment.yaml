@@ -77,7 +77,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "touch", "/tmp/shutdown;", "sleep 60"]
+              command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
       volumes:
       {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
       - name: nereid-config
