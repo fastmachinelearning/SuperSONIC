@@ -13,19 +13,23 @@ True when the inference server is Nereid
 {{- end -}}
 
 {{/*
-Fail on an unknown inferenceServer.type
+Fail on an unknown inferenceServer.type, or on Nereid without models
+(it does not start with an empty list)
 */}}
 {{- define "supersonic.validateInferenceServerType" -}}
 {{- $type := include "supersonic.inferenceServerType" . -}}
 {{- if not (has $type (list "triton" "nereid")) -}}
 {{- fail (printf "Unknown inferenceServer.type %q. Supported values: triton, nereid." $type) -}}
 {{- end -}}
+{{- if and (eq $type "nereid") (not .Values.inferenceServer.nereid.config.models) -}}
+{{- fail "inferenceServer.type nereid needs inferenceServer.nereid.config.models, together with a Nereid image, command and probes (see values/values-nereid.yaml)." -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
-Probe body from a values block. One handler may be set: command (exec
-shorthand), exec, httpGet or tcpSocket. Helm merges values with the chart
-defaults, so switching handler needs the default one nulled.
+Probe body from a values block. Exactly one handler must be set: command
+(exec shorthand), exec, httpGet or tcpSocket. Helm merges values with the
+chart defaults, so switching handler needs the default one nulled.
 */}}
 {{- define "supersonic.inferenceServerProbe" -}}
 {{- $probe := . -}}
@@ -35,8 +39,8 @@ defaults, so switching handler needs the default one nulled.
 {{- $set = append $set $handler -}}
 {{- end -}}
 {{- end -}}
-{{- if gt (len $set) 1 -}}
-{{- fail (printf "A probe sets more than one handler (%s); null the default one, e.g. `command: null`." (join ", " $set)) -}}
+{{- if ne (len $set) 1 -}}
+{{- fail (printf "A probe must set exactly one of command, exec, httpGet, tcpSocket (set: %s); to switch, null the default one, e.g. `command: null`." (join ", " $set | default "none")) -}}
 {{- end -}}
 {{- if $probe.command }}
 exec:
