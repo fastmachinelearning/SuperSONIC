@@ -9,7 +9,8 @@ def drop_required(node):
     """Drop genson's "required" lists: they mirror the defaults, so they only
     reject a values file that nulls a default key (e.g. `command: null`)."""
     if isinstance(node, dict):
-        node.pop("required", None)
+        if isinstance(node.get("required"), list):  # not a property named "required"
+            del node["required"]
         for value in node.values():
             drop_required(value)
     elif isinstance(node, list):
