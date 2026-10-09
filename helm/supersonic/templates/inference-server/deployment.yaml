@@ -21,9 +21,15 @@ spec:
         app.kubernetes.io/name: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: inference-server
-      {{- with .Values.inferenceServer.annotations }}
+      {{- $nereid := eq (include "supersonic.nereidEnabled" .) "true" }}
+      {{- if or .Values.inferenceServer.annotations $nereid }}
       annotations:
+        {{- if $nereid }}
+        checksum/nereid-config: {{ toYaml .Values.inferenceServer.nereid.config | sha256sum }}
+        {{- end }}
+        {{- with .Values.inferenceServer.annotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
