@@ -9,13 +9,15 @@ on:
       - "main"
 
 jobs:
-  deploy-nereid:
+  # TODO: remove once nereid-server publishes an image
+  check-image:
     runs-on: ubuntu-latest
+    outputs:
+      available: ${{ steps.image.outputs.available }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # TODO: remove once nereid-server publishes an image
       - name: Check whether the Nereid image is published
         id: image
         run: |
@@ -27,21 +29,26 @@ jobs:
             echo "::notice::Nereid image $IMAGE is not published yet; skipping the deployment test."
           fi
 
+  deploy-nereid:
+    needs: check-image
+    if: needs.check-image.outputs.available == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up Kubernetes cluster with Kind
-        if: steps.image.outputs.available == 'true'
         uses: helm/kind-action@v1.6.0
         with:
           cluster_name: gh-k8s-cluster
           config: .github/kind-config.yaml
 
       - name: Set up Helm
-        if: steps.image.outputs.available == 'true'
         uses: azure/setup-helm@v3
         with:
           version: v3.12.0
 
       - name: Deploy Helm chart with Nereid
-        if: steps.image.outputs.available == 'true'
         run: |
           kubectl create namespace cms
           kubectl apply -f tests/nereid-model-fixture.yaml
@@ -55,27 +62,24 @@ jobs:
             --set inferenceServer.modelRepository.mountPath=/models/model3
 
       - name: Nereid server ready
-        if: steps.image.outputs.available == 'true'
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=inference-server --timeout 300s -n cms
+          kubectl rollout status deployment/supersonic-inference-server --timeout 300s -n cms
 
       - name: Envoy proxy ready
-        if: steps.image.outputs.available == 'true'
         run: |
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 180s -n cms
+          kubectl rollout status deployment/supersonic-envoy --timeout 180s -n cms
 
       - name: Run inference through Envoy
-        if: steps.image.outputs.available == 'true'
         run: |
           kubectl apply -f tests/nereid-infer-job.yaml
           bash .github/scripts/wait-for-job.sh nereid-infer-job cms 600
 
       - name: Failure diagnostics
-        if: failure() && steps.image.outputs.available == 'true'
+        if: failure()
         uses: ./.github/actions/k8s-diagnostics
         with:
           namespace: cms
 
       - name: Cleanup
-        if: always() && steps.image.outputs.available == 'true'
+        if: always()
         run: kind delete cluster --name gh-k8s-cluster
