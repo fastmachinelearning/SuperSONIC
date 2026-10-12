@@ -74,13 +74,3 @@ Get gRPC endpoint for client connections
   {{- end -}}
 {{- end -}}
 {{- end -}}
-
-{{/*
-Fail on the `triton:` values block, renamed to `inferenceServer:`
-(Helm would otherwise ignore it and deploy the chart defaults)
-*/}}
-{{- define "supersonic.validateNoLegacyTritonValues" -}}
-{{- if .Values.triton -}}
-{{- fail "The `triton:` values block was renamed to `inferenceServer:`; rename the key in your values file." -}}
-{{- end -}}
-{{- end -}}

@@ -1,7 +1,6 @@
 ---
 {{- /* Run validation checks */ -}}
-{{- include "supersonic.validateNoLegacyTritonValues" . -}}
-{{- include "supersonic.validateInferenceServerType" . -}}
+{{- if .Values.triton }}{{ fail "The `triton:` values block was renamed to `inferenceServer:`; rename the key in your values file." }}{{ end -}}
 {{- include "supersonic.validateGrafanaAddressConsistency" . -}}
 {{- include "supersonic.validateGrafanaValues" . -}}
 {{- include "supersonic.validatePrometheusAddressConsistency" . -}}

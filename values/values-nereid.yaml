@@ -3,8 +3,8 @@ inferenceServer:
   type: nereid
   image: ghcr.io/ngpaladi/nereid-server:latest # placeholder until a release is published
   # Nereid is configured through nereid.yaml: use the image entrypoint
-  command: null
-  args: null
+  command: []
+  args: []
   service:
     ports:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
@@ -21,9 +21,8 @@ inferenceServer:
     mountPath: /models
     pvc:
       claimName: nereid-models
-  # The image has no curl: probe over HTTP instead of the default exec handler
+  # The image has no curl: probe over HTTP
   readinessProbe:
-    command: null
     httpGet: { path: /v2/health/ready, port: metrics }
   startupProbe:
     httpGet: { port: metrics }

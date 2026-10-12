@@ -22,7 +22,6 @@ spec:
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: envoy
       annotations:
-        {{- /* restart Envoy when its configuration changes; it is read only at startup */}}
         checksum/config: {{ print (include (print $.Template.BasePath "/envoy/configmaps.yaml") .) (include (print $.Template.BasePath "/envoy/admission.yaml") .) | sha256sum }}
         {{- with .Values.envoy.annotations }}
         {{- toYaml . | nindent 8 }}

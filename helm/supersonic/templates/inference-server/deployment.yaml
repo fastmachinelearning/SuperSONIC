@@ -21,15 +21,13 @@ spec:
         app.kubernetes.io/name: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: inference-server
-      {{- $nereid := eq (include "supersonic.nereidEnabled" .) "true" }}
-      {{- if or .Values.inferenceServer.annotations $nereid }}
+      {{- $annotations := .Values.inferenceServer.annotations }}
+      {{- if eq .Values.inferenceServer.type "nereid" }}
+      {{- $annotations = merge (dict "checksum/nereid-config" (toYaml .Values.inferenceServer.nereid.config | sha256sum)) $annotations }}
+      {{- end }}
+      {{- with $annotations }}
       annotations:
-        {{- if $nereid }}
-        checksum/nereid-config: {{ toYaml .Values.inferenceServer.nereid.config | sha256sum }}
-        {{- end }}
-        {{- with .Values.inferenceServer.annotations }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
       {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
@@ -48,38 +46,46 @@ spec:
           {{- if .Values.inferenceServer.modelRepository.enabled }}
           - name: model-repository
             mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
-            {{- if ne .Values.inferenceServer.modelRepository.storageType "configMap" }}
             mountPropagation: HostToContainer
-            {{- end }}
             readOnly: true
           {{- end }}
-          {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+          {{- if eq .Values.inferenceServer.type "nereid" }}
           - name: nereid-config
-            mountPath: {{ .Values.inferenceServer.nereid.configPath }}
+            mountPath: /nereid/nereid.yaml
             subPath: nereid.yaml
-            readOnly: true
           {{- end }}
-        {{- /* empty command/args fall back to the image entrypoint */}}
-        {{- with .Values.inferenceServer.command }}
-        command: {{ toYaml . | nindent 10 }}
-        {{- end }}
-        {{- with .Values.inferenceServer.args }}
-        args: {{ toYaml . | nindent 10 }}
-        {{- end }}
+        command: {{ toYaml .Values.inferenceServer.command | nindent 10 }}
+        args:  {{ toYaml .Values.inferenceServer.args | nindent 10 }}
 {{- if not (eq .Values.inferenceServer.startupProbe.reset true) }}
         startupProbe:
-          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.startupProbe | nindent 10 }}
+          initialDelaySeconds: {{ .Values.inferenceServer.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.inferenceServer.startupProbe.periodSeconds }}
+          failureThreshold: {{ .Values.inferenceServer.startupProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.inferenceServer.startupProbe.timeoutSeconds | default 1 }}
+          httpGet:
+            path: {{ .Values.inferenceServer.startupProbe.httpGet.path }}
+            port: {{ .Values.inferenceServer.startupProbe.httpGet.port }}
 {{- end }}
 {{- if not (eq .Values.inferenceServer.readinessProbe.reset true) }}
         readinessProbe:
-          {{- include "supersonic.inferenceServerProbe" .Values.inferenceServer.readinessProbe | nindent 10 }}
+          {{- with .Values.inferenceServer.readinessProbe.httpGet }}
+          httpGet: {{ toYaml . | nindent 12 }}
+          {{- else }}
+          exec:
+            command: {{ toYaml .Values.inferenceServer.readinessProbe.command | nindent 12 }}
+          {{- end }}
+          initialDelaySeconds: {{ .Values.inferenceServer.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.inferenceServer.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.inferenceServer.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.inferenceServer.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.inferenceServer.readinessProbe.failureThreshold }}
 {{- end }}
         lifecycle:
           preStop:
             exec:
               command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
       volumes:
-      {{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+      {{- if eq .Values.inferenceServer.type "nereid" }}
       - name: nereid-config
         configMap:
           name: {{ include "supersonic.inferenceServerName" . }}-nereid-config

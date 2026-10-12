@@ -1,4 +1,4 @@
-{{- if eq (include "supersonic.nereidEnabled" .) "true" }}
+{{- if eq .Values.inferenceServer.type "nereid" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

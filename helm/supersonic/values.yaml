@@ -119,13 +119,9 @@ inferenceServer:
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
 
-  # -- Nereid settings, used only when ``type`` is ``nereid``
   nereid:
-    # -- Mount path of the rendered ``nereid.yaml``
-    configPath: /nereid/nereid.yaml
-
-    # -- Contents of ``nereid.yaml``. The default ports match Triton's; use an absolute
-    # ``ml_backends_path`` when models come from ``modelRepository``.
+    # -- Contents of ``nereid.yaml``, used when ``type`` is ``nereid``. The default ports match
+    # Triton's; use an absolute ``ml_backends_path`` when models come from ``modelRepository``.
     config:
       server:
         bind_addr: "[::]:8001"
@@ -133,8 +129,7 @@ inferenceServer:
         ml_backends_path: "ml-backends"
       models: []
 
-  # -- Custom readiness probe configuration. One handler: ``command`` (exec), ``exec``,
-  # ``httpGet`` or ``tcpSocket``; to switch, null the default one (``command: null``).
+  # -- Custom readiness probe configuration (``httpGet``, if set, replaces ``command``)
   readinessProbe:
     # -- If true, will reset settings to k8s defaults (other readinessProbe settings will be ignored)
     reset: false
@@ -145,7 +140,7 @@ inferenceServer:
     timeoutSeconds: 15
     successThreshold: 1
 
-  # -- Custom startup probe configuration (same handlers as ``readinessProbe``)
+  # -- Custom startup probe configuration
   startupProbe:
     # -- If true, will reset settings to k8s defaults (other startupProbe settings will be ignored)
     reset: false
