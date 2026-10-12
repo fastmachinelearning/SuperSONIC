@@ -15,19 +15,12 @@ jobs:
     outputs:
       available: ${{ steps.image.outputs.available }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Check whether the Nereid image is published
-        id: image
+      - uses: actions/checkout@v3
+      - id: image
         run: |
-          IMAGE=$(grep -m1 'image: ghcr.io/ngpaladi/nereid-server' values/values-nereid.yaml | awk '{print $2}')
-          if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Nereid image $IMAGE is not published yet; skipping the deployment test."
-          fi
+          IMAGE=$(awk '/image: ghcr.io\/ngpaladi\/nereid-server/ {print $2; exit}' values/values-nereid.yaml)
+          docker manifest inspect "$IMAGE" > /dev/null 2>&1 && echo "available=true" >> "$GITHUB_OUTPUT" \
+            || echo "::notice::Nereid image $IMAGE is not published yet; skipping the deployment test."
 
   deploy-nereid:
     needs: check-image
@@ -60,13 +53,7 @@ jobs:
             --set inferenceServer.modelRepository.storageType=configMap \
             --set inferenceServer.modelRepository.configMap.name=nereid-model-fixture \
             --set inferenceServer.modelRepository.mountPath=/models/model3
-
-      - name: Nereid server ready
-        run: |
           kubectl rollout status deployment/supersonic-inference-server --timeout 300s -n cms
-
-      - name: Envoy proxy ready
-        run: |
           kubectl rollout status deployment/supersonic-envoy --timeout 180s -n cms
 
       - name: Run inference through Envoy
