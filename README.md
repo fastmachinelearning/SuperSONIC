@@ -117,7 +117,7 @@ kubectl apply -f cvmfs/cvmfs-storageclass.yaml -n cvmfs-csi
 <details>
 <summary><strong>2. Install SuperSONIC with minimal configuration</strong></summary>
 
-The minimal deployment will install only a single CPU-based inference server (Triton by default) and an Envoy Proxy.
+The minimal deployment will install only a single CPU-based Triton server and an Envoy Proxy.
 We will use [`values/values-minimal.yaml`](values/values-minimal.yaml) as our minimal
 configuration file.
 

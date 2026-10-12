@@ -32,7 +32,6 @@ abstract: >+
 keywords:
   - Kubernetes
   - NVIDIA Triton Inference Server
-  - Nereid
   - inference as a service
   - GPU
   - machine learning

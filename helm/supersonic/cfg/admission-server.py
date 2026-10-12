@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scale the inference server to at least max(1, minReplicaCount) replicas on /wake."""
+"""Scale Triton to at least max(1, minReplicaCount) replicas on /wake."""
 
 import json
 import os
@@ -132,7 +132,7 @@ def _hold_until(scaled_object):
 
 
 def ensure_inference_server_replica(extend_hold=False):
-    """Raise the ScaledObject minimum and the inference server Deployment to the wake target.
+    """Raise the ScaledObject minimum and the Triton Deployment to the wake target.
 
     With extend_hold, also advance the shared hold annotation to now + HOLD_TTL
     in the same patch (it is only ever moved forward)."""

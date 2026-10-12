@@ -68,7 +68,7 @@ jobs:
         run: |
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=envoy --timeout 120s -n cms
 
-      - name: Inference server ready
+      - name: Triton server ready
         run: |
           kubectl describe pod -l app.kubernetes.io/component=inference-server -n cms
           kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=inference-server --timeout 500s -n cms

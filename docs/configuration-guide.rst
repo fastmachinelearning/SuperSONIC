@@ -9,32 +9,26 @@ You can find example values files in the `SuperSONIC GitHub repository <https://
 1. Select an Inference Server
 =============================================
 
-The server is selected with ``inferenceServer.type`` and its version with ``inferenceServer.image``.
-
-**Triton** (``type: triton``, default)
-
 - Official versions can be found at `NVIDIA NGC <https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver>`_.
 - You can also use custom-built Triton images.
-- Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_
+- Refer to the `Nvidia Frameworks Support Matrix <https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html>`_ 
   for compatibility information (CUDA versions, NVIDIA drivers, etc.).
 
-**Nereid** (``type: nereid``)
+Triton version must be specified in the ``inferenceServer.image`` parameter in the values file.
 
-- `Nereid <https://github.com/ngpaladi/nereid-server>`_ serves the same KServe v2 gRPC protocol
-  as Triton, so Envoy, autoscaling and monitoring work unchanged.
-- It is configured through ``inferenceServer.nereid.config`` (rendered to ``nereid.yaml``) instead of
-  command-line flags; see `values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_.
-- It does not export ``nv_gpu_*`` metrics (the GPU dashboard panels and ``metricsCollector`` stay
-  empty), and its Python backend needs a writable model directory.
+To run `Nereid <https://github.com/ngpaladi/nereid-server>`_ instead, set ``inferenceServer.type: nereid``.
+It serves the same KServe v2 gRPC protocol and is configured through ``inferenceServer.nereid.config``
+instead of command-line flags (see `values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_).
+Nereid does not export ``nv_gpu_*`` metrics.
 
 
-2. Configure the model repository
+2. Configure Triton model repository
 =============================================
    
 - To learn about the structure of model repositories, refer to the
   `NVIDIA Model Repository Guide <https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html>`_.
-- For Triton, model repositories are specified in the ``inferenceServer.args`` parameter in
-  the values file. The parameter contains the full command that launches a Triton server; you can specify
+- Model repositories are specified in the ``inferenceServer.args`` parameter in the values file.
+  The parameter contains the full command that launches a Triton server; you can specify
   one or multiple model repositories via the ``--model-repository`` flag.
 - For example, the following command loads multiple CMS models hosted at CVMFS:
      
@@ -124,9 +118,8 @@ The server is selected with ``inferenceServer.type`` and its version with ``infe
        memory: 16G
 
 - In addition, you can use ``inferenceServer.nodeSelector``, ``inferenceServer.tolerations``,
-  ``inferenceServer.annotations``, and ``inferenceServer.affinity`` to steer inference server
-  pods to specific nodes. This is particularly useful for co-locating them with the Envoy
-  proxy to reduce latency.
+  ``inferenceServer.annotations``, and ``inferenceServer.affinity`` to steer inference server pods to specific nodes.
+  This is particularly useful for co-locating inference server pods with Envoy proxy to reduce latency.
 
 
 4. Configure Envoy Proxy

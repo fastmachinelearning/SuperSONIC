@@ -61,7 +61,7 @@ static_resources:
                           route:
                             cluster: inference_server_grpc_service
                             timeout: {{ .envoy.grpc_route_timeout }}
-                            # The Lua filter holds this stream while the inference server scales up from zero.
+                            # The Lua filter holds this stream while Triton scales up from zero.
                             # RouteAction.idle_timeout overrides the HCM stream_idle_timeout (default
                             # 300s) for this route only and is applied at route refresh in
                             # decodeHeaders, i.e. before the HTTP filter chain runs, so it covers the

@@ -12,7 +12,7 @@ function envoy_on_request(request_handle)
         local scale_from_zero = ("SCALE_FROM_ZERO_ENABLED" == "true")
         local prometheus_rate_limit_enabled = ("PROMETHEUS_RATE_LIMIT_ENABLED" == "true")
 
-        -- Scale the inference server to at least one replica and wait for a healthy Envoy upstream before forwarding RepositoryIndex.
+        -- Scale Triton to at least one replica and wait for a healthy Envoy upstream before forwarding RepositoryIndex.
         if scale_from_zero then
             local timeout_seconds = tonumber("READY_TIMEOUT_SECONDS") or 300
             request_handle:logInfo("Scale-from-zero: starting the inference server")
@@ -35,7 +35,7 @@ function envoy_on_request(request_handle)
                 return
             end
 
-            -- Wait until Envoy reports a healthy inference server host, or until the deadline passes.
+            -- Wait until Envoy reports a healthy Triton host, or until the deadline passes.
             -- Envoy Lua has no sleep primitive, so the loop is paced by the admission
             -- sidecar's /sleep endpoint, which blocks for ~1s before responding.
             local healthy = false
@@ -88,7 +88,7 @@ function envoy_on_request(request_handle)
             end
             request_handle:logInfo("Inference server has a healthy Envoy upstream")
 
-            -- Refresh the KEDA hold now that the inference server is ready. The first /wake
+            -- Refresh the KEDA hold now that Triton is ready. The first /wake
             -- anchored hold-until at the moment the wake started, so by the time
             -- the index is answered only hold - startup_time of it would remain
             -- (and could be nearly nothing after a slow start). /wake only moves

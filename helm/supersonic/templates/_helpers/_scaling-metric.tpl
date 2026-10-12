@@ -5,14 +5,14 @@ Default scaling metric: replicas needed by the current in-flight work,
 
   R_needed = L_envoy / max(L_service / R_healthy, 1)
 
-  L_envoy   - requests in flight between Envoy and the inference servers (rate of the upstream
+  L_envoy   - requests in flight between Envoy and Triton (rate of the upstream
               request-time counter, ms -> /1e3)
-  L_service - requests being executed (rate of server-side request minus queue
+  L_service - requests being executed (rate of Triton request minus queue
               duration, us -> /1e6)
-  R_healthy - inference server endpoints Envoy routes to
+  R_healthy - Triton endpoints Envoy routes to
 
 clamp_min is PromQL for max; the floors keep the division finite and let an
-idle fleet scale down. With no inference server series the query is empty, which both
+idle fleet scale down. With no Triton series the query is empty, which both
 consumers read as no load.
 
 KEDA uses "supersonic.defaultMetric" (metricType AverageValue, desired =
@@ -31,7 +31,7 @@ Keep it at >= 4x the Prometheus scrape interval.
 {{- end -}}
 
 {{/*
-Healthy inference server endpoints as seen by Envoy.
+Healthy Triton endpoints as seen by Envoy.
 */}}
 {{- define "supersonic.healthyReplicasExpr" -}}
 max(envoy_cluster_membership_healthy{release="{{ include "supersonic.name" . }}", envoy_cluster_name="inference_server_grpc_service"})
