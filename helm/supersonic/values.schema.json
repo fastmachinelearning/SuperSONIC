@@ -43,9 +43,6 @@
     "inferenceServer": {
       "type": "object",
       "properties": {
-        "type": {
-          "type": "string"
-        },
         "replicas": {
           "type": "integer"
         },
@@ -172,45 +169,6 @@
             "ports"
           ]
         },
-        "nereid": {
-          "type": "object",
-          "properties": {
-            "config": {
-              "type": "object",
-              "properties": {
-                "server": {
-                  "type": "object",
-                  "properties": {
-                    "bind_addr": {
-                      "type": "string"
-                    },
-                    "http_addr": {
-                      "type": "string"
-                    },
-                    "ml_backends_path": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "bind_addr",
-                    "http_addr",
-                    "ml_backends_path"
-                  ]
-                },
-                "models": {
-                  "type": "array"
-                }
-              },
-              "required": [
-                "models",
-                "server"
-              ]
-            }
-          },
-          "required": [
-            "config"
-          ]
-        },
         "readinessProbe": {
           "type": "object",
           "properties": {
@@ -300,15 +258,13 @@
         "command",
         "image",
         "modelRepository",
-        "nereid",
         "nodeSelector",
         "readinessProbe",
         "replicas",
         "resources",
         "service",
         "startupProbe",
-        "tolerations",
-        "type"
+        "tolerations"
       ]
     },
     "envoy": {

@@ -21,11 +21,7 @@ spec:
         app.kubernetes.io/name: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ include "supersonic.name" . }}
         app.kubernetes.io/component: inference-server
-      {{- $annotations := .Values.inferenceServer.annotations }}
-      {{- if eq .Values.inferenceServer.type "nereid" }}
-      {{- $annotations = merge (dict "checksum/nereid-config" (toYaml .Values.inferenceServer.nereid.config | sha256sum)) $annotations }}
-      {{- end }}
-      {{- with $annotations }}
+      {{- with .Values.inferenceServer.annotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -48,11 +44,6 @@ spec:
             mountPath: {{ .Values.inferenceServer.modelRepository.mountPath }}
             mountPropagation: HostToContainer
             readOnly: true
-          {{- end }}
-          {{- if eq .Values.inferenceServer.type "nereid" }}
-          - name: nereid-config
-            mountPath: /nereid/nereid.yaml
-            subPath: nereid.yaml
           {{- end }}
         command: {{ toYaml .Values.inferenceServer.command | nindent 10 }}
         args:  {{ toYaml .Values.inferenceServer.args | nindent 10 }}
@@ -85,11 +76,6 @@ spec:
             exec:
               command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
       volumes:
-      {{- if eq .Values.inferenceServer.type "nereid" }}
-      - name: nereid-config
-        configMap:
-          name: {{ include "supersonic.inferenceServerName" . }}-nereid-config
-      {{- end }}
       {{- if .Values.inferenceServer.modelRepository.enabled }}
       - name: model-repository
       {{- if eq .Values.inferenceServer.modelRepository.storageType "nfs" }}

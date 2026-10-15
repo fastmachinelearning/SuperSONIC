@@ -37,9 +37,6 @@ scaleFromZero:
   admissionImage: python:3.14-slim
 
 inferenceServer:
-  # -- Inference server: ``triton`` or ``nereid`` (example in ``values/values-nereid.yaml``)
-  type: triton
-
   # -- Number of inference server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
@@ -118,16 +115,6 @@ inferenceServer:
       - { name: http, port: 8000, targetPort: 8000, protocol: TCP }
       - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
       - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP }
-
-  nereid:
-    # -- Contents of ``nereid.yaml``, used when ``type`` is ``nereid``. The default ports match
-    # Triton's; use an absolute ``ml_backends_path`` when models come from ``modelRepository``.
-    config:
-      server:
-        bind_addr: "[::]:8001"
-        http_addr: "[::]:8002"
-        ml_backends_path: "ml-backends"
-      models: []
 
   # -- Custom readiness probe configuration (``httpGet``, if set, replaces ``command``)
   readinessProbe:

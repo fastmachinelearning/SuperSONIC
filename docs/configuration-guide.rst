@@ -16,10 +16,10 @@ You can find example values files in the `SuperSONIC GitHub repository <https://
 
 Triton version must be specified in the ``inferenceServer.image`` parameter in the values file.
 
-To run `Nereid <https://github.com/ngpaladi/nereid-server>`_ instead, set ``inferenceServer.type: nereid``.
-It serves the same KServe v2 gRPC protocol and is configured through ``inferenceServer.nereid.config``
-instead of command-line flags (see `values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_).
-Nereid does not export ``nv_gpu_*`` metrics.
+Other servers that speak the KServe v2 gRPC protocol are configured through the same parameters;
+for example, `values/values-nereid.yaml <https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml>`_
+runs `Nereid <https://github.com/ngpaladi/nereid-server>`_. The GPU dashboard panels and ``metricsCollector``
+use Triton's ``nv_gpu_*`` metrics.
 
 
 2. Configure Triton model repository
