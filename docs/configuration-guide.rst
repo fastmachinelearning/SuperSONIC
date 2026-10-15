@@ -126,7 +126,7 @@ use Triton's ``nv_gpu_*`` metrics.
 ================================================
 
 By default, Envoy proxy is enabled and configured to provide per-request
-load balancing between inference servers.
+load balancing between inference servers (e.g. Nvidia Triton).
 
 Once the SuperSONIC chart is installed, you need an address by which clients
 can connect to the Envoy proxy and send inference requests.

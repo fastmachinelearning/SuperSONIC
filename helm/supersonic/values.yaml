@@ -40,7 +40,7 @@ inferenceServer:
   # -- Number of inference server instances. Unused when scaleFromZero.enabled is true.
   replicas: 1
 
-  # -- Docker image for the inference server
+  # -- Docker image for the inference server (e.g. Nvidia Triton)
   image: "nvcr.io/nvidia/tritonserver:26.08-py3-min"
   
   # -- Command and arguments to run in the inference server container
