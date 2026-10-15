@@ -1,0 +1,33 @@
+# One inference through Envoy with a stock tritonclient
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nereid-infer-job
+  namespace: cms
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: infer
+        image: python:3.14-slim
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -euo pipefail
+            pip install --quiet --no-cache-dir "tritonclient[grpc]==2.72.0" numpy
+            python3 - <<'PY'
+            import numpy as np
+            import tritonclient.grpc as grpcclient
+
+            client = grpcclient.InferenceServerClient("supersonic.cms.svc.cluster.local:8001")
+            meta = client.get_model_metadata("model3")
+            inp, out = meta.inputs[0], meta.outputs[0]
+            shape = [d if d > 0 else 1 for d in inp.shape]
+            tensor = grpcclient.InferInput(inp.name, shape, inp.datatype)
+            tensor.set_data_from_numpy(np.ones(shape, dtype=np.float32))
+            result = client.infer("model3", [tensor]).as_numpy(out.name)
+            assert result is not None and result.size > 0, "empty output"
+            print("OK:", shape, "->", result.shape, flush=True)
+            PY

@@ -12,10 +12,10 @@ Get instance name (equal to release name unless overridden)
 {{- end -}}
 
 {{/*
-Get Triton server name
+Get inference server name
 */}}
-{{- define "supersonic.tritonName" -}}
-{{- printf "%s-triton" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- define "supersonic.inferenceServerName" -}}
+{{- printf "%s-inference-server" (include "supersonic.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

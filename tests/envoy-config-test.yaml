@@ -42,7 +42,7 @@ data:
                             - match:
                                 prefix: "/"
                               route:
-                                cluster: triton_grpc_service
+                                cluster: inference_server_grpc_service
                                 timeout: 0s
                     
                     http_filters:
@@ -52,7 +52,7 @@ data:
                     http2_protocol_options: {}
 
       clusters:
-        - name: triton_grpc_service
+        - name: inference_server_grpc_service
           connect_timeout: 0.25s
           type: STRICT_DNS
           # Absolute FQDN (trailing dot) + V4_ONLY: matches the chart template so c-ares
@@ -65,11 +65,11 @@ data:
               explicit_http_config:
                 http2_protocol_options: {}
           load_assignment:
-            cluster_name: triton_grpc_service
+            cluster_name: inference_server_grpc_service
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: supersonic-triton.cms.svc.cluster.local.
+                          address: supersonic-inference-server.cms.svc.cluster.local.
                           port_value: 8001

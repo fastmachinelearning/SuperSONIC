@@ -70,8 +70,8 @@ jobs:
 
       - name: Triton server ready
         run: |
-          kubectl describe pod -l app.kubernetes.io/component=triton -n cms
-          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=triton --timeout 500s -n cms
+          kubectl describe pod -l app.kubernetes.io/component=inference-server -n cms
+          kubectl wait --for condition=Ready pod -l app.kubernetes.io/component=inference-server --timeout 500s -n cms
 
       - name: Validate Deployment
         run: |

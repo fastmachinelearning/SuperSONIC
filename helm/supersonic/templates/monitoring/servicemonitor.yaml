@@ -2,18 +2,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "supersonic.name" . }}-triton-monitor
+  name: {{ include "supersonic.name" . }}-inference-server-monitor
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-    app.kubernetes.io/component: triton
+    app.kubernetes.io/component: inference-server
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Chart.Name }}
       app.kubernetes.io/instance: {{ include "supersonic.name" . }}
-      app.kubernetes.io/component: triton
+      app.kubernetes.io/component: inference-server
   endpoints:
   - port: metrics
     path: /metrics

@@ -1,0 +1,37 @@
+# Nereid (https://github.com/ngpaladi/nereid-server) as the inference server
+inferenceServer:
+  image: ghcr.io/ngpaladi/nereid-server:latest # placeholder until a release is published
+  # Nereid reads nereid.yaml from its working directory; ports match Triton's
+  command: ["/bin/sh", "-c"]
+  args:
+    - |
+      cat > nereid.yaml <<'EOF'
+      server:
+        bind_addr: "[::]:8001"
+        http_addr: "[::]:8002"
+        ml_backends_path: /models
+      models:
+        - { name: model3, device: cpu, queue_capacity: 16 }
+      EOF
+      exec /opt/nereid/grpc-test
+  service:
+    ports:
+      - { name: grpc, port: 8001, targetPort: 8001, protocol: TCP }
+      - { name: metrics, port: 8002, targetPort: 8002, protocol: TCP } # metrics and health
+  modelRepository:
+    enabled: true
+    storageType: pvc
+    mountPath: /models
+    pvc:
+      claimName: nereid-models
+  # The image has no curl: probe over HTTP
+  readinessProbe:
+    httpGet: { path: /v2/health/ready, port: metrics }
+  startupProbe:
+    httpGet: { port: metrics }
+
+envoy:
+  resources:
+    requests:
+      cpu: 0.1
+      memory: "128Mi"

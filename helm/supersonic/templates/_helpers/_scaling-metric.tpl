@@ -34,7 +34,7 @@ Keep it at >= 4x the Prometheus scrape interval.
 Healthy Triton endpoints as seen by Envoy.
 */}}
 {{- define "supersonic.healthyReplicasExpr" -}}
-max(envoy_cluster_membership_healthy{release="{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"})
+max(envoy_cluster_membership_healthy{release="{{ include "supersonic.name" . }}", envoy_cluster_name="inference_server_grpc_service"})
 {{- end -}}
 
 {{/*
@@ -45,7 +45,7 @@ Get default scaling metric (extensive form: replicas needed)
   {{- printf "%s" .Values.serverLoadMetric -}}
 {{- else }}
 {{- $w := include "supersonic.rateInterval" . }}
-sum(rate(envoy_cluster_upstream_rq_time_sum{release="{{ include "supersonic.name" . }}", envoy_cluster_name="triton_grpc_service"}[{{ $w }}])) / 1e3
+sum(rate(envoy_cluster_upstream_rq_time_sum{release="{{ include "supersonic.name" . }}", envoy_cluster_name="inference_server_grpc_service"}[{{ $w }}])) / 1e3
 * scalar(clamp_min({{ include "supersonic.healthyReplicasExpr" . }}, 1))
 / clamp_min(
     clamp_min(

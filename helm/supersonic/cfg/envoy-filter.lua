@@ -15,16 +15,16 @@ function envoy_on_request(request_handle)
         -- Scale Triton to at least one replica and wait for a healthy Envoy upstream before forwarding RepositoryIndex.
         if scale_from_zero then
             local timeout_seconds = tonumber("READY_TIMEOUT_SECONDS") or 300
-            request_handle:logInfo("Scale-from-zero: starting GPU Triton")
+            request_handle:logInfo("Scale-from-zero: starting the inference server")
             -- /wake may wait behind an in-flight scaling pass and then make up to
             -- four Kubernetes API calls of its own (3s timeout each), so give it
             -- enough headroom for a slow apiserver.
             local wake_headers = request_handle:httpCall(
-                "triton_admission",
+                "inference_server_admission",
                 {
                     [":method"] = "GET",
                     [":path"] = "/wake",
-                    [":authority"] = "triton_admission"
+                    [":authority"] = "inference_server_admission"
                 },
                 "",
                 30000
@@ -46,7 +46,7 @@ function envoy_on_request(request_handle)
                     "envoy_admin",
                     {
                         [":method"] = "GET",
-                        [":path"] = "/stats?filter=cluster.triton_grpc_service.membership_healthy",
+                        [":path"] = "/stats?filter=cluster.inference_server_grpc_service.membership_healthy",
                         [":authority"] = "envoy_admin"
                     },
                     "",
@@ -54,18 +54,18 @@ function envoy_on_request(request_handle)
                 )
                 local n = 0
                 if stats_body then
-                    n = tonumber(string.match(stats_body, "cluster%.triton_grpc_service%.membership_healthy: ([0-9]+)")) or 0
+                    n = tonumber(string.match(stats_body, "cluster%.inference_server_grpc_service%.membership_healthy: ([0-9]+)")) or 0
                 end
                 if n > 0 then
                     healthy = true
                     break
                 end
                 local sleep_headers = request_handle:httpCall(
-                    "triton_admission",
+                    "inference_server_admission",
                     {
                         [":method"] = "GET",
                         [":path"] = "/sleep",
-                        [":authority"] = "triton_admission"
+                        [":authority"] = "inference_server_admission"
                     },
                     "",
                     2000
@@ -82,11 +82,11 @@ function envoy_on_request(request_handle)
                 end
             end
             if not healthy then
-                request_handle:logErr("No healthy Triton upstream in time; rejecting RepositoryIndex")
-                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "no healthy upstream: Triton did not become ready in time")
+                request_handle:logErr("No healthy inference server upstream in time; rejecting RepositoryIndex")
+                request_handle:streamInfo():dynamicMetadata():set("envoy.lua", "reject_reason", "no healthy upstream: inference server did not become ready in time")
                 return
             end
-            request_handle:logInfo("GPU Triton has a healthy Envoy upstream")
+            request_handle:logInfo("Inference server has a healthy Envoy upstream")
 
             -- Refresh the KEDA hold now that Triton is ready. The first /wake
             -- anchored hold-until at the moment the wake started, so by the time
@@ -99,11 +99,11 @@ function envoy_on_request(request_handle)
             -- admission sidecar finishes the wake pass server-side even if Envoy
             -- stops waiting for the reply.
             local refresh_headers = request_handle:httpCall(
-                "triton_admission",
+                "inference_server_admission",
                 {
                     [":method"] = "GET",
                     [":path"] = "/wake",
-                    [":authority"] = "triton_admission"
+                    [":authority"] = "inference_server_admission"
                 },
                 "",
                 10000
