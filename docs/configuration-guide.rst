@@ -456,8 +456,8 @@ within one HPA evaluation and scale down after 90 seconds of low load:
        stepsize: 2
 
 Scaling down removes pods that may hold requests. A terminating pod keeps serving for
-60 seconds while Envoy stops routing to it, and is then stopped; requests still running
-at that point fail.
+40 seconds while Envoy stops routing to it, then is sent SIGTERM and has 20 more seconds
+to finish.
 
 To keep **zero** inference server replicas when idle, set ``keda.minReplicaCount`` to ``0`` and enable
 ``scaleFromZero``. Envoy stays running. On a ``RepositoryIndex`` request (the first RPC

@@ -74,7 +74,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 60"]
+              command: ["/bin/sh", "-c", "touch /tmp/shutdown; sleep 40"]
       volumes:
       {{- if .Values.inferenceServer.modelRepository.enabled }}
       - name: model-repository
