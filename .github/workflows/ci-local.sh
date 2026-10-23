@@ -103,7 +103,7 @@ kubectl wait --for=condition=Ready so -l app.kubernetes.io/component=keda --time
 
 echo "Waiting for Triton Deployment spec.replicas=0..."
 for i in $(seq 1 36); do
-  replicas=$(kubectl get deploy -l app.kubernetes.io/component=triton -n cms -o jsonpath='{.items[0].spec.replicas}')
+  replicas=$(kubectl get deploy -l app.kubernetes.io/component=inference-server -n cms -o jsonpath='{.items[0].spec.replicas}')
   echo "Triton spec.replicas=${replicas:-unset}"
   if [ "${replicas}" = "0" ]; then
     break
