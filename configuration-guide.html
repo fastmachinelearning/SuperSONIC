@@ -51,9 +51,9 @@
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#select-a-triton-inference-server-version">1. Select a Triton Inference Server Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-an-inference-server">1. Select an Inference Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-triton-model-repository">2. Configure Triton model repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-triton-pods">3. Select Resources for Triton Pods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-resources-for-inference-server-pods">3. Select Resources for Inference Server Pods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-envoy-proxy">4. Configure Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-rate-limiting-in-envoy-proxy">5. (Optional) Configure Rate Limiting in Envoy Proxy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-configure-authentication-in-envoy-proxy">6. (Optional) Configure Authentication in Envoy Proxy</a></li>
@@ -96,22 +96,26 @@
 <p>The following guide will help you configure <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code> file for a SuperSONIC deployment.
 The full list of parameters can be found in the <a class="reference external" href="configuration-reference">Configuration Reference</a>.</p>
 <p>You can find example values files in the <a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/tree/main/values">SuperSONIC GitHub repository</a>.</p>
-<section id="select-a-triton-inference-server-version">
-<h2>1. Select a Triton Inference Server Version<a class="headerlink" href="#select-a-triton-inference-server-version" title="Link to this heading"></a></h2>
+<section id="select-an-inference-server">
+<h2>1. Select an Inference Server<a class="headerlink" href="#select-an-inference-server" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Official versions can be found at <a class="reference external" href="https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver">NVIDIA NGC</a>.</p></li>
 <li><p>You can also use custom-built Triton images.</p></li>
 <li><p>Refer to the <a class="reference external" href="https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html">Nvidia Frameworks Support Matrix</a>
 for compatibility information (CUDA versions, NVIDIA drivers, etc.).</p></li>
 </ul>
-<p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">triton.image</span></code> parameter in the values file.</p>
+<p>Triton version must be specified in the <code class="docutils literal notranslate"><span class="pre">inferenceServer.image</span></code> parameter in the values file.</p>
+<p>Other servers that speak the KServe v2 gRPC protocol are configured through the same parameters;
+for example, <a class="reference external" href="https://github.com/fastmachinelearning/SuperSONIC/blob/main/values/values-nereid.yaml">values/values-nereid.yaml</a>
+runs <a class="reference external" href="https://github.com/ngpaladi/nereid-server">Nereid</a>. The GPU dashboard panels and <code class="docutils literal notranslate"><span class="pre">metricsCollector</span></code>
+use Triton’s <code class="docutils literal notranslate"><span class="pre">nv_gpu_*</span></code> metrics.</p>
 </section>
 <section id="configure-triton-model-repository">
 <h2>2. Configure Triton model repository<a class="headerlink" href="#configure-triton-model-repository" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>To learn about the structure of model repositories, refer to the
 <a class="reference external" href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html">NVIDIA Model Repository Guide</a>.</p></li>
-<li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">triton.args</span></code> parameter in the values file.
+<li><p>Model repositories are specified in the <code class="docutils literal notranslate"><span class="pre">inferenceServer.args</span></code> parameter in the values file.
 The parameter contains the full command that launches a Triton server; you can specify
 one or multiple model repositories via the <code class="docutils literal notranslate"><span class="pre">--model-repository</span></code> flag.</p></li>
 <li><p>For example, the following command loads multiple CMS models hosted at CVMFS:</p></li>
@@ -129,8 +133,8 @@ one or multiple model repositories via the <code class="docutils literal notrans
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the Triton container.
-The following options for model repository mounting are provided via <code class="docutils literal notranslate"><span class="pre">triton.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
+<li><p>Make sure that the model repository paths exist. You can load models from a volume mounted to the inference server container.
+The following options for model repository mounting are provided via <code class="docutils literal notranslate"><span class="pre">inferenceServer.modelRepository</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">values.yaml</span></code>:</p></li>
 </ul>
 <details>
 <summary>Model repository options</summary><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># -- Model repository configuration</span>
@@ -162,13 +166,19 @@ The following options for model repository mounting are provided via <code class
 <span class="w">  </span><span class="nt">nfs</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">server</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">path</span><span class="p">:</span>
+
+<span class="w">  </span><span class="c1">## -- OR --</span>
+<span class="w">  </span><span class="c1">## Option 5: mount models from a ConfigMap (small models, at most 1 MiB in total)</span>
+<span class="w">  </span><span class="nt">storageType</span><span class="p">:</span><span class="w"> </span><span class="s">"configMap"</span>
+<span class="w">  </span><span class="nt">configMap</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span>
 </pre></div>
 </div>
 </details><br><br></section>
-<section id="select-resources-for-triton-pods">
-<h2>3. Select Resources for Triton Pods<a class="headerlink" href="#select-resources-for-triton-pods" title="Link to this heading"></a></h2>
+<section id="select-resources-for-inference-server-pods">
+<h2>3. Select Resources for Inference Server Pods<a class="headerlink" href="#select-resources-for-inference-server-pods" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>You can configure CPU, memory, and GPU resources for Triton pods via the <code class="docutils literal notranslate"><span class="pre">triton.resources</span></code> parameter in the values file:</p></li>
+<li><p>You can configure CPU, memory, and GPU resources for inference server pods via the <code class="docutils literal notranslate"><span class="pre">inferenceServer.resources</span></code> parameter in the values file:</p></li>
 </ul>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">limits</span><span class="p">:</span>
@@ -182,15 +192,15 @@ The following options for model repository mounting are provided via <code class
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>In addition, you can use <code class="docutils literal notranslate"><span class="pre">triton.nodeSelector</span></code>, <code class="docutils literal notranslate"><span class="pre">triton.tolerations</span></code>,
-<code class="docutils literal notranslate"><span class="pre">triton.annotations</span></code>, and <code class="docutils literal notranslate"><span class="pre">triton.affinity</span></code> to steer Triton pods to specific nodes.
-This is particularly useful for co-locating Triton pods with Envoy proxy to reduce latency.</p></li>
+<li><p>In addition, you can use <code class="docutils literal notranslate"><span class="pre">inferenceServer.nodeSelector</span></code>, <code class="docutils literal notranslate"><span class="pre">inferenceServer.tolerations</span></code>,
+<code class="docutils literal notranslate"><span class="pre">inferenceServer.annotations</span></code>, and <code class="docutils literal notranslate"><span class="pre">inferenceServer.affinity</span></code> to steer inference server pods to specific nodes.
+This is particularly useful for co-locating inference server pods with Envoy proxy to reduce latency.</p></li>
 </ul>
 </section>
 <section id="configure-envoy-proxy">
 <h2>4. Configure Envoy Proxy<a class="headerlink" href="#configure-envoy-proxy" title="Link to this heading"></a></h2>
 <p>By default, Envoy proxy is enabled and configured to provide per-request
-load balancing between Triton inference servers.</p>
+load balancing between inference servers (e.g. Nvidia Triton).</p>
 <p>Once the SuperSONIC chart is installed, you need an address by which clients
 can connect to the Envoy proxy and send inference requests.</p>
 <p>There are two options:</p>
@@ -262,9 +272,9 @@ Each new connection consumes a token from the bucket, and the bucket is refilled
 <li><p><strong>Prometheus-based rate limiting</strong> allows an additional layer of rate limiting based on a metric queried from a Prometheus server.
 This can be useful to dynamically control server load and stop accepting new connections when GPUs are saturated.</p>
 <p>This rate limiter can be enabled via the <code class="docutils literal notranslate"><span class="pre">envoy.rate_limiter.prometheus_based</span></code> parameter in the values file.</p>
-<p>At the moment, this functionality is configured to only reject <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests to Triton servers, and it ignores
+<p>At the moment, this functionality is configured to only reject <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests to inference servers, and it ignores
 any other requests in order not to slow down the inferences.</p>
-<p>The rate limiter evaluates the autoscaler’s scaling metric per healthy Triton replica and rejects
+<p>The rate limiter evaluates the autoscaler’s scaling metric per healthy inference server replica and rejects
 <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests above <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code> (see step 8).</p>
 </li>
 </ul>
@@ -339,7 +349,7 @@ all  parameters in the <code class="docutils literal notranslate"><span class="p
 set by <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> and rendered in <code class="docutils literal notranslate"><span class="pre">templates/_helpers/_scaling-metric.tpl</span></code>.</p>
 <section id="the-default-metric">
 <h3>The default metric<a class="headerlink" href="#the-default-metric" title="Link to this heading"></a></h3>
-<p>By default, SuperSONIC estimates <strong>how many Triton replicas the current in-flight
+<p>By default, SuperSONIC estimates <strong>how many inference server replicas the current in-flight
 work needs</strong>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">R_needed</span> <span class="o">=</span> <span class="n">L_envoy</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">L_service</span> <span class="o">/</span> <span class="n">R_healthy</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -347,11 +357,11 @@ work needs</strong>:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">rate()</span></code> of a cumulative time counter is the mean number of requests inside
 that stage (Little’s law):</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">L_envoy</span></code> — requests in flight between Envoy and Triton:
+<li><p><code class="docutils literal notranslate"><span class="pre">L_envoy</span></code> — requests in flight between Envoy and the inference servers:
 <code class="docutils literal notranslate"><span class="pre">sum(rate(envoy_cluster_upstream_rq_time_sum{...}[30s]))</span> <span class="pre">/</span> <span class="pre">1e3</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">L_service</span></code> — requests being executed:
 <code class="docutils literal notranslate"><span class="pre">(sum(rate(nv_inference_request_duration_us{...}[30s]))</span> <span class="pre">-</span> <span class="pre">sum(rate(nv_inference_queue_duration_us{...}[30s])))</span> <span class="pre">/</span> <span class="pre">1e6</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">R_healthy</span></code> — Triton endpoints Envoy routes to:
+<li><p><code class="docutils literal notranslate"><span class="pre">R_healthy</span></code> — inference server endpoints Envoy routes to:
 <code class="docutils literal notranslate"><span class="pre">max(envoy_cluster_membership_healthy{...})</span></code>.</p></li>
 </ul>
 <p>Models are weighted by the time they consume, so the metric has no model-specific
@@ -363,11 +373,11 @@ queues, 2 means requests wait as long as they are served.</p>
 <section id="requirements-and-limitations">
 <h3>Requirements and limitations<a class="headerlink" href="#requirements-and-limitations" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Envoy must be enabled with the Triton cluster named <code class="docutils literal notranslate"><span class="pre">triton_grpc_service</span></code>, and
-Prometheus must scrape Envoy and Triton with a <code class="docutils literal notranslate"><span class="pre">release</span></code> label (the chart
+<li><p>Envoy must be enabled with the upstream cluster named <code class="docutils literal notranslate"><span class="pre">inference_server_grpc_service</span></code>, and
+Prometheus must scrape Envoy and the inference servers with a <code class="docutils literal notranslate"><span class="pre">release</span></code> label (the chart
 defaults do both).</p></li>
 <li><p>All inference traffic must enter through Envoy; requests sent directly to the
-Triton service are not counted and scale the fleet down.</p></li>
+inference server service are not counted and scale the fleet down.</p></li>
 <li><p>Ensemble and BLS models are reported under the parent and under each composing
 model, so the metric under-reads overload for them; use a custom
 <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> that excludes the parent models.</p></li>
@@ -395,7 +405,7 @@ at or above 4x the Prometheus scrape interval (<code class="docutils literal not
 passes decimals as strings. Envoy reads the query and the admission threshold at
 startup, so restart its pods after changing them.</p>
 <p><strong>Upgrading from the queue-latency metric</strong>: remove a leftover
-<code class="docutils literal notranslate"><span class="pre">serverLoadThreshold:</span> <span class="pre">100</span></code>; with the default metric it pins Triton at
+<code class="docutils literal notranslate"><span class="pre">serverLoadThreshold:</span> <span class="pre">100</span></code>; with the default metric it pins the inference server at
 <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> (<code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">install</span></code> warns). To keep the old behaviour, keep
 the threshold, set <code class="docutils literal notranslate"><span class="pre">serverAdmissionThreshold</span></code> to the same value, and set
 <code class="docutils literal notranslate"><span class="pre">serverLoadMetric</span></code> to the old query:</p>
@@ -454,7 +464,7 @@ can be enabled via the <code class="docutils literal notranslate"><span class="p
 <p>Deploying KEDA autoscaler requires KEDA CustomResourceDefinitions to be installed in the cluster.
 Please contact cluster administrators if this step of installation fails.</p>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> bound the number of Triton servers.
+<p><code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> and <code class="docutils literal notranslate"><span class="pre">keda.maxReplicaCount</span></code> bound the number of inference servers.
 <code class="docutils literal notranslate"><span class="pre">keda.pollingInterval</span></code> is how often KEDA checks whether the trigger is active (scaling to
 and from zero); scaling between one and <code class="docutils literal notranslate"><span class="pre">maxReplicaCount</span></code> follows the HPA sync period
 (15 seconds). <code class="docutils literal notranslate"><span class="pre">keda.cooldownPeriod</span></code> is how long the metric must stay at or below
@@ -483,14 +493,13 @@ within one HPA evaluation and scale down after 90 seconds of low load:</p>
 <span class="w">    </span><span class="nt">stepsize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </pre></div>
 </div>
-<p>Scaling down removes pods that may hold requests; Triton finishes them within
-<code class="docutils literal notranslate"><span class="pre">--exit-timeout-secs</span></code> (60 seconds by default), which must fit inside the pod’s 60-second
-termination grace period. Inference requests that reach a terminating pod fail with
-<code class="docutils literal notranslate"><span class="pre">UNAVAILABLE</span></code> and are not retried.</p>
-<p>To keep <strong>zero</strong> Triton replicas when idle, set <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code> and enable
+<p>Scaling down removes pods that may hold requests. A terminating pod keeps serving for
+40 seconds while Envoy stops routing to it, then is sent SIGTERM and has 20 more seconds
+to finish.</p>
+<p>To keep <strong>zero</strong> inference server replicas when idle, set <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code> and enable
 <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code>. Envoy stays running. On a <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> request (the first RPC
-used by CMS SONIC clients), SuperSONIC scales Triton to <code class="docutils literal notranslate"><span class="pre">max(1,</span> <span class="pre">keda.minReplicaCount)</span></code>
-replicas and returns the index only after Envoy has a healthy Triton upstream. KEDA then
+used by CMS SONIC clients), SuperSONIC scales the inference server to <code class="docutils literal notranslate"><span class="pre">max(1,</span> <span class="pre">keda.minReplicaCount)</span></code>
+replicas and returns the index only after Envoy has a healthy inference server upstream. KEDA then
 scales up to <code class="docutils literal notranslate"><span class="pre">maxReplicaCount</span></code> using the Prometheus load metric. After
 <code class="docutils literal notranslate"><span class="pre">scaleFromZero.holdMinReplicasSeconds</span></code> with no further <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests,
 the ScaledObject minimum returns to <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code>, and KEDA can scale back to zero.</p>
@@ -510,11 +519,11 @@ the ScaledObject minimum returns to <code class="docutils literal notranslate"><
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The client deadline for <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> must cover Triton startup. If no healthy
+<p>The client deadline for <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> must cover inference server startup. If no healthy
 upstream is available within <code class="docutils literal notranslate"><span class="pre">scaleFromZero.readyTimeoutSeconds</span></code>, the index request
 is rejected.</p>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">triton.replicas</span></code> is unused when <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> is enabled; KEDA owns the replica
+<p><code class="docutils literal notranslate"><span class="pre">inferenceServer.replicas</span></code> is unused when <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> is enabled; KEDA owns the replica
 count. Helm upgrades keep the live ScaledObject <code class="docutils literal notranslate"><span class="pre">minReplicaCount</span></code> so they do not
 interrupt an active hold. The hold deadline is stored as an annotation on the
 ScaledObject, so the admission sidecars of multiple Envoy replicas share one hold
@@ -522,7 +531,7 @@ and none can release a peer’s active hold. <code class="docutils literal notra
 <code class="docutils literal notranslate"><span class="pre">envoy.enabled</span></code>.</p>
 <p>Do not set <code class="docutils literal notranslate"><span class="pre">keda.zeroIdleReplicas:</span> <span class="pre">true</span></code> together with <code class="docutils literal notranslate"><span class="pre">minReplicaCount:</span> <span class="pre">0</span></code>.
 <code class="docutils literal notranslate"><span class="pre">zeroIdleReplicas</span></code> sets KEDA <code class="docutils literal notranslate"><span class="pre">idleReplicaCount</span></code> to 0 and cannot scale from 0 back to 1
-when the load metric is scraped from Triton. Use <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> for that.</p>
+when the load metric is scraped from the inference server. Use <code class="docutils literal notranslate"><span class="pre">scaleFromZero</span></code> for that.</p>
 <p>An example is <code class="docutils literal notranslate"><span class="pre">values/values-geddes-cms.yaml</span></code>.</p>
 </section>
 <section id="optional-configure-metrics-collector-for-running-perf-analyzer">
