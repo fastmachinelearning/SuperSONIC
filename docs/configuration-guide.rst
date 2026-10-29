@@ -466,6 +466,8 @@ replicas and returns the index only after Envoy has a healthy inference server u
 scales up to ``maxReplicaCount`` using the Prometheus load metric. After
 ``scaleFromZero.holdMinReplicasSeconds`` with no further ``RepositoryIndex`` requests,
 the ScaledObject minimum returns to ``keda.minReplicaCount``, and KEDA can scale back to zero.
+While the inference server has replicas but none is Ready, the hold is renewed instead, with no
+upper bound.
 
 .. code-block:: yaml
 
