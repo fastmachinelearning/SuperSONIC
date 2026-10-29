@@ -131,7 +131,7 @@ def _hold_until(scaled_object):
         return None
 
 
-def _starting_without_ready():
+def _replicas_but_none_ready():
     """True while the inference server has replicas but none of them is Ready."""
     deployment = _api_request(
         "GET",
@@ -192,7 +192,7 @@ def maybe_release(assume_held=False):
     restarted peer), and none releases while the annotation is still in the
     future. With assume_held, a missing annotation is treated as our own
     expired hold. An expired hold is renewed instead while the inference server
-    is still starting with no Ready replica. Returns False only on an API error."""
+    has replicas but none is Ready. Returns False only on an API error."""
     global _scaled_object_held
     try:
         scaled_object = _api_request("GET", _so_path())
@@ -208,13 +208,13 @@ def maybe_release(assume_held=False):
             patch["metadata"] = {"annotations": {HOLD_ANNOTATION: None}}
         if current_min != IDLE_MIN_REPLICAS and (hold_until is not None or assume_held):
             patch["spec"] = {"minReplicaCount": IDLE_MIN_REPLICAS}
-            if _starting_without_ready():
-                # Releasing now would let KEDA scale the starting replica back to zero.
+            if _replicas_but_none_ready():
+                # Releasing now would let KEDA scale to zero before a replica is Ready.
                 new_until = int(time.time()) + HOLD_TTL
                 patch = {"metadata": {"annotations": {HOLD_ANNOTATION: str(new_until)}}}
-                _log(f"{INFERENCE_SERVER_DEPLOYMENT} has no Ready replica yet; renewing the hold")
+                _log(f"{INFERENCE_SERVER_DEPLOYMENT} has no Ready replica; renewing the hold")
         if patch:
-            # Send the observed resourceVersion so this release conflicts (409)
+            # Send the observed resourceVersion so this patch conflicts (409)
             # instead of clobbering a wake that landed after the GET above.
             resource_version = (scaled_object.get("metadata") or {}).get(
                 "resourceVersion"
@@ -266,8 +266,8 @@ def _watch_loop():
                     if not _hold_active():
                         maybe_release(assume_held=True)
             elif now - last_sweep >= 60:
-                # Backstop: release an expired hold left behind by a crashed or
-                # restarted sidecar (ours or a peer's).
+                # Backstop for holds left behind by a crashed or restarted sidecar
+                # (ours or a peer's), and the only check of a renewed hold.
                 with _scale_lock:
                     maybe_release()
                 last_sweep = now
