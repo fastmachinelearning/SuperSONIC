@@ -9,7 +9,7 @@
   <title>Configuration Guide &mdash; SuperSONIC  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=cba22156" />
 
   
@@ -17,9 +17,9 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9a2dae69"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -451,7 +451,7 @@ under the <code class="docutils literal notranslate"><span class="pre">grafana</
 <p>The values you will most likely need to configure in your values file are related to
 Grafana Ingress for web access, and datasources to connect to Prometheus,</p>
 <figure class="align-center">
-<a class="reference internal image-reference" href="_images/grafana.png"><img alt="SuperSONIC Grafana Dashboard" src="_images/grafana.png" style="height: 200px;" />
+<a class="reference internal image-reference" href="_images/grafana.png"><img alt="SuperSONIC Grafana Dashboard" height="200" src="_images/grafana.png" />
 </a>
 </figure>
 </section>
@@ -502,7 +502,9 @@ used by CMS SONIC clients), SuperSONIC scales the inference server to <code clas
 replicas and returns the index only after Envoy has a healthy inference server upstream. KEDA then
 scales up to <code class="docutils literal notranslate"><span class="pre">maxReplicaCount</span></code> using the Prometheus load metric. After
 <code class="docutils literal notranslate"><span class="pre">scaleFromZero.holdMinReplicasSeconds</span></code> with no further <code class="docutils literal notranslate"><span class="pre">RepositoryIndex</span></code> requests,
-the ScaledObject minimum returns to <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code>, and KEDA can scale back to zero.</p>
+the ScaledObject minimum returns to <code class="docutils literal notranslate"><span class="pre">keda.minReplicaCount</span></code>, and KEDA can scale back to zero.
+While the inference server has replicas but none is Ready, the hold is renewed instead, with no
+upper bound.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">envoy</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
