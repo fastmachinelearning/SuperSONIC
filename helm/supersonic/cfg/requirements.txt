@@ -7,7 +7,7 @@ requests==2.34.2
 gunicorn==26.2.0
 # Transitive dependencies (pinned for reproducibility)
 blinker==1.9.0
-certifi==2026.7.22
+certifi==2026.10.23
 charset-normalizer==3.5.1
 click==8.5.0
 idna==3.19
